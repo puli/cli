@@ -11,7 +11,12 @@
     "require": {
         "php": ">=5.3.9",
         "puli/puli": "~1.0@dev",
-        "symfony/console": "~2.5"
+        "symfony/console": "~2.5",
+        "justinrainbow/json-schema": "~1.1",
+        "seld/jsonlint": "~1.0"
+    },
+    "require-dev": {
+        "symfony/filesystem": "~2.3"
     },
     "minimum-stability": "dev",
     "autoload": {

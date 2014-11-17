@@ -16,7 +16,11 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Puli\\Cli\\": "src/",
+            "Puli\\Cli\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Puli\\Cli\\Tests\\": "tests/"
         }
     },

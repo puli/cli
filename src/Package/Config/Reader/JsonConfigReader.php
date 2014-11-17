@@ -27,7 +27,7 @@ use Puli\Cli\Package\Config\TagDefinition;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PuliJsonReader implements ConfigReaderInterface
+class JsonConfigReader implements ConfigReaderInterface
 {
     /**
      * Reads package configuration from a JSON file.

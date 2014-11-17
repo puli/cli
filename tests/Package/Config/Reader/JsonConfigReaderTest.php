@@ -12,7 +12,7 @@
 namespace Puli\Cli\Tests\Package\Config\Reader;
 
 use Puli\Cli\Package\Config\PackageConfig;
-use Puli\Cli\Package\Config\Reader\PuliJsonReader;
+use Puli\Cli\Package\Config\Reader\JsonConfigReader;
 use Puli\Cli\Package\Config\ResourceDefinition;
 use Puli\Cli\Package\Config\TagDefinition;
 
@@ -20,16 +20,16 @@ use Puli\Cli\Package\Config\TagDefinition;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PuliJsonReaderTest extends \PHPUnit_Framework_TestCase
+class JsonConfigReaderTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var PuliJsonReader
+     * @var JsonConfigReader
      */
     private $reader;
 
     protected function setUp()
     {
-        $this->reader = new PuliJsonReader();
+        $this->reader = new JsonConfigReader();
     }
 
     public function testReadFullConfig()

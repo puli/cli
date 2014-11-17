@@ -23,7 +23,7 @@ use Seld\JsonLint\ParsingException;
  * Reads package configuration from a JSON file.
  *
  * The data in the JSON file is validated against the schema
- * `res/schema/puli-schema.json`.
+ * `res/schema/config-schema.json`.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -34,7 +34,7 @@ class PuliJsonReader implements ConfigReaderInterface
      * Reads package configuration from a JSON file.
      *
      * The data in the JSON file is validated against the schema
-     * `res/schema/puli-schema.json`.
+     * `res/schema/config-schema.json`.
      *
      * @param mixed $path The path to the JSON file.
      *
@@ -67,7 +67,7 @@ class PuliJsonReader implements ConfigReaderInterface
      * Reads root package configuration from a JSON file.
      *
      * The data in the JSON file is validated against the schema
-     * `res/schema/puli-schema.json`.
+     * `res/schema/config-schema.json`.
      *
      * @param mixed $path The path to the JSON file.
      *
@@ -127,7 +127,7 @@ class PuliJsonReader implements ConfigReaderInterface
 
     private function validateJsonData(\stdClass $jsonData, $path)
     {
-        $schemaFile = __DIR__.'/../../../../res/schema/puli-schema.json';
+        $schemaFile = __DIR__.'/../../../../res/schema/config-schema.json';
         $schema = json_decode(file_get_contents($schemaFile));
 
         $validator = new Validator();

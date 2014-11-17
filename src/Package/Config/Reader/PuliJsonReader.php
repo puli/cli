@@ -11,13 +11,12 @@
 
 namespace Puli\Cli\Package\Config\Reader;
 
-use JsonSchema\Validator;
+use Puli\Cli\Json\JsonReader;
+use Puli\Cli\Json\JsonReaderException;
 use Puli\Cli\Package\Config\PackageConfig;
 use Puli\Cli\Package\Config\ResourceDefinition;
 use Puli\Cli\Package\Config\RootPackageConfig;
 use Puli\Cli\Package\Config\TagDefinition;
-use Seld\JsonLint\JsonParser;
-use Seld\JsonLint\ParsingException;
 
 /**
  * Reads package configuration from a JSON file.
@@ -45,18 +44,19 @@ class PuliJsonReader implements ConfigReaderInterface
      */
     public function readConfig($path)
     {
-        if (!file_exists($path)) {
-            throw new ConfigReaderException(sprintf(
-                'The file "%s" does not exist.',
-                $path
-            ));
-        }
-
-        $jsonData = $this->readJsonData($path);
-
-        $this->validateJsonData($jsonData, $path);
-
+        $reader = new JsonReader();
         $config = new PackageConfig();
+        $schema = __DIR__.'/../../../../res/schema/config-schema.json';
+
+        try {
+            $jsonData = $reader->readJson($path, $schema);
+        } catch (JsonReaderException $e) {
+            throw new ConfigReaderException(sprintf(
+                'An error occurred while reading "%s": %s',
+                $path,
+                $e->getMessage()
+            ), 0, $e);
+        }
 
         $this->populateConfig($config, $jsonData);
 
@@ -78,75 +78,24 @@ class PuliJsonReader implements ConfigReaderInterface
      */
     public function readRootConfig($path)
     {
-        if (!file_exists($path)) {
-            throw new ConfigReaderException(sprintf(
-                'The file "%s" does not exist.',
-                $path
-            ));
-        }
-
-        $jsonData = $this->readJsonData($path);
-
-        $this->validateJsonData($jsonData, $path);
-
+        $reader = new JsonReader();
         $config = new RootPackageConfig();
+        $schema = __DIR__.'/../../../../res/schema/config-schema.json';
 
-        $this->populateConfig($config, $jsonData);
-        $this->populateRootConfig($config, $jsonData);
-
-        return $config;
-    }
-
-    private function readJsonData($path)
-    {
-        $contents = file_get_contents($path);
-        $jsonData = json_decode($contents);
-
-        // Data could not be decoded
-        if (null === $jsonData && null !== $contents) {
-            $parser = new JsonParser();
-            $e = $parser->lint($jsonData);
-
-            // No idea if there's a case where this can happen
-            if (!$e instanceof ParsingException) {
-                throw new ConfigReaderException(sprintf(
-                    'The file "%s" does not contain valid JSON.',
-                    $path
-                ));
-            }
-
+        try {
+            $jsonData = $reader->readJson($path, $schema);
+        } catch (JsonReaderException $e) {
             throw new ConfigReaderException(sprintf(
-                'The file "%s" does not contain valid JSON: %s',
+                'An error occurred while reading "%s": %s',
                 $path,
                 $e->getMessage()
             ), 0, $e);
         }
 
-        return $jsonData;
-    }
+        $this->populateConfig($config, $jsonData);
+        $this->populateRootConfig($config, $jsonData);
 
-    private function validateJsonData(\stdClass $jsonData, $path)
-    {
-        $schemaFile = __DIR__.'/../../../../res/schema/config-schema.json';
-        $schema = json_decode(file_get_contents($schemaFile));
-
-        $validator = new Validator();
-        $validator->check($jsonData, $schema);
-
-        if (!$validator->isValid()) {
-            $errors = '';
-
-            foreach ((array) $validator->getErrors() as $error) {
-                $prefix = $error['property'] ? $error['property'].': ' : '';
-                $errors .= "\n".$prefix.$error['message'];
-            }
-
-            throw new ConfigReaderException(sprintf(
-                "The file \"%s\" does not match the JSON schema:%s",
-                $path,
-                $errors
-            ));
-        }
+        return $config;
     }
 
     private function populateConfig(PackageConfig $config, \stdClass $jsonData)

@@ -71,54 +71,6 @@ class PuliJsonReaderTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \Puli\Cli\Package\Config\Reader\ConfigReaderException
      */
-    public function testReadConfigFailsIfInvalidJson()
-    {
-        $this->reader->readConfig(__DIR__.'/Fixtures/invalid.json');
-    }
-
-    /**
-     * @expectedException \Puli\Cli\Package\Config\Reader\ConfigReaderException
-     */
-    public function testReadRootConfigFailsIfInvalidJson()
-    {
-        $this->reader->readRootConfig(__DIR__.'/Fixtures/invalid.json');
-    }
-
-    /**
-     * @expectedException \Puli\Cli\Package\Config\Reader\ConfigReaderException
-     */
-    public function testReadConfigFailsIfNotUtf8()
-    {
-        $this->reader->readConfig(__DIR__.'/Fixtures/win-1258.json');
-    }
-
-    /**
-     * @expectedException \Puli\Cli\Package\Config\Reader\ConfigReaderException
-     */
-    public function testReadRootConfigFailsIfNotUtf8()
-    {
-        $this->reader->readRootConfig(__DIR__.'/Fixtures/win-1258.json');
-    }
-
-    /**
-     * @expectedException \Puli\Cli\Package\Config\Reader\ConfigReaderException
-     */
-    public function testReadConfigFailsIfNotFound()
-    {
-        $this->reader->readConfig(__DIR__.'/bogus.json');
-    }
-
-    /**
-     * @expectedException \Puli\Cli\Package\Config\Reader\ConfigReaderException
-     */
-    public function testReadRootConfigFailsIfNotFound()
-    {
-        $this->reader->readRootConfig(__DIR__.'/bogus.json');
-    }
-
-    /**
-     * @expectedException \Puli\Cli\Package\Config\Reader\ConfigReaderException
-     */
     public function testReadConfigValidatesSchema()
     {
         $this->reader->readConfig(__DIR__.'/Fixtures/extra-prop.json');

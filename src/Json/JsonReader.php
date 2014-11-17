@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Json;
 
+use JsonSchema\Exception\InvalidArgumentException;
 use JsonSchema\Validator;
 use Seld\JsonLint\JsonParser;
 use Seld\JsonLint\ParsingException;
@@ -31,13 +32,14 @@ class JsonReader
      *
      * @return mixed The content of the JSON file.
      *
-     * @throws JsonReaderException If the file could not be read or validation
-     *                             failed.
+     * @throws FileNotFoundException If the file was not found.
+     * @throws SchemaLoadingException If the schema could not be loaded.
+     * @throws InvalidJsonException If the file does not match the schema.
      */
     public function readJson($path, $schemaPath)
     {
         if (!file_exists($path)) {
-            throw new JsonReaderException(sprintf(
+            throw new FileNotFoundException(sprintf(
                 'The file "%s" does not exist.',
                 $path
             ));
@@ -62,13 +64,13 @@ class JsonReader
 
             // No idea if there's a case where this can happen
             if (!$e instanceof ParsingException) {
-                throw new JsonReaderException(sprintf(
+                throw new InvalidJsonException(sprintf(
                     'The file "%s" does not contain valid JSON.',
                     $path
                 ));
             }
 
-            throw new JsonReaderException(sprintf(
+            throw new InvalidJsonException(sprintf(
                 'The file "%s" does not contain valid JSON: %s',
                 $path,
                 $e->getMessage()
@@ -81,7 +83,7 @@ class JsonReader
     private function validateJsonData($jsonData, $path, $schemaPath)
     {
         if (!file_exists($schemaPath)) {
-            throw new JsonReaderException(sprintf(
+            throw new SchemaLoadingException(sprintf(
                 'The schema file "%s" does not exist.',
                 $schemaPath
             ));
@@ -90,7 +92,16 @@ class JsonReader
         $schema = json_decode(file_get_contents($schemaPath));
 
         $validator = new Validator();
-        $validator->check($jsonData, $schema);
+
+        try {
+            $validator->check($jsonData, $schema);
+        } catch (InvalidArgumentException $e) {
+            throw new SchemaLoadingException(sprintf(
+                'The schema file "%s" is invalid: %s',
+                $schemaPath,
+                $e->getMessage()
+            ), 0, $e);
+        }
 
         if (!$validator->isValid()) {
             $errors = '';
@@ -100,7 +111,7 @@ class JsonReader
                 $errors .= "\n".$prefix.$error['message'];
             }
 
-            throw new JsonReaderException(sprintf(
+            throw new InvalidJsonException(sprintf(
                 "The file \"%s\" does not match the defined JSON schema:%s",
                 $path,
                 $errors

@@ -12,11 +12,11 @@
 namespace Puli\Cli\Json;
 
 /**
- * Thrown when an error occurs while reading a JSON file.
+ * Thrown when a file was not found.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class JsonReaderException extends \Exception
+class FileNotFoundException extends \Exception
 {
 }

@@ -12,7 +12,7 @@
 namespace Puli\Cli\Package\Config\Reader;
 
 use Puli\Cli\Json\JsonReader;
-use Puli\Cli\Json\JsonReaderException;
+use Puli\Cli\Json\InvalidJsonException;
 use Puli\Cli\Package\Config\PackageConfig;
 use Puli\Cli\Package\Config\ResourceDefinition;
 use Puli\Cli\Package\Config\RootPackageConfig;
@@ -50,7 +50,7 @@ class PuliJsonReader implements ConfigReaderInterface
 
         try {
             $jsonData = $reader->readJson($path, $schema);
-        } catch (JsonReaderException $e) {
+        } catch (InvalidJsonException $e) {
             throw new ConfigReaderException(sprintf(
                 'An error occurred while reading "%s": %s',
                 $path,
@@ -84,7 +84,7 @@ class PuliJsonReader implements ConfigReaderInterface
 
         try {
             $jsonData = $reader->readJson($path, $schema);
-        } catch (JsonReaderException $e) {
+        } catch (InvalidJsonException $e) {
             throw new ConfigReaderException(sprintf(
                 'An error occurred while reading "%s": %s',
                 $path,

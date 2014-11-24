@@ -11,9 +11,9 @@
     "require": {
         "php": ">=5.3.9",
         "puli/puli": "~1.0@dev",
-        "symfony/console": "~2.5",
-        "justinrainbow/json-schema": "~1.1",
-        "seld/jsonlint": "~1.0"
+        "puli/puli-package-manager": "~1.0@dev",
+        "puli/json": "~1.0@dev",
+        "symfony/console": "~2.5"
     },
     "require-dev": {
         "symfony/filesystem": "~2.3"

@@ -11,9 +11,11 @@
 
 namespace Puli\Cli\Console;
 
+use Puli\Cli\Console\Command\ListCommand;
 use Puli\Cli\Console\Command\UpdateCommand;
 use Puli\Cli\PuliCli;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\HelpCommand;
 
 /**
  * @since  1.0
@@ -26,12 +28,15 @@ class PuliCliApplication extends Application
         parent::__construct('Puli', PuliCli::VERSION);
 
         $this->setCatchExceptions(true);
+        $this->setDefaultCommand('help');
     }
 
     protected function getDefaultCommands()
     {
         return array_merge(parent::getDefaultCommands(), array(
+            new HelpCommand(),
             new UpdateCommand(),
+            new ListCommand(),
         ));
     }
 }

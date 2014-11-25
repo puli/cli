@@ -20,13 +20,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class UpdateCommand extends Command
+class DumpCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('update')
-            ->setDescription('Updates the generated Puli repository.')
+            ->setName('dump')
+            ->setDescription('(Re-)Generates the resource repository.')
         ;
     }
 

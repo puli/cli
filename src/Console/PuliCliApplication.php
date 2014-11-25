@@ -13,6 +13,7 @@ namespace Puli\Cli\Console;
 
 use Puli\Cli\Console\Command\ListCommand;
 use Puli\Cli\Console\Command\DumpCommand;
+use Puli\Cli\Console\Command\PackageCommand;
 use Puli\Cli\PuliCli;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\HelpCommand;
@@ -37,6 +38,7 @@ class PuliCliApplication extends Application
             new HelpCommand(),
             new DumpCommand(),
             new ListCommand(),
+            new PackageCommand(),
         ));
     }
 }

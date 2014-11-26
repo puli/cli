@@ -11,7 +11,7 @@
 
 namespace Puli\Cli\Console\Command;
 
-use Puli\PackageManager\ManagerFactory;
+use Puli\RepositoryManager\ManagerFactory;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,8 +33,8 @@ class DumpCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
-        $manager = ManagerFactory::createPackageManager($environment);
+        $manager = ManagerFactory::createRepositoryManager($environment);
 
-        $manager->generateResourceRepository();
+        $manager->dumpRepository();
     }
 }

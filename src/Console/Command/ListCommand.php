@@ -11,11 +11,9 @@
 
 namespace Puli\Cli\Console\Command;
 
-use Puli\PackageManager\ManagerFactory;
-use Puli\Repository\ResourceRepositoryInterface;
+use Puli\RepositoryManager\ManagerFactory;
 use Puli\Resource\DirectoryResourceInterface;
 use Puli\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Util\Path;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,7 +41,7 @@ class ListCommand extends Command
     {
         /** @var ConsoleOutputInterface $output */
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
-        $repo = ManagerFactory::createResourceRepository($environment);
+        $repo = ManagerFactory::createRepository($environment);
 
         $directory = $repo->get($input->getArgument('directory'));
 

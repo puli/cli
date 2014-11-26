@@ -11,18 +11,10 @@
 
 namespace Puli\Cli\Console\Command;
 
-use Puli\PackageManager\ManagerFactory;
-use Puli\PackageManager\Package\Package;
-use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Resource\DirectoryResourceInterface;
-use Puli\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Util\Path;
+use Puli\RepositoryManager\ManagerFactory;
+use Puli\RepositoryManager\Package\Package;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -44,7 +36,8 @@ class PackageCommand extends Command
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
         $manager = ManagerFactory::createPackageManager($environment);
 
-        $packageNames = array_map(function (Package $p) { return $p->getName(); }, $manager->getPackages());
+        $packages = $manager->getPackages()->toArray();
+        $packageNames = array_map(function (Package $p) { return $p->getName(); }, $packages);
 
         sort($packageNames);
 

@@ -11,8 +11,7 @@
     "require": {
         "php": ">=5.3.9",
         "puli/puli": "~1.0@dev",
-        "puli/puli-package-manager": "~1.0@dev",
-        "puli/json": "~1.0@dev",
+        "puli/puli-repository-manager": "~1.0@dev",
         "symfony/console": "~2.5"
     },
     "require-dev": {

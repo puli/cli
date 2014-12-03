@@ -11,9 +11,9 @@
 
 namespace Puli\Cli\Console\Command;
 
+use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\RepositoryManager\ManagerFactory;
-use Puli\Resource\DirectoryResourceInterface;
-use Puli\Resource\Iterator\ResourceCollectionIterator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

@@ -17,7 +17,7 @@
     "require-dev": {
         "symfony/filesystem": "~2.3"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "alpha",
     "autoload": {
         "psr-4": {
             "Puli\\Cli\\": "src/"

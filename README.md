@@ -1,7 +1,7 @@
 The Puli CLI
 ============
 
-[![Build Status](https://travis-ci.org/puli/cli.svg)](https://travis-ci.org/puli/cli)
+[![Build Status](https://travis-ci.org/puli/cli.svg?branch=master)](https://travis-ci.org/puli/cli)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/cli/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/cli/?branch=master)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/96bbb04c-f5c3-47c2-8e43-1f92d26f7c3a/mini.png)](https://insight.sensiolabs.com/projects/96bbb04c-f5c3-47c2-8e43-1f92d26f7c3a)
 [![Latest Stable Version](https://poser.pugx.org/puli/cli/v/stable.png)](https://packagist.org/packages/puli/cli)

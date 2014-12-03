@@ -10,8 +10,8 @@
     ],
     "require": {
         "php": ">=5.3.9",
-        "puli/repository": "~1.0@dev",
-        "puli/repository-manager": "~1.0@dev",
+        "puli/repository": "~1.0",
+        "puli/repository-manager": "~1.0",
         "symfony/console": "~2.5"
     },
     "require-dev": {

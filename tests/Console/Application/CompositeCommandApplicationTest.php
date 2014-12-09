@@ -125,6 +125,11 @@ class CompositeCommandApplicationTest extends \PHPUnit_Framework_TestCase
             array('package add-alias -v 1 arg', '"package add -v1 arg" executed'),
             array('package add-alias --value="1" arg', '"package add -v1 arg" executed'),
             array('package add-alias --value=\'1\' arg', '"package add -v1 arg" executed'),
+
+            // Empty -> default command
+            array('', '"package" executed'),
+            array(' ', '"package" executed'),
+            array('      ', '"package" executed'),
         );
     }
 

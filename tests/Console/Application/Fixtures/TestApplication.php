@@ -21,6 +21,13 @@ use Symfony\Component\Console\Input\InputDefinition;
  */
 class TestApplication extends CompositeCommandApplication
 {
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->setDefaultCommand('package');
+    }
+
     protected function getDefaultCommands()
     {
         return array(
@@ -37,5 +44,4 @@ class TestApplication extends CompositeCommandApplication
             new InputArgument('command', InputArgument::REQUIRED, 'The command to execute'),
         ));
     }
-
 }

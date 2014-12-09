@@ -38,7 +38,10 @@ abstract class CompositeCommandApplication extends Application
     {
         // Extract the first two arguments of the commands
         // The sub-command must be written before any options
-        preg_match('/^(\S+)(\s+([^-]\S*))?/', (string) $input, $matches);
+        if (!preg_match('/^(\S+)(\s+([^-]\S*))?/', (string) $input, $matches)) {
+            // Empty string
+            return null;
+        }
 
         if (isset($matches[3])) {
             return $matches[1].' '.$matches[3];

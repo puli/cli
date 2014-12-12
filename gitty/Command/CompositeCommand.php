@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the puli/cli package.
+ * This file is part of the webmozart/gitty package.
  *
  * (c) Bernhard Schussek <bschussek@gmail.com>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Cli\Console\Command;
+namespace Webmozart\Gitty\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

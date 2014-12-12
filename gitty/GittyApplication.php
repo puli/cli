@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the puli/cli package.
+ * This file is part of the webmozart/gitty package.
  *
  * (c) Bernhard Schussek <bschussek@gmail.com>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Cli\Console\Application;
+namespace Webmozart\Gitty;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,7 +29,7 @@ use Symfony\Component\Console\Input\InputInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class CompositeCommandApplication extends Application
+abstract class GittyApplication extends Application
 {
     /**
      * {@inheritdoc}

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the puli/cli package.
+ * This file is part of the webmozart/gitty package.
  *
  * (c) Bernhard Schussek <bschussek@gmail.com>
  *
@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Cli\Tests\Console\Application\Fixtures;
+namespace Webmozart\Gitty\Tests\Fixtures;
 
-use Puli\Cli\Console\Application\CompositeCommandApplication;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
+use Webmozart\Gitty\GittyApplication;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestApplication extends CompositeCommandApplication
+class TestApplication extends GittyApplication
 {
     public function __construct()
     {

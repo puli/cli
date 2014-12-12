@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the puli/cli package.
+ * This file is part of the webmozart/gitty package.
  *
  * (c) Bernhard Schussek <bschussek@gmail.com>
  *
@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Cli\Tests\Console\Application\Fixtures;
+namespace Webmozart\Gitty\Tests\Fixtures;
 
-use Puli\Cli\Console\Command\CompositeCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -21,13 +21,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestPackageAddCommand extends CompositeCommand
+class TestPackageCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('package add')
-            ->setAliases(array('package add-alias'))
+            ->setName('package')
+            ->setAliases(array('package-alias'))
             ->addArgument('arg', InputArgument::OPTIONAL)
             ->addOption('option', 'o', InputOption::VALUE_NONE)
             ->addOption('value', 'v', InputOption::VALUE_REQUIRED)
@@ -40,6 +40,6 @@ class TestPackageAddCommand extends CompositeCommand
         $opt = $input->getOption('option');
         $val = $input->getOption('value');
 
-        $output->write('"package add'.($opt ? ' -o' : '').($val ? ' -v'.$val : '').($arg ? ' '.$arg : '').'" executed');
+        $output->write('"package'.($opt ? ' -o' : '').($val ? ' -v'.$val : '').($arg ? ' '.$arg : '').'" executed');
     }
 }

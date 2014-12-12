@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the puli/cli package.
+ * This file is part of the webmozart/gitty package.
  *
  * (c) Bernhard Schussek <bschussek@gmail.com>
  *
@@ -11,15 +11,15 @@
 
 namespace Puli\Cli\Tests\Console\Application;
 
-use Puli\Cli\Tests\Console\Application\Fixtures\TestApplication;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Webmozart\Gitty\Tests\Fixtures\TestApplication;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class CompositeCommandApplicationTest extends \PHPUnit_Framework_TestCase
+class GittyApplicationTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var TestApplication

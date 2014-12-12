@@ -20,12 +20,14 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Puli\\Cli\\": "src/"
+            "Puli\\Cli\\": "src/",
+            "Webmozart\\Gitty\\": "gitty/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Puli\\Cli\\Tests\\": "tests/"
+            "Puli\\Cli\\Tests\\": "tests/",
+            "Webmozart\\Gitty\\Tests\\": "gitty-tests/"
         }
     },
     "bin": ["bin/puli"],

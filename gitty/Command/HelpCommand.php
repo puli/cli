@@ -27,6 +27,21 @@ use Webmozart\Gitty\Descriptor\DefaultDescriptor;
 class HelpCommand extends Command
 {
     /**
+     * @var array
+     */
+    private $options;
+
+    /**
+     * Creates the command.
+     *
+     * @param array $options The options passed to the descriptor by default.
+     */
+    public function __construct(array $options = array())
+    {
+        $this->options = $options;
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -54,10 +69,11 @@ class HelpCommand extends Command
         $object = $this->parseObject($input);
 
         $descriptor = new DefaultDescriptor();
-
-        return $descriptor->describe($output, $object, array(
+        $options = array_replace($this->options, array(
             'input' => $input,
         ));
+
+        return $descriptor->describe($output, $object, $options);
     }
 
     protected function parseObject(InputInterface $input)

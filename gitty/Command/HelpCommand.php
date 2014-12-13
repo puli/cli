@@ -38,6 +38,8 @@ class HelpCommand extends Command
      */
     public function __construct(array $options = array())
     {
+        parent::__construct();
+
         $this->options = $options;
     }
 
@@ -52,7 +54,7 @@ class HelpCommand extends Command
             ->setName('help')
             ->setDescription('Displays help for a command')
             ->addArgument('command', InputArgument::OPTIONAL, 'The command name')
-            ->addArgument('sub-command', InputArgument::OPTIONAL, 'The sub command')
+            ->addArgument('sub-command', InputArgument::OPTIONAL, 'The sub command name')
             ->addOption('man', 'm', InputOption::VALUE_NONE, 'To output help as man page')
             ->addOption('ascii-doc', null, InputOption::VALUE_NONE, 'To output help as AsciiDoc')
             ->addOption('text', 't', InputOption::VALUE_NONE, 'To output help as text')

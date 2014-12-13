@@ -31,7 +31,7 @@ class ProcessLauncher
     /**
      * @var float
      */
-    private $checkInterval = 1.0;
+    private $checkInterval = 0.1;
 
     /**
      * Returns whether the launcher is supported on the current system.

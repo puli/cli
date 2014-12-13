@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Cli\Console\Command;
+namespace Puli\Cli\Command;
 
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;

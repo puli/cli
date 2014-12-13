@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Cli\Console\Command;
+namespace Puli\Cli\Command;
 
 use Puli\RepositoryManager\ManagerFactory;
 use Puli\RepositoryManager\Package\Package;

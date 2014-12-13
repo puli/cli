@@ -40,7 +40,7 @@ class TestApplication extends GittyApplication
     protected function getDefaultInputDefinition()
     {
         return new InputDefinition(array(
-            new InputArgument('main-command', InputArgument::REQUIRED, 'The command to launch'),
+            new InputArgument(GittyApplication::MAIN_COMMAND_ARG, InputArgument::REQUIRED, 'The command to launch'),
             new InputOption('help', 'h', InputOption::VALUE_NONE, 'Help')
         ));
     }

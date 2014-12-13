@@ -209,9 +209,17 @@ abstract class GittyApplication extends Application
         if ($input->hasParameterOption(array('-h', '--help'))) {
             // If the application was launched with a help option, rewrite
             // input to use the "help" command
-            $inputString = 'help '.$command->getName();
+            // "-h" => "help -h"
+            // "--help" => "help --help"
+            $inputString = 'help';
 
-            // Remember which help option was given, if any
+            // Add the command name to get help for
+            // "package -h" => "help package -h"
+            // "package --help" => "help package --help"
+            if (null !== $input->getFirstArgument()) {
+                $inputString .= ' '.$command->getName();
+            }
+
             if ($input->hasParameterOption('--help')) {
                 $inputString .= ' --help';
             }
@@ -226,6 +234,7 @@ abstract class GittyApplication extends Application
             // If the application was launched with the default command, we need
             // to fix the input instance here, otherwise we'll have a validation
             // error (missing argument) later on.
+            // "" => "help"
             $input = new StringInput($command->getName());
         }
 

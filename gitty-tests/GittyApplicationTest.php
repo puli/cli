@@ -203,6 +203,8 @@ class GittyApplicationTest extends \PHPUnit_Framework_TestCase
         return array(
             array(''),
             array('help'),
+            array('-h'),
+            array('--help --text'),
         );
     }
 
@@ -242,7 +244,6 @@ EOF;
     public function getInputForHelpUsage()
     {
         return array(
-            array('-h'),
             array('help -h'),
             array('help --text help'),
             array('help help --text'),
@@ -252,9 +253,9 @@ EOF;
     /**
      * @dataProvider getInputForHelpUsage
      */
-    public function testPrintHelpUsage()
+    public function testPrintHelpUsage($inputString)
     {
-        $input = new StringInput('-h');
+        $input = new StringInput($inputString);
         $output = new BufferedOutput();
 
         $this->app->run($input, $output);
@@ -264,17 +265,16 @@ Usage:
  help [-m|--man] [--ascii-doc] [-t|--text] [-x|--xml] [-j|--json] [command] [sub-command]
 
 Arguments:
- main-command  The command to launch
- command       The command name
- sub-command   The sub command
+ command      The command name
+ sub-command  The sub command name
 
 Options:
- --man (-m)    To output help as man page
- --ascii-doc   To output help as AsciiDoc
- --text (-t)   To output help as text
- --xml (-x)    To output help as XML
- --json (-j)   To output help as JSON
- --help (-h)   Help
+ --man (-m)   To output help as man page
+ --ascii-doc  To output help as AsciiDoc
+ --text (-t)  To output help as text
+ --xml (-x)   To output help as XML
+ --json (-j)  To output help as JSON
+ --help (-h)  Help
 
 
 EOF;

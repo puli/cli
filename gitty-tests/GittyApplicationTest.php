@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Cli\Tests\Console\Application;
+namespace Webmozart\Gitty\Tests;
 
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -125,11 +125,6 @@ class GittyApplicationTest extends \PHPUnit_Framework_TestCase
             array('package add-alias -v 1 arg', '"package add -v1 arg" executed'),
             array('package add-alias --value="1" arg', '"package add -v1 arg" executed'),
             array('package add-alias --value=\'1\' arg', '"package add -v1 arg" executed'),
-
-            // Empty -> default command
-            array('', '"package" executed'),
-            array(' ', '"package" executed'),
-            array('      ', '"package" executed'),
         );
     }
 
@@ -201,5 +196,165 @@ class GittyApplicationTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('\InvalidArgumentException', '~'.$expectedMessage.'~s');
 
         $this->app->run($input, $output);
+    }
+
+    public function getInputForCommandListAsText()
+    {
+        return array(
+            array(''),
+            array('help'),
+        );
+    }
+
+    /**
+     * @dataProvider getInputForCommandListAsText
+     */
+    public function testPrintCommandListAsText($inputString)
+    {
+        $input = new StringInput($inputString);
+        $output = new BufferedOutput();
+
+        $this->app->run($input, $output);
+
+        $expected = <<<EOF
+Test Application version 1.0.0
+
+Usage:
+ [options] command [arguments]
+
+Options:
+ --help (-h) Help
+
+Available commands:
+ help            Displays help for a command
+ pack            Description of "pack"
+ package         Description of "package"
+ package add     Description of "package add"
+ package add-alias Description of "package add"
+ package addon   Description of "package addon"
+ package-alias   Description of "package"
+
+EOF;
+
+        $this->assertSame($expected, $output->fetch());
+    }
+
+    public function getInputForHelpUsage()
+    {
+        return array(
+            array('-h'),
+            array('help -h'),
+            array('help --text help'),
+            array('help help --text'),
+        );
+    }
+
+    /**
+     * @dataProvider getInputForHelpUsage
+     */
+    public function testPrintHelpUsage()
+    {
+        $input = new StringInput('-h');
+        $output = new BufferedOutput();
+
+        $this->app->run($input, $output);
+
+        $expected = <<<EOF
+Usage:
+ help [-m|--man] [--ascii-doc] [-t|--text] [-x|--xml] [-j|--json] [command] [sub-command]
+
+Arguments:
+ main-command  The command to launch
+ command       The command name
+ sub-command   The sub command
+
+Options:
+ --man (-m)    To output help as man page
+ --ascii-doc   To output help as AsciiDoc
+ --text (-t)   To output help as text
+ --xml (-x)    To output help as XML
+ --json (-j)   To output help as JSON
+ --help (-h)   Help
+
+
+EOF;
+
+        $this->assertSame($expected, $output->fetch());
+    }
+
+    public function getInputForCommandUsage()
+    {
+        return array(
+            array('package -h'),
+            array('help --text package'),
+            array('help package --text'),
+        );
+    }
+
+    /**
+     * @dataProvider getInputForCommandUsage
+     */
+    public function testPrintCommandUsage($inputString)
+    {
+        $input = new StringInput($inputString);
+        $output = new BufferedOutput();
+
+        $this->app->run($input, $output);
+
+        $expected = <<<EOF
+Usage:
+ package [-o|--option] [-v|--value="..."] [arg]
+
+Aliases: package-alias
+Arguments:
+ arg           The "arg" argument
+
+Options:
+ --option (-o) The "option" option
+ --value (-v)  The "value" option
+ --help (-h)   Help
+
+
+EOF;
+
+        $this->assertSame($expected, $output->fetch());
+    }
+
+    public function getInputForCompositeCommandUsage()
+    {
+        return array(
+            array('package add -h'),
+            array('help --text package add'),
+            array('help package add --text'),
+        );
+    }
+
+    /**
+     * @dataProvider getInputForCompositeCommandUsage
+     */
+    public function testPrintCompositeCommandUsage($inputString)
+    {
+        $input = new StringInput($inputString);
+        $output = new BufferedOutput();
+
+        $this->app->run($input, $output);
+
+        $expected = <<<EOF
+Usage:
+ package add [-o|--option] [-v|--value="..."] [arg]
+
+Aliases: package add-alias
+Arguments:
+ arg           The "arg" argument.
+
+Options:
+ --option (-o) The "option" option.
+ --value (-v)  The "value" option.
+ --help (-h)   Help
+
+
+EOF;
+
+        $this->assertSame($expected, $output->fetch());
     }
 }

@@ -12,7 +12,15 @@
 namespace Webmozart\Gitty;
 
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\Gitty\Command\HelpCommand;
+use Webmozart\Gitty\Descriptor\TextDescriptor;
 
 /**
  * A console application with support for composite commands.
@@ -31,23 +39,43 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 abstract class GittyApplication extends Application
 {
+    const MAIN_COMMAND_ARG = 'command1';
+
+    const SUB_COMMAND_ARG = 'command2';
+
+    private $defaultCommand;
+
+    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
+    {
+        parent::__construct($name, $version);
+
+        $this->setDefaultCommand('help');
+    }
+
+    public function setDefaultCommand($commandName)
+    {
+        parent::setDefaultCommand($commandName);
+
+        // We cannot access the private parent variable, so store the default
+        // command in a separate variable
+        $this->defaultCommand = $commandName;
+    }
+
     /**
      * {@inheritdoc}
      */
-    protected function getCommandName(InputInterface $input)
+    public function get($name)
     {
-        // Extract the first two arguments of the commands
-        // The sub-command must be written before any options
-        if (!preg_match('/^(\S+)(\s+([^-]\S*))?/', (string) $input, $matches)) {
-            // Empty string
-            return null;
+        // Override parent method to not return the help command
+        // The command change for the options "-h" and "--help" is implemented
+        // in doRunCommand() instead
+        $commands = $this->all();
+
+        if (!isset($commands[$name])) {
+            throw new \InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
         }
 
-        if (isset($matches[3])) {
-            return $matches[1].' '.$matches[3];
-        }
-
-        return $matches[1];
+        return $commands[$name];
     }
 
     /**
@@ -122,6 +150,87 @@ abstract class GittyApplication extends Application
 
         // Otherwise suggest simple matches{
         throw $this->createCommandAmbiguousException($name, $simpleMatches);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommandName(InputInterface $input)
+    {
+        // Extract the first two arguments of the commands
+        // The sub-command must be written before any options
+        if (!preg_match('/^([^-]\S*)(\s+([^-]\S*))?/', (string) $input, $matches)) {
+            // No command
+            // Don't return null, otherwise the parent class erases the input
+            return $this->defaultCommand;
+        }
+
+        if (isset($matches[3])) {
+            // Composite command or simple command with argument
+            // This case is resolved in find()
+            return $matches[1].' '.$matches[3];
+        }
+
+        // Simple command
+        return $matches[1];
+    }
+
+    /**
+     * Gets the default input definition.
+     *
+     * @return InputDefinition An InputDefinition instance
+     */
+    protected function getDefaultInputDefinition()
+    {
+        return new InputDefinition(array(
+            new InputArgument(self::MAIN_COMMAND_ARG, InputArgument::REQUIRED, 'The command to validateAndLaunch'),
+
+            new InputOption('help', 'h', InputOption::VALUE_NONE, 'Display help about the command.'),
+            new InputOption('quiet', 'q', InputOption::VALUE_NONE, 'Do not output any message.'),
+            new InputOption('verbose', 'v|vv|vvv', InputOption::VALUE_NONE, 'Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug.'),
+            new InputOption('version', 'V', InputOption::VALUE_NONE, 'Display this application version.'),
+            new InputOption('ansi', '', InputOption::VALUE_NONE, 'Force ANSI output.'),
+            new InputOption('no-ansi', '', InputOption::VALUE_NONE, 'Disable ANSI output.'),
+            new InputOption('no-interaction', 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.'),
+        ));
+    }
+
+    /**
+     * Gets the default commands that should always be available.
+     *
+     * @return Command[] An array of default Command instances
+     */
+    protected function getDefaultCommands()
+    {
+        return array(new HelpCommand());
+    }
+
+    protected function doRunCommand(Command $command, InputInterface $input, OutputInterface $output)
+    {
+        if ($input->hasParameterOption(array('-h', '--help'))) {
+            // If the application was launched with a help option, rewrite
+            // input to use the "help" command
+            $inputString = 'help '.$command->getName();
+
+            // Remember which help option was given, if any
+            if ($input->hasParameterOption('--help')) {
+                $inputString .= ' --help';
+            }
+
+            if ($input->hasParameterOption('-h')) {
+                $inputString .= ' -h';
+            }
+
+            $input = new StringInput($inputString);
+            $command = $this->get('help');
+        } elseif (null === $input->getFirstArgument()) {
+            // If the application was launched with the default command, we need
+            // to fix the input instance here, otherwise we'll have a validation
+            // error (missing argument) later on.
+            $input = new StringInput($command->getName());
+        }
+
+        return parent::doRunCommand($command, $input, $output);
     }
 
     private function createCommandNotDefinedException($name, $mainCommand, $subOrArg)

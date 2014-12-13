@@ -13,6 +13,7 @@ namespace Webmozart\Gitty\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
+use Webmozart\Gitty\GittyApplication;
 
 /**
  * A composite command.
@@ -38,10 +39,19 @@ class CompositeCommand extends Command
         if (false === strpos($this->getName(), ' ')) {
             throw new \RuntimeException('Missing space in the name of the composite command.');
         }
+    }
+
+    public function mergeApplicationDefinition($mergeArgs = true)
+    {
+        parent::mergeApplicationDefinition($mergeArgs);
 
         $inputDefinition = $this->getDefinition();
-        $arguments = $inputDefinition->getArguments();
-        $inputDefinition->setArguments(array(new InputArgument('sub-command', InputArgument::REQUIRED)));
-        $inputDefinition->addArguments($arguments);
+
+        if ($mergeArgs && !$inputDefinition->hasArgument(GittyApplication::SUB_COMMAND_ARG)) {
+            $arguments = $inputDefinition->getArguments();
+            $inputDefinition->setArguments(array(new InputArgument(GittyApplication::SUB_COMMAND_ARG, InputArgument::REQUIRED)));
+            $inputDefinition->addArguments($arguments);
+        }
     }
+
 }

@@ -12,21 +12,20 @@
 namespace Webmozart\Gitty\Command;
 
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\Gitty\Descriptor\DefaultDescriptor;
 
 /**
+ * The "help" command.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
- * @author Fabien Potencier <fabien@symfony.com>
  */
 class HelpCommand extends Command
 {
-    private $command;
-
     /**
      * {@inheritdoc}
      */
@@ -37,24 +36,14 @@ class HelpCommand extends Command
         $this
             ->setName('help')
             ->setDescription('Displays help for a command')
-            ->addArgument('command', InputArgument::OPTIONAL)
-            ->setDefinition(array(
-                new InputArgument('command', InputArgument::OPTIONAL, 'The command name'),
-                new InputOption('xml', null, InputOption::VALUE_NONE, 'To output help as XML'),
-                new InputOption('format', null, InputOption::VALUE_REQUIRED, 'To output help in other formats', 'txt'),
-                new InputOption('raw', null, InputOption::VALUE_NONE, 'To output raw command help'),
-            ))
+            ->addArgument('command', InputArgument::OPTIONAL, 'The command name')
+            ->addArgument('sub-command', InputArgument::OPTIONAL, 'The sub command')
+            ->addOption('man', 'm', InputOption::VALUE_NONE, 'To output help as man page')
+            ->addOption('ascii-doc', null, InputOption::VALUE_NONE, 'To output help as AsciiDoc')
+            ->addOption('text', 't', InputOption::VALUE_NONE, 'To output help as text')
+            ->addOption('xml', 'x', InputOption::VALUE_NONE, 'To output help as XML')
+            ->addOption('json', 'j', InputOption::VALUE_NONE, 'To output help as JSON')
         ;
-    }
-
-    /**
-     * Sets the command
-     *
-     * @param Command $command The command to set
-     */
-    public function setCommand(Command $command)
-    {
-        $this->command = $command;
     }
 
     /**
@@ -62,20 +51,29 @@ class HelpCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if (null === $this->command) {
-            $this->command = $this->getApplication()->find($input->getArgument('command_name'));
-        }
+        $object = $this->parseObject($input);
 
-        if ($input->getOption('xml')) {
-            $input->setOption('format', 'xml');
-        }
+        $descriptor = new DefaultDescriptor();
 
-        $helper = new DescriptorHelper();
-        $helper->describe($output, $this->command, array(
-            'format' => $input->getOption('format'),
-            'raw' => $input->getOption('raw'),
+        return $descriptor->describe($output, $object, array(
+            'input' => $input,
         ));
+    }
 
-        $this->command = null;
+    protected function parseObject(InputInterface $input)
+    {
+        // Describe the command
+        if ($input->getArgument('command')) {
+            $commandName = $input->getArgument('command');
+
+            if ($input->getArgument('sub-command')) {
+                $commandName .= ' '.$input->getArgument('sub-command');
+            }
+
+            return $this->getApplication()->get($commandName);
+        }
+
+        // If no command and no option is set, print the command list
+        return $this->getApplication();
     }
 }

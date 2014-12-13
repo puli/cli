@@ -28,9 +28,10 @@ class TestPackageCommand extends Command
         $this
             ->setName('package')
             ->setAliases(array('package-alias'))
-            ->addArgument('arg', InputArgument::OPTIONAL)
-            ->addOption('option', 'o', InputOption::VALUE_NONE)
-            ->addOption('value', 'v', InputOption::VALUE_REQUIRED)
+            ->setDescription('Description of "package"')
+            ->addArgument('arg', InputArgument::OPTIONAL, 'The "arg" argument')
+            ->addOption('option', 'o', InputOption::VALUE_NONE, 'The "option" option')
+            ->addOption('value', 'v', InputOption::VALUE_REQUIRED, 'The "value" option')
         ;
     }
 

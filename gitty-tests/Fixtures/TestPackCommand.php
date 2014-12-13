@@ -26,6 +26,7 @@ class TestPackCommand extends Command
     {
         $this
             ->setName('pack')
+            ->setDescription('Description of "pack"')
             ->addArgument('arg', InputArgument::OPTIONAL)
         ;
     }

@@ -26,6 +26,7 @@ class TestPackageAddonCommand extends CompositeCommand
     {
         $this
             ->setName('package addon')
+            ->setDescription('Description of "package addon"')
             ->addArgument('arg', InputArgument::OPTIONAL)
         ;
     }

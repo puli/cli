@@ -28,9 +28,10 @@ class TestPackageAddCommand extends CompositeCommand
         $this
             ->setName('package add')
             ->setAliases(array('package add-alias'))
-            ->addArgument('arg', InputArgument::OPTIONAL)
-            ->addOption('option', 'o', InputOption::VALUE_NONE)
-            ->addOption('value', 'v', InputOption::VALUE_REQUIRED)
+            ->setDescription('Description of "package add"')
+            ->addArgument('arg', InputArgument::OPTIONAL, 'The "arg" argument.')
+            ->addOption('option', 'o', InputOption::VALUE_NONE, 'The "option" option.')
+            ->addOption('value', 'v', InputOption::VALUE_REQUIRED, 'The "value" option.')
         ;
     }
 

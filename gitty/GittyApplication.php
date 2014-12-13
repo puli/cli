@@ -20,7 +20,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Gitty\Command\HelpCommand;
-use Webmozart\Gitty\Descriptor\TextDescriptor;
 
 /**
  * A console application with support for composite commands.

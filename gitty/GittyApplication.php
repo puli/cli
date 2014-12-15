@@ -38,10 +38,6 @@ use Webmozart\Gitty\Input\InputDefinition;
  */
 class GittyApplication extends Application
 {
-    const MAIN_COMMAND_ARG = 'command';
-
-    const SUB_COMMAND_ARG = 'sub-command';
-
     private $defaultCommand;
 
     private $executableName;
@@ -51,8 +47,9 @@ class GittyApplication extends Application
         parent::__construct($name, $version);
 
         $this->getDefinition()->setArguments(array(
-            new InputArgument(self::MAIN_COMMAND_ARG, InputArgument::REQUIRED, 'The command to execute.'),
-            new InputArgument(self::SUB_COMMAND_ARG, InputArgument::OPTIONAL, 'The sub-command to execute.'),
+            new InputArgument('command', InputArgument::REQUIRED, 'The command to execute.'),
+            new InputArgument('sub-command', InputArgument::OPTIONAL, 'The sub-command to execute.'),
+            new InputArgument('arg', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'The arguments of the command.'),
         ));
 
         $this->setDefaultCommand('help');

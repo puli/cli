@@ -54,7 +54,7 @@ class InputDefinition extends \Symfony\Component\Console\Input\InputDefinition
             );
 
             if ($argument->isArray()) {
-                $elements[] = sprintf('... [%sN]', $name);
+                $elements[] = sprintf('... [<%sN>]', $name);
             }
         }
 

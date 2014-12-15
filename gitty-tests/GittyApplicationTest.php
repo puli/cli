@@ -223,11 +223,12 @@ Test Application version 1.0.0
 
 Usage:
  test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
-          [--no-interaction] <command> [<sub-command>]
+          [--no-interaction] <command> [<sub-command>] [<arg1>] ... [<argN>]
 
 Arguments:
  <command>              The command to execute.
  <sub-command>          The sub-command to execute.
+ <arg>                  The arguments of the command.
 
 Options:
  --help (-h)            Display help about the command.

@@ -59,16 +59,17 @@ class DefaultDescriptor extends DelegatingDescriptor
      *
      *  * "manDir": The directory to the man pages.
      *  * "asciiDocDir": The directory to the AsciiDoc pages.
+     *  * "commandPrefix": The prefix to prepend to pages of commands.
      *  * "defaultPage": The name of the default page.
      *
-     * If a command is displayed as man page, the file "{$manDir}/{$page}.1" is
-     * displayed using man, where "{$page}" is the command's name with spaces
-     * replaced by hyphens.
+     * If a command is displayed as man page, the file
+     * "{$manDir}/{$commandPrefix}{$page}.1" is displayed using man, where
+     * "{$page}" is the command's name with spaces replaced by hyphens.
      *
      * If a command is displayed as AsciiDoc page, the file
-     * "{$asciiDocDir}/{$page}.txt" is displayed using less, where "{$page}" is
-     * the command's name with spaces replaced by hyphens. If less is not found,
-     * the page is simply written to the console output.
+     * "{$asciiDocDir}/{$commandPrefix}{$page}.txt" is displayed using less,
+     * where "{$page}" is the command's name with spaces replaced by hyphens. If
+     * less is not found, the page is simply written to the console output.
      *
      * If the passed object is no command, the page passed in the "defaultPage"
      * option will be displayed.
@@ -84,11 +85,12 @@ class DefaultDescriptor extends DelegatingDescriptor
         $options = array_replace(array(
             'manDir' => getcwd().'/docs',
             'asciiDocDir' => getcwd().'/docs',
+            'commandPrefix' => '',
             'defaultPage' => 'default',
         ), $options);
 
         $page = $object instanceof Command
-            ? str_replace(' ', '-', $object->getName())
+            ? $options['commandPrefix'].str_replace(' ', '-', $object->getName())
             : $options['defaultPage'];
 
         $options['manBinary'] = $this->executableFinder->find('man');

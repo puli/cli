@@ -18,10 +18,10 @@ use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\ExecutableFinder;
 use Webmozart\Gitty\Descriptor\DefaultDescriptor;
-use Webmozart\Gitty\GittyApplication;
 use Webmozart\Gitty\Process\ProcessLauncher;
 use Webmozart\Gitty\Tests\Fixtures\TestApplication;
 use Webmozart\Gitty\Tests\Fixtures\TestPackageAddCommand;
+use Webmozart\Gitty\Tests\Fixtures\TestPackageCommand;
 
 /**
  * @since  1.0
@@ -128,9 +128,6 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
     {
         $options = array(
             'input' => new StringInput($inputString, $this->inputDefinition),
-            'manDir' => __DIR__.'/Fixtures/man',
-            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
         );
 
         $object = $this->createApplication();
@@ -160,9 +157,6 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
     {
         $options = array(
             'input' => new StringInput($inputString.' --all', $this->inputDefinition),
-            'manDir' => __DIR__.'/Fixtures/man',
-            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
             'printCompositeCommands' => true,
         );
 
@@ -230,9 +224,6 @@ EOF;
     {
         $options = array(
             'input' => new StringInput($inputString, $this->inputDefinition),
-            'manDir' => __DIR__.'/Fixtures/man',
-            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
         );
 
         $object = $this->createApplication();
@@ -264,9 +255,6 @@ EOF;
     {
         $options = array(
             'input' => new StringInput($inputString, $this->inputDefinition),
-            'manDir' => __DIR__.'/Fixtures/man',
-            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
         );
 
         $object = $this->createApplication();
@@ -298,8 +286,7 @@ EOF;
         $options = array(
             'input' => new StringInput($inputString, $this->inputDefinition),
             'manDir' => __DIR__.'/Fixtures/man',
-            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
+            'defaultPage' => 'application',
         );
 
         $object = $this->createApplication();
@@ -313,7 +300,7 @@ EOF;
             ->method('isSupported')
             ->will($this->returnValue(true));
 
-        $command = sprintf("man-binary -l '%s'", __DIR__.'/Fixtures/man/default-page.1');
+        $command = sprintf("man-binary -l '%s'", __DIR__.'/Fixtures/man/application.1');
 
         $this->processLauncher->expects($this->once())
             ->method('launchProcess')
@@ -332,9 +319,8 @@ EOF;
     {
         $options = array(
             'input' => new StringInput($inputString, $this->inputDefinition),
-            'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
+            'defaultPage' => 'application',
         );
 
         $object = $this->createApplication();
@@ -353,7 +339,7 @@ EOF;
             ->method('isSupported')
             ->will($this->returnValue(true));
 
-        $command = sprintf("less-binary '%s'", __DIR__.'/Fixtures/ascii-doc/default-page.txt');
+        $command = sprintf("less-binary '%s'", __DIR__.'/Fixtures/ascii-doc/application.txt');
 
         $this->processLauncher->expects($this->once())
             ->method('launchProcess')
@@ -371,7 +357,7 @@ EOF;
             'input' => new StringInput('--ascii-doc', $this->inputDefinition),
             'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
+            'defaultPage' => 'application',
         );
 
         $object = $this->createApplication();
@@ -395,7 +381,7 @@ EOF;
 
         $status = $this->descriptor->describe($this->output, $object, $options);
 
-        $this->assertSame("Contents of default-page.txt\n", $this->output->fetch());
+        $this->assertSame("Contents of application.txt\n", $this->output->fetch());
         $this->assertSame(0, $status);
     }
 
@@ -405,7 +391,7 @@ EOF;
             'input' => new StringInput('--ascii-doc', $this->inputDefinition),
             'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
+            'defaultPage' => 'application',
         );
 
         $object = $this->createApplication();
@@ -429,7 +415,7 @@ EOF;
 
         $status = $this->descriptor->describe($this->output, $object, $options);
 
-        $this->assertSame("Contents of default-page.txt\n", $this->output->fetch());
+        $this->assertSame("Contents of application.txt\n", $this->output->fetch());
         $this->assertSame(0, $status);
     }
 
@@ -439,7 +425,7 @@ EOF;
             'input' => new StringInput('--help', $this->inputDefinition),
             'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
+            'defaultPage' => 'application',
         );
 
         $object = $this->createApplication();
@@ -458,7 +444,7 @@ EOF;
             ->method('isSupported')
             ->will($this->returnValue(true));
 
-        $command = sprintf("less-binary '%s'", __DIR__.'/Fixtures/ascii-doc/default-page.txt');
+        $command = sprintf("less-binary '%s'", __DIR__.'/Fixtures/ascii-doc/application.txt');
 
         $this->processLauncher->expects($this->once())
             ->method('launchProcess')
@@ -513,7 +499,7 @@ EOF;
             'input' => new StringInput('--help', $this->inputDefinition),
             'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
+            'defaultPage' => 'application',
         );
 
         $object = $this->createApplication();
@@ -537,7 +523,7 @@ EOF;
 
         $status = $this->descriptor->describe($this->output, $object, $options);
 
-        $this->assertSame("Contents of default-page.txt\n", $this->output->fetch());
+        $this->assertSame("Contents of application.txt\n", $this->output->fetch());
         $this->assertSame(0, $status);
     }
 
@@ -577,9 +563,6 @@ EOF;
     {
         $options = array(
             'input' => new StringInput($inputString, $this->inputDefinition),
-            'manDir' => __DIR__.'/Fixtures/man',
-            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
         );
 
         $object = $this->createCommand();
@@ -634,9 +617,6 @@ EOF;
     {
         $options = array(
             'input' => new StringInput($inputString, $this->inputDefinition),
-            'manDir' => __DIR__.'/Fixtures/man',
-            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
         );
 
         $object = new TestPackageAddCommand();
@@ -669,9 +649,6 @@ EOF;
     {
         $options = array(
             'input' => new StringInput($inputString, $this->inputDefinition),
-            'manDir' => __DIR__.'/Fixtures/man',
-            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
         );
 
         $object = new TestPackageAddCommand();
@@ -703,8 +680,6 @@ EOF;
         $options = array(
             'input' => new StringInput($inputString, $this->inputDefinition),
             'manDir' => __DIR__.'/Fixtures/man',
-            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
         );
 
         $object = new TestPackageAddCommand();
@@ -731,15 +706,47 @@ EOF;
     }
 
     /**
+     * @dataProvider getInputForManHelp
+     */
+    public function testDescribeCommandAsManWithPrefix($inputString)
+    {
+        $options = array(
+            'input' => new StringInput($inputString, $this->inputDefinition),
+            'manDir' => __DIR__.'/Fixtures/man',
+            'commandPrefix' => 'prefix-',
+        );
+
+        $object = new TestPackageCommand();
+
+        $this->executableFinder->expects($this->once())
+            ->method('find')
+            ->with('man')
+            ->will($this->returnValue('man-binary'));
+
+        $this->processLauncher->expects($this->any())
+            ->method('isSupported')
+            ->will($this->returnValue(true));
+
+        $command = sprintf("man-binary -l '%s'", __DIR__.'/Fixtures/man/prefix-package.1');
+
+        $this->processLauncher->expects($this->once())
+            ->method('launchProcess')
+            ->with($command, false)
+            ->will($this->returnValue(123));
+
+        $status = $this->descriptor->describe($this->output, $object, $options);
+
+        $this->assertSame(123, $status);
+    }
+
+    /**
      * @dataProvider getInputForAsciiDocHelp
      */
     public function testDescribeCommandAsAsciiDoc($inputString)
     {
         $options = array(
             'input' => new StringInput($inputString, $this->inputDefinition),
-            'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
-            'defaultPage' => 'default-page',
         );
 
         $object = new TestPackageAddCommand();
@@ -759,6 +766,45 @@ EOF;
             ->will($this->returnValue(true));
 
         $command = sprintf("less-binary '%s'", __DIR__.'/Fixtures/ascii-doc/package-add.txt');
+
+        $this->processLauncher->expects($this->once())
+            ->method('launchProcess')
+            ->with($command, false)
+            ->will($this->returnValue(123));
+
+        $status = $this->descriptor->describe($this->output, $object, $options);
+
+        $this->assertSame(123, $status);
+    }
+
+    /**
+     * @dataProvider getInputForAsciiDocHelp
+     */
+    public function testDescribeCommandAsAsciiDocWithPrefix($inputString)
+    {
+        $options = array(
+            'input' => new StringInput($inputString, $this->inputDefinition),
+            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
+            'commandPrefix' => 'prefix-',
+        );
+
+        $object = new TestPackageCommand();
+
+        $this->executableFinder->expects($this->at(0))
+            ->method('find')
+            ->with('man')
+            ->will($this->returnValue('man-binary'));
+
+        $this->executableFinder->expects($this->at(1))
+            ->method('find')
+            ->with('less')
+            ->will($this->returnValue('less-binary'));
+
+        $this->processLauncher->expects($this->any())
+            ->method('isSupported')
+            ->will($this->returnValue(true));
+
+        $command = sprintf("less-binary '%s'", __DIR__.'/Fixtures/ascii-doc/prefix-package.txt');
 
         $this->processLauncher->expects($this->once())
             ->method('launchProcess')

@@ -1,0 +1,94 @@
+puli(1)
+=======
+
+NAME
+----
+puli - PHP's powerful resource manager
+
+SYNOPSIS
+--------
+[verse]
+'puli' [--help] [--quiet] [--verbose] [--version] [--ansi]
+     [--no-ansi] [--no-interaction]
+     <command> [<sub-command>] [<arg1>] ... [<argN>]
+
+DESCRIPTION
+-----------
+Puli is a PHP library that manages files, directories and other resources in a
+repository - much like a virtual file system. _Resources_ can be anything, but
+usually we use the term for machine-processed files that are not PHP, such as
+CSS, JavaScript, XLIFF, YAML, XML or HTML files.
+
+ARGUMENTS
+---------
+
+<command>::
+     The name of the command to execute. The list of commands is displayed in
+     the output of `puli`.
+
+<sub-command>::
+     Some Puli commands have sub-commands. Pass the name of a sub-command in
+     this argument. You can list the commands and their sub-commands with
+     `puli -a`.
+
+<arg*>::
+     The arguments of the command. Run `puli <command> -h` to learn more about
+     the arguments supported by a command.
+
+OPTIONS
+-------
+
+--help, -h::
+     Print the synopsis and a list of the most commonly used commands. If the
+     option '--all' or '-a' is given then also sub-commands are printed. Using
+     this option for a command will bring up the manual for that command.
+
+--quiet, -q::
+     Mute all output of the command.
+
+--verbose, -v, -vv, -vvv::
+     Enable verbose output of the command. You can enable three levels of
+     verbosity. The option '-v' enables slightly verbose, '-vv' more verbose and
+     '-vvv' very verbose output.
+
+--version, -V::
+     Print the version of Puli.
+
+--ansi::
+     Enable colorization of the output. If the terminal supports colorization,
+     the output will be colorized by default.
+
+--no-ansi::
+     Disable output colorization. This is useful if you want to process the
+     output of a command in a script.
+
+--no-interaction, -n::
+     Disable all dialogs and assumes the suggested answers. This is useful for
+     running a command in a script.
+
+LICENSE
+-------
+The MIT License (MIT)
+
+Copyright (c) 2014 Bernhard Schussek
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+AUTHOR
+------
+Written by Bernhard Schussek <bschussek@gmail.com>

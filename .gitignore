@@ -1,2 +1,5 @@
 /vendor/
+/docs/man
+/docs/html
+/docs/*.xml
 composer.lock

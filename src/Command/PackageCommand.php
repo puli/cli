@@ -13,9 +13,9 @@ namespace Puli\Cli\Command;
 
 use Puli\RepositoryManager\ManagerFactory;
 use Puli\RepositoryManager\Package\Package;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\Gitty\Command\Command;
 
 /**
  * @since  1.0
@@ -27,7 +27,7 @@ class PackageCommand extends Command
     {
         $this
             ->setName('package')
-            ->setDescription('Displays the installed packages.')
+            ->setDescription('Display the installed packages.')
         ;
     }
 

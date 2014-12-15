@@ -1,0 +1,19 @@
+puli-package(1)
+===============
+
+NAME
+----
+puli-package - List installed packages
+
+SYNOPSIS
+--------
+[verse]
+'puli package'
+
+DESCRIPTION
+-----------
+This command lists all installed packages.
+
+AUTHOR
+------
+Written by Bernhard Schussek <bschussek@gmail.com>

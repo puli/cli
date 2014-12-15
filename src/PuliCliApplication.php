@@ -12,7 +12,7 @@
 namespace Puli\Cli;
 
 use Puli\Cli\Command\DumpCommand;
-use Puli\Cli\Command\ListCommand;
+use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\PackageCommand;
 use Webmozart\Gitty\Command\HelpCommand;
 use Webmozart\Gitty\GittyApplication;
@@ -41,12 +41,13 @@ class PuliCliApplication extends GittyApplication
 
         return array_merge(array(
             new HelpCommand(array(
-                'manDir' => $rootDir.'/docs',
+                'manDir' => $rootDir.'/docs/man',
                 'asciiDocDir' => $rootDir.'/docs',
+                'commandPrefix' => 'puli-',
                 'defaultPage' => 'puli',
             )),
             new DumpCommand(),
-            new ListCommand(),
+            new LsCommand(),
             new PackageCommand(),
         ));
     }

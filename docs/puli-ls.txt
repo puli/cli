@@ -1,0 +1,32 @@
+puli-ls(1)
+============
+
+NAME
+----
+puli-ls - List the entries of a directory in the resource repository.
+
+SYNOPSIS
+--------
+[verse]
+'puli ls' [--recursive] [<directory>]
+
+DESCRIPTION
+-----------
+This command lists the entries of a directory in the Puli repository.
+
+ARGUMENTS
+---------
+
+<directory>::
+	The directory to list. If no directory is passed, the directory "/" is
+	assumed.
+
+OPTIONS
+-------
+
+--recursive, -R::
+	Recursively display all entries of the directory and its subdirectories.
+
+AUTHOR
+------
+Written by Bernhard Schussek <bschussek@gmail.com>

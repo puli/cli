@@ -14,11 +14,6 @@ namespace Puli\Cli;
 use Puli\Cli\Command\DumpCommand;
 use Puli\Cli\Command\ListCommand;
 use Puli\Cli\Command\PackageCommand;
-use Puli\Cli\Command\Tag\TagAddCommand;
-use Puli\Cli\Command\Tag\TagCommand;
-use Puli\Cli\Command\Tag\TagDefineCommand;
-use Puli\Cli\Command\Tag\TagRemoveCommand;
-use Puli\Cli\Command\Tag\TagUndefineCommand;
 use Webmozart\Gitty\Command\HelpCommand;
 use Webmozart\Gitty\GittyApplication;
 
@@ -53,11 +48,6 @@ class PuliCliApplication extends GittyApplication
             new DumpCommand(),
             new ListCommand(),
             new PackageCommand(),
-            new TagCommand(),
-            new TagAddCommand(),
-            new TagRemoveCommand(),
-            new TagDefineCommand(),
-            new TagUndefineCommand(),
         ));
     }
 }

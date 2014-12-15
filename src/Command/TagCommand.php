@@ -38,21 +38,22 @@ class TagCommand extends Command
             ->addArgument('path', InputArgument::OPTIONAL, 'The Puli path')
             ->addArgument('tag', InputArgument::OPTIONAL, 'The tag to add to the path')
             ->addOption('root', null, InputOption::VALUE_NONE, 'Filter tags and resources by the root package')
-            ->addOption('package', 'p', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Filter tags and resources by a package')
+            ->addOption('package', 'p', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Filter tags and resources by a package', null, 'package')
             ->addOption('resources', null, InputOption::VALUE_NONE, 'Show only tagged resources')
             ->addOption('tags', null, InputOption::VALUE_NONE, 'Show only tags')
             ->addOption('enabled', null, InputOption::VALUE_NONE, 'Show only enabled tag mappings')
             ->addOption('disabled', null, InputOption::VALUE_NONE, 'Show only disabled tag mappings')
             ->addOption('new', null, InputOption::VALUE_NONE, 'Show only tag mappings that are neither enabled nor disabled')
+            ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The format to use when printing tags', null, 'format')
             ->addOption('untag', 'u', InputOption::VALUE_NONE, 'Untag a resource')
-            ->addOption('add', null, InputOption::VALUE_REQUIRED, 'Add a new tag')
-            ->addOption('description', null, InputOption::VALUE_REQUIRED, 'The description of a tag added with <u>--add</u>')
-            ->addOption('delete', 'd', InputOption::VALUE_REQUIRED, 'Delete a tag')
+            ->addOption('add', null, InputOption::VALUE_REQUIRED, 'Add a new tag', null, 'tag')
+            ->addOption('description', null, InputOption::VALUE_REQUIRED, 'The description of a tag added with <tt>--add</tt>', null, 'description')
+            ->addOption('delete', 'd', InputOption::VALUE_REQUIRED, 'Delete a tag', null, 'tag')
             ->addSynopsis('<path> <tag>')
-            ->addSynopsis('[--root] [--package <package>] [--resources|--tags|--enabled|--disabled|--new]')
-            ->addSynopsis('--untag <path> [<tag>]')
-            ->addSynopsis('--add <tag> [--description <description>]')
-            ->addSynopsis('--delete <tag>')
+            ->addSynopsis("[--root] [--package\xC2\xA0<package>] [--resources|--tags|--enabled|--disabled|--new] [--format\xC2\xA0<format>]")
+            ->addSynopsis("--untag <path> [<tag>]")
+            ->addSynopsis("--add <tag> [--description\xC2\xA0<description>]")
+            ->addSynopsis("--delete <tag>")
         ;
     }
 
@@ -126,34 +127,60 @@ class TagCommand extends Command
 
     private function printList(InputInterface $input, OutputInterface $output, PackageManager $packageManager, TagManager $tagManager)
     {
+        $format = $input->getOption('format');
+
         // The following options restrict the output to a subset
-        $typeRestricted = $input->getOption('tags')
+        $typeRestricted = $input->getOption('resources')
+            || $input->getOption('tags')
             || $input->getOption('enabled')
             || $input->getOption('disabled')
             || $input->getOption('new');
 
+        $includeRoot = $input->getOption('root') || !$input->getOption('package');
+
+        // Return formatted output when the type is restricted
+        if ($typeRestricted && !$format) {
+            $format = $input->getOption('tags') ? '%t %d' : '%p %t';
+        }
+
         $packageNames = $this->parsePackageNames($input, $packageManager);
 
-        if (!$typeRestricted && ($input->getOption('root') || !$input->getOption('package'))) {
-            $this->printRootTagMappings($output, $tagManager);
+        if ($input->getOption('resources')) {
+            $mappings = array_merge(
+                $tagManager->getEnabledPackageTagMappings(null, $packageNames),
+                $tagManager->getDisabledPackageTagMappings(null, $packageNames),
+                $tagManager->getNewPackageTagMappings(null, $packageNames)
+            );
+
+            if ($includeRoot) {
+                $mappings = array_merge($tagManager->getRootTagMappings(), $mappings);
+            }
+
+            $this->printFormattedTagMappings($output, $mappings, $format);
+
+            return;
+        }
+
+        if ((!$typeRestricted || $input->getOption('resources')) && ($input->getOption('root') || !$input->getOption('package'))) {
+            $this->printRootTagMappings($output, $tagManager, $format);
         }
 
         if (!$typeRestricted || $input->getOption('tags')) {
-            $this->printTagDefinitions($output, $tagManager, $packageNames);
+            $this->printTagDefinitions($output, $tagManager, $packageNames, $format);
         }
 
         // Hide package mappings if "--root" only is given
         if ($input->getOption('package') || !$input->getOption('root')) {
             if (!$typeRestricted || $input->getOption('enabled')) {
-                $this->printEnabledPackageTagMappings($output, $tagManager, $packageNames);
+                $this->printEnabledPackageTagMappings($output, $tagManager, $packageNames, $format);
             }
 
             if (!$typeRestricted || $input->getOption('disabled')) {
-                $this->printDisabledPackageTagMappings($output, $tagManager, $packageNames);
+                $this->printDisabledPackageTagMappings($output, $tagManager, $packageNames, $format);
             }
 
             if (!$typeRestricted || $input->getOption('new')) {
-                $this->printNewPackageTagMappings($output, $tagManager, $packageNames);
+                $this->printNewPackageTagMappings($output, $tagManager, $packageNames, $format);
             }
         }
     }
@@ -298,5 +325,35 @@ class TagCommand extends Command
         $table->render();
 
         $output->writeln('');
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @param                 $mappings
+     * @param                 $format
+     */
+    private function printFormattedTagMappings(OutputInterface $output, $mappings, $format)
+    {
+        foreach ($mappings as $mapping) {
+            $output->writeln(strtr($format, array(
+                '%p' => $mapping->getPuliSelector(),
+                '%t' => $mapping->getTag(),
+            )));
+        }
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @param                 $format
+     * @param                 $definitions
+     */
+    private function printFormattedTagDefinitions(OutputInterface $output, $format, $definitions)
+    {
+        foreach ($definitions as $definition) {
+            $output->writeln(strtr($format, array(
+                '%t' => $definition->getTag(),
+                '%d' => $definition->getDescription(),
+            )));
+        }
     }
 }

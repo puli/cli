@@ -32,8 +32,8 @@ class LsCommand extends Command
         $this
             ->setName('ls')
             ->setDescription('List the contents of a directory in the resource repository')
-            ->addArgument('directory', InputArgument::OPTIONAL, 'The repository path of a directory.', '/')
-            ->addOption('recursive', 'r', InputOption::VALUE_NONE, 'Recursively list the contents of sub-directories.')
+            ->addArgument('directory', InputArgument::OPTIONAL, 'The repository path of a directory', '/')
+            ->addOption('recursive', 'r', InputOption::VALUE_NONE, 'Recursively list the contents of sub-directories')
         ;
     }
 

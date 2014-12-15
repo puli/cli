@@ -577,11 +577,11 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- package add [-o|--option] [-v|--value="..."] [arg]
+ package add [--option] [--value="..."] [<arg>]
 
 Aliases: package add-alias
 Arguments:
- arg           The "arg" argument.
+ <arg>         The "arg" argument.
 
 Options:
  --option (-o) The "option" option.

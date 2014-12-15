@@ -39,7 +39,27 @@ class TextDescriptor extends BaseTextDescriptor
             ));
         };
 
-        $definition->setArguments(array_filter($definition->getArguments(), $filter));
+        /** @var InputArgument[] $arguments */
+        $arguments = array_filter($definition->getArguments(), $filter);
+
+        // Wrap argument names with "<" and ">"
+        foreach ($arguments as $key => $argument) {
+            $mode = $argument->isRequired() ? InputArgument::REQUIRED : InputArgument::OPTIONAL;
+
+            if ($argument->isArray()) {
+                $mode |= InputArgument::IS_ARRAY;
+            }
+
+            $arguments[$key] = new InputArgument(
+                '<'.$argument->getName().'>',
+                $mode,
+                $argument->getDescription(),
+                $argument->getDefault()
+            );
+        }
+
+
+        $definition->setArguments($arguments);
 
         parent::describeInputDefinition($definition, $options);
     }

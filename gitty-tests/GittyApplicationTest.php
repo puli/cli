@@ -262,19 +262,19 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- help [-m|--man] [--ascii-doc] [-t|--text] [-x|--xml] [-j|--json] [command] [sub-command]
+ help [--man] [--ascii-doc] [--text] [--xml] [--json] [<command>] [<sub-command>]
 
 Arguments:
- command      The command name
- sub-command  The sub command name
+ <command>      The command name
+ <sub-command>  The sub command name
 
 Options:
- --man (-m)   To output help as man page
- --ascii-doc  To output help as AsciiDoc
- --text (-t)  To output help as text
- --xml (-x)   To output help as XML
- --json (-j)  To output help as JSON
- --help (-h)  Help
+ --man (-m)     To output help as man page
+ --ascii-doc    To output help as AsciiDoc
+ --text (-t)    To output help as text
+ --xml (-x)     To output help as XML
+ --json (-j)    To output help as JSON
+ --help (-h)    Help
 
 
 EOF;
@@ -303,11 +303,11 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- package [-o|--option] [-v|--value="..."] [arg]
+ package [--option] [--value="..."] [<arg>]
 
 Aliases: package-alias
 Arguments:
- arg           The "arg" argument
+ <arg>         The "arg" argument
 
 Options:
  --option (-o) The "option" option
@@ -341,11 +341,11 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- package add [-o|--option] [-v|--value="..."] [arg]
+ package add [--option] [--value="..."] [<arg>]
 
 Aliases: package add-alias
 Arguments:
- arg           The "arg" argument.
+ <arg>         The "arg" argument.
 
 Options:
  --option (-o) The "option" option.

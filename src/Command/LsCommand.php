@@ -14,18 +14,18 @@ namespace Puli\Cli\Command;
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\RepositoryManager\ManagerFactory;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\Gitty\Command\Command;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ListCommand extends Command
+class LsCommand extends Command
 {
     protected function configure()
     {

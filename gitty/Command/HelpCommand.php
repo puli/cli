@@ -51,15 +51,15 @@ class HelpCommand extends Command
 
         $this
             ->setName('help')
-            ->setDescription('Displays help for a command')
+            ->setDescription('Display the manual of a command')
             ->addArgument('command', InputArgument::OPTIONAL, 'The command name')
             ->addArgument('sub-command', InputArgument::OPTIONAL, 'The sub command name')
-            ->addOption('all', 'a', InputOption::VALUE_NONE, 'To print all available commands')
-            ->addOption('man', 'm', InputOption::VALUE_NONE, 'To output help as man page')
-            ->addOption('ascii-doc', null, InputOption::VALUE_NONE, 'To output help as AsciiDoc')
-            ->addOption('text', 't', InputOption::VALUE_NONE, 'To output help as text')
-            ->addOption('xml', 'x', InputOption::VALUE_NONE, 'To output help as XML')
-            ->addOption('json', 'j', InputOption::VALUE_NONE, 'To output help as JSON')
+            ->addOption('all', 'a', InputOption::VALUE_NONE, 'Print all available commands')
+            ->addOption('man', 'm', InputOption::VALUE_NONE, 'Output the help as man page')
+            ->addOption('ascii-doc', null, InputOption::VALUE_NONE, 'Output the help as AsciiDoc document')
+            ->addOption('text', 't', InputOption::VALUE_NONE, 'Output the help as plain text')
+            ->addOption('xml', 'x', InputOption::VALUE_NONE, 'Output the help as XML')
+            ->addOption('json', 'j', InputOption::VALUE_NONE, 'Output the help as JSON')
         ;
     }
 

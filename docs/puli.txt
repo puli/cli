@@ -39,9 +39,7 @@ OPTIONS
 -------
 
 --help, -h::
-     Print the synopsis and a list of the most commonly used commands. If the
-     option '--all' or '-a' is given then also sub-commands are printed. Using
-     this option for a command will bring up the manual for that command.
+     Print the synopsis and a list of the most commonly used commands.
 
 --quiet, -q::
      Mute all output of the command.

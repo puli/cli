@@ -19,6 +19,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\ExecutableFinder;
 use Webmozart\Console\Descriptor\DefaultDescriptor;
 use Webmozart\Console\Process\ProcessLauncher;
+use Webmozart\Console\Style\NeptunStyle;
 use Webmozart\Console\Tests\Fixtures\TestApplication;
 use Webmozart\Console\Tests\Fixtures\TestPackageAddCommand;
 use Webmozart\Console\Tests\Fixtures\TestPackageCommand;
@@ -66,6 +67,7 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
 
         $this->descriptor = new DefaultDescriptor($this->executableFinder, $this->processLauncher);
         $this->output = new BufferedOutput();
+        NeptunStyle::addStyles($this->output->getFormatter());
         $this->inputDefinition = new InputDefinition(array(
             new InputArgument('command'),
             new InputOption('all'),
@@ -180,30 +182,30 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
         $expected = <<<EOF
 Test Application version 1.0.0
 
-Usage:
- test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
-          [--no-interaction] <command> [<sub-command>] [<arg1>] ... [<argN>]
+USAGE
+  test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
+           [--no-interaction] <command> [<sub-command>] [<arg1>] ... [<argN>]
 
-Arguments:
- <command>              The command to execute
- <sub-command>          The sub-command to execute
- <arg>                  The arguments of the command
+ARGUMENTS
+  <command>              The command to execute
+  <sub-command>          The sub-command to execute
+  <arg>                  The arguments of the command
 
-Options:
- --help (-h)            Description
- --quiet (-q)           Description
- --verbose              Description
- --version (-V)         Description
- --ansi                 Description
- --no-ansi              Description
- --no-interaction (-n)  Description
+OPTIONS
+  --help (-h)            Description
+  --quiet (-q)           Description
+  --verbose              Description
+  --version (-V)         Description
+  --ansi                 Description
+  --no-ansi              Description
+  --no-interaction (-n)  Description
 
-Available commands:
- help                   Display the manual of a command
- pack                   Description of "pack"
- package                Description of "package"
- package add            Description of "package add"
- package addon          Description of "package addon"
+AVAILABLE COMMANDS
+  help                   Display the manual of a command
+  pack                   Description of "pack"
+  package                Description of "package"
+  package add            Description of "package add"
+  package addon          Description of "package addon"
 
 
 EOF;
@@ -582,24 +584,24 @@ EOF;
         $status = $this->descriptor->describe($this->output, $object, $options);
 
         $expected = <<<EOF
-Usage:
- test-bin package add [--option] [--value="..."] [<arg>]
+USAGE
+  test-bin package add [--option] [--value="..."] [<arg>]
 
-Aliases: package add-alias
+  aliases: package add-alias
 
-Arguments:
- <arg>                  The "arg" argument
+ARGUMENTS
+  <arg>                  The "arg" argument
 
-Options:
- --option (-o)          The "option" option
- --value (-v)           The "value" option
- --help (-h)            Description
- --quiet (-q)           Description
- --verbose              Description
- --version (-V)         Description
- --ansi                 Description
- --no-ansi              Description
- --no-interaction (-n)  Description
+OPTIONS
+  --option (-o)          The "option" option
+  --value (-v)           The "value" option
+  --help (-h)            Description
+  --quiet (-q)           Description
+  --verbose              Description
+  --version (-V)         Description
+  --ansi                 Description
+  --no-ansi              Description
+  --no-interaction (-n)  Description
 
 
 EOF;
@@ -633,21 +635,21 @@ EOF;
         $status = $this->descriptor->describe($this->output, $object, $options);
 
         $expected = <<<EOF
-Usage:
-     test-bin synopsis <arg>
- or: test-bin synopsis [--foo] [--bar]
+USAGE
+      test-bin synopsis <arg>
+  or: test-bin synopsis [--foo] [--bar]
 
-Arguments:
- <arg>                  The "arg" argument
+ARGUMENTS
+  <arg>                  The "arg" argument
 
-Options:
- --help (-h)            Description
- --quiet (-q)           Description
- --verbose              Description
- --version (-V)         Description
- --ansi                 Description
- --no-ansi              Description
- --no-interaction (-n)  Description
+OPTIONS
+  --help (-h)            Description
+  --quiet (-q)           Description
+  --verbose              Description
+  --version (-V)         Description
+  --ansi                 Description
+  --no-ansi              Description
+  --no-interaction (-n)  Description
 
 
 EOF;
@@ -868,28 +870,28 @@ EOF;
         $expected = <<<EOF
 Test Application version 1.0.0
 
-Usage:
- test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
-          [--no-interaction] <command> [<sub-command>] [<arg1>] ... [<argN>]
+USAGE
+  test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
+           [--no-interaction] <command> [<sub-command>] [<arg1>] ... [<argN>]
 
-Arguments:
- <command>              The command to execute
- <sub-command>          The sub-command to execute
- <arg>                  The arguments of the command
+ARGUMENTS
+  <command>              The command to execute
+  <sub-command>          The sub-command to execute
+  <arg>                  The arguments of the command
 
-Options:
- --help (-h)            Description
- --quiet (-q)           Description
- --verbose              Description
- --version (-V)         Description
- --ansi                 Description
- --no-ansi              Description
- --no-interaction (-n)  Description
+OPTIONS
+  --help (-h)            Description
+  --quiet (-q)           Description
+  --verbose              Description
+  --version (-V)         Description
+  --ansi                 Description
+  --no-ansi              Description
+  --no-interaction (-n)  Description
 
-Available commands:
- help                   Display the manual of a command
- pack                   Description of "pack"
- package                Description of "package"
+AVAILABLE COMMANDS
+  help                   Display the manual of a command
+  pack                   Description of "pack"
+  package                Description of "package"
 
 
 EOF;

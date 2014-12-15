@@ -13,6 +13,7 @@ namespace Webmozart\Console\Descriptor;
 
 use Symfony\Component\Console\Descriptor\ApplicationDescription;
 use Symfony\Component\Console\Descriptor\DescriptorInterface;
+use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -34,6 +35,11 @@ class TextDescriptor implements DescriptorInterface
     private $output;
 
     /**
+     * @var OutputFormatterInterface
+     */
+    private $filterFormatter;
+
+    /**
      * @var int|null
      */
     private $terminalWidth;
@@ -48,6 +54,8 @@ class TextDescriptor implements DescriptorInterface
     public function describe(OutputInterface $output, $object, array $options = array())
     {
         $this->output = $output;
+        $this->filterFormatter = clone $output->getFormatter();
+        $this->filterFormatter->setDecorated(false);
 
         if ($object instanceof Command) {
             list ($this->terminalWidth) = $object->getApplication()->getTerminalDimensions();
@@ -187,10 +195,10 @@ class TextDescriptor implements DescriptorInterface
         $executableName = $application->getExecutableName();
         $synopsis = $application->getDefinition()->getSynopsis();
 
-        $this->write('<comment>Usage:</comment>');
+        $this->write('<h>USAGE</h>');
         $this->write("\n");
 
-        $this->printWrappedText($synopsis, $executableName);
+        $this->printWrappedText($synopsis, '<tt>'.$executableName.'</tt>');
         $this->write("\n");
     }
 
@@ -207,11 +215,11 @@ class TextDescriptor implements DescriptorInterface
         $synopsises = $command->getSynopsises();
         $prefix = count($synopsises) > 1 ? '    ' : '';
 
-        $this->write('<comment>Usage:</comment>');
+        $this->write('<h>USAGE</h>');
         $this->write("\n");
 
         foreach ($synopsises as $synopsis) {
-            $this->printWrappedText($synopsis, $prefix.$commandName);
+            $this->printWrappedText($synopsis, $prefix.'<tt>'.$commandName.'</tt>');
             $this->write("\n");
             $prefix = 'or: ';
         }
@@ -225,7 +233,7 @@ class TextDescriptor implements DescriptorInterface
      */
     protected function printInputArguments($inputArgs, array $options = array())
     {
-        $this->write('<comment>Arguments:</comment>');
+        $this->write('<h>ARGUMENTS</h>');
         $this->write("\n");
 
         foreach ($inputArgs as $argument) {
@@ -247,10 +255,10 @@ class TextDescriptor implements DescriptorInterface
         $name = $argument->getName();
 
         if (null !== $argument->getDefault() && (!is_array($argument->getDefault()) || count($argument->getDefault()))) {
-            $description .= sprintf('<comment> (default: %s)</comment>', $this->formatDefaultValue($argument->getDefault()));
+            $description .= sprintf('<h> (default: %s)</h>', $this->formatDefaultValue($argument->getDefault()));
         }
 
-        $this->printWrappedText($description, '<'.$name.'>', true, $nameWidth, 2);
+        $this->printWrappedText($description, '<em><'.$name.'></em>', $nameWidth, 2);
     }
 
     /**
@@ -261,7 +269,7 @@ class TextDescriptor implements DescriptorInterface
      */
     protected function printInputOptions($inputOpts, array $options = array())
     {
-        $this->write('<comment>Options:</comment>');
+        $this->write('<h>OPTIONS</h>');
         $this->write("\n");
 
         foreach ($inputOpts as $option) {
@@ -280,21 +288,21 @@ class TextDescriptor implements DescriptorInterface
     {
         $nameWidth = isset($options['nameWidth']) ? $options['nameWidth'] : null;
         $description = $option->getDescription();
-        $name = '--'.$option->getName();
+        $name = '<em>--'.$option->getName().'</em>';
 
         if ($option->getShortcut()) {
             $name .= sprintf(' (-%s)', $option->getShortcut());
         }
 
         if ($option->acceptValue() && null !== $option->getDefault() && (!is_array($option->getDefault()) || count($option->getDefault()))) {
-            $description .= sprintf('<comment> (default: %s)</comment>', $this->formatDefaultValue($option->getDefault()));
+            $description .= sprintf('<strong> (default: %s)</strong>', $this->formatDefaultValue($option->getDefault()));
         }
 
         if ($option->isArray()) {
-            $description .= '<comment> (multiple values allowed)</comment>';
+            $description .= '<strong> (multiple values allowed)</strong>';
         }
 
-        $this->printWrappedText($description, $name, true, $nameWidth, 2);
+        $this->printWrappedText($description, $name, $nameWidth, 2);
     }
 
     /**
@@ -309,7 +317,7 @@ class TextDescriptor implements DescriptorInterface
             $options['printCompositeCommands'] = false;
         }
 
-        $this->write('<comment>Available commands:</comment>');
+        $this->write('<h>AVAILABLE COMMANDS</h>');
         $this->write("\n");
 
         foreach ($commands as $command) {
@@ -334,7 +342,7 @@ class TextDescriptor implements DescriptorInterface
         $description = $command->getDescription();
         $name = $command->getName();
 
-        $this->printWrappedText($description, $name, true, $nameWidth, 2);
+        $this->printWrappedText($description, '<em>'.$name.'</em>', $nameWidth, 2);
     }
 
     /**
@@ -345,7 +353,7 @@ class TextDescriptor implements DescriptorInterface
      */
     protected function printAliases($aliases, array $options = array())
     {
-        $this->write('<comment>Aliases:</comment> <info>'.implode(', ', $aliases).'</info>');
+        $this->write('  aliases: '.implode(', ', $aliases));
         $this->write("\n");
     }
 
@@ -368,7 +376,7 @@ class TextDescriptor implements DescriptorInterface
      */
     protected function printCommandHelp($help, array $options = array())
     {
-        $this->write('<comment>Help:</comment>');
+        $this->write('<h>Help</h>');
         $this->write("\n");
         $this->write(' '.str_replace("\n", "\n ", $help));
         $this->write("\n");
@@ -390,41 +398,45 @@ class TextDescriptor implements DescriptorInterface
      *
      * @param string   $text           The text to write.
      * @param string   $label          The label.
-     * @param bool     $highlightLabel Whether to highlight the label.
      * @param int|null $minLabelWidth  The minimum width of the label.
      * @param int      $labelDistance  The distance between the label and the
      *                                 text in spaces.
      */
-    protected function printWrappedText($text, $label = '', $highlightLabel = false, $minLabelWidth = null, $labelDistance = 1)
+    protected function printWrappedText($text, $label = '', $minLabelWidth = null, $labelDistance = 1)
     {
+        $visibleLabel = $this->filterStyleTags($label);
+        $styleTagLength = strlen($label) - strlen($visibleLabel);
+        $prefixSpace = '  ';
+
         if (!$minLabelWidth) {
-            $minLabelWidth = strlen($label);
+            $minLabelWidth = strlen($visibleLabel);
         }
 
         // If we know the terminal width, wrap the text
         if ($this->terminalWidth) {
             // 1 space after the label
             $indentation = $minLabelWidth ? $minLabelWidth + $labelDistance : 0;
-            $linePrefix = ' '.str_repeat(' ', $indentation);
+            $linePrefix = $prefixSpace.str_repeat(' ', $indentation);
 
-            // 1 leading space, 1 trailing space
-            $textWidth = $this->terminalWidth - $indentation - 2;
+            // 1 trailing space
+            $textWidth = $this->terminalWidth - 1 - strlen($linePrefix);
 
             $text = str_replace("\n", "\n".$linePrefix, wordwrap($text, $textWidth));
         }
 
         if ($label) {
+            // Add the total length of the style tags ("<h>", ...)
+            $minLabelWidth += $styleTagLength;
+
             $text = sprintf(
-                "%s%-${minLabelWidth}s%s%-{$labelDistance}s%s",
-                $highlightLabel ? '<info>' : '',
+                "%-${minLabelWidth}s%-{$labelDistance}s%s",
                 $label,
-                $highlightLabel ? '</info>' : '',
                 '',
                 $text
             );
         }
 
-        $this->write(' '.$text);
+        $this->write($prefixSpace.$text);
     }
 
     /**
@@ -523,6 +535,11 @@ class TextDescriptor implements DescriptorInterface
         };
 
         return array_filter($arguments, $filter);
+    }
+
+    protected function filterStyleTags($text)
+    {
+        return $this->filterFormatter->format($text);
     }
 
     /**

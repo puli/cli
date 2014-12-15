@@ -221,28 +221,28 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $expected = <<<EOF
 Test Application version 1.0.0
 
-Usage:
- test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
-          [--no-interaction] <command> [<sub-command>] [<arg1>] ... [<argN>]
+USAGE
+  test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
+           [--no-interaction] <command> [<sub-command>] [<arg1>] ... [<argN>]
 
-Arguments:
- <command>              The command to execute
- <sub-command>          The sub-command to execute
- <arg>                  The arguments of the command
+ARGUMENTS
+  <command>              The command to execute
+  <sub-command>          The sub-command to execute
+  <arg>                  The arguments of the command
 
-Options:
- --help (-h)            Description
- --quiet (-q)           Description
- --verbose              Description
- --version (-V)         Description
- --ansi                 Description
- --no-ansi              Description
- --no-interaction (-n)  Description
+OPTIONS
+  --help (-h)            Description
+  --quiet (-q)           Description
+  --verbose              Description
+  --version (-V)         Description
+  --ansi                 Description
+  --no-ansi              Description
+  --no-interaction (-n)  Description
 
-Available commands:
- help                   Display the manual of a command
- pack                   Description of "pack"
- package                Description of "package"
+AVAILABLE COMMANDS
+  help                   Display the manual of a command
+  pack                   Description of "pack"
+  package                Description of "package"
 
 
 EOF;
@@ -270,28 +270,28 @@ EOF;
         $this->app->run($input, $output);
 
         $expected = <<<EOF
-Usage:
- test-bin help [--all] [--man] [--ascii-doc] [--text] [--xml] [--json]
-               [<command>] [<sub-command>]
+USAGE
+  test-bin help [--all] [--man] [--ascii-doc] [--text] [--xml] [--json]
+                [<command>] [<sub-command>]
 
-Arguments:
- <command>              The command name
- <sub-command>          The sub command name
+ARGUMENTS
+  <command>              The command name
+  <sub-command>          The sub command name
 
-Options:
- --all (-a)             Print all available commands
- --man (-m)             Output the help as man page
- --ascii-doc            Output the help as AsciiDoc document
- --text (-t)            Output the help as plain text
- --xml (-x)             Output the help as XML
- --json (-j)            Output the help as JSON
- --help (-h)            Description
- --quiet (-q)           Description
- --verbose              Description
- --version (-V)         Description
- --ansi                 Description
- --no-ansi              Description
- --no-interaction (-n)  Description
+OPTIONS
+  --all (-a)             Print all available commands
+  --man (-m)             Output the help as man page
+  --ascii-doc            Output the help as AsciiDoc document
+  --text (-t)            Output the help as plain text
+  --xml (-x)             Output the help as XML
+  --json (-j)            Output the help as JSON
+  --help (-h)            Description
+  --quiet (-q)           Description
+  --verbose              Description
+  --version (-V)         Description
+  --ansi                 Description
+  --no-ansi              Description
+  --no-interaction (-n)  Description
 
 
 EOF;
@@ -319,24 +319,24 @@ EOF;
         $this->app->run($input, $output);
 
         $expected = <<<EOF
-Usage:
- test-bin package [--option] [--value="..."] [<arg>]
+USAGE
+  test-bin package [--option] [--value="..."] [<arg>]
 
-Aliases: package-alias
+  aliases: package-alias
 
-Arguments:
- <arg>                  The "arg" argument
+ARGUMENTS
+  <arg>                  The "arg" argument
 
-Options:
- --option (-o)          The "option" option
- --value (-v)           The "value" option
- --help (-h)            Description
- --quiet (-q)           Description
- --verbose              Description
- --version (-V)         Description
- --ansi                 Description
- --no-ansi              Description
- --no-interaction (-n)  Description
+OPTIONS
+  --option (-o)          The "option" option
+  --value (-v)           The "value" option
+  --help (-h)            Description
+  --quiet (-q)           Description
+  --verbose              Description
+  --version (-V)         Description
+  --ansi                 Description
+  --no-ansi              Description
+  --no-interaction (-n)  Description
 
 
 EOF;
@@ -364,24 +364,24 @@ EOF;
         $this->app->run($input, $output);
 
         $expected = <<<EOF
-Usage:
- test-bin package add [--option] [--value="..."] [<arg>]
+USAGE
+  test-bin package add [--option] [--value="..."] [<arg>]
 
-Aliases: package add-alias
+  aliases: package add-alias
 
-Arguments:
- <arg>                  The "arg" argument
+ARGUMENTS
+  <arg>                  The "arg" argument
 
-Options:
- --option (-o)          The "option" option
- --value (-v)           The "value" option
- --help (-h)            Description
- --quiet (-q)           Description
- --verbose              Description
- --version (-V)         Description
- --ansi                 Description
- --no-ansi              Description
- --no-interaction (-n)  Description
+OPTIONS
+  --option (-o)          The "option" option
+  --value (-v)           The "value" option
+  --help (-h)            Description
+  --quiet (-q)           Description
+  --verbose              Description
+  --version (-V)         Description
+  --ansi                 Description
+  --no-ansi              Description
+  --no-interaction (-n)  Description
 
 
 EOF;

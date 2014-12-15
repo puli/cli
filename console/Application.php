@@ -19,6 +19,7 @@ use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\HelpCommand;
 use Webmozart\Console\Input\InputDefinition;
+use Webmozart\Console\Style\NeptunStyle;
 
 /**
  * A console application with support for composite commands.
@@ -53,6 +54,18 @@ class Application extends \Symfony\Component\Console\Application
 
         $this->setDefaultCommand('help');
         $this->setExecutableName($executableName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLongVersion()
+    {
+        if ('UNKNOWN' !== $this->getName() && 'UNKNOWN' !== $this->getVersion()) {
+            return sprintf('%s version %s', $this->getName(), $this->getVersion());
+        }
+
+        return 'Console Tool';
     }
 
     /**
@@ -261,6 +274,13 @@ class Application extends \Symfony\Component\Console\Application
         }
 
         return parent::doRunCommand($command, $input, $output);
+    }
+
+    protected function configureIO(InputInterface $input, OutputInterface $output)
+    {
+        parent::configureIO($input, $output);
+
+        NeptunStyle::addStyles($output->getFormatter());
     }
 
     private function createCommandNotDefinedException($name, $mainCommand, $subOrArg)

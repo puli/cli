@@ -295,11 +295,11 @@ class TextDescriptor implements DescriptorInterface
         }
 
         if ($option->acceptValue() && null !== $option->getDefault() && (!is_array($option->getDefault()) || count($option->getDefault()))) {
-            $description .= sprintf('<strong> (default: %s)</strong>', $this->formatDefaultValue($option->getDefault()));
+            $description .= sprintf(' (default: %s)', $this->formatDefaultValue($option->getDefault()));
         }
 
         if ($option->isArray()) {
-            $description .= '<strong> (multiple values allowed)</strong>';
+            $description .= ' (multiple values allowed)';
         }
 
         $this->printWrappedText($description, $name, $nameWidth, 2);

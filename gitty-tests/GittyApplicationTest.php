@@ -28,7 +28,7 @@ class GittyApplicationTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->app = new TestApplication();
+        $this->app = new TestApplication(array(80, null));
         $this->app->setAutoExit(false);
         $this->app->setCatchExceptions(false);
     }
@@ -222,23 +222,30 @@ class GittyApplicationTest extends \PHPUnit_Framework_TestCase
 Test Application version 1.0.0
 
 Usage:
- test-bin [--help] <command> [<sub-command>]
+ test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
+          [--no-interaction] <command> [<sub-command>]
 
 Arguments:
- <command>      The command to execute.
- <sub-command>  The sub-command to execute.
+ <command>             The command to execute.
+ <sub-command>         The sub-command to execute.
 
 Options:
- --help (-h)    Help
+ --help (-h)           Display help about the command.
+ --quiet (-q)          Do not output any message.
+ --verbose             Increase the verbosity of messages: 1 for normal output,
+                       2 for more verbose output and 3 for debug.
+ --version (-V)        Display this application version.
+ --ansi                Force ANSI output.
+ --no-ansi             Disable ANSI output.
+ --no-interaction (-n) Do not ask any interactive question.
 
 Available commands:
- help            Displays help for a command
- pack            Description of "pack"
- package         Description of "package"
- package add     Description of "package add"
- package add-alias Description of "package add"
- package addon   Description of "package addon"
- package-alias   Description of "package"
+ help                  Displays help for a command
+ pack                  Description of "pack"
+ package               Description of "package"
+ package add           Description of "package add"
+ package addon         Description of "package addon"
+
 
 EOF;
 
@@ -266,19 +273,28 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- test-bin help [--man] [--ascii-doc] [--text] [--xml] [--json] [<command>] [<sub-command>]
+ test-bin help [--man] [--ascii-doc] [--text] [--xml] [--json] [--help]
+               [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
+               [--no-interaction] <command-name> [<command>] [<sub-command>]
 
 Arguments:
- <command>      The command name
- <sub-command>  The sub command name
+ <command>             The command name
+ <sub-command>         The sub command name
 
 Options:
- --man (-m)     To output help as man page
- --ascii-doc    To output help as AsciiDoc
- --text (-t)    To output help as text
- --xml (-x)     To output help as XML
- --json (-j)    To output help as JSON
- --help (-h)    Help
+ --man (-m)            To output help as man page
+ --ascii-doc           To output help as AsciiDoc
+ --text (-t)           To output help as text
+ --xml (-x)            To output help as XML
+ --json (-j)           To output help as JSON
+ --help (-h)           Display help about the command.
+ --quiet (-q)          Do not output any message.
+ --verbose             Increase the verbosity of messages: 1 for normal output,
+                       2 for more verbose output and 3 for debug.
+ --version (-V)        Display this application version.
+ --ansi                Force ANSI output.
+ --no-ansi             Disable ANSI output.
+ --no-interaction (-n) Do not ask any interactive question.
 
 
 EOF;
@@ -307,16 +323,25 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- test-bin package [--option] [--value="..."] [<arg>]
+ test-bin package [--option] [--value="..."] [--help] [--quiet] [--verbose]
+                  [--version] [--ansi] [--no-ansi] [--no-interaction] [<arg>]
 
 Aliases: package-alias
+
 Arguments:
- <arg>         The "arg" argument
+ <arg>                 The "arg" argument
 
 Options:
- --option (-o) The "option" option
- --value (-v)  The "value" option
- --help (-h)   Help
+ --option (-o)         The "option" option
+ --value (-v)          The "value" option
+ --help (-h)           Display help about the command.
+ --quiet (-q)          Do not output any message.
+ --verbose             Increase the verbosity of messages: 1 for normal output,
+                       2 for more verbose output and 3 for debug.
+ --version (-V)        Display this application version.
+ --ansi                Force ANSI output.
+ --no-ansi             Disable ANSI output.
+ --no-interaction (-n) Do not ask any interactive question.
 
 
 EOF;
@@ -345,16 +370,26 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- test-bin package add [--option] [--value="..."] [<arg>]
+ test-bin package add [--option] [--value="..."] [--help] [--quiet] [--verbose]
+                      [--version] [--ansi] [--no-ansi] [--no-interaction]
+                      [<arg>]
 
 Aliases: package add-alias
+
 Arguments:
- <arg>         The "arg" argument.
+ <arg>                 The "arg" argument.
 
 Options:
- --option (-o) The "option" option.
- --value (-v)  The "value" option.
- --help (-h)   Help
+ --option (-o)         The "option" option.
+ --value (-v)          The "value" option.
+ --help (-h)           Display help about the command.
+ --quiet (-q)          Do not output any message.
+ --verbose             Increase the verbosity of messages: 1 for normal output,
+                       2 for more verbose output and 3 for debug.
+ --version (-V)        Display this application version.
+ --ansi                Force ANSI output.
+ --no-ansi             Disable ANSI output.
+ --no-interaction (-n) Do not ask any interactive question.
 
 
 EOF;

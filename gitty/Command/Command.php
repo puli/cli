@@ -42,26 +42,6 @@ class Command extends \Symfony\Component\Console\Command\Command
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getSynopsis()
-    {
-        if (!$this->getApplication()) {
-            return parent::getSynopsis();
-        }
-
-        // Include the name of the executable in the synopsis
-        $name = $this->getName();
-        $this->setName($this->getApplication()->getExecutableName().' '.$name);
-
-        $synopsis = parent::getSynopsis();
-
-        $this->setName($name);
-
-        return $synopsis;
-    }
-
-    /**
      * Sets the application instance for this command.
      *
      * @param GittyApplication $application The application.

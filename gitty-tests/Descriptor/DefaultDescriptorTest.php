@@ -20,6 +20,7 @@ use Symfony\Component\Process\ExecutableFinder;
 use Webmozart\Gitty\Descriptor\DefaultDescriptor;
 use Webmozart\Gitty\GittyApplication;
 use Webmozart\Gitty\Process\ProcessLauncher;
+use Webmozart\Gitty\Tests\Fixtures\TestApplication;
 use Webmozart\Gitty\Tests\Fixtures\TestPackageAddCommand;
 
 /**
@@ -131,7 +132,7 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
             'defaultPage' => 'default-page',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0', 'test-bin');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -147,32 +148,7 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
 
         $status = $this->descriptor->describe($this->output, $object, $options);
 
-        $expected = <<<EOF
-Test Application version 1.0.0
-
-Usage:
- test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi] [--no-interaction] <command> [<sub-command>]
-
-Arguments:
- <command>             The command to execute.
- <sub-command>         The sub-command to execute.
-
-Options:
- --help (-h)           Display help about the command.
- --quiet (-q)          Do not output any message.
- --verbose (-v|vv|vvv) Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug.
- --version (-V)        Display this application version.
- --ansi                Force ANSI output.
- --no-ansi             Disable ANSI output.
- --no-interaction (-n) Do not ask any interactive question.
-
-Available commands:
- help   Displays help for a command
-
-EOF;
-
-
-        $this->assertSame($expected, $this->output->fetch());
+        $this->assertApplicationHelp($this->output->fetch());
         $this->assertSame(0, $status);
     }
 
@@ -193,7 +169,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -227,7 +203,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -260,7 +236,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -295,7 +271,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -332,7 +308,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -366,7 +342,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -400,7 +376,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -437,7 +413,7 @@ EOF;
             'defaultPage' => 'man-not-found',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -474,7 +450,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -508,7 +484,7 @@ EOF;
             'defaultPage' => 'not-found',
         );
 
-        $object = new GittyApplication('Test Application', '1.0.0', 'test-bin');
+        $object = $this->createApplication();
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -524,32 +500,7 @@ EOF;
 
         $status = $this->descriptor->describe($this->output, $object, $options);
 
-        $expected = <<<EOF
-Test Application version 1.0.0
-
-Usage:
- test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi] [--no-interaction] <command> [<sub-command>]
-
-Arguments:
- <command>             The command to execute.
- <sub-command>         The sub-command to execute.
-
-Options:
- --help (-h)           Display help about the command.
- --quiet (-q)          Do not output any message.
- --verbose (-v|vv|vvv) Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug.
- --version (-V)        Display this application version.
- --ansi                Force ANSI output.
- --no-ansi             Disable ANSI output.
- --no-interaction (-n) Do not ask any interactive question.
-
-Available commands:
- help   Displays help for a command
-
-EOF;
-
-
-        $this->assertSame($expected, $this->output->fetch());
+        $this->assertApplicationHelp($this->output->fetch());
         $this->assertSame(0, $status);
     }
 
@@ -565,7 +516,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new TestPackageAddCommand();
+        $object = $this->createCommand();
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -583,15 +534,26 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- package add [--option] [--value="..."] [<arg>]
+ test-bin package add [--option] [--value="..."] [--help] [--quiet] [--verbose]
+                      [--version] [--ansi] [--no-ansi] [--no-interaction]
+                      [<arg>]
 
 Aliases: package add-alias
+
 Arguments:
- <arg>         The "arg" argument.
+ <arg>                 The "arg" argument.
 
 Options:
- --option (-o) The "option" option.
- --value (-v)  The "value" option.
+ --option (-o)         The "option" option.
+ --value (-v)          The "value" option.
+ --help (-h)           Display help about the command.
+ --quiet (-q)          Do not output any message.
+ --verbose             Increase the verbosity of messages: 1 for normal output,
+                       2 for more verbose output and 3 for debug.
+ --version (-V)        Display this application version.
+ --ansi                Force ANSI output.
+ --no-ansi             Disable ANSI output.
+ --no-interaction (-n) Do not ask any interactive question.
 
 
 EOF;
@@ -742,5 +704,57 @@ EOF;
         $status = $this->descriptor->describe($this->output, $object, $options);
 
         $this->assertSame(123, $status);
+    }
+
+    private function assertApplicationHelp($string)
+    {
+        $expected = <<<EOF
+Test Application version 1.0.0
+
+Usage:
+ test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
+          [--no-interaction] <command> [<sub-command>]
+
+Arguments:
+ <command>             The command to execute.
+ <sub-command>         The sub-command to execute.
+
+Options:
+ --help (-h)           Display help about the command.
+ --quiet (-q)          Do not output any message.
+ --verbose             Increase the verbosity of messages: 1 for normal output,
+                       2 for more verbose output and 3 for debug.
+ --version (-V)        Display this application version.
+ --ansi                Force ANSI output.
+ --no-ansi             Disable ANSI output.
+ --no-interaction (-n) Do not ask any interactive question.
+
+Available commands:
+ help                  Displays help for a command
+ pack                  Description of "pack"
+ package               Description of "package"
+ package add           Description of "package add"
+ package addon         Description of "package addon"
+
+
+EOF;
+
+        $this->assertSame($expected, $string);
+    }
+
+    private function createApplication()
+    {
+        return new TestApplication(array(80, null));
+    }
+
+    /**
+     * @return TestPackageAddCommand
+     */
+    protected function createCommand()
+    {
+        $object = new TestPackageAddCommand();
+        $object->setApplication($this->createApplication());
+
+        return $object;
     }
 }

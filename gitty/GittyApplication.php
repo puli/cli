@@ -46,8 +46,6 @@ class GittyApplication extends Application
 
     private $executableName;
 
-    private $synopsis;
-
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN', $executableName = null)
     {
         parent::__construct($name, $version);
@@ -79,19 +77,6 @@ class GittyApplication extends Application
     public function setExecutableName($executableName)
     {
         $this->executableName = $executableName;
-    }
-
-    public function getSynopsis()
-    {
-        if (null === $this->synopsis) {
-            $this->synopsis = trim(sprintf(
-                '%s %s',
-                $this->getExecutableName(),
-                $this->getDefinition()->getSynopsis()
-            ));
-        }
-
-        return $this->synopsis;
     }
 
     public function setDefaultCommand($commandName)

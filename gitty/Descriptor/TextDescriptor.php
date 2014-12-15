@@ -11,10 +11,11 @@
 
 namespace Webmozart\Gitty\Descriptor;
 
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Descriptor\ApplicationDescription;
+use Symfony\Component\Console\Descriptor\DescriptorInterface;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Gitty\Command\Command;
 use Webmozart\Gitty\Command\CompositeCommand;
 use Webmozart\Gitty\GittyApplication;
@@ -25,17 +26,484 @@ use Webmozart\Gitty\GittyApplication;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TextDescriptor extends \Symfony\Component\Console\Descriptor\TextDescriptor
+class TextDescriptor implements DescriptorInterface
 {
     /**
-     * {@inheritdoc}
+     * @var OutputInterface
      */
-    protected function describeInputDefinition(InputDefinition $definition, array $options = array())
-    {
-        $definition = clone $definition;
-        $arguments = $definition->getArguments();
+    private $output;
 
-        // Filter out the "command" and "sub-command" arguments
+    /**
+     * @var int|null
+     */
+    private $terminalWidth;
+
+    /**
+     * Describes an object as text on the console output.
+     *
+     * @param OutputInterface          $output  The output.
+     * @param Command|GittyApplication $object  The object to describe.
+     * @param array                    $options Additional options.
+     */
+    public function describe(OutputInterface $output, $object, array $options = array())
+    {
+        $this->output = $output;
+
+        if ($object instanceof Command) {
+            list ($this->terminalWidth) = $object->getApplication()->getTerminalDimensions();
+            $this->describeCommand($object, $options);
+
+            return;
+        }
+
+        if ($object instanceof GittyApplication) {
+            list ($this->terminalWidth) = $object->getTerminalDimensions();
+            $this->describeApplication($object, $options);
+
+            return;
+        }
+
+        throw new \InvalidArgumentException(sprintf(
+            'Object of type "%s" is not describable.',
+            is_object($object) ? get_class($object) : gettype($object)
+        ));
+    }
+
+    /**
+     * Describes an application.
+     *
+     * @param GittyApplication $application The application to describe.
+     * @param array            $options     Additional options.
+     */
+    protected function describeApplication(GittyApplication $application, array $options = array())
+    {
+        $description = new ApplicationDescription($application);
+        $help = $application->getHelp();
+        $commands = $description->getCommands();
+        $definition = $application->getDefinition();
+        $inputArgs = $definition ? $definition->getArguments() : array();
+        $inputOpts = $definition ? $definition->getOptions() : array();
+
+        $options['nameWidth'] = max(
+            $this->getMaxCommandWidth($commands),
+            $this->getMaxOptionWidth($inputOpts),
+            $this->getMaxArgumentWidth($inputArgs)
+        );
+
+        if ($help) {
+            $this->describeApplicationHelp($help, $options);
+            $this->write("\n");
+        }
+
+        $this->describeApplicationUsage($application, $options);
+
+        $this->write("\n");
+
+        if ($inputArgs) {
+            $this->describeInputArguments($inputArgs, $options);
+        }
+
+        if ($inputArgs && ($inputOpts || $commands)) {
+            $this->write("\n");
+        }
+
+        if ($inputOpts) {
+            $this->describeInputOptions($inputOpts, $options);
+        }
+
+        if ($inputOpts && $commands) {
+            $this->write("\n");
+        }
+
+        $this->describeApplicationCommands($commands, $options);
+
+        $this->write("\n");
+    }
+
+    /**
+     * Describes a command.
+     *
+     * @param Command $command The command to describe.
+     * @param array   $options Additional options.
+     */
+    protected function describeCommand(Command $command, array $options = array())
+    {
+        $command->mergeApplicationDefinition(false);
+
+        $aliases = $command->getAliases();
+        $help = $command->getProcessedHelp();
+        $definition = $command->getNativeDefinition();
+        $inputArgs = $this->filterArguments($definition ? $definition->getArguments() : array());
+        $inputOpts = $definition ? $definition->getOptions() : array();
+
+        $options['nameWidth'] = max(
+            $this->getMaxOptionWidth($inputOpts),
+            $this->getMaxArgumentWidth($inputArgs)
+        );
+
+        $this->describeCommandUsage($command, $options);
+
+        $this->write("\n");
+
+        if ($aliases) {
+            $this->describeAliases($aliases, $options);
+        }
+
+        if ($aliases && ($inputArgs || $inputOpts || $help)) {
+            $this->write("\n");
+        }
+
+        if ($inputArgs) {
+            $this->describeInputArguments($inputArgs, $options);
+        }
+
+        if ($inputArgs && ($inputOpts || $help)) {
+            $this->write("\n");
+        }
+
+        if ($inputOpts) {
+            $this->describeInputOptions($inputOpts, $options);
+        }
+
+        if ($inputOpts && $help) {
+            $this->write("\n");
+        }
+
+        if ($help) {
+            $this->describeCommandHelp($help, $options);
+        }
+
+        $this->write("\n");
+    }
+
+    /**
+     * Describes the usage of an application.
+     *
+     * @param GittyApplication $application The application to describe.
+     * @param array            $options     Additional options.
+     */
+    protected function describeApplicationUsage(GittyApplication $application, array $options = array())
+    {
+        $executableName = $application->getExecutableName();
+        $synopsis = $application->getDefinition()->getSynopsis();
+
+        $this->describeUsage($executableName, $synopsis, $options);
+    }
+
+    /**
+     * Describes the usage of a command.
+     *
+     * @param Command $command The command to describe.
+     * @param array   $options Additional options.
+     */
+    protected function describeCommandUsage(Command $command, array $options = array())
+    {
+        $executableName = $command->getApplication()->getExecutableName();
+        $commandName = $executableName.' '.$command->getName();
+        $synopsis = $command->getNativeDefinition()->getSynopsis();
+
+        $this->describeUsage($commandName, $synopsis, $options);
+    }
+
+    /**
+     * Describes the usage of a console command.
+     *
+     * @param string $command  The command to describe.
+     * @param string $synopsis The synopsis of the command.
+     * @param array  $options  Additional options.
+     */
+    protected function describeUsage($command, $synopsis, array $options = array())
+    {
+        $this->write('<comment>Usage:</comment>');
+        $this->write("\n");
+        $this->writeWrappedText($synopsis, $command);
+        $this->write("\n");
+    }
+
+    /**
+     * Describes a list of input arguments.
+     *
+     * @param InputArgument[] $inputArgs The input arguments to describe.
+     * @param array           $options   Additional options.
+     */
+    protected function describeInputArguments($inputArgs, array $options = array())
+    {
+        $this->write('<comment>Arguments:</comment>');
+        $this->write("\n");
+
+        foreach ($inputArgs as $argument) {
+            $this->describeInputArgument($argument, $options);
+            $this->write("\n");
+        }
+    }
+
+    /**
+     * Describes an input argument.
+     *
+     * @param InputArgument $argument The input argument to describe.
+     * @param array         $options  Additional options.
+     */
+    protected function describeInputArgument(InputArgument $argument, array $options = array())
+    {
+        $nameWidth = isset($options['nameWidth']) ? $options['nameWidth'] : null;
+        $description = $argument->getDescription();
+
+        if (null !== $argument->getDefault() && (!is_array($argument->getDefault()) || count($argument->getDefault()))) {
+            $description .= sprintf('<comment> (default: %s)</comment>', $this->formatDefaultValue($argument->getDefault()));
+        }
+
+        $this->writeWrappedText($description, '<'.$argument->getName().'>', true, $nameWidth);
+    }
+
+    /**
+     * Describes a list of input options.
+     *
+     * @param InputOption[] $inputOpts The input options to describe.
+     * @param array         $options   Additional options.
+     */
+    protected function describeInputOptions($inputOpts, array $options = array())
+    {
+        $this->write('<comment>Options:</comment>');
+        $this->write("\n");
+
+        foreach ($inputOpts as $option) {
+            $this->describeInputOption($option, $options);
+            $this->write("\n");
+        }
+    }
+
+    /**
+     * Describes an input option.
+     *
+     * @param InputOption $option  The input option to describe.
+     * @param array       $options Additional options.
+     */
+    protected function describeInputOption(InputOption $option, array $options = array())
+    {
+        $nameWidth = isset($options['nameWidth']) ? $options['nameWidth'] : null;
+        $description = $option->getDescription();
+        $name = '--'.$option->getName();
+
+        if ($option->getShortcut()) {
+            $name .= sprintf(' (-%s)', $option->getShortcut());
+        }
+
+        if ($option->acceptValue() && null !== $option->getDefault() && (!is_array($option->getDefault()) || count($option->getDefault()))) {
+            $description .= sprintf('<comment> (default: %s)</comment>', $this->formatDefaultValue($option->getDefault()));
+        }
+
+        if ($option->isArray()) {
+            $description .= '<comment> (multiple values allowed)</comment>';
+        }
+
+        $this->writeWrappedText($description, $name, true, $nameWidth);
+    }
+
+    /**
+     * Describes the commands of an application.
+     *
+     * @param Command[] $commands The commands to describe.
+     * @param array     $options  Additional options.
+     */
+    protected function describeApplicationCommands($commands, array $options = array())
+    {
+        $this->write('<comment>Available commands:</comment>');
+        $this->write("\n");
+
+        foreach ($commands as $command) {
+            $this->describeApplicationCommand($command, $options);
+            $this->write("\n");
+        }
+    }
+
+    /**
+     * Describes a command of an application.
+     *
+     * @param Command $command The command to describe.
+     * @param array   $options Additional options.
+     */
+    protected function describeApplicationCommand(Command $command, array $options = array())
+    {
+        $nameWidth = isset($options['nameWidth']) ? $options['nameWidth'] : null;
+
+        $this->writeWrappedText($command->getDescription(), $command->getName(), true, $nameWidth);
+    }
+
+    /**
+     * Describes the aliases of a command.
+     *
+     * @param string[] $aliases The aliases to describe.
+     * @param array    $options Additional options.
+     */
+    protected function describeAliases($aliases, array $options = array())
+    {
+        $this->write('<comment>Aliases:</comment> <info>'.implode(', ', $aliases).'</info>');
+        $this->write("\n");
+    }
+
+    /**
+     * Describes the help of an application.
+     *
+     * @param string $help    The help text.
+     * @param array  $options Additional options.
+     */
+    protected function describeApplicationHelp($help, array $options = array())
+    {
+        $this->write("$help\n");
+    }
+
+    /**
+     * Describes the help of a command.
+     *
+     * @param string $help    The help text.
+     * @param array  $options Additional options.
+     */
+    protected function describeCommandHelp($help, array $options = array())
+    {
+        $this->write('<comment>Help:</comment>');
+        $this->write("\n");
+        $this->write(' '.str_replace("\n", "\n ", $help));
+        $this->write("\n");
+    }
+
+    /**
+     * Writes text to the output.
+     *
+     * @param string $text
+     */
+    protected function write($text)
+    {
+        $this->output->write($text, false, OutputInterface::OUTPUT_NORMAL);
+    }
+
+    /**
+     * Writes wrapped text to the output.
+     *
+     * The text will be wrapped to match the terminal width (if available) with
+     * a leading and a trailing space.
+     *
+     * You can optionally pass a label that is written before the text. The
+     * text will then be wrapped to start each line one space to the right of
+     * the label.
+     *
+     * If the label should have a minimum width, pass the `$labelWidth`
+     * parameter. You can highlight the label by setting `$highlightLabel` to
+     * `true`.
+     *
+     * @param string   $text           The text to write.
+     * @param string   $label          The label.
+     * @param bool     $highlightLabel Whether to highlight the label.
+     * @param int|null $minLabelWidth  The minimum width of the label.
+     */
+    protected function writeWrappedText($text, $label = '', $highlightLabel = false, $minLabelWidth = null)
+    {
+        if (!$minLabelWidth) {
+            $minLabelWidth = strlen($label);
+        }
+
+        // If we know the terminal width, wrap the text
+        if ($this->terminalWidth) {
+            // 1 space after the label
+            $indentation = $minLabelWidth ? $minLabelWidth + 1 : 0;
+            $linePrefix = ' '.str_repeat(' ', $indentation);
+
+            // 1 leading space, 1 trailing space
+            $textWidth = $this->terminalWidth - $indentation - 2;
+
+            $text = str_replace("\n", "\n".$linePrefix, wordwrap($text, $textWidth));
+        }
+
+        if ($label) {
+            $text = sprintf(
+                "%s%-${minLabelWidth}s%s %s",
+                $highlightLabel ? '<info>' : '',
+                $label,
+                $highlightLabel ? '</info>' : '',
+                $text
+            );
+        }
+
+        $this->write(' '.$text);
+    }
+
+    /**
+     * Returns the maximum width of the names of a list of options.
+     *
+     * @param InputOption[] $options The options.
+     *
+     * @return int The maximum width.
+     */
+    protected function getMaxOptionWidth(array $options)
+    {
+        $width = 0;
+
+        foreach ($options as $option) {
+            // Respect leading dashes "--"
+            $length = strlen($option->getName()) + 2;
+
+            if ($option->getShortcut()) {
+                // Respect space, dash and braces " (-", ")"
+                $length += strlen($option->getShortcut()) + 4;
+            }
+
+            $width = max($width, $length);
+        }
+
+        return $width;
+    }
+
+    /**
+     * Returns the maximum width of the names of a list of arguments.
+     *
+     * @param InputArgument[] $arguments The arguments.
+     *
+     * @return int The maximum width.
+     */
+    protected function getMaxArgumentWidth(array $arguments)
+    {
+        $width = 0;
+
+        foreach ($arguments as $argument) {
+            // Respect wrapping brackets "<", ">"
+            $width = max($width, strlen($argument->getName()) + 2);
+        }
+
+        return $width;
+    }
+
+    /**
+     * Returns the maximum width of the names of a list of commands.
+     *
+     * @param Command[] $commands The commands.
+     *
+     * @return int The maximum width.
+     */
+    protected function getMaxCommandWidth(array $commands)
+    {
+        $width = 0;
+
+        foreach ($commands as $command) {
+            $width = max($width, strlen($command->getName()));
+        }
+
+        return $width;
+    }
+
+    /**
+     * Filters arguments that should not be described.
+     *
+     * Commands contain additional arguments that contain the command name.
+     * This is necessary so that the input definition can be correctly bound
+     * to the input. However, that argument should not be displayed on the
+     * output, since it is not really an argument, but rather part of the
+     * called command.
+     *
+     * @param InputArgument[] $arguments The arguments to filter.
+     *
+     * @return InputArgument[] The filtered arguments.
+     */
+    protected function filterArguments($arguments)
+    {
         $filter = function (InputArgument $arg) {
             return !in_array($arg->getName(), array(
                 Command::COMMAND_ARG,
@@ -43,116 +511,22 @@ class TextDescriptor extends \Symfony\Component\Console\Descriptor\TextDescripto
             ));
         };
 
-        $arguments = array_filter($arguments, $filter);
-
-        $definition->setArguments($this->wrapArgumentNames($arguments));
-
-        parent::describeInputDefinition($definition, $options);
+        return array_filter($arguments, $filter);
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function describeApplication(Application $application, array $options = array())
-    {
-        if (!$application instanceof GittyApplication) {
-            throw new \InvalidArgumentException(sprintf(
-                'Expected argument of type GittyApplication. Got: %s',
-                is_object($application) ? get_class($application) : gettype($application)
-            ));
-        }
-
-        $description = new ApplicationDescription($application);
-
-        if (isset($options['raw_text']) && $options['raw_text']) {
-            $width = $this->getColumnWidth($description->getCommands());
-
-            foreach ($description->getCommands() as $command) {
-                $this->writeText(sprintf("%-${width}s %s", $command->getName(), $command->getDescription()), $options);
-                $this->writeText("\n");
-            }
-        } else {
-            if ('' != $help = $application->getHelp()) {
-                $this->writeText("$help\n\n", $options);
-            }
-
-            $this->writeText('<comment>Usage:</comment>', $options);
-            $this->writeText("\n");
-            $this->writeText(' '.$application->getSynopsis(), $options);
-            $this->writeText("\n");
-
-            if ($definition = $application->getDefinition()) {
-                $this->writeText("\n");
-                $this->describeInputDefinition($definition, $options);
-            }
-
-            $this->writeText("\n", $options);
-
-            $width = $this->getColumnWidth($description->getCommands());
-
-            $this->writeText('<comment>Available commands:</comment>', $options);
-
-            foreach ($description->getNamespaces() as $namespace) {
-                foreach ($namespace['commands'] as $name) {
-                    $this->writeText("\n");
-                    $this->writeText(sprintf(" <info>%-${width}s</info> %s", $name, $description->getCommand($name)->getDescription()), $options);
-                }
-            }
-
-            $this->writeText("\n");
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    private function writeText($content, array $options = array())
-    {
-        $this->write(
-            isset($options['raw_text']) && $options['raw_text'] ? strip_tags($content) : $content,
-            isset($options['raw_output']) ? !$options['raw_output'] : true
-        );
-    }
-
-    /**
-     * @param Command[] $commands
+     * Formats the default value of an argument or an option.
      *
-     * @return int
-     */
-    private function getColumnWidth(array $commands)
-    {
-        $width = 0;
-        foreach ($commands as $command) {
-            $width = strlen($command->getName()) > $width ? strlen($command->getName()) : $width;
-        }
-
-        return $width + 2;
-    }
-
-    /**
-     * @param $arguments
+     * @param mixed $default The default value to format.
      *
-     * @return mixed
+     * @return string The formatted value.
      */
-    protected function wrapArgumentNames($arguments)
+    private function formatDefaultValue($default)
     {
-// Wrap argument names with "<" and ">"
-        foreach ($arguments as $key => $argument) {
-            $mode = $argument->isRequired() ? InputArgument::REQUIRED
-                : InputArgument::OPTIONAL;
-
-            if ($argument->isArray()) {
-                $mode |= InputArgument::IS_ARRAY;
-            }
-
-            $arguments[$key] = new InputArgument(
-                '<'.$argument->getName().'>',
-                $mode,
-                $argument->getDescription(),
-                $argument->getDefault()
-            );
+        if (PHP_VERSION_ID < 50400) {
+            return str_replace('\/', '/', json_encode($default));
         }
 
-        return $arguments;
+        return json_encode($default, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 }

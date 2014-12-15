@@ -12,7 +12,6 @@
 namespace Webmozart\Gitty\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
-use Webmozart\Gitty\GittyApplication;
 
 /**
  * A composite command.

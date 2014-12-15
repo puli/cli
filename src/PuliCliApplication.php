@@ -14,6 +14,7 @@ namespace Puli\Cli;
 use Puli\Cli\Command\DumpCommand;
 use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\PackageCommand;
+use Puli\Cli\Command\TagCommand;
 use Webmozart\Console\Command\HelpCommand;
 use Webmozart\Console\Application;
 
@@ -29,7 +30,7 @@ class PuliCliApplication extends Application
 
     public function __construct()
     {
-        parent::__construct('Puli', self::VERSION);
+        parent::__construct('puli', self::VERSION);
 
         $this->setCatchExceptions(true);
         $this->setDefaultCommand('help');
@@ -49,6 +50,7 @@ class PuliCliApplication extends Application
             new DumpCommand(),
             new LsCommand(),
             new PackageCommand(),
+            new TagCommand(),
         ));
     }
 }

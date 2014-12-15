@@ -226,25 +226,25 @@ Usage:
           [--no-interaction] <command> [<sub-command>]
 
 Arguments:
- <command>             The command to execute.
- <sub-command>         The sub-command to execute.
+ <command>              The command to execute.
+ <sub-command>          The sub-command to execute.
 
 Options:
- --help (-h)           Display help about the command.
- --quiet (-q)          Do not output any message.
- --verbose             Increase the verbosity of messages: 1 for normal output,
-                       2 for more verbose output and 3 for debug.
- --version (-V)        Display this application version.
- --ansi                Force ANSI output.
- --no-ansi             Disable ANSI output.
- --no-interaction (-n) Do not ask any interactive question.
+ --help (-h)            Display help about the command.
+ --quiet (-q)           Do not output any message.
+ --verbose              Increase the verbosity of messages: 1 for normal
+                        output, 2 for more verbose output and 3 for debug.
+ --version (-V)         Display this application version.
+ --ansi                 Force ANSI output.
+ --no-ansi              Disable ANSI output.
+ --no-interaction (-n)  Do not ask any interactive question.
 
 Available commands:
- help                  Displays help for a command
- pack                  Description of "pack"
- package               Description of "package"
- package add           Description of "package add"
- package addon         Description of "package addon"
+ help                   Displays help for a command
+ pack                   Description of "pack"
+ package                Description of "package"
+ package add            Description of "package add"
+ package addon          Description of "package addon"
 
 
 EOF;
@@ -278,23 +278,23 @@ Usage:
                [--no-interaction] <command-name> [<command>] [<sub-command>]
 
 Arguments:
- <command>             The command name
- <sub-command>         The sub command name
+ <command>              The command name
+ <sub-command>          The sub command name
 
 Options:
- --man (-m)            To output help as man page
- --ascii-doc           To output help as AsciiDoc
- --text (-t)           To output help as text
- --xml (-x)            To output help as XML
- --json (-j)           To output help as JSON
- --help (-h)           Display help about the command.
- --quiet (-q)          Do not output any message.
- --verbose             Increase the verbosity of messages: 1 for normal output,
-                       2 for more verbose output and 3 for debug.
- --version (-V)        Display this application version.
- --ansi                Force ANSI output.
- --no-ansi             Disable ANSI output.
- --no-interaction (-n) Do not ask any interactive question.
+ --man (-m)             To output help as man page
+ --ascii-doc            To output help as AsciiDoc
+ --text (-t)            To output help as text
+ --xml (-x)             To output help as XML
+ --json (-j)            To output help as JSON
+ --help (-h)            Display help about the command.
+ --quiet (-q)           Do not output any message.
+ --verbose              Increase the verbosity of messages: 1 for normal
+                        output, 2 for more verbose output and 3 for debug.
+ --version (-V)         Display this application version.
+ --ansi                 Force ANSI output.
+ --no-ansi              Disable ANSI output.
+ --no-interaction (-n)  Do not ask any interactive question.
 
 
 EOF;
@@ -328,19 +328,19 @@ Usage:
 Aliases: package-alias
 
 Arguments:
- <arg>                 The "arg" argument
+ <arg>                  The "arg" argument
 
 Options:
- --option (-o)         The "option" option
- --value (-v)          The "value" option
- --help (-h)           Display help about the command.
- --quiet (-q)          Do not output any message.
- --verbose             Increase the verbosity of messages: 1 for normal output,
-                       2 for more verbose output and 3 for debug.
- --version (-V)        Display this application version.
- --ansi                Force ANSI output.
- --no-ansi             Disable ANSI output.
- --no-interaction (-n) Do not ask any interactive question.
+ --option (-o)          The "option" option
+ --value (-v)           The "value" option
+ --help (-h)            Display help about the command.
+ --quiet (-q)           Do not output any message.
+ --verbose              Increase the verbosity of messages: 1 for normal
+                        output, 2 for more verbose output and 3 for debug.
+ --version (-V)         Display this application version.
+ --ansi                 Force ANSI output.
+ --no-ansi              Disable ANSI output.
+ --no-interaction (-n)  Do not ask any interactive question.
 
 
 EOF;
@@ -374,19 +374,19 @@ Usage:
 Aliases: package add-alias
 
 Arguments:
- <arg>                 The "arg" argument.
+ <arg>                  The "arg" argument.
 
 Options:
- --option (-o)         The "option" option.
- --value (-v)          The "value" option.
- --help (-h)           Display help about the command.
- --quiet (-q)          Do not output any message.
- --verbose             Increase the verbosity of messages: 1 for normal output,
-                       2 for more verbose output and 3 for debug.
- --version (-V)        Display this application version.
- --ansi                Force ANSI output.
- --no-ansi             Disable ANSI output.
- --no-interaction (-n) Do not ask any interactive question.
+ --option (-o)          The "option" option.
+ --value (-v)           The "value" option.
+ --help (-h)            Display help about the command.
+ --quiet (-q)           Do not output any message.
+ --verbose              Increase the verbosity of messages: 1 for normal
+                        output, 2 for more verbose output and 3 for debug.
+ --version (-V)         Display this application version.
+ --ansi                 Force ANSI output.
+ --no-ansi              Disable ANSI output.
+ --no-interaction (-n)  Do not ask any interactive question.
 
 
 EOF;

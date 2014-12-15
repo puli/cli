@@ -248,12 +248,13 @@ class TextDescriptor implements DescriptorInterface
     {
         $nameWidth = isset($options['nameWidth']) ? $options['nameWidth'] : null;
         $description = $argument->getDescription();
+        $name = $argument->getName();
 
         if (null !== $argument->getDefault() && (!is_array($argument->getDefault()) || count($argument->getDefault()))) {
             $description .= sprintf('<comment> (default: %s)</comment>', $this->formatDefaultValue($argument->getDefault()));
         }
 
-        $this->printWrappedText($description, '<'.$argument->getName().'>', true, $nameWidth);
+        $this->printWrappedText($description, '<'.$name.'>', true, $nameWidth, 2);
     }
 
     /**
@@ -297,7 +298,7 @@ class TextDescriptor implements DescriptorInterface
             $description .= '<comment> (multiple values allowed)</comment>';
         }
 
-        $this->printWrappedText($description, $name, true, $nameWidth);
+        $this->printWrappedText($description, $name, true, $nameWidth, 2);
     }
 
     /**
@@ -326,8 +327,10 @@ class TextDescriptor implements DescriptorInterface
     protected function printCommand(Command $command, array $options = array())
     {
         $nameWidth = isset($options['nameWidth']) ? $options['nameWidth'] : null;
+        $description = $command->getDescription();
+        $name = $command->getName();
 
-        $this->printWrappedText($command->getDescription(), $command->getName(), true, $nameWidth);
+        $this->printWrappedText($description, $name, true, $nameWidth, 2);
     }
 
     /**
@@ -385,8 +388,10 @@ class TextDescriptor implements DescriptorInterface
      * @param string   $label          The label.
      * @param bool     $highlightLabel Whether to highlight the label.
      * @param int|null $minLabelWidth  The minimum width of the label.
+     * @param int      $labelDistance  The distance between the label and the
+     *                                 text in spaces.
      */
-    protected function printWrappedText($text, $label = '', $highlightLabel = false, $minLabelWidth = null)
+    protected function printWrappedText($text, $label = '', $highlightLabel = false, $minLabelWidth = null, $labelDistance = 1)
     {
         if (!$minLabelWidth) {
             $minLabelWidth = strlen($label);
@@ -395,7 +400,7 @@ class TextDescriptor implements DescriptorInterface
         // If we know the terminal width, wrap the text
         if ($this->terminalWidth) {
             // 1 space after the label
-            $indentation = $minLabelWidth ? $minLabelWidth + 1 : 0;
+            $indentation = $minLabelWidth ? $minLabelWidth + $labelDistance : 0;
             $linePrefix = ' '.str_repeat(' ', $indentation);
 
             // 1 leading space, 1 trailing space
@@ -406,10 +411,11 @@ class TextDescriptor implements DescriptorInterface
 
         if ($label) {
             $text = sprintf(
-                "%s%-${minLabelWidth}s%s %s",
+                "%s%-${minLabelWidth}s%s%-{$labelDistance}s%s",
                 $highlightLabel ? '<info>' : '',
                 $label,
                 $highlightLabel ? '</info>' : '',
+                '',
                 $text
             );
         }

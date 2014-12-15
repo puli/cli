@@ -128,9 +128,6 @@ class TextDescriptor implements DescriptorInterface
      */
     protected function describeCommand(Command $command, array $options = array())
     {
-        // Print command usage before merging the application definition
-        $this->printCommandUsage($command, $options);
-
         $command->mergeApplicationDefinition(false);
 
         $aliases = $command->getAliases();
@@ -143,6 +140,8 @@ class TextDescriptor implements DescriptorInterface
             $this->getMaxOptionWidth($inputOpts),
             $this->getMaxArgumentWidth($inputArgs)
         );
+
+        $this->printCommandUsage($command, $options);
 
         $this->write("\n");
 
@@ -201,7 +200,7 @@ class TextDescriptor implements DescriptorInterface
     {
         $executableName = $command->getApplication()->getExecutableName();
         $commandName = $executableName.' '.$command->getName();
-        $synopsis = $command->getNativeDefinition()->getSynopsis();
+        $synopsis = $command->getLocalDefinition()->getSynopsis();
 
         $this->printUsage($commandName, $synopsis, $options);
     }

@@ -27,6 +27,11 @@ class Command extends \Symfony\Component\Console\Command\Command
     const COMMAND_ARG = 'command-name';
 
     /**
+     * @var InputDefinition
+     */
+    private $localDefinition;
+
+    /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
@@ -39,6 +44,18 @@ class Command extends \Symfony\Component\Console\Command\Command
         $inputDefinition->addOptions($this->getDefinition()->getOptions());
 
         $this->setDefinition($inputDefinition);
+
+        // Remember this input definition later on to get the synopsis without
+        // the application options/arguments
+        $this->localDefinition = clone $inputDefinition;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLocalDefinition()
+    {
+        return $this->localDefinition;
     }
 
     /**

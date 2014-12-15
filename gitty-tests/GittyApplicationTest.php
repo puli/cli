@@ -271,9 +271,8 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- test-bin help [--all] [--man] [--ascii-doc] [--text] [--xml] [--json] [--help]
-               [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
-               [--no-interaction] [<command>] [<sub-command>]
+ test-bin help [--all] [--man] [--ascii-doc] [--text] [--xml] [--json]
+               [<command>] [<sub-command>]
 
 Arguments:
  <command>              The command name

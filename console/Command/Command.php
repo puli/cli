@@ -14,6 +14,7 @@ namespace Webmozart\Console\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Webmozart\Console\Application;
 use Webmozart\Console\Input\InputDefinition;
+use Webmozart\Console\Input\InputOption;
 
 /**
  * A command.
@@ -54,12 +55,19 @@ class Command extends \Symfony\Component\Console\Command\Command
         $this->localDefinition = clone $inputDefinition;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getLocalDefinition()
     {
         return $this->localDefinition;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addOption($name, $shortcut = null, $mode = null, $description = '', $default = null, $valueName = '...')
+    {
+        $this->getDefinition()->addOption(new InputOption($name, $shortcut, $mode, $description, $default, $valueName));
+
+        return $this;
     }
 
     /**

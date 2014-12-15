@@ -585,7 +585,7 @@ EOF;
 
         $expected = <<<EOF
 USAGE
-  test-bin package add [--option] [--value="..."] [<arg>]
+  test-bin package add [--option] [--value\xC2\xA0<...>] [<arg>]
 
   aliases: package add-alias
 

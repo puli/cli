@@ -22,6 +22,33 @@ use Webmozart\Console\Command\CompositeCommand;
  */
 class InputDefinition extends \Symfony\Component\Console\Input\InputDefinition
 {
+    public function addOption(\Symfony\Component\Console\Input\InputOption $option)
+    {
+        if (!$option instanceof InputOption) {
+            if ($option->isValueOptional()) {
+                $mode = InputOption::VALUE_OPTIONAL;
+            } elseif ($option->isValueRequired()) {
+                $mode = InputOption::VALUE_REQUIRED;
+            } else {
+                $mode = InputOption::VALUE_NONE;
+            }
+
+            if ($option->isArray()) {
+                $mode |= InputOption::VALUE_IS_ARRAY;
+            }
+
+            $option = new InputOption(
+                $option->getName(),
+                $option->getShortcut(),
+                $mode,
+                $option->getDescription(),
+                $option->acceptValue() ? $option->getDefault() : null
+            );
+        }
+
+        parent::addOption($option);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -30,15 +57,16 @@ class InputDefinition extends \Symfony\Component\Console\Input\InputDefinition
         $elements = array();
 
         foreach ($this->getOptions() as $option) {
+            // \xC2\xA0 is a non-breaking space
             if ($option->isValueRequired()) {
-                $format = '--%s="..."';
+                $format = "--%s\xC2\xA0<%s>";
             } elseif ($option->isValueOptional()) {
-                $format = '--%s[="..."]';
+                $format = "--%s\xC2\xA0[<%s>]";
             } else {
                 $format = '--%s';
             }
 
-            $elements[] = sprintf('['.$format.']', $option->getName());
+            $elements[] = sprintf('['.$format.']', $option->getName(), $option->getValueName());
         }
 
         foreach ($this->getArguments() as $argument) {

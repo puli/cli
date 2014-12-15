@@ -15,11 +15,11 @@ use Symfony\Component\Console\Descriptor\ApplicationDescription;
 use Symfony\Component\Console\Descriptor\DescriptorInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\Command;
 use Webmozart\Console\Command\CompositeCommand;
 use Webmozart\Console\Application;
+use Webmozart\Console\Input\InputOption;
 
 /**
  * Describes an object as text on the console output.

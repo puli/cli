@@ -14,7 +14,7 @@ namespace Puli\Cli\Command;
 use Puli\RepositoryManager\ManagerFactory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Gitty\Command\Command;
+use Webmozart\Console\Command\Command;
 
 /**
  * @since  1.0

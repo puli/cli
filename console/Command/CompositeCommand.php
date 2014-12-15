@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Command;
+namespace Webmozart\Console\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
 

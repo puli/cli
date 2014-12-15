@@ -9,26 +9,26 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Tests\Fixtures;
+namespace Webmozart\Console\Tests\Fixtures;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Gitty\Command\Command;
+use Webmozart\Console\Command\CompositeCommand;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestPackageCommand extends Command
+class TestPackageAddCommand extends CompositeCommand
 {
     protected function configure()
     {
         $this
-            ->setName('package')
-            ->setAliases(array('package-alias'))
-            ->setDescription('Description of "package"')
+            ->setName('package add')
+            ->setAliases(array('package add-alias'))
+            ->setDescription('Description of "package add"')
             ->addArgument('arg', InputArgument::OPTIONAL, 'The "arg" argument')
             ->addOption('option', 'o', InputOption::VALUE_NONE, 'The "option" option')
             ->addOption('value', 'v', InputOption::VALUE_REQUIRED, 'The "value" option')
@@ -41,6 +41,6 @@ class TestPackageCommand extends Command
         $opt = $input->getOption('option');
         $val = $input->getOption('value');
 
-        $output->write('"package'.($opt ? ' -o' : '').($val ? ' -v'.$val : '').($arg ? ' '.$arg : '').'" executed');
+        $output->write('"package add'.($opt ? ' -o' : '').($val ? ' -v'.$val : '').($arg ? ' '.$arg : '').'" executed');
     }
 }

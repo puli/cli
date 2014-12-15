@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Tests;
+namespace Webmozart\Console\Tests;
 
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Webmozart\Gitty\Tests\Fixtures\TestApplication;
+use Webmozart\Console\Tests\Fixtures\TestApplication;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class GittyApplicationTest extends \PHPUnit_Framework_TestCase
+class ApplicationTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var TestApplication

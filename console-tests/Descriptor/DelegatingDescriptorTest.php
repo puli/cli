@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Tests\Descriptor;
+namespace Webmozart\Console\Tests\Descriptor;
 
 use Symfony\Component\Console\Descriptor\DescriptorInterface;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Gitty\Descriptor\DelegatingDescriptor;
+use Webmozart\Console\Descriptor\DelegatingDescriptor;
 
 /**
  * @since  1.0

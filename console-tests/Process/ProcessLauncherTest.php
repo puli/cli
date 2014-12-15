@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Tests\Process;
+namespace Webmozart\Console\Tests\Process;
 
 use Symfony\Component\Process\ExecutableFinder;
-use Webmozart\Gitty\Process\ProcessLauncher;
+use Webmozart\Console\Process\ProcessLauncher;
 
 /**
  * @since  1.0

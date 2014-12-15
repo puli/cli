@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Descriptor;
+namespace Webmozart\Console\Descriptor;
 
 use Symfony\Component\Console\Descriptor\ApplicationDescription;
 use Symfony\Component\Console\Descriptor\DescriptorInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Gitty\Command\Command;
-use Webmozart\Gitty\Command\CompositeCommand;
-use Webmozart\Gitty\GittyApplication;
+use Webmozart\Console\Command\Command;
+use Webmozart\Console\Command\CompositeCommand;
+use Webmozart\Console\Application;
 
 /**
  * Describes an object as text on the console output.
@@ -42,7 +42,7 @@ class TextDescriptor implements DescriptorInterface
      * Describes an object as text on the console output.
      *
      * @param OutputInterface          $output  The output.
-     * @param Command|GittyApplication $object  The object to describe.
+     * @param Command|Application $object  The object to describe.
      * @param array                    $options Additional options.
      */
     public function describe(OutputInterface $output, $object, array $options = array())
@@ -56,7 +56,7 @@ class TextDescriptor implements DescriptorInterface
             return;
         }
 
-        if ($object instanceof GittyApplication) {
+        if ($object instanceof Application) {
             list ($this->terminalWidth) = $object->getTerminalDimensions();
             $this->describeApplication($object, $options);
 
@@ -72,10 +72,10 @@ class TextDescriptor implements DescriptorInterface
     /**
      * Describes an application.
      *
-     * @param GittyApplication $application The application to describe.
+     * @param Application $application The application to describe.
      * @param array            $options     Additional options.
      */
-    protected function describeApplication(GittyApplication $application, array $options = array())
+    protected function describeApplication(Application $application, array $options = array())
     {
         $description = new ApplicationDescription($application);
         $help = $application->getHelp();
@@ -179,10 +179,10 @@ class TextDescriptor implements DescriptorInterface
     /**
      * Prints the usage of an application.
      *
-     * @param GittyApplication $application The application to describe.
+     * @param Application $application The application to describe.
      * @param array            $options     Additional options.
      */
-    protected function printApplicationUsage(GittyApplication $application, array $options = array())
+    protected function printApplicationUsage(Application $application, array $options = array())
     {
         $executableName = $application->getExecutableName();
         $synopsis = $application->getDefinition()->getSynopsis();

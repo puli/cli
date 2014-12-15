@@ -15,7 +15,7 @@ use Puli\RepositoryManager\ManagerFactory;
 use Puli\RepositoryManager\Package\Package;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Gitty\Command\Command;
+use Webmozart\Console\Command\Command;
 
 /**
  * @since  1.0

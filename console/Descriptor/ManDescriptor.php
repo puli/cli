@@ -9,27 +9,24 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Descriptor;
+namespace Webmozart\Console\Descriptor;
 
 use Symfony\Component\Console\Descriptor\DescriptorInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ExecutableFinder;
-use Webmozart\Gitty\Process\ProcessLauncher;
+use Webmozart\Console\Process\ProcessLauncher;
 
 /**
- * Describes an object using AsciiDoc documentation.
+ * Describes an object by displaying a man page.
  *
- * The path to the AsciiDoc file should be passed in the "asciiDocPath" option.
- * Optionally, you can pass the path to the "less" binary in the "lessBinary"
+ * The path to the man file should be passed in the "manPath" option.
+ * Optionally, you can pass the path to the "man" binary in the "manBinary"
  * option.
- *
- * If "less" is found on the system, it is used to display the AsciiDoc file.
- * Otherwise, the file is simply printed on the output.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class AsciiDocDescriptor implements DescriptorInterface
+class ManDescriptor implements DescriptorInterface
 {
     /**
      * @var ExecutableFinder
@@ -45,9 +42,9 @@ class AsciiDocDescriptor implements DescriptorInterface
      * Creates a new AsciiDoc descriptor.
      *
      * @param ExecutableFinder $executableFinder The finder used to find the
-     *                                           "less" binary.
+     *                                           "man" binary.
      * @param ProcessLauncher  $processLauncher  The launcher for executing the
-     *                                           "less" binary.
+     *                                           "man" binary.
      */
     public function __construct(ExecutableFinder $executableFinder = null, ProcessLauncher $processLauncher = null)
     {
@@ -56,12 +53,12 @@ class AsciiDocDescriptor implements DescriptorInterface
     }
 
     /**
-     * Describes an object by displaying an AsciiDoc page.
+     * Describes an object by displaying a man page.
      *
      * This method supports the following options:
      *
-     *  * "asciiDocPath": The path to the AsciiDoc file. This option is required.
-     *  * "lessBinary": The path to the "less" binary. If not passed, the path
+     *  * "manPath": The path to the man page. This option is required.
+     *  * "manBinary": The path to the "less" binary. If not passed, the path
      *    is searched for on the system.
      *
      * @param OutputInterface $output  The console output.
@@ -71,35 +68,34 @@ class AsciiDocDescriptor implements DescriptorInterface
      * @return int The exit code.
      *
      * @throws \InvalidArgumentException If the "asciiDocPath" option is missing.
-     * @throws \RuntimeException If the AsciiDoc file is not found.
+     * @throws \RuntimeException If the AsciiDoc file or the "man" binary is not
+     *                           found.
      */
     public function describe(OutputInterface $output, $object, array $options = array())
     {
-        if (!isset($options['asciiDocPath'])) {
-            throw new \InvalidArgumentException('The option "asciiDocPath" is required.');
+        if (!isset($options['manPath'])) {
+            throw new \InvalidArgumentException('The option "manPath" is required.');
         }
 
-        if (!file_exists($options['asciiDocPath'])) {
+        if (!file_exists($options['manPath'])) {
             throw new \RuntimeException(sprintf(
                 'The file %s does not exist.',
-                $options['asciiDocPath']
+                $options['manPath']
             ));
         }
 
-        if (!isset($options['lessBinary'])) {
-            $options['lessBinary'] = $this->executableFinder->find('less');
+        if (!isset($options['manBinary'])) {
+            $options['manBinary'] = $this->executableFinder->find('man');
         }
 
-        if ($options['lessBinary'] && $this->processLauncher->isSupported()) {
-            return $this->processLauncher->launchProcess(sprintf(
-                '%s %s',
-                $options['lessBinary'],
-                escapeshellarg($options['asciiDocPath'])
-            ), false);
+        if (!$options['manBinary']) {
+            throw new \RuntimeException('The "man" binary was not found.');
         }
 
-        $output->write(file_get_contents($options['asciiDocPath']));
-
-        return 0;
+        return $this->processLauncher->launchProcess(sprintf(
+            '%s -l %s',
+            $options['manBinary'],
+            escapeshellarg($options['manPath'])
+        ), false);
     }
 }

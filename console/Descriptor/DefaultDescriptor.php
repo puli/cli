@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Descriptor;
+namespace Webmozart\Console\Descriptor;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Descriptor\JsonDescriptor;
@@ -17,7 +17,7 @@ use Symfony\Component\Console\Descriptor\XmlDescriptor;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ExecutableFinder;
-use Webmozart\Gitty\Process\ProcessLauncher;
+use Webmozart\Console\Process\ProcessLauncher;
 
 /**
  * Default descriptor for the "help" command.

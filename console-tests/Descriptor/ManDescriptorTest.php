@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Tests\Descriptor;
+namespace Webmozart\Console\Tests\Descriptor;
 
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\ExecutableFinder;
-use Webmozart\Gitty\Descriptor\ManDescriptor;
-use Webmozart\Gitty\Process\ProcessLauncher;
+use Webmozart\Console\Descriptor\ManDescriptor;
+use Webmozart\Console\Process\ProcessLauncher;
 
 /**
  * @since  1.0
@@ -42,7 +42,7 @@ class ManDescriptorTest extends \PHPUnit_Framework_TestCase
         $this->executableFinder = $this->getMockBuilder('Symfony\Component\Process\ExecutableFinder')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->processLauncher = $this->getMockBuilder('Webmozart\Gitty\Process\ProcessLauncher')
+        $this->processLauncher = $this->getMockBuilder('Webmozart\Console\Process\ProcessLauncher')
             ->disableOriginalConstructor()
             ->getMock();
 

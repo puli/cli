@@ -9,12 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Command;
+namespace Webmozart\Console\Command;
 
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputArgument;
-use Webmozart\Gitty\GittyApplication;
-use Webmozart\Gitty\Input\InputDefinition;
+use Webmozart\Console\Application;
+use Webmozart\Console\Input\InputDefinition;
 
 /**
  * A command.
@@ -61,16 +60,16 @@ class Command extends \Symfony\Component\Console\Command\Command
     /**
      * Sets the application instance for this command.
      *
-     * @param GittyApplication $application The application.
+     * @param \Symfony\Component\Console\Application $application The application.
      *
      * @throws \InvalidArgumentException If the application is not an instance
-     *                                   of {@link GittyApplication}.
+     *                                   of {@link Application}.
      */
-    public function setApplication(Application $application = null)
+    public function setApplication(\Symfony\Component\Console\Application $application = null)
     {
-        if ($application !== null && !$application instanceof GittyApplication) {
+        if ($application !== null && !$application instanceof Application) {
             throw new \InvalidArgumentException(sprintf(
-                'The application should be an instance of GittyApplication or '.
+                'The application should be an instance of Application or '.
                 'null. Got: %s',
                 is_object($application) ? get_class($application) : gettype($application)
             ));
@@ -82,7 +81,7 @@ class Command extends \Symfony\Component\Console\Command\Command
     /**
      * Returns the application instance for this command.
      *
-     * @return GittyApplication An Application instance
+     * @return Application An Application instance
      */
     public function getApplication()
     {

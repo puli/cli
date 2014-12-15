@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Input;
+namespace Webmozart\Console\Input;
 
-use Webmozart\Gitty\Command\Command;
-use Webmozart\Gitty\Command\CompositeCommand;
+use Webmozart\Console\Command\Command;
+use Webmozart\Console\Command\CompositeCommand;
 
 /**
  * An input definition with a tweaked synopsis.

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Tests\Descriptor;
+namespace Webmozart\Console\Tests\Descriptor;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -17,11 +17,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\ExecutableFinder;
-use Webmozart\Gitty\Descriptor\DefaultDescriptor;
-use Webmozart\Gitty\Process\ProcessLauncher;
-use Webmozart\Gitty\Tests\Fixtures\TestApplication;
-use Webmozart\Gitty\Tests\Fixtures\TestPackageAddCommand;
-use Webmozart\Gitty\Tests\Fixtures\TestPackageCommand;
+use Webmozart\Console\Descriptor\DefaultDescriptor;
+use Webmozart\Console\Process\ProcessLauncher;
+use Webmozart\Console\Tests\Fixtures\TestApplication;
+use Webmozart\Console\Tests\Fixtures\TestPackageAddCommand;
+use Webmozart\Console\Tests\Fixtures\TestPackageCommand;
 
 /**
  * @since  1.0
@@ -59,7 +59,7 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
         $this->executableFinder = $this->getMockBuilder('Symfony\Component\Process\ExecutableFinder')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->processLauncher = $this->getMockBuilder('Webmozart\Gitty\Process\ProcessLauncher')
+        $this->processLauncher = $this->getMockBuilder('Webmozart\Console\Process\ProcessLauncher')
             ->disableOriginalConstructor()
             ->getMock();
 

@@ -9,17 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty;
+namespace Webmozart\Console;
 
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Gitty\Command\HelpCommand;
-use Webmozart\Gitty\Input\InputDefinition;
+use Webmozart\Console\Command\HelpCommand;
+use Webmozart\Console\Input\InputDefinition;
 
 /**
  * A console application with support for composite commands.
@@ -36,7 +35,7 @@ use Webmozart\Gitty\Input\InputDefinition;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class GittyApplication extends Application
+class Application extends \Symfony\Component\Console\Application
 {
     private $defaultCommand;
 

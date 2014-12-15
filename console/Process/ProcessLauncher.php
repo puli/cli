@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Process;
+namespace Webmozart\Console\Process;
 
 /**
  * Launches an interactive process in the foreground.

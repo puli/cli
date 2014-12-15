@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Tests\Fixtures;
+namespace Webmozart\Console\Tests\Fixtures;
 
 use Symfony\Component\Console\Input\InputOption;
-use Webmozart\Gitty\GittyApplication;
-use Webmozart\Gitty\Input\InputDefinition;
+use Webmozart\Console\Application;
+use Webmozart\Console\Input\InputDefinition;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestApplication extends GittyApplication
+class TestApplication extends Application
 {
     private $terminalDimensions;
 

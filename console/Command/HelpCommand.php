@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Command;
+namespace Webmozart\Console\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Gitty\Descriptor\DefaultDescriptor;
+use Webmozart\Console\Descriptor\DefaultDescriptor;
 
 /**
  * The "help" command.

@@ -14,14 +14,14 @@ namespace Puli\Cli;
 use Puli\Cli\Command\DumpCommand;
 use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\PackageCommand;
-use Webmozart\Gitty\Command\HelpCommand;
-use Webmozart\Gitty\GittyApplication;
+use Webmozart\Console\Command\HelpCommand;
+use Webmozart\Console\Application;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PuliCliApplication extends GittyApplication
+class PuliCliApplication extends Application
 {
     const VERSION = '@package_version@';
 

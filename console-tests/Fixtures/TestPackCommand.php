@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Gitty\Tests\Fixtures;
+namespace Webmozart\Console\Tests\Fixtures;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Gitty\Command\Command;
+use Webmozart\Console\Command\Command;
 
 /**
  * @since  1.0

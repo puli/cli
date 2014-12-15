@@ -22,13 +22,13 @@
     "autoload": {
         "psr-4": {
             "Puli\\Cli\\": "src/",
-            "Webmozart\\Gitty\\": "gitty/"
+            "Webmozart\\Console\\": "console/"
         }
     },
     "autoload-dev": {
         "psr-4": {
             "Puli\\Cli\\Tests\\": "tests/",
-            "Webmozart\\Gitty\\Tests\\": "gitty-tests/"
+            "Webmozart\\Console\\Tests\\": "console-tests/"
         }
     },
     "bin": ["bin/puli"],

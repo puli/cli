@@ -222,10 +222,14 @@ class GittyApplicationTest extends \PHPUnit_Framework_TestCase
 Test Application version 1.0.0
 
 Usage:
- [options] command [arguments]
+ test-bin [--help] <command> [<sub-command>]
+
+Arguments:
+ <command>      The command to execute.
+ <sub-command>  The sub-command to execute.
 
 Options:
- --help (-h) Help
+ --help (-h)    Help
 
 Available commands:
  help            Displays help for a command
@@ -262,7 +266,7 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- help [--man] [--ascii-doc] [--text] [--xml] [--json] [<command>] [<sub-command>]
+ test-bin help [--man] [--ascii-doc] [--text] [--xml] [--json] [<command>] [<sub-command>]
 
 Arguments:
  <command>      The command name
@@ -303,7 +307,7 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- package [--option] [--value="..."] [<arg>]
+ test-bin package [--option] [--value="..."] [<arg>]
 
 Aliases: package-alias
 Arguments:
@@ -341,7 +345,7 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- package add [--option] [--value="..."] [<arg>]
+ test-bin package add [--option] [--value="..."] [<arg>]
 
 Aliases: package add-alias
 Arguments:

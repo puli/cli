@@ -11,7 +11,6 @@
 
 namespace Webmozart\Gitty\Tests\Descriptor;
 
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -19,6 +18,7 @@ use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\ExecutableFinder;
 use Webmozart\Gitty\Descriptor\DefaultDescriptor;
+use Webmozart\Gitty\GittyApplication;
 use Webmozart\Gitty\Process\ProcessLauncher;
 use Webmozart\Gitty\Tests\Fixtures\TestPackageAddCommand;
 
@@ -131,7 +131,7 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
             'defaultPage' => 'default-page',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0', 'test-bin');
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -151,10 +151,14 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
 Test Application version 1.0.0
 
 Usage:
- [options] command [arguments]
+ test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi] [--no-interaction] <command> [<sub-command>]
+
+Arguments:
+ <command>             The command to execute.
+ <sub-command>         The sub-command to execute.
 
 Options:
- --help (-h)           Display this help message.
+ --help (-h)           Display help about the command.
  --quiet (-q)          Do not output any message.
  --verbose (-v|vv|vvv) Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug.
  --version (-V)        Display this application version.
@@ -164,7 +168,6 @@ Options:
 
 Available commands:
  help   Displays help for a command
- list   Lists commands
 
 EOF;
 
@@ -190,7 +193,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0');
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -224,7 +227,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0');
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -257,7 +260,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0');
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -292,7 +295,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0');
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -329,7 +332,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0');
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -363,7 +366,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0');
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -397,7 +400,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0');
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -434,7 +437,7 @@ EOF;
             'defaultPage' => 'man-not-found',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0');
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -471,7 +474,7 @@ EOF;
             'defaultPage' => 'default-page',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0');
 
         $this->executableFinder->expects($this->at(0))
             ->method('find')
@@ -505,7 +508,7 @@ EOF;
             'defaultPage' => 'not-found',
         );
 
-        $object = new Application('Test Application', '1.0.0');
+        $object = new GittyApplication('Test Application', '1.0.0', 'test-bin');
 
         $this->executableFinder->expects($this->once())
             ->method('find')
@@ -525,10 +528,14 @@ EOF;
 Test Application version 1.0.0
 
 Usage:
- [options] command [arguments]
+ test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi] [--no-interaction] <command> [<sub-command>]
+
+Arguments:
+ <command>             The command to execute.
+ <sub-command>         The sub-command to execute.
 
 Options:
- --help (-h)           Display this help message.
+ --help (-h)           Display help about the command.
  --quiet (-q)          Do not output any message.
  --verbose (-v|vv|vvv) Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug.
  --version (-V)        Display this application version.
@@ -538,7 +545,6 @@ Options:
 
 Available commands:
  help   Displays help for a command
- list   Lists commands
 
 EOF;
 

@@ -14,12 +14,12 @@ namespace Webmozart\Gitty;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Gitty\Command\HelpCommand;
+use Webmozart\Gitty\Input\InputDefinition;
 
 /**
  * A console application with support for composite commands.
@@ -36,19 +36,62 @@ use Webmozart\Gitty\Command\HelpCommand;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class GittyApplication extends Application
+class GittyApplication extends Application
 {
-    const MAIN_COMMAND_ARG = 'command1';
+    const MAIN_COMMAND_ARG = 'command';
 
-    const SUB_COMMAND_ARG = 'command2';
+    const SUB_COMMAND_ARG = 'sub-command';
 
     private $defaultCommand;
 
-    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN')
+    private $executableName;
+
+    private $synopsis;
+
+    public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN', $executableName = null)
     {
         parent::__construct($name, $version);
 
+        $this->getDefinition()->setArguments(array(
+            new InputArgument(self::MAIN_COMMAND_ARG, InputArgument::REQUIRED, 'The command to execute.'),
+            new InputArgument(self::SUB_COMMAND_ARG, InputArgument::OPTIONAL, 'The sub-command to execute.'),
+        ));
+
         $this->setDefaultCommand('help');
+        $this->setExecutableName($executableName);
+    }
+
+    /**
+     * Returns the name of the application's executable.
+     *
+     * @return string The name of the executable.
+     */
+    public function getExecutableName()
+    {
+        return $this->executableName ?: strtolower($this->getName());
+    }
+
+    /**
+     * Sets the name of the application's executable.
+     *
+     * @param string $executableName The name of the executable.
+     */
+    public function setExecutableName($executableName)
+    {
+        $this->executableName = $executableName;
+    }
+
+    public function getSynopsis()
+    {
+        if (null === $this->synopsis) {
+            $this->synopsis = trim(sprintf(
+                '%s %s',
+                $this->getExecutableName(),
+                $this->getDefinition()->getSynopsis()
+            ));
+        }
+
+        return $this->synopsis;
     }
 
     public function setDefaultCommand($commandName)
@@ -182,8 +225,6 @@ abstract class GittyApplication extends Application
     protected function getDefaultInputDefinition()
     {
         return new InputDefinition(array(
-            new InputArgument(self::MAIN_COMMAND_ARG, InputArgument::REQUIRED, 'The command to validateAndLaunch'),
-
             new InputOption('help', 'h', InputOption::VALUE_NONE, 'Display help about the command.'),
             new InputOption('quiet', 'q', InputOption::VALUE_NONE, 'Do not output any message.'),
             new InputOption('verbose', 'v|vv|vvv', InputOption::VALUE_NONE, 'Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug.'),

@@ -11,6 +11,9 @@
 
 namespace Webmozart\Gitty\Command;
 
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputArgument;
+use Webmozart\Gitty\GittyApplication;
 use Webmozart\Gitty\Input\InputDefinition;
 
 /**
@@ -21,6 +24,8 @@ use Webmozart\Gitty\Input\InputDefinition;
  */
 class Command extends \Symfony\Component\Console\Command\Command
 {
+    const COMMAND_ARG = 'command-name';
+
     /**
      * {@inheritdoc}
      */
@@ -28,10 +33,77 @@ class Command extends \Symfony\Component\Console\Command\Command
     {
         parent::__construct($name);
 
+        // Use custom InputDefinition implementation
         $inputDefinition = new InputDefinition();
         $inputDefinition->addArguments($this->getDefinition()->getArguments());
         $inputDefinition->addOptions($this->getDefinition()->getOptions());
 
         $this->setDefinition($inputDefinition);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSynopsis()
+    {
+        if (!$this->getApplication()) {
+            return parent::getSynopsis();
+        }
+
+        // Include the name of the executable in the synopsis
+        $name = $this->getName();
+        $this->setName($this->getApplication()->getExecutableName().' '.$name);
+
+        $synopsis = parent::getSynopsis();
+
+        $this->setName($name);
+
+        return $synopsis;
+    }
+
+    /**
+     * Sets the application instance for this command.
+     *
+     * @param GittyApplication $application The application.
+     *
+     * @throws \InvalidArgumentException If the application is not an instance
+     *                                   of {@link GittyApplication}.
+     */
+    public function setApplication(Application $application = null)
+    {
+        if ($application !== null && !$application instanceof GittyApplication) {
+            throw new \InvalidArgumentException(sprintf(
+                'The application should be an instance of GittyApplication or '.
+                'null. Got: %s',
+                is_object($application) ? get_class($application) : gettype($application)
+            ));
+        }
+
+        parent::setApplication($application);
+    }
+
+    /**
+     * Returns the application instance for this command.
+     *
+     * @return GittyApplication An Application instance
+     */
+    public function getApplication()
+    {
+        return parent::getApplication();
+    }
+
+    public function mergeApplicationDefinition($mergeArgs = true)
+    {
+        // Never merge application arguments
+        parent::mergeApplicationDefinition(false);
+
+        $inputDefinition = $this->getDefinition();
+
+        // Add "command-name" argument
+        if ($mergeArgs && !$inputDefinition->hasArgument(self::COMMAND_ARG)) {
+            $arguments = $inputDefinition->getArguments();
+            $inputDefinition->setArguments(array(new InputArgument(self::COMMAND_ARG, InputArgument::REQUIRED)));
+            $inputDefinition->addArguments($arguments);
+        }
     }
 }

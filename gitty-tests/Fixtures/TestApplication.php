@@ -11,10 +11,9 @@
 
 namespace Webmozart\Gitty\Tests\Fixtures;
 
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Webmozart\Gitty\GittyApplication;
+use Webmozart\Gitty\Input\InputDefinition;
 
 /**
  * @since  1.0
@@ -24,7 +23,7 @@ class TestApplication extends GittyApplication
 {
     public function __construct()
     {
-        parent::__construct('Test Application', '1.0.0');
+        parent::__construct('Test Application', '1.0.0', 'test-bin');
     }
 
     protected function getDefaultCommands()
@@ -40,7 +39,6 @@ class TestApplication extends GittyApplication
     protected function getDefaultInputDefinition()
     {
         return new InputDefinition(array(
-            new InputArgument(GittyApplication::MAIN_COMMAND_ARG, InputArgument::REQUIRED, 'The command to launch'),
             new InputOption('help', 'h', InputOption::VALUE_NONE, 'Help')
         ));
     }

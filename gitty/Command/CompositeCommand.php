@@ -30,6 +30,8 @@ use Webmozart\Gitty\GittyApplication;
  */
 class CompositeCommand extends Command
 {
+    const SUB_COMMAND_ARG = 'sub-command-name';
+
     public function __construct($name = null)
     {
         parent::__construct($name);
@@ -46,9 +48,10 @@ class CompositeCommand extends Command
 
         $inputDefinition = $this->getDefinition();
 
-        if ($mergeArgs && !$inputDefinition->hasArgument(GittyApplication::SUB_COMMAND_ARG)) {
+        // Add "sub-command-name" argument
+        if ($mergeArgs && !$inputDefinition->hasArgument(self::SUB_COMMAND_ARG)) {
             $arguments = $inputDefinition->getArguments();
-            $inputDefinition->setArguments(array(new InputArgument(GittyApplication::SUB_COMMAND_ARG, InputArgument::REQUIRED)));
+            $inputDefinition->setArguments(array(new InputArgument(self::SUB_COMMAND_ARG, InputArgument::REQUIRED)));
             $inputDefinition->addArguments($arguments);
         }
     }

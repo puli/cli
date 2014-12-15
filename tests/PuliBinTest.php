@@ -27,6 +27,6 @@ class PuliBinTest extends \PHPUnit_Framework_TestCase
         $status = $process->run();
 
         $this->assertSame(0, $status);
-        $this->assertStringStartsWith('Puli version ', $process->getOutput());
+        $this->assertStringStartsWith('puli version ', $process->getOutput());
     }
 }

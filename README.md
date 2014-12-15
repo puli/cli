@@ -20,11 +20,11 @@ repository for your puli.json files as PHP file:
 $ puli dump
 ```
 
-Use `puli list` to list the contents of the repository:
+Use `puli ls` to list the contents of the repository:
 
 ```
-$ puli list
-$ puli list /acme/demo
+$ puli ls
+$ puli ls /acme/demo
 ```
 
 Read [Puli at a Glance] if you want to learn more about Puli.

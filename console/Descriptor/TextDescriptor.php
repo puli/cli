@@ -211,7 +211,9 @@ class TextDescriptor implements DescriptorInterface
     protected function printCommandUsage(Command $command, array $options = array())
     {
         $executableName = $command->getApplication()->getExecutableName();
-        $commandName = $executableName.' '.$command->getName();
+        // Don't underline the spaces between the names
+        $nameParts = array_merge(array($executableName), explode(' ', $command->getName()));
+        $commandName = '<tt>'.implode('</tt> <tt>', $nameParts).'</tt>';
         $synopsises = $command->getSynopsises();
         $prefix = count($synopsises) > 1 ? '    ' : '';
 
@@ -219,7 +221,7 @@ class TextDescriptor implements DescriptorInterface
         $this->write("\n");
 
         foreach ($synopsises as $synopsis) {
-            $this->printWrappedText($synopsis, $prefix.'<tt>'.$commandName.'</tt>');
+            $this->printWrappedText($synopsis, $prefix.$commandName);
             $this->write("\n");
             $prefix = 'or: ';
         }

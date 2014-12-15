@@ -15,7 +15,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 /**
- * A color style which prefers cyan for its good readabilty.
+ * A color style which prefers cyan for its good readability.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>

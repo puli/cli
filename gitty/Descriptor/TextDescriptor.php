@@ -309,10 +309,18 @@ class TextDescriptor implements DescriptorInterface
      */
     protected function printCommands($commands, array $options = array())
     {
+        if (!isset($options['printCompositeCommands'])) {
+            $options['printCompositeCommands'] = false;
+        }
+
         $this->write('<comment>Available commands:</comment>');
         $this->write("\n");
 
         foreach ($commands as $command) {
+            if ($command instanceof CompositeCommand && !$options['printCompositeCommands']) {
+                continue;
+            }
+
             $this->printCommand($command, $options);
             $this->write("\n");
         }

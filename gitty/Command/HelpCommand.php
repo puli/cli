@@ -54,6 +54,7 @@ class HelpCommand extends Command
             ->setDescription('Displays help for a command')
             ->addArgument('command', InputArgument::OPTIONAL, 'The command name')
             ->addArgument('sub-command', InputArgument::OPTIONAL, 'The sub command name')
+            ->addOption('all', 'a', InputOption::VALUE_NONE, 'To print all available commands')
             ->addOption('man', 'm', InputOption::VALUE_NONE, 'To output help as man page')
             ->addOption('ascii-doc', null, InputOption::VALUE_NONE, 'To output help as AsciiDoc')
             ->addOption('text', 't', InputOption::VALUE_NONE, 'To output help as text')
@@ -72,6 +73,7 @@ class HelpCommand extends Command
         $descriptor = new DefaultDescriptor();
         $options = array_replace($this->options, array(
             'input' => $input,
+            'printCompositeCommands' => $input->getOption('all'),
         ));
 
         return $descriptor->describe($output, $object, $options);

@@ -67,6 +67,7 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
         $this->output = new BufferedOutput();
         $this->inputDefinition = new InputDefinition(array(
             new InputArgument('command'),
+            new InputOption('all'),
             new InputOption('man'),
             new InputOption('ascii-doc'),
             new InputOption('xml'),
@@ -149,6 +150,70 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
         $status = $this->descriptor->describe($this->output, $object, $options);
 
         $this->assertApplicationHelp($this->output->fetch());
+        $this->assertSame(0, $status);
+    }
+
+    /**
+     * @dataProvider getInputForTextHelp
+     */
+    public function testDescribeApplicationAsTextWithCompositeCommands($inputString)
+    {
+        $options = array(
+            'input' => new StringInput($inputString.' --all', $this->inputDefinition),
+            'manDir' => __DIR__.'/Fixtures/man',
+            'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
+            'defaultPage' => 'default-page',
+            'printCompositeCommands' => true,
+        );
+
+        $object = $this->createApplication();
+
+        $this->executableFinder->expects($this->once())
+            ->method('find')
+            ->with('man')
+            ->will($this->returnValue('man-binary'));
+
+        $this->processLauncher->expects($this->any())
+            ->method('isSupported')
+            ->will($this->returnValue(true));
+
+        $this->processLauncher->expects($this->never())
+            ->method('launchProcess');
+
+        $status = $this->descriptor->describe($this->output, $object, $options);
+
+        $expected = <<<EOF
+Test Application version 1.0.0
+
+Usage:
+ test-bin [--help] [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
+          [--no-interaction] <command> [<sub-command>]
+
+Arguments:
+ <command>              The command to execute.
+ <sub-command>          The sub-command to execute.
+
+Options:
+ --help (-h)            Display help about the command.
+ --quiet (-q)           Do not output any message.
+ --verbose              Increase the verbosity of messages: 1 for normal
+                        output, 2 for more verbose output and 3 for debug.
+ --version (-V)         Display this application version.
+ --ansi                 Force ANSI output.
+ --no-ansi              Disable ANSI output.
+ --no-interaction (-n)  Do not ask any interactive question.
+
+Available commands:
+ help                   Displays help for a command
+ pack                   Description of "pack"
+ package                Description of "package"
+ package add            Description of "package add"
+ package addon          Description of "package addon"
+
+
+EOF;
+
+        $this->assertSame($expected, $this->output->fetch());
         $this->assertSame(0, $status);
     }
 
@@ -731,8 +796,6 @@ Available commands:
  help                   Displays help for a command
  pack                   Description of "pack"
  package                Description of "package"
- package add            Description of "package add"
- package addon          Description of "package addon"
 
 
 EOF;

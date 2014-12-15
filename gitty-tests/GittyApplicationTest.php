@@ -243,8 +243,6 @@ Available commands:
  help                   Displays help for a command
  pack                   Description of "pack"
  package                Description of "package"
- package add            Description of "package add"
- package addon          Description of "package addon"
 
 
 EOF;
@@ -273,15 +271,16 @@ EOF;
 
         $expected = <<<EOF
 Usage:
- test-bin help [--man] [--ascii-doc] [--text] [--xml] [--json] [--help]
+ test-bin help [--all] [--man] [--ascii-doc] [--text] [--xml] [--json] [--help]
                [--quiet] [--verbose] [--version] [--ansi] [--no-ansi]
-               [--no-interaction] <command-name> [<command>] [<sub-command>]
+               [--no-interaction] [<command>] [<sub-command>]
 
 Arguments:
  <command>              The command name
  <sub-command>          The sub command name
 
 Options:
+ --all (-a)             To print all available commands
  --man (-m)             To output help as man page
  --ascii-doc            To output help as AsciiDoc
  --text (-t)            To output help as text

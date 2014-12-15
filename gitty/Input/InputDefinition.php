@@ -11,6 +11,9 @@
 
 namespace Webmozart\Gitty\Input;
 
+use Webmozart\Gitty\Command\Command;
+use Webmozart\Gitty\Command\CompositeCommand;
+
 /**
  * An input definition with a tweaked synopsis.
  *
@@ -39,13 +42,19 @@ class InputDefinition extends \Symfony\Component\Console\Input\InputDefinition
         }
 
         foreach ($this->getArguments() as $argument) {
+            $name = $argument->getName();
+
+            if (in_array($name, array(Command::COMMAND_ARG, CompositeCommand::SUB_COMMAND_ARG))) {
+                continue;
+            }
+
             $elements[] = sprintf(
                 $argument->isRequired() ? '<%s>' : '[<%s>]',
-                $argument->getName().($argument->isArray() ? '1' : '')
+                $name.($argument->isArray() ? '1' : '')
             );
 
             if ($argument->isArray()) {
-                $elements[] = sprintf('... [%sN]', $argument->getName());
+                $elements[] = sprintf('... [%sN]', $name);
             }
         }
 

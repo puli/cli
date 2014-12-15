@@ -91,16 +91,16 @@ class TextDescriptor implements DescriptorInterface
         );
 
         if ($help) {
-            $this->describeApplicationHelp($help, $options);
+            $this->printApplicationHelp($help, $options);
             $this->write("\n");
         }
 
-        $this->describeApplicationUsage($application, $options);
+        $this->printApplicationUsage($application, $options);
 
         $this->write("\n");
 
         if ($inputArgs) {
-            $this->describeInputArguments($inputArgs, $options);
+            $this->printInputArguments($inputArgs, $options);
         }
 
         if ($inputArgs && ($inputOpts || $commands)) {
@@ -108,14 +108,14 @@ class TextDescriptor implements DescriptorInterface
         }
 
         if ($inputOpts) {
-            $this->describeInputOptions($inputOpts, $options);
+            $this->printInputOptions($inputOpts, $options);
         }
 
         if ($inputOpts && $commands) {
             $this->write("\n");
         }
 
-        $this->describeApplicationCommands($commands, $options);
+        $this->printCommands($commands, $options);
 
         $this->write("\n");
     }
@@ -128,6 +128,9 @@ class TextDescriptor implements DescriptorInterface
      */
     protected function describeCommand(Command $command, array $options = array())
     {
+        // Print command usage before merging the application definition
+        $this->printCommandUsage($command, $options);
+
         $command->mergeApplicationDefinition(false);
 
         $aliases = $command->getAliases();
@@ -141,12 +144,10 @@ class TextDescriptor implements DescriptorInterface
             $this->getMaxArgumentWidth($inputArgs)
         );
 
-        $this->describeCommandUsage($command, $options);
-
         $this->write("\n");
 
         if ($aliases) {
-            $this->describeAliases($aliases, $options);
+            $this->printAliases($aliases, $options);
         }
 
         if ($aliases && ($inputArgs || $inputOpts || $help)) {
@@ -154,7 +155,7 @@ class TextDescriptor implements DescriptorInterface
         }
 
         if ($inputArgs) {
-            $this->describeInputArguments($inputArgs, $options);
+            $this->printInputArguments($inputArgs, $options);
         }
 
         if ($inputArgs && ($inputOpts || $help)) {
@@ -162,7 +163,7 @@ class TextDescriptor implements DescriptorInterface
         }
 
         if ($inputOpts) {
-            $this->describeInputOptions($inputOpts, $options);
+            $this->printInputOptions($inputOpts, $options);
         }
 
         if ($inputOpts && $help) {
@@ -170,80 +171,80 @@ class TextDescriptor implements DescriptorInterface
         }
 
         if ($help) {
-            $this->describeCommandHelp($help, $options);
+            $this->printCommandHelp($help, $options);
         }
 
         $this->write("\n");
     }
 
     /**
-     * Describes the usage of an application.
+     * Prints the usage of an application.
      *
      * @param GittyApplication $application The application to describe.
      * @param array            $options     Additional options.
      */
-    protected function describeApplicationUsage(GittyApplication $application, array $options = array())
+    protected function printApplicationUsage(GittyApplication $application, array $options = array())
     {
         $executableName = $application->getExecutableName();
         $synopsis = $application->getDefinition()->getSynopsis();
 
-        $this->describeUsage($executableName, $synopsis, $options);
+        $this->printUsage($executableName, $synopsis, $options);
     }
 
     /**
-     * Describes the usage of a command.
+     * Prints the usage of a command.
      *
      * @param Command $command The command to describe.
      * @param array   $options Additional options.
      */
-    protected function describeCommandUsage(Command $command, array $options = array())
+    protected function printCommandUsage(Command $command, array $options = array())
     {
         $executableName = $command->getApplication()->getExecutableName();
         $commandName = $executableName.' '.$command->getName();
         $synopsis = $command->getNativeDefinition()->getSynopsis();
 
-        $this->describeUsage($commandName, $synopsis, $options);
+        $this->printUsage($commandName, $synopsis, $options);
     }
 
     /**
-     * Describes the usage of a console command.
+     * Prints the usage of a console command.
      *
      * @param string $command  The command to describe.
      * @param string $synopsis The synopsis of the command.
      * @param array  $options  Additional options.
      */
-    protected function describeUsage($command, $synopsis, array $options = array())
+    protected function printUsage($command, $synopsis, array $options = array())
     {
         $this->write('<comment>Usage:</comment>');
         $this->write("\n");
-        $this->writeWrappedText($synopsis, $command);
+        $this->printWrappedText($synopsis, $command);
         $this->write("\n");
     }
 
     /**
-     * Describes a list of input arguments.
+     * Prints a list of input arguments.
      *
      * @param InputArgument[] $inputArgs The input arguments to describe.
      * @param array           $options   Additional options.
      */
-    protected function describeInputArguments($inputArgs, array $options = array())
+    protected function printInputArguments($inputArgs, array $options = array())
     {
         $this->write('<comment>Arguments:</comment>');
         $this->write("\n");
 
         foreach ($inputArgs as $argument) {
-            $this->describeInputArgument($argument, $options);
+            $this->printInputArgument($argument, $options);
             $this->write("\n");
         }
     }
 
     /**
-     * Describes an input argument.
+     * Prints an input argument.
      *
      * @param InputArgument $argument The input argument to describe.
      * @param array         $options  Additional options.
      */
-    protected function describeInputArgument(InputArgument $argument, array $options = array())
+    protected function printInputArgument(InputArgument $argument, array $options = array())
     {
         $nameWidth = isset($options['nameWidth']) ? $options['nameWidth'] : null;
         $description = $argument->getDescription();
@@ -252,33 +253,33 @@ class TextDescriptor implements DescriptorInterface
             $description .= sprintf('<comment> (default: %s)</comment>', $this->formatDefaultValue($argument->getDefault()));
         }
 
-        $this->writeWrappedText($description, '<'.$argument->getName().'>', true, $nameWidth);
+        $this->printWrappedText($description, '<'.$argument->getName().'>', true, $nameWidth);
     }
 
     /**
-     * Describes a list of input options.
+     * Prints a list of input options.
      *
      * @param InputOption[] $inputOpts The input options to describe.
      * @param array         $options   Additional options.
      */
-    protected function describeInputOptions($inputOpts, array $options = array())
+    protected function printInputOptions($inputOpts, array $options = array())
     {
         $this->write('<comment>Options:</comment>');
         $this->write("\n");
 
         foreach ($inputOpts as $option) {
-            $this->describeInputOption($option, $options);
+            $this->printInputOption($option, $options);
             $this->write("\n");
         }
     }
 
     /**
-     * Describes an input option.
+     * Prints an input option.
      *
      * @param InputOption $option  The input option to describe.
      * @param array       $options Additional options.
      */
-    protected function describeInputOption(InputOption $option, array $options = array())
+    protected function printInputOption(InputOption $option, array $options = array())
     {
         $nameWidth = isset($options['nameWidth']) ? $options['nameWidth'] : null;
         $description = $option->getDescription();
@@ -296,69 +297,69 @@ class TextDescriptor implements DescriptorInterface
             $description .= '<comment> (multiple values allowed)</comment>';
         }
 
-        $this->writeWrappedText($description, $name, true, $nameWidth);
+        $this->printWrappedText($description, $name, true, $nameWidth);
     }
 
     /**
-     * Describes the commands of an application.
+     * Prints the commands of an application.
      *
      * @param Command[] $commands The commands to describe.
      * @param array     $options  Additional options.
      */
-    protected function describeApplicationCommands($commands, array $options = array())
+    protected function printCommands($commands, array $options = array())
     {
         $this->write('<comment>Available commands:</comment>');
         $this->write("\n");
 
         foreach ($commands as $command) {
-            $this->describeApplicationCommand($command, $options);
+            $this->printCommand($command, $options);
             $this->write("\n");
         }
     }
 
     /**
-     * Describes a command of an application.
+     * Prints a command of an application.
      *
      * @param Command $command The command to describe.
      * @param array   $options Additional options.
      */
-    protected function describeApplicationCommand(Command $command, array $options = array())
+    protected function printCommand(Command $command, array $options = array())
     {
         $nameWidth = isset($options['nameWidth']) ? $options['nameWidth'] : null;
 
-        $this->writeWrappedText($command->getDescription(), $command->getName(), true, $nameWidth);
+        $this->printWrappedText($command->getDescription(), $command->getName(), true, $nameWidth);
     }
 
     /**
-     * Describes the aliases of a command.
+     * Prints the aliases of a command.
      *
      * @param string[] $aliases The aliases to describe.
      * @param array    $options Additional options.
      */
-    protected function describeAliases($aliases, array $options = array())
+    protected function printAliases($aliases, array $options = array())
     {
         $this->write('<comment>Aliases:</comment> <info>'.implode(', ', $aliases).'</info>');
         $this->write("\n");
     }
 
     /**
-     * Describes the help of an application.
+     * Prints the help of an application.
      *
      * @param string $help    The help text.
      * @param array  $options Additional options.
      */
-    protected function describeApplicationHelp($help, array $options = array())
+    protected function printApplicationHelp($help, array $options = array())
     {
         $this->write("$help\n");
     }
 
     /**
-     * Describes the help of a command.
+     * Prints the help of a command.
      *
      * @param string $help    The help text.
      * @param array  $options Additional options.
      */
-    protected function describeCommandHelp($help, array $options = array())
+    protected function printCommandHelp($help, array $options = array())
     {
         $this->write('<comment>Help:</comment>');
         $this->write("\n");
@@ -367,17 +368,7 @@ class TextDescriptor implements DescriptorInterface
     }
 
     /**
-     * Writes text to the output.
-     *
-     * @param string $text
-     */
-    protected function write($text)
-    {
-        $this->output->write($text, false, OutputInterface::OUTPUT_NORMAL);
-    }
-
-    /**
-     * Writes wrapped text to the output.
+     * Prints wrapped text.
      *
      * The text will be wrapped to match the terminal width (if available) with
      * a leading and a trailing space.
@@ -395,7 +386,7 @@ class TextDescriptor implements DescriptorInterface
      * @param bool     $highlightLabel Whether to highlight the label.
      * @param int|null $minLabelWidth  The minimum width of the label.
      */
-    protected function writeWrappedText($text, $label = '', $highlightLabel = false, $minLabelWidth = null)
+    protected function printWrappedText($text, $label = '', $highlightLabel = false, $minLabelWidth = null)
     {
         if (!$minLabelWidth) {
             $minLabelWidth = strlen($label);
@@ -424,6 +415,16 @@ class TextDescriptor implements DescriptorInterface
         }
 
         $this->write(' '.$text);
+    }
+
+    /**
+     * Writes text to the output.
+     *
+     * @param string $text
+     */
+    protected function write($text)
+    {
+        $this->output->write($text, false, OutputInterface::OUTPUT_NORMAL);
     }
 
     /**

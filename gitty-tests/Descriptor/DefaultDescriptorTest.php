@@ -534,9 +534,7 @@ class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
 
         $expected = <<<EOF
 Usage:
- test-bin package add [--option] [--value="..."] [--help] [--quiet] [--verbose]
-                      [--version] [--ansi] [--no-ansi] [--no-interaction]
-                      [<arg>]
+ test-bin package add [--option] [--value="..."] [<arg>]
 
 Aliases: package add-alias
 

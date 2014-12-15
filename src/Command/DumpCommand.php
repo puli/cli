@@ -26,7 +26,7 @@ class DumpCommand extends Command
     {
         $this
             ->setName('dump')
-            ->setDescription('(Re-)Generate the resource repository.')
+            ->setDescription('(Re-)Generate the resource repository')
         ;
     }
 

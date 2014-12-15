@@ -27,7 +27,7 @@ class PackageCommand extends Command
     {
         $this
             ->setName('package')
-            ->setDescription('Display the installed packages.')
+            ->setDescription('Display the installed packages')
         ;
     }
 

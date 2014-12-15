@@ -187,7 +187,11 @@ class TextDescriptor implements DescriptorInterface
         $executableName = $application->getExecutableName();
         $synopsis = $application->getDefinition()->getSynopsis();
 
-        $this->printUsage($executableName, $synopsis, $options);
+        $this->write('<comment>Usage:</comment>');
+        $this->write("\n");
+
+        $this->printWrappedText($synopsis, $executableName);
+        $this->write("\n");
     }
 
     /**
@@ -200,24 +204,17 @@ class TextDescriptor implements DescriptorInterface
     {
         $executableName = $command->getApplication()->getExecutableName();
         $commandName = $executableName.' '.$command->getName();
-        $synopsis = $command->getLocalDefinition()->getSynopsis();
+        $synopsises = $command->getSynopsises();
+        $prefix = count($synopsises) > 1 ? '    ' : '';
 
-        $this->printUsage($commandName, $synopsis, $options);
-    }
-
-    /**
-     * Prints the usage of a console command.
-     *
-     * @param string $command  The command to describe.
-     * @param string $synopsis The synopsis of the command.
-     * @param array  $options  Additional options.
-     */
-    protected function printUsage($command, $synopsis, array $options = array())
-    {
         $this->write('<comment>Usage:</comment>');
         $this->write("\n");
-        $this->printWrappedText($synopsis, $command);
-        $this->write("\n");
+
+        foreach ($synopsises as $synopsis) {
+            $this->printWrappedText($synopsis, $prefix.$commandName);
+            $this->write("\n");
+            $prefix = 'or: ';
+        }
     }
 
     /**

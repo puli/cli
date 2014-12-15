@@ -22,6 +22,7 @@ use Webmozart\Console\Process\ProcessLauncher;
 use Webmozart\Console\Tests\Fixtures\TestApplication;
 use Webmozart\Console\Tests\Fixtures\TestPackageAddCommand;
 use Webmozart\Console\Tests\Fixtures\TestPackageCommand;
+use Webmozart\Console\Tests\Fixtures\TestSynopsisCommand;
 
 /**
  * @since  1.0
@@ -592,6 +593,54 @@ Arguments:
 Options:
  --option (-o)          The "option" option
  --value (-v)           The "value" option
+ --help (-h)            Description
+ --quiet (-q)           Description
+ --verbose              Description
+ --version (-V)         Description
+ --ansi                 Description
+ --no-ansi              Description
+ --no-interaction (-n)  Description
+
+
+EOF;
+
+
+        $this->assertSame($expected, $this->output->fetch());
+        $this->assertSame(0, $status);
+    }
+
+    public function testDescribeCommandWithMultipleSynopsises()
+    {
+        $options = array(
+            'input' => new StringInput('-h', $this->inputDefinition),
+        );
+
+        $object = new TestSynopsisCommand();
+        $object->setApplication($this->createApplication());
+
+        $this->executableFinder->expects($this->once())
+            ->method('find')
+            ->with('man')
+            ->will($this->returnValue('man-binary'));
+
+        $this->processLauncher->expects($this->any())
+            ->method('isSupported')
+            ->will($this->returnValue(true));
+
+        $this->processLauncher->expects($this->never())
+            ->method('launchProcess');
+
+        $status = $this->descriptor->describe($this->output, $object, $options);
+
+        $expected = <<<EOF
+Usage:
+     test-bin synopsis <arg>
+ or: test-bin synopsis [--foo] [--bar]
+
+Arguments:
+ <arg>                  The "arg" argument
+
+Options:
  --help (-h)            Description
  --quiet (-q)           Description
  --verbose              Description

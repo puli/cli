@@ -31,6 +31,11 @@ class Command extends \Symfony\Component\Console\Command\Command
     private $localDefinition;
 
     /**
+     * @var string[]
+     */
+    private $synopsises = array();
+
+    /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
@@ -55,6 +60,51 @@ class Command extends \Symfony\Component\Console\Command\Command
     public function getLocalDefinition()
     {
         return $this->localDefinition;
+    }
+
+    /**
+     * Returns the synopsises of the command.
+     *
+     * A synopsis is a short usage example of the command's options and
+     * arguments. Synopsises can be added with {@link setSynopsises()} and
+     * {@link addSynopsis()}. If no synopsis was added, the one of the
+     * command's input definition is returned.
+     *
+     * @return string[] The synopsises.
+     */
+    public function getSynopsises()
+    {
+        return $this->synopsises ?: array($this->localDefinition->getSynopsis());
+    }
+
+    /**
+     * Sets the synopsises of the command.
+     *
+     * A synopsis is a short usage example of the command's options and
+     * arguments.
+     *
+     * @param string[] $synopsises The synopsises.
+     */
+    public function setSynopsises(array $synopsises)
+    {
+        $this->synopsises = $synopsises;
+    }
+
+    /**
+     * Adds a synopsis.
+     *
+     * A synopsis is a short usage example of the command's options and
+     * arguments.
+     *
+     * @param string $synopsis The synopsis to add.
+     *
+     * @return static Returns this command.
+     */
+    public function addSynopsis($synopsis)
+    {
+        $this->synopsises[] = $synopsis;
+
+        return $this;
     }
 
     /**

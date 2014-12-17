@@ -11,6 +11,7 @@
 
 namespace Webmozart\Console\Tests;
 
+use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Webmozart\Console\Tests\Fixtures\TestApplication;
@@ -19,7 +20,7 @@ use Webmozart\Console\Tests\Fixtures\TestApplication;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ApplicationTest extends \PHPUnit_Framework_TestCase
+class ApplicationTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var TestApplication

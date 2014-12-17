@@ -11,6 +11,7 @@
 
 namespace Webmozart\Console;
 
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -108,7 +109,7 @@ class Application extends \Symfony\Component\Console\Application
         $commands = $this->all();
 
         if (!isset($commands[$name])) {
-            throw new \InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
+            throw new InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
         }
 
         return $commands[$name];
@@ -315,7 +316,7 @@ class Application extends \Symfony\Component\Console\Application
             $message .= implode("\n    ", $alternatives);
         }
 
-        $exception = new \InvalidArgumentException($message);
+        $exception = new InvalidArgumentException($message);
 
         return $exception;
     }
@@ -324,7 +325,7 @@ class Application extends \Symfony\Component\Console\Application
     {
         $suggestions = $this->getAbbreviationSuggestions(array_values($alternatives));
 
-        return new \InvalidArgumentException(sprintf(
+        return new InvalidArgumentException(sprintf(
             'Command "%s" is ambiguous (%s).',
             $name,
             $suggestions
@@ -344,7 +345,7 @@ class Application extends \Symfony\Component\Console\Application
      * Finds alternative of $name among $collection,
      *
      * @param string             $name       The string
-     * @param array|\Traversable $collection The collection
+     * @param array|Traversable $collection The collection
      *
      * @return array A sorted array of similar string
      */

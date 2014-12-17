@@ -11,6 +11,7 @@
 
 namespace Webmozart\Console\Command;
 
+use InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Webmozart\Console\Application;
 use Webmozart\Console\Input\InputDefinition;
@@ -120,13 +121,13 @@ class Command extends \Symfony\Component\Console\Command\Command
      *
      * @param \Symfony\Component\Console\Application $application The application.
      *
-     * @throws \InvalidArgumentException If the application is not an instance
+     * @throws InvalidArgumentException If the application is not an instance
      *                                   of {@link Application}.
      */
     public function setApplication(\Symfony\Component\Console\Application $application = null)
     {
         if ($application !== null && !$application instanceof Application) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The application should be an instance of Application or '.
                 'null. Got: %s',
                 is_object($application) ? get_class($application) : gettype($application)

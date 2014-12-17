@@ -11,6 +11,7 @@
 
 namespace Webmozart\Console\Command;
 
+use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 
 /**
@@ -37,7 +38,7 @@ class CompositeCommand extends Command
 
         // Add "sub-command" argument in the beginning if the name is composite
         if (false === strpos($this->getName(), ' ')) {
-            throw new \RuntimeException('Missing space in the name of the composite command.');
+            throw new RuntimeException('Missing space in the name of the composite command.');
         }
     }
 

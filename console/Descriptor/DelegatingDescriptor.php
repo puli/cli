@@ -11,6 +11,7 @@
 
 namespace Webmozart\Console\Descriptor;
 
+use RuntimeException;
 use Symfony\Component\Console\Descriptor\DescriptorInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -70,7 +71,7 @@ class DelegatingDescriptor implements DescriptorInterface
      *
      * @return int The exit code.
      *
-     * @throws \RuntimeException If the format is not supported.
+     * @throws RuntimeException If the format is not supported.
      */
     public function describe(OutputInterface $output, $object, array $options = array())
     {
@@ -134,12 +135,12 @@ class DelegatingDescriptor implements DescriptorInterface
      *
      * @return DescriptorInterface The descriptor.
      *
-     * @throws \RuntimeException If the format is not supported.
+     * @throws RuntimeException If the format is not supported.
      */
     protected function getDescriptor($format)
     {
         if (!isset($this->descriptors[$format])) {
-            throw new \RuntimeException(sprintf('Unsupported format "%s".', $format));
+            throw new RuntimeException(sprintf('Unsupported format "%s".', $format));
         }
 
         return $this->descriptors[$format];

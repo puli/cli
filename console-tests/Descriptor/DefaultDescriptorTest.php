@@ -11,6 +11,8 @@
 
 namespace Webmozart\Console\Tests\Descriptor;
 
+use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,15 +31,15 @@ use Webmozart\Console\Tests\Fixtures\TestSynopsisCommand;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DefaultDescriptorTest extends \PHPUnit_Framework_TestCase
+class DefaultDescriptorTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ExecutableFinder
+     * @var PHPUnit_Framework_MockObject_MockObject|ExecutableFinder
      */
     private $executableFinder;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ProcessLauncher
+     * @var PHPUnit_Framework_MockObject_MockObject|ProcessLauncher
      */
     private $processLauncher;
 

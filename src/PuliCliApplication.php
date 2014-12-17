@@ -15,8 +15,8 @@ use Puli\Cli\Command\DumpCommand;
 use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\PackageCommand;
 use Puli\Cli\Command\TagCommand;
-use Webmozart\Console\Command\HelpCommand;
 use Webmozart\Console\Application;
+use Webmozart\Console\Command\HelpCommand;
 
 /**
  * @since  1.0

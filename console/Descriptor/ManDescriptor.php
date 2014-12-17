@@ -11,6 +11,8 @@
 
 namespace Webmozart\Console\Descriptor;
 
+use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Console\Descriptor\DescriptorInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ExecutableFinder;
@@ -67,18 +69,18 @@ class ManDescriptor implements DescriptorInterface
      *
      * @return int The exit code.
      *
-     * @throws \InvalidArgumentException If the "asciiDocPath" option is missing.
-     * @throws \RuntimeException If the AsciiDoc file or the "man" binary is not
+     * @throws InvalidArgumentException If the "asciiDocPath" option is missing.
+     * @throws RuntimeException If the AsciiDoc file or the "man" binary is not
      *                           found.
      */
     public function describe(OutputInterface $output, $object, array $options = array())
     {
         if (!isset($options['manPath'])) {
-            throw new \InvalidArgumentException('The option "manPath" is required.');
+            throw new InvalidArgumentException('The option "manPath" is required.');
         }
 
         if (!file_exists($options['manPath'])) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'The file %s does not exist.',
                 $options['manPath']
             ));
@@ -89,7 +91,7 @@ class ManDescriptor implements DescriptorInterface
         }
 
         if (!$options['manBinary']) {
-            throw new \RuntimeException('The "man" binary was not found.');
+            throw new RuntimeException('The "man" binary was not found.');
         }
 
         return $this->processLauncher->launchProcess(sprintf(

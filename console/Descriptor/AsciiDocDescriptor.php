@@ -11,6 +11,8 @@
 
 namespace Webmozart\Console\Descriptor;
 
+use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Console\Descriptor\DescriptorInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ExecutableFinder;
@@ -70,17 +72,17 @@ class AsciiDocDescriptor implements DescriptorInterface
      *
      * @return int The exit code.
      *
-     * @throws \InvalidArgumentException If the "asciiDocPath" option is missing.
-     * @throws \RuntimeException If the AsciiDoc file is not found.
+     * @throws InvalidArgumentException If the "asciiDocPath" option is missing.
+     * @throws RuntimeException If the AsciiDoc file is not found.
      */
     public function describe(OutputInterface $output, $object, array $options = array())
     {
         if (!isset($options['asciiDocPath'])) {
-            throw new \InvalidArgumentException('The option "asciiDocPath" is required.');
+            throw new InvalidArgumentException('The option "asciiDocPath" is required.');
         }
 
         if (!file_exists($options['asciiDocPath'])) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'The file %s does not exist.',
                 $options['asciiDocPath']
             ));

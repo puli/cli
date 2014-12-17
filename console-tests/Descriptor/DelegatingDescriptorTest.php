@@ -11,6 +11,8 @@
 
 namespace Webmozart\Console\Tests\Descriptor;
 
+use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Descriptor\DescriptorInterface;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,7 +24,7 @@ use Webmozart\Console\Descriptor\DelegatingDescriptor;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DelegatingDescriptorTest extends \PHPUnit_Framework_TestCase
+class DelegatingDescriptorTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var DelegatingDescriptor
@@ -30,7 +32,7 @@ class DelegatingDescriptorTest extends \PHPUnit_Framework_TestCase
     private $descriptor;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|OutputInterface
+     * @var PHPUnit_Framework_MockObject_MockObject|OutputInterface
      */
     private $output;
 
@@ -40,12 +42,12 @@ class DelegatingDescriptorTest extends \PHPUnit_Framework_TestCase
     private $object;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|DescriptorInterface
+     * @var PHPUnit_Framework_MockObject_MockObject|DescriptorInterface
      */
     private $delegate1;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|DescriptorInterface
+     * @var PHPUnit_Framework_MockObject_MockObject|DescriptorInterface
      */
     private $delegate2;
 

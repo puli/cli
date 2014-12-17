@@ -15,6 +15,7 @@ use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\RepositoryManager\ManagerFactory;
+use RecursiveIteratorIterator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -55,11 +56,11 @@ class LsCommand extends Command
         $iterator = $directory->listEntries();
 
         if ($input->getOption('recursive')) {
-            $iterator = new \RecursiveIteratorIterator(
+            $iterator = new RecursiveIteratorIterator(
                 new ResourceCollectionIterator(
                     $iterator
                 ),
-                \RecursiveIteratorIterator::SELF_FIRST
+                RecursiveIteratorIterator::SELF_FIRST
             );
         }
 

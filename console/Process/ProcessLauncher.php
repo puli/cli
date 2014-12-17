@@ -11,6 +11,8 @@
 
 namespace Webmozart\Console\Process;
 
+use RuntimeException;
+
 /**
  * Launches an interactive process in the foreground.
  *
@@ -103,7 +105,7 @@ class ProcessLauncher
     private function run($command)
     {
         if (!function_exists('proc_open')) {
-            throw new \RuntimeException('The "proc_open" function is not available.');
+            throw new RuntimeException('The "proc_open" function is not available.');
         }
 
         $dspec = array(

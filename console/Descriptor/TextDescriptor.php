@@ -11,14 +11,15 @@
 
 namespace Webmozart\Console\Descriptor;
 
+use InvalidArgumentException;
 use Symfony\Component\Console\Descriptor\ApplicationDescription;
 use Symfony\Component\Console\Descriptor\DescriptorInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\Console\Application;
 use Webmozart\Console\Command\Command;
 use Webmozart\Console\Command\CompositeCommand;
-use Webmozart\Console\Application;
 use Webmozart\Console\Input\InputOption;
 
 /**
@@ -71,7 +72,7 @@ class TextDescriptor implements DescriptorInterface
             return;
         }
 
-        throw new \InvalidArgumentException(sprintf(
+        throw new InvalidArgumentException(sprintf(
             'Object of type "%s" is not describable.',
             is_object($object) ? get_class($object) : gettype($object)
         ));

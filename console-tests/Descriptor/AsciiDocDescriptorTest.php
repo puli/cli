@@ -11,6 +11,8 @@
 
 namespace Webmozart\Console\Tests\Descriptor;
 
+use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\ExecutableFinder;
 use Webmozart\Console\Descriptor\AsciiDocDescriptor;
@@ -20,15 +22,15 @@ use Webmozart\Console\Process\ProcessLauncher;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class AsciiDocDescriptorTest extends \PHPUnit_Framework_TestCase
+class AsciiDocDescriptorTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ExecutableFinder
+     * @var PHPUnit_Framework_MockObject_MockObject|ExecutableFinder
      */
     private $executableFinder;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ProcessLauncher
+     * @var PHPUnit_Framework_MockObject_MockObject|ProcessLauncher
      */
     private $processLauncher;
 

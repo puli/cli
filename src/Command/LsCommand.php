@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Command;
 
+use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\RepositoryManager\ManagerFactory;
@@ -45,7 +46,7 @@ class LsCommand extends Command
 
         $directory = $repo->get($input->getArgument('directory'));
 
-        if (!$directory instanceof DirectoryResourceInterface) {
+        if (!$directory instanceof DirectoryResource) {
             $output->getErrorOutput()->writeln('Not a directory.');
 
             return 1;

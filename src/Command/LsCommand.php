@@ -12,7 +12,6 @@
 namespace Puli\Cli\Command;
 
 use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\RepositoryManager\ManagerFactory;
 use RecursiveIteratorIterator;

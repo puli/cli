@@ -20,13 +20,13 @@ use Webmozart\Console\Command\Command;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DumpCommand extends Command
+class BuildCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('dump')
-            ->setDescription('(Re-)Generate the resource repository')
+            ->setName('build')
+            ->setDescription('Build the resource repository')
         ;
     }
 
@@ -35,6 +35,6 @@ class DumpCommand extends Command
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
         $manager = ManagerFactory::createRepositoryManager($environment);
 
-        $manager->dumpRepository();
+        $manager->buildRepository();
     }
 }

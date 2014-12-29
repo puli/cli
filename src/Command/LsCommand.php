@@ -42,7 +42,7 @@ class LsCommand extends Command
     {
         /** @var ConsoleOutputInterface $output */
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
-        $repo = ManagerFactory::createRepository($environment);
+        $repo = $environment->getRepository();
 
         $directory = $repo->get($input->getArgument('directory'));
 
@@ -52,7 +52,7 @@ class LsCommand extends Command
             return 1;
         }
 
-        $iterator = $directory->listEntries();
+        $iterator = $directory->listChildren();
 
         if ($input->getOption('recursive')) {
             $iterator = new RecursiveIteratorIterator(

@@ -11,7 +11,7 @@
 
 namespace Puli\Cli;
 
-use Puli\Cli\Command\DumpCommand;
+use Puli\Cli\Command\BuildCommand;
 use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\PackageCommand;
 use Puli\Cli\Command\TagCommand;
@@ -47,7 +47,7 @@ class PuliCliApplication extends Application
                 'commandPrefix' => 'puli-',
                 'defaultPage' => 'puli',
             )),
-            new DumpCommand(),
+            new BuildCommand(),
             new LsCommand(),
             new PackageCommand(),
             new TagCommand(),

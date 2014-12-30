@@ -13,6 +13,7 @@ namespace Puli\Cli;
 
 use Puli\Cli\Command\BuildCommand;
 use Puli\Cli\Command\LsCommand;
+use Puli\Cli\Command\MapCommand;
 use Puli\Cli\Command\PackageCommand;
 use Puli\Cli\Command\TagCommand;
 use Webmozart\Console\Application;
@@ -51,6 +52,7 @@ class PuliCliApplication extends Application
             new LsCommand(),
             new PackageCommand(),
             new TagCommand(),
+            new MapCommand(),
         ));
     }
 }

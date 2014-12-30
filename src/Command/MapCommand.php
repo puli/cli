@@ -44,6 +44,7 @@ class MapCommand extends Command
             ->addOption('root', null, InputOption::VALUE_NONE, 'Show mappings of the root package')
             ->addOption('package', 'p', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Show mappings of a package', null, 'package')
             ->addOption('all', 'a', InputOption::VALUE_NONE, 'Show mappings of all packages')
+            ->addOption('delete', 'd', InputOption::VALUE_NONE, 'Delete a mapping')
         ;
     }
 
@@ -53,8 +54,15 @@ class MapCommand extends Command
         $packageManager = ManagerFactory::createPackageManager($environment);
         $repoManager = ManagerFactory::createRepositoryManager($environment, $packageManager);
 
+        if ($input->getOption('delete')) {
+            return $this->deleteMapping(
+                $input->getArgument('repository-path'),
+                $repoManager
+            );
+        }
+
         if ($input->getArgument('repository-path')) {
-            return $this->mapResource(
+            return $this->updateMapping(
                 $input->getArgument('repository-path'),
                 $input->getArgument('path'),
                 $repoManager
@@ -73,7 +81,7 @@ class MapCommand extends Command
      *
      * @return int
      */
-    private function mapResource($repositoryPath, array $filesystemPaths, RepositoryManager $repoManager)
+    private function updateMapping($repositoryPath, array $filesystemPaths, RepositoryManager $repoManager)
     {
         $filesystemPaths = $this->mergeFilesystemPaths(
             $repoManager->hasResourceMapping($repositoryPath)
@@ -82,7 +90,24 @@ class MapCommand extends Command
             $filesystemPaths
         );
 
-        $repoManager->addResourceMapping(new ResourceMapping($repositoryPath, $filesystemPaths));
+        if (count($filesystemPaths) > 0) {
+            $repoManager->addResourceMapping(new ResourceMapping($repositoryPath, $filesystemPaths));
+        } else {
+            $repoManager->removeResourceMapping($repositoryPath);
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param string            $repositoryPath
+     * @param RepositoryManager $repoManager
+     *
+     * @return int
+     */
+    private function deleteMapping($repositoryPath, RepositoryManager $repoManager)
+    {
+        $repoManager->removeResourceMapping($repositoryPath);
 
         return 0;
     }

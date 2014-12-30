@@ -28,6 +28,12 @@ use Webmozart\Console\Input\InputOption;
  */
 class MapCommand extends Command
 {
+    const MODE_REPLACE = 1;
+
+    const MODE_ADD = 2;
+
+    const MODE_REMOVE = 3;
+
     protected function configure()
     {
         $this
@@ -69,10 +75,14 @@ class MapCommand extends Command
      */
     private function mapResource($repositoryPath, array $filesystemPaths, RepositoryManager $repoManager)
     {
-        $repoManager->addResourceMapping(new ResourceMapping(
-            $repositoryPath,
+        $filesystemPaths = $this->mergeFilesystemPaths(
+            $repoManager->hasResourceMapping($repositoryPath)
+                ? $repoManager->getResourceMapping($repositoryPath)->getFilesystemPaths()
+                : array(),
             $filesystemPaths
-        ));
+        );
+
+        $repoManager->addResourceMapping(new ResourceMapping($repositoryPath, $filesystemPaths));
 
         return 0;
     }
@@ -152,5 +162,35 @@ class MapCommand extends Command
         }
 
         $table->render();
+    }
+
+    private function mergeFilesystemPaths($filesystemPaths, $mergedPaths)
+    {
+        $mode = self::MODE_REPLACE;
+        $filesystemPaths = array_flip($filesystemPaths);
+        $cleared = false;
+
+        foreach ($mergedPaths as $filesystemPath) {
+            if ('+' === $filesystemPath[0]) {
+                $filesystemPath = substr($filesystemPath, 1);
+                $mode = self::MODE_ADD;
+            } elseif ('-' === $filesystemPath[0]) {
+                $filesystemPath = substr($filesystemPath, 1);
+                $mode = self::MODE_REMOVE;
+            }
+
+            if (!$cleared && self::MODE_REPLACE === $mode) {
+                $filesystemPaths = array();
+                $cleared = true;
+            }
+
+            if (self::MODE_REMOVE === $mode) {
+                unset($filesystemPaths[$filesystemPath]);
+            } else {
+                $filesystemPaths[$filesystemPath] = true;
+            }
+        }
+
+        return array_keys($filesystemPaths);
     }
 }

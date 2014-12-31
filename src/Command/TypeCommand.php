@@ -229,10 +229,16 @@ class TypeCommand extends Command
 
     private function printValue($value)
     {
-        switch ($value) {
-            case null: return 'null';
-            case true: return 'true';
-            case false: return 'false';
+        if (null === $value) {
+            return 'null';
+        }
+
+        if (true === $value) {
+            return 'true';
+        }
+
+        if (false === $value) {
+            return 'false';
         }
 
         if (is_string($value)) {

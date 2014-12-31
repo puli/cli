@@ -15,7 +15,7 @@ use Puli\Cli\Command\BuildCommand;
 use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\MapCommand;
 use Puli\Cli\Command\PackageCommand;
-use Puli\Cli\Command\TagCommand;
+use Puli\Cli\Command\TypeCommand;
 use Webmozart\Console\Application;
 use Webmozart\Console\Command\HelpCommand;
 
@@ -51,7 +51,7 @@ class PuliCliApplication extends Application
             new BuildCommand(),
             new LsCommand(),
             new PackageCommand(),
-            new TagCommand(),
+            new TypeCommand(),
             new MapCommand(),
         ));
     }

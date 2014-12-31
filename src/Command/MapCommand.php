@@ -38,7 +38,7 @@ class MapCommand extends Command
     {
         $this
             ->setName('map')
-            ->setDescription('Show and manipulate resource mappings.')
+            ->setDescription('Display and change resource mappings')
             ->addArgument('repository-path', InputArgument::OPTIONAL)
             ->addArgument('path', InputArgument::OPTIONAL | InputArgument::IS_ARRAY)
             ->addOption('root', null, InputOption::VALUE_NONE, 'Show mappings of the root package')

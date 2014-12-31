@@ -11,6 +11,7 @@
 
 namespace Puli\Cli;
 
+use Puli\Cli\Command\BindCommand;
 use Puli\Cli\Command\BuildCommand;
 use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\MapCommand;
@@ -53,6 +54,7 @@ class PuliCliApplication extends Application
             new PackageCommand(),
             new TypeCommand(),
             new MapCommand(),
+            new BindCommand(),
         ));
     }
 }

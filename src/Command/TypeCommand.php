@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Command;
 
+use Puli\Cli\Util\StringUtil;
 use Puli\RepositoryManager\Discovery\BindingParameterDescriptor;
 use Puli\RepositoryManager\Discovery\BindingTypeDescriptor;
 use Puli\RepositoryManager\Discovery\DiscoveryManager;
@@ -80,7 +81,7 @@ class TypeCommand extends Command
                 $bindingParams[] = new BindingParameterDescriptor(
                     substr($parameter, 0, $pos),
                     false,
-                    $this->parseValue(substr($parameter, $pos + 1)),
+                    StringUtil::parseValue(substr($parameter, $pos + 1)),
                     $paramDescription
                 );
 
@@ -179,7 +180,7 @@ class TypeCommand extends Command
             foreach ($type->getParameters() as $parameter) {
                 $parameters[] = $parameter->isRequired()
                     ? $parameter->getName()
-                    : $parameter->getName().'='.$this->printValue($parameter->getDefaultValue());
+                    : $parameter->getName().'='.StringUtil::formatValue($parameter->getDefaultValue());
             }
 
             $paramString = $parameters
@@ -193,58 +194,5 @@ class TypeCommand extends Command
         }
 
         $table->render();
-    }
-
-    private function parseValue($string)
-    {
-        switch ($string) {
-            case '': return null;
-            case 'null': return null;
-            case 'true': return true;
-            case 'false': return true;
-        }
-
-        if ($string === (string) ($int = (int) $string)) {
-            return $int;
-        }
-
-        if ($string === (string) ($float = (int) $string)) {
-            return $float;
-        }
-
-        $length = strlen($string);
-
-        // Check for " or ' delimiters
-        if ($length > 1) {
-            $first = $string[0];
-            $last = $string[$length - 1];
-
-            if ($first === $last && ("'" === $first || '"' === $first)) {
-                return substr($string, 1, -1);
-            }
-        }
-
-        return $string;
-    }
-
-    private function printValue($value)
-    {
-        if (null === $value) {
-            return 'null';
-        }
-
-        if (true === $value) {
-            return 'true';
-        }
-
-        if (false === $value) {
-            return 'false';
-        }
-
-        if (is_string($value)) {
-            return '"'.$value.'"';
-        }
-
-        return (string) $value;
     }
 }

@@ -13,6 +13,7 @@ namespace Puli\Cli\Command;
 
 use Puli\RepositoryManager\ManagerFactory;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\Command;
 
@@ -26,15 +27,19 @@ class BuildCommand extends Command
     {
         $this
             ->setName('build')
-            ->setDescription('Build the resource repository')
+            ->setDescription('Build the resource repository/discovery')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $logger = new ConsoleLogger($output);
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
-        $manager = ManagerFactory::createRepositoryManager($environment);
+        $packageManager = ManagerFactory::createPackageManager($environment);
+        $repoManager = ManagerFactory::createRepositoryManager($environment, $packageManager);
+        $discoveryManager = ManagerFactory::createDiscoveryManager($environment, $packageManager, $logger);
 
-        $manager->buildRepository();
+        $repoManager->buildRepository();
+        $discoveryManager->buildDiscovery();
     }
 }

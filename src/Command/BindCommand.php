@@ -19,6 +19,7 @@ use Puli\RepositoryManager\Package\PackageManager;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\Command;
 use Webmozart\Console\Input\InputOption;
@@ -47,10 +48,18 @@ class BindCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $logger = new ConsoleLogger($output);
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
         $packageManager = ManagerFactory::createPackageManager($environment);
-        $discoveryManager = ManagerFactory::createDiscoveryManager($environment);
+        $discoveryManager = ManagerFactory::createDiscoveryManager($environment, $packageManager, $logger);
         $packageNames = $this->getPackageNames($input, $packageManager);
+
+        if ($input->getOption('delete')) {
+            return $this->removeBinding(
+                $input->getArgument('resource-query'),
+                $discoveryManager
+            );
+        }
 
         if ($input->getArgument('resource-query')) {
             return $this->addBinding(
@@ -82,12 +91,25 @@ class BindCommand extends Command
             $bindingParams[$key] = $value;
         }
 
-        $discoveryManager->addBinding(new BindingDescriptor(
-            $query,
-            $typeName,
-            $bindingParams,
-            $language
-        ));
+        $discoveryManager->addBinding($query, $typeName, $bindingParams, $language);
+
+        return 0;
+    }
+
+    private function removeBinding($uuidPrefix, DiscoveryManager $discoveryManager)
+    {
+        $bindings = $discoveryManager->findBindings($uuidPrefix);
+
+        if (0 === count($bindings)) {
+            return 0;
+        }
+
+        if (count($bindings) > 1) {
+            // ambiguous
+        }
+
+        $bindingToRemove = reset($bindings);
+        $discoveryManager->removeBinding($bindingToRemove->getUuid());
 
         return 0;
     }
@@ -171,8 +193,11 @@ class BindCommand extends Command
                 ? ' <comment>('.implode(', ', $parameters).')</comment>'
                 : '';
 
+            $uuid = substr($binding->getUuid(), 0, 6);
+
             $table->addRow(array(
-                '<em>'.$binding->getSelector().'</em>',
+                '<comment>'.$uuid.'</comment> '.
+                '<em>'.$binding->getQuery().'</em>',
                 ' <tt>'.$binding->getTypeName().'</tt>'.$paramString
             ));
         }

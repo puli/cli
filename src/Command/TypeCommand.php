@@ -20,6 +20,7 @@ use Puli\RepositoryManager\Package\PackageManager;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\Command;
 use Webmozart\Console\Input\InputOption;
@@ -48,9 +49,10 @@ class TypeCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $logger = new ConsoleLogger($output);
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
         $packageManager = ManagerFactory::createPackageManager($environment);
-        $discoveryManager = ManagerFactory::createDiscoveryManager($environment);
+        $discoveryManager = ManagerFactory::createDiscoveryManager($environment, $packageManager, $logger);
         $packageNames = $this->getPackageNames($input, $packageManager);
 
         if ($input->getOption('define')) {

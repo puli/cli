@@ -124,21 +124,21 @@ class BindCommand extends Command
     private function listBindings(OutputInterface $output, DiscoveryManager $discoveryManager, array $packageNames = array())
     {
         if (1 === count($packageNames)) {
-            $types = $discoveryManager->getBindings(reset($packageNames));
-            $this->printBindingTable($output, $types);
+            $bindings = $discoveryManager->getBindings(reset($packageNames));
+            $this->printBindingTable($output, $bindings);
 
             return 0;
         }
 
         foreach ($packageNames as $packageName) {
-            $types = $discoveryManager->getBindingTypes($packageName);
+            $bindings = $discoveryManager->getBindings($packageName);
 
-            if (!$types) {
+            if (!$bindings) {
                 continue;
             }
 
             $output->writeln("<b>$packageName</b>");
-            $this->printBindingTable($output, $types);
+            $this->printBindingTable($output, $bindings);
             $output->writeln('');
         }
 

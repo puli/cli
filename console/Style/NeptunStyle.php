@@ -33,6 +33,7 @@ class NeptunStyle
         $formatter->setStyle('b', new OutputFormatterStyle(null, null, array('bold')));
         $formatter->setStyle('em', new OutputFormatterStyle('cyan'));
         $formatter->setStyle('tt', new OutputFormatterStyle(null, null, array('underscore')));
+        $formatter->setStyle('warn', new OutputFormatterStyle('black', 'yellow'));
     }
 
     private function __construct() {}

@@ -36,14 +36,9 @@ class TypeCommand extends Command
         $this
             ->setName('type')
             ->setDescription('Display and change binding types')
-            ->addArgument('name', InputArgument::OPTIONAL, 'The name of the binding type')
             ->addOption('root', null, InputOption::VALUE_NONE, 'Show types of the root package')
             ->addOption('package', 'p', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Show types of a package', null, 'package')
             ->addOption('all', 'a', InputOption::VALUE_NONE, 'Show types of all packages')
-            ->addOption('define', null, InputOption::VALUE_NONE, 'Add a type')
-            ->addOption('description', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'A human-readable description')
-            ->addOption('param', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'A type parameter in the form <param> or <param>=<default>')
-            ->addOption('delete', 'd', InputOption::VALUE_NONE, 'Delete a type')
         ;
     }
 
@@ -55,57 +50,7 @@ class TypeCommand extends Command
         $discoveryManager = ManagerFactory::createDiscoveryManager($environment, $packageManager, $logger);
         $packageNames = $this->getPackageNames($input, $packageManager);
 
-        if ($input->getOption('define')) {
-            return $this->addBindingType(
-                $input->getArgument('name'),
-                $input->getOption('description'),
-                $input->getOption('param'),
-                $discoveryManager
-            );
-        }
-
         return $this->listBindingTypes($output, $discoveryManager, $packageNames);
-    }
-
-    private function addBindingType($typeName, array $descriptions, array $parameters, DiscoveryManager $discoveryManager)
-    {
-        $bindingParams = array();
-
-        // The first description is for the type
-        $description = $descriptions ? array_shift($descriptions) : null;
-
-        foreach ($parameters as $parameter) {
-            // Subsequent descriptions are for the parameters
-            $paramDescription = $descriptions ? array_shift($descriptions) : null;
-
-            // Optional parameter with default value
-            if (false !== ($pos = strpos($parameter, '='))) {
-                $bindingParams[] = new BindingParameterDescriptor(
-                    substr($parameter, 0, $pos),
-                    false,
-                    StringUtil::parseValue(substr($parameter, $pos + 1)),
-                    $paramDescription
-                );
-
-                continue;
-            }
-
-            // Required parameter
-            $bindingParams[] = new BindingParameterDescriptor(
-                $parameter,
-                true,
-                null,
-                $paramDescription
-            );
-        }
-
-        $discoveryManager->addBindingType(new BindingTypeDescriptor(
-            $typeName,
-            $description,
-            $bindingParams
-        ));
-
-        return 0;
     }
 
     /**

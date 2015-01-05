@@ -17,6 +17,8 @@ use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\MapCommand;
 use Puli\Cli\Command\PackageCommand;
 use Puli\Cli\Command\TypeCommand;
+use Puli\Cli\Command\TypeDefineCommand;
+use Puli\Cli\Command\TypeRemoveCommand;
 use Webmozart\Console\Application;
 use Webmozart\Console\Command\HelpCommand;
 
@@ -53,6 +55,8 @@ class PuliCliApplication extends Application
             new LsCommand(),
             new PackageCommand(),
             new TypeCommand(),
+            new TypeDefineCommand(),
+            new TypeRemoveCommand(),
             new MapCommand(),
             new BindCommand(),
         ));

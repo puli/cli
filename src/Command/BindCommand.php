@@ -134,6 +134,8 @@ class BindCommand extends Command
     private function listBindings(OutputInterface $output, DiscoveryManager $discoveryManager, array $packageNames, array $bindingStates)
     {
         $printBindingState = count($bindingStates) > 1;
+        $printPackageName = count($packageNames) > 1;
+        $printHeaders = $printBindingState || $printPackageName;
 
         foreach ($bindingStates as $bindingState) {
             $bindingStatePrinted = !$printBindingState;
@@ -150,11 +152,15 @@ class BindCommand extends Command
                     $bindingStatePrinted = true;
                 }
 
+                if ($printPackageName) {
+                    $output->writeln("    $packageName");
+                }
+
                 $styleTag = BindingState::ENABLED === $bindingState ? null : 'fg=red';
 
-                $this->printBindingTable($output, $bindings, $styleTag, $printBindingState);
+                $this->printBindingTable($output, $bindings, $styleTag, $printHeaders);
 
-                if ($printBindingState) {
+                if ($printHeaders) {
                     $output->writeln('');
                 }
             }

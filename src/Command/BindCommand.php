@@ -279,12 +279,12 @@ class BindCommand extends Command
                 return;
             case BindingState::HELD_BACK:
                 $output->writeln('The following bindings are held back:');
-                $output->writeln(' (install their type definitions to enable them)');
+                $output->writeln(' (install their type definitions to enable)');
                 $output->writeln('');
                 return;
             case BindingState::IGNORED:
                 $output->writeln('The following bindings are ignored:');
-                $output->writeln(' (resolve their duplicate type definitions to enable them)');
+                $output->writeln(' (remove the duplicated type definitions to enable)');
                 $output->writeln('');
                 return;
         }

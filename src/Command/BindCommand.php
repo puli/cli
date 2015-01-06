@@ -153,12 +153,13 @@ class BindCommand extends Command
                 }
 
                 if ($printPackageName) {
-                    $output->writeln("    $packageName");
+                    $prefix = $printBindingState ? '    ' : '';
+                    $output->writeln("$prefix$packageName");
                 }
 
                 $styleTag = BindingState::ENABLED === $bindingState ? null : 'fg=red';
 
-                $this->printBindingTable($output, $bindings, $styleTag, $printHeaders);
+                $this->printBindingTable($output, $bindings, $styleTag, $printBindingState);
 
                 if ($printHeaders) {
                     $output->writeln('');
@@ -233,6 +234,7 @@ class BindCommand extends Command
         $table->setStyle('compact');
         $table->getStyle()->setBorderFormat('');
 
+        $prefix = $indent ? '    ' : '';
         $paramTag = $styleTag ?: 'comment';
         $uuidTag = $styleTag ?: 'comment';
         $queryTag = $styleTag ?: 'em';
@@ -246,24 +248,13 @@ class BindCommand extends Command
             }
 
             $uuid = substr($binding->getUuid(), 0, 6);
-            $paramString = '('.implode(', ', $parameters).')';
+            $paramString = $parameters ? " <$paramTag>(".implode(', ', $parameters).")</$paramTag>" : '';
 
-            if ($indent) {
-                $paramString = $paramString ? " <$paramTag>$paramString</$paramTag>" : '';
-
-                $table->addRow(array(
-                    "    <$uuidTag>".$uuid."</$uuidTag> ".
-                    "<$queryTag>".$binding->getQuery()."</$queryTag>",
-                    " <$typeTag>".$binding->getTypeName()."</$typeTag>".$paramString
-                ));
-            } else {
-                $paramString = $paramString ? " $paramString" : '';
-
-                $table->addRow(array(
-                    "$uuid {$binding->getQuery()}",
-                    " {$binding->getTypeName()}$paramString"
-                ));
-            }
+            $table->addRow(array(
+                "$prefix<$uuidTag>".$uuid."</$uuidTag> ".
+                "<$queryTag>".$binding->getQuery()."</$queryTag>",
+                " <$typeTag>".$binding->getTypeName()."</$typeTag>".$paramString
+            ));
         }
 
         $table->render();

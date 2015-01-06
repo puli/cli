@@ -306,7 +306,7 @@ class BindCommand extends Command
                 return;
             case BindingState::HELD_BACK:
                 $output->writeln('The following bindings are held back:');
-                $output->writeln(' (install their type definitions to enable)');
+                $output->writeln(' (install/add their type definitions to enable)');
                 $output->writeln('');
                 return;
             case BindingState::IGNORED:

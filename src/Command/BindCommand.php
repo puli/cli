@@ -46,9 +46,9 @@ class BindCommand extends Command
             ->addOption('undecided', null, InputOption::VALUE_NONE, 'Show bindings that are neither enabled nor disabled')
             ->addOption('held-back', null, InputOption::VALUE_NONE, 'Show bindings whose type is not loaded')
             ->addOption('ignored', null, InputOption::VALUE_NONE, 'Show bindings whose type is disabled')
-            ->addOption('delete', 'd', InputOption::VALUE_NONE, 'Delete a binding')
-            ->addOption('enable', null, InputOption::VALUE_NONE, 'Enable a binding')
-            ->addOption('disable', null, InputOption::VALUE_NONE, 'Disable a binding')
+            ->addOption('delete', 'd', InputOption::VALUE_REQUIRED, 'Delete a binding')
+            ->addOption('enable', null, InputOption::VALUE_REQUIRED, 'Enable a binding')
+            ->addOption('disable', null, InputOption::VALUE_REQUIRED, 'Disable a binding')
             ->addOption('language', null, InputOption::VALUE_REQUIRED, 'The language of the resource query', 'glob')
             ->addOption('param', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'A binding parameter in the form <param>=<value>')
         ;
@@ -63,7 +63,17 @@ class BindCommand extends Command
 
         if ($input->getOption('delete')) {
             return $this->removeBinding(
-                $input->getArgument('resource-query'),
+                $input->getOption('delete'),
+                $discoveryManager
+            );
+        }
+
+        $packageNames = $this->getPackageNames($input, $packageManager);
+
+        if ($input->getOption('enable')) {
+            return $this->enableBinding(
+                $input->getOption('enable'),
+                $packageNames,
                 $discoveryManager
             );
         }
@@ -78,7 +88,6 @@ class BindCommand extends Command
             );
         }
 
-        $packageNames = $this->getPackageNames($input, $packageManager);
         $bindingStates = $this->getBindingStates($input, $discoveryManager);
 
         return $this->listBindings($output, $discoveryManager, $packageNames, $bindingStates);
@@ -120,6 +129,24 @@ class BindCommand extends Command
 
         $bindingToRemove = reset($bindings);
         $discoveryManager->removeBinding($bindingToRemove->getUuid());
+
+        return 0;
+    }
+
+    private function enableBinding($uuidPrefix, array $packageNames, DiscoveryManager $discoveryManager)
+    {
+        $bindings = $discoveryManager->findBindings($uuidPrefix);
+
+        if (0 === count($bindings)) {
+            return 0;
+        }
+
+        if (count($bindings) > 1) {
+            // ambiguous
+        }
+
+        $bindingToEnable = reset($bindings);
+        $discoveryManager->enableBinding($bindingToEnable->getUuid(), $packageNames);
 
         return 0;
     }

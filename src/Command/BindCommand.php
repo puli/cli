@@ -43,9 +43,12 @@ class BindCommand extends Command
             ->addOption('all', 'a', InputOption::VALUE_NONE, 'Show bindings of all packages')
             ->addOption('enabled', null, InputOption::VALUE_NONE, 'Show enabled bindings')
             ->addOption('disabled', null, InputOption::VALUE_NONE, 'Show disabled bindings')
-            ->addOption('undecided', null, InputOption::VALUE_NONE, 'Show undecided bindings')
-            ->addOption('ignored', null, InputOption::VALUE_NONE, 'Show ignored bindings')
+            ->addOption('undecided', null, InputOption::VALUE_NONE, 'Show bindings that are neither enabled nor disabled')
+            ->addOption('held-back', null, InputOption::VALUE_NONE, 'Show bindings whose type is not loaded')
+            ->addOption('ignored', null, InputOption::VALUE_NONE, 'Show bindings whose type is disabled')
             ->addOption('delete', 'd', InputOption::VALUE_NONE, 'Delete a binding')
+            ->addOption('enable', null, InputOption::VALUE_NONE, 'Enable a binding')
+            ->addOption('disable', null, InputOption::VALUE_NONE, 'Disable a binding')
             ->addOption('language', null, InputOption::VALUE_REQUIRED, 'The language of the resource query', 'glob')
             ->addOption('param', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'A binding parameter in the form <param>=<value>')
         ;
@@ -203,18 +206,15 @@ class BindCommand extends Command
             $states[] = BindingState::UNDECIDED;
         }
 
-        if ($input->getOption('ignored')) {
-            $states[] = BindingState::TYPE_NOT_LOADED;
-            $states[] = BindingState::DUPLICATE_TYPE_DEFINITION;
+        if ($input->getOption('held-back')) {
+            $states[] = BindingState::HELD_BACK;
         }
 
-        return $states ?: array(
-            BindingState::ENABLED,
-            BindingState::DISABLED,
-            BindingState::UNDECIDED,
-            BindingState::TYPE_NOT_LOADED,
-            BindingState::DUPLICATE_TYPE_DEFINITION,
-        );
+        if ($input->getOption('ignored')) {
+            $states[] = BindingState::IGNORED;
+        }
+
+        return $states ?: BindingState::all();
     }
 
     /**
@@ -280,12 +280,14 @@ class BindCommand extends Command
                 $output->writeln(' (use "puli bind --enable <uuid>" to enable)');
                 $output->writeln('');
                 return;
-            case BindingState::TYPE_NOT_LOADED:
-                $output->writeln('The following bindings are ignored, because their type is not available:');
+            case BindingState::HELD_BACK:
+                $output->writeln('The following bindings are held back:');
+                $output->writeln(' (install their type definitions to enable them)');
                 $output->writeln('');
                 return;
-            case BindingState::DUPLICATE_TYPE_DEFINITION:
-                $output->writeln('The following bindings are ignored, because their type is defined twice:');
+            case BindingState::IGNORED:
+                $output->writeln('The following bindings are ignored:');
+                $output->writeln(' (resolve their duplicate type definitions to enable them)');
                 $output->writeln('');
                 return;
         }

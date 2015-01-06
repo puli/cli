@@ -48,7 +48,8 @@ class TypeCommand extends Command
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
         $packageManager = ManagerFactory::createPackageManager($environment);
         $discoveryManager = ManagerFactory::createDiscoveryManager($environment, $packageManager, $logger);
-        $packageNames = $this->getPackageNames($input, $packageManager);
+        $packages = $packageManager->getPackages();
+        $packageNames = $this->getPackageNames($input, $packageManager, $packages->getPackageNames());
 
         return $this->listBindingTypes($output, $discoveryManager, $packageNames);
     }
@@ -90,7 +91,7 @@ class TypeCommand extends Command
      *
      * @return string[]|null
      */
-    private function getPackageNames(InputInterface $input, PackageManager $packageManager)
+    private function getPackageNames(InputInterface $input, PackageManager $packageManager, $default = array())
     {
         // Display all packages if "all" is set
         if ($input->getOption('all')) {
@@ -99,8 +100,7 @@ class TypeCommand extends Command
 
         $packageNames = array();
 
-        // Display root if "root" option is given or if no option is set
-        if ($input->getOption('root') || !$input->getOption('package')) {
+        if ($input->getOption('root')) {
             $packageNames[] = $packageManager->getRootPackage()->getName();
         }
 
@@ -108,7 +108,7 @@ class TypeCommand extends Command
             $packageNames[] = $packageName;
         }
 
-        return $packageNames;
+        return $packageNames ?: $default;
     }
 
     /**

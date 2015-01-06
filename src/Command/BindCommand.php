@@ -87,7 +87,7 @@ class BindCommand extends Command
             );
         }
 
-        $packageNames = $this->getPackageNames($input, $packageManager, array($packages->getRootPackageName()));
+        $packageNames = $this->getPackageNames($input, $packageManager, $packages->getPackageNames());
 
         $bindingStates = $this->getBindingStates($input, $discoveryManager);
 

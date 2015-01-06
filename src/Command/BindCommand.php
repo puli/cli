@@ -60,6 +60,7 @@ class BindCommand extends Command
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
         $packageManager = ManagerFactory::createPackageManager($environment);
         $discoveryManager = ManagerFactory::createDiscoveryManager($environment, $packageManager, $logger);
+        $packages = $packageManager->getPackages();
 
         if ($input->getOption('delete')) {
             return $this->removeBinding(
@@ -68,12 +69,10 @@ class BindCommand extends Command
             );
         }
 
-        $packageNames = $this->getPackageNames($input, $packageManager);
-
         if ($input->getOption('enable')) {
             return $this->enableBinding(
                 $input->getOption('enable'),
-                $packageNames,
+                $this->getPackageNames($input, $packageManager, $packages->getInstalledPackageNames()),
                 $discoveryManager
             );
         }
@@ -87,6 +86,8 @@ class BindCommand extends Command
                 $discoveryManager
             );
         }
+
+        $packageNames = $this->getPackageNames($input, $packageManager, array($packages->getRootPackageName()));
 
         $bindingStates = $this->getBindingStates($input, $discoveryManager);
 
@@ -203,7 +204,7 @@ class BindCommand extends Command
      *
      * @return string[]|null
      */
-    private function getPackageNames(InputInterface $input, PackageManager $packageManager)
+    private function getPackageNames(InputInterface $input, PackageManager $packageManager, $default = array())
     {
         // Display all packages if "all" is set
         if ($input->getOption('all')) {
@@ -212,8 +213,7 @@ class BindCommand extends Command
 
         $packageNames = array();
 
-        // Display root if "root" option is given or if no option is set
-        if ($input->getOption('root') || !$input->getOption('package')) {
+        if ($input->getOption('root')) {
             $packageNames[] = $packageManager->getRootPackage()->getName();
         }
 
@@ -221,7 +221,7 @@ class BindCommand extends Command
             $packageNames[] = $packageName;
         }
 
-        return $packageNames;
+        return $packageNames ?: $default;
     }
 
     private function getBindingStates(InputInterface $input)

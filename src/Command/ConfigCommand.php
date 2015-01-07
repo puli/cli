@@ -14,7 +14,6 @@ namespace Puli\Cli\Command;
 use Puli\Cli\Util\StringUtil;
 use Puli\RepositoryManager\ManagerFactory;
 use Puli\RepositoryManager\Package\PackageFile\PackageFileManager;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -35,6 +34,7 @@ class ConfigCommand extends Command
             ->addArgument('key', InputArgument::OPTIONAL, 'The configuration key')
             ->addArgument('value', InputArgument::OPTIONAL, 'The value to set for the configuration key')
             ->addOption('all', 'a', InputOption::VALUE_NONE, 'Include default values in the output')
+            ->addOption('delete', 'd', InputOption::VALUE_REQUIRED, 'Delete a configuration key')
         ;
     }
 
@@ -42,6 +42,10 @@ class ConfigCommand extends Command
     {
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
         $manager = ManagerFactory::createPackageFileManager($environment);
+
+        if ($input->getOption('delete')) {
+            return $this->unsetValue($input->getOption('delete'), $manager);
+        }
 
         if ($input->getArgument('value')) {
             return $this->setValue($input->getArgument('key'), $input->getArgument('value'), $manager);
@@ -51,7 +55,7 @@ class ConfigCommand extends Command
             return $this->displayValue($output, $input->getArgument('key'), $manager);
         }
 
-        return $this->listValues($output, $manager);
+        return $this->listValues($output, $input->getOption('all'), $manager);
     }
 
     private function setValue($key, $value, PackageFileManager $manager)
@@ -61,16 +65,23 @@ class ConfigCommand extends Command
         return 0;
     }
 
-    private function displayValue(OutputInterface $output, $key, PackageFileManager $manager)
+    private function unsetValue($key, PackageFileManager $manager)
     {
-        $output->writeln(StringUtil::formatValue($manager->getConfigKey($key), false));
+        $manager->removeConfigKey($key);
 
         return 0;
     }
 
-    private function listValues(OutputInterface $output, PackageFileManager $manager)
+    private function displayValue(OutputInterface $output, $key, PackageFileManager $manager)
     {
-        $values = $manager->getConfigKeys();
+        $output->writeln(StringUtil::formatValue($manager->getConfigKey($key, null, true), false));
+
+        return 0;
+    }
+
+    private function listValues(OutputInterface $output, $all, PackageFileManager $manager)
+    {
+        $values = $manager->getConfigKeys($all, $all);
 
         $this->printTable($output, $values);
 

@@ -77,6 +77,14 @@ class BindCommand extends Command
             );
         }
 
+        if ($input->getOption('disable')) {
+            return $this->disableBinding(
+                $input->getOption('disable'),
+                $this->getPackageNames($input, $packageManager, $packages->getInstalledPackageNames()),
+                $discoveryManager
+            );
+        }
+
         if ($input->getArgument('resource-query')) {
             return $this->addBinding(
                 $input->getArgument('resource-query'),
@@ -148,6 +156,24 @@ class BindCommand extends Command
 
         $bindingToEnable = reset($bindings);
         $discoveryManager->enableBinding($bindingToEnable->getUuid(), $packageNames);
+
+        return 0;
+    }
+
+    private function disableBinding($uuidPrefix, array $packageNames, DiscoveryManager $discoveryManager)
+    {
+        $bindings = $discoveryManager->findBindings($uuidPrefix);
+
+        if (0 === count($bindings)) {
+            return 0;
+        }
+
+        if (count($bindings) > 1) {
+            // ambiguous
+        }
+
+        $bindingToDisable = reset($bindings);
+        $discoveryManager->disableBinding($bindingToDisable->getUuid(), $packageNames);
 
         return 0;
     }

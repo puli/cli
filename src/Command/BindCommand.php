@@ -208,7 +208,7 @@ class BindCommand extends Command
 
                 if ($printPackageName) {
                     $prefix = $printBindingState ? '    ' : '';
-                    $output->writeln("$prefix$packageName");
+                    $output->writeln("<h>$prefix$packageName</h>");
                 }
 
                 $styleTag = BindingState::ENABLED === $bindingState ? null : 'fg=red';

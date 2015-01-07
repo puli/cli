@@ -13,6 +13,7 @@ namespace Puli\Cli;
 
 use Puli\Cli\Command\BindCommand;
 use Puli\Cli\Command\BuildCommand;
+use Puli\Cli\Command\ConfigCommand;
 use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\MapCommand;
 use Puli\Cli\Command\PackageCommand;
@@ -59,6 +60,7 @@ class PuliCliApplication extends Application
             new TypeRemoveCommand(),
             new MapCommand(),
             new BindCommand(),
+            new ConfigCommand(),
         ));
     }
 }

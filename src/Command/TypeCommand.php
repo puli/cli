@@ -101,7 +101,7 @@ class TypeCommand extends Command
             }
         }
 
-        if ($printHeaders) {
+        if ($printStates) {
             $output->writeln('Use "puli bind <resource> <type>" to bind a resource to a type.');
         }
 

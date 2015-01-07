@@ -15,6 +15,7 @@ use Puli\Discovery\Api\ResourceDiscovery;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\RepositoryManager\ManagerFactory;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,7 +33,7 @@ class FindCommand extends Command
         $this
             ->setName('find')
             ->setDescription('Find resources by different criteria')
-            ->addOption('path', 'p', InputOption::VALUE_REQUIRED, 'A resource path pattern')
+            ->addArgument('pattern', InputArgument::OPTIONAL, 'A resource path pattern')
             ->addOption('type', 't', InputOption::VALUE_REQUIRED, 'The short name of a resource class')
             ->addOption('bound-to', 'b', InputOption::VALUE_REQUIRED, 'The name of a binding type')
         ;
@@ -45,8 +46,8 @@ class FindCommand extends Command
         $discovery = $environment->getDiscovery();
         $criteria = array();
 
-        if ($input->getOption('path')) {
-            $criteria['pattern'] = $input->getOption('path');
+        if ($input->getArgument('pattern')) {
+            $criteria['pattern'] = $input->getArgument('pattern');
         }
 
         if ($input->getOption('type')) {

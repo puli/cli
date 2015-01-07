@@ -42,20 +42,26 @@ class ConfigCommand extends Command
     {
         $environment = ManagerFactory::createProjectEnvironment(getcwd());
         $manager = ManagerFactory::createPackageFileManager($environment);
+        $all = $input->getOption('all');
+        $key = $input->getArgument('key');
 
         if ($input->getOption('delete')) {
-            return $this->unsetValue($input->getOption('delete'), $manager);
+            return $this->removeValue($input->getOption('delete'), $manager);
         }
 
         if ($input->getArgument('value')) {
-            return $this->setValue($input->getArgument('key'), $input->getArgument('value'), $manager);
+            return $this->setValue($key, $input->getArgument('value'), $manager);
         }
 
-        if ($input->getArgument('key')) {
-            return $this->displayValue($output, $input->getArgument('key'), $manager);
+        if (false !== strpos($key, '*')) {
+            return $this->listValues($output, $manager->findConfigKeys($key, $all, $all));
         }
 
-        return $this->listValues($output, $input->getOption('all'), $manager);
+        if ($key) {
+            return $this->displayValue($output, $key, $manager);
+        }
+
+        return $this->listValues($output, $manager->getConfigKeys($all, $all));
     }
 
     private function setValue($key, $value, PackageFileManager $manager)
@@ -65,9 +71,13 @@ class ConfigCommand extends Command
         return 0;
     }
 
-    private function unsetValue($key, PackageFileManager $manager)
+    private function removeValue($key, PackageFileManager $manager)
     {
-        $manager->removeConfigKey($key);
+        $keys = false !== strpos($key, '*')
+            ? array_keys($manager->findConfigKeys($key))
+            : array($key);
+
+        $manager->removeConfigKeys($keys);
 
         return 0;
     }
@@ -79,10 +89,8 @@ class ConfigCommand extends Command
         return 0;
     }
 
-    private function listValues(OutputInterface $output, $all, PackageFileManager $manager)
+    private function listValues(OutputInterface $output, array $values)
     {
-        $values = $manager->getConfigKeys($all, $all);
-
         $this->printTable($output, $values);
 
         return 0;

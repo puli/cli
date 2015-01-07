@@ -301,8 +301,8 @@ class BindCommand extends Command
         foreach ($bindings as $binding) {
             $parameters = array();
 
-            foreach ($binding->getParameters() as $parameter => $value) {
-                $parameters[] = $parameter.'='.StringUtil::formatValue($value);
+            foreach ($binding->getParameterValues() as $parameterName => $value) {
+                $parameters[] = $parameterName.'='.StringUtil::formatValue($value);
             }
 
             $uuid = substr($binding->getUuid(), 0, 6);

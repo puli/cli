@@ -46,6 +46,7 @@ class BindCommand extends Command
             ->addOption('undecided', null, InputOption::VALUE_NONE, 'Show bindings that are neither enabled nor disabled')
             ->addOption('held-back', null, InputOption::VALUE_NONE, 'Show bindings whose type is not loaded')
             ->addOption('ignored', null, InputOption::VALUE_NONE, 'Show bindings whose type is disabled')
+            ->addOption('invalid', null, InputOption::VALUE_NONE, 'Show bindings with invalid parameters')
             ->addOption('delete', 'd', InputOption::VALUE_REQUIRED, 'Delete a binding')
             ->addOption('enable', null, InputOption::VALUE_REQUIRED, 'Enable a binding')
             ->addOption('disable', null, InputOption::VALUE_REQUIRED, 'Disable a binding')
@@ -274,6 +275,10 @@ class BindCommand extends Command
             $states[] = BindingState::IGNORED;
         }
 
+        if ($input->getOption('invalid')) {
+            $states[] = BindingState::INVALID;
+        }
+
         return $states ?: BindingState::all();
     }
 
@@ -338,6 +343,11 @@ class BindCommand extends Command
             case BindingState::IGNORED:
                 $output->writeln('The following bindings are ignored:');
                 $output->writeln(' (remove the duplicated type definitions to enable)');
+                $output->writeln('');
+                return;
+            case BindingState::INVALID:
+                $output->writeln('The following bindings have invalid parameters:');
+                $output->writeln(' (remove the binding and add again with correct parameters)');
                 $output->writeln('');
                 return;
         }

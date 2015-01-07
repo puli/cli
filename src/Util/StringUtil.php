@@ -49,7 +49,7 @@ class StringUtil
         return $string;
     }
 
-    public static function formatValue($value)
+    public static function formatValue($value, $quote = true)
     {
         if (null === $value) {
             return 'null';
@@ -64,7 +64,9 @@ class StringUtil
         }
 
         if (is_string($value)) {
-            return '"'.$value.'"';
+            $q = $quote ? '"' : '';
+
+            return $q.$value.$q;
         }
 
         return (string) $value;

@@ -19,6 +19,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\Command;
+use Webmozart\Console\Input\InputOption;
 
 /**
  * @since  1.0
@@ -33,6 +34,7 @@ class ConfigCommand extends Command
             ->setDescription('Display and modify configuration values')
             ->addArgument('key', InputArgument::OPTIONAL, 'The configuration key')
             ->addArgument('value', InputArgument::OPTIONAL, 'The value to set for the configuration key')
+            ->addOption('all', 'a', InputOption::VALUE_NONE, 'Include default values in the output')
         ;
     }
 
@@ -61,50 +63,28 @@ class ConfigCommand extends Command
 
     private function displayValue(OutputInterface $output, $key, PackageFileManager $manager)
     {
-        $output->writeln(StringUtil::formatValue($manager->getConfigKey($key)));
+        $output->writeln(StringUtil::formatValue($manager->getConfigKey($key), false));
 
         return 0;
     }
 
     private function listValues(OutputInterface $output, PackageFileManager $manager)
     {
-        $table = new Table($output);
-        $table->setStyle('compact');
-        $table->getStyle()->setBorderFormat('');
+        $values = $manager->getConfigKeys();
 
-        $previousHeading = null;
-
-        foreach ($manager->getConfigKeys() as $key => $value) {
-            $heading = $this->getHeading($key);
-
-            if ($heading !== $previousHeading) {
-                if ($previousHeading) {
-                    $table->addRow(array(''));
-                }
-
-                $table->addRow(array("<h>$heading</h>"));
-                $previousHeading = $heading;
-            }
-
-            $table->addRow(array(
-                "<comment>$key</comment>",
-                ' '.StringUtil::formatValue($value)
-            ));
-        }
-
-        $table->render();
-
-        $output->writeln('');
+        $this->printTable($output, $values);
 
         return 0;
     }
 
-    private function getHeading($key)
+    /**
+     * @param OutputInterface $output
+     * @param                 $values
+     */
+    private function printTable(OutputInterface $output, $values)
     {
-        if (false !== ($pos = strpos($key, '.'))) {
-            return '['.substr($key, 0, $pos).']';
+        foreach ($values as $key => $value) {
+            $output->writeln("<comment>$key</comment> = ".StringUtil::formatValue($value, false));
         }
-
-        return '[general]';
     }
 }

@@ -152,15 +152,14 @@ class PackageCommand extends Command
                 $packageName = "<$styleTag>$packageName</$styleTag>";
             }
 
+            $row[] = $prefix.$packageName;
+
             if ($addInstaller) {
-                $installer = $installInfo ? $installInfo->getInstaller().' ' : 'root';
-                $row[] = "<$installerTag>$installer</$installerTag>";
+                $installer = $installInfo ? $installInfo->getInstaller() : 'root';
+                $row[] = " <$installerTag>$installer</$installerTag>";
             }
 
-            $row[] = $packageName;
             $row[] = " <$pathTag>$installPath</$pathTag>";
-
-            $row[0] = $prefix.$row[0];
 
             $table->addRow($row);
         }

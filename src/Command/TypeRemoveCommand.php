@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Command;
 
+use Psr\Log\LogLevel;
 use Puli\RepositoryManager\Discovery\DiscoveryManager;
 use Puli\RepositoryManager\ManagerFactory;
 use Symfony\Component\Console\Input\InputArgument;
@@ -36,7 +37,10 @@ class TypeRemoveCommand extends CompositeCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $logger = new ConsoleLogger($output);
+        $logger = new ConsoleLogger($output, array(), array(
+            LogLevel::WARNING => 'warn',
+        ));
+
         $factory = new ManagerFactory();
         $environment = $factory->createProjectEnvironment(getcwd());
         $packageManager = $factory->createPackageManager($environment);

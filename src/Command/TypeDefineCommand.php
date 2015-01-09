@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Command;
 
+use Psr\Log\LogLevel;
 use Puli\Cli\Util\StringUtil;
 use Puli\RepositoryManager\Discovery\BindingParameterDescriptor;
 use Puli\RepositoryManager\Discovery\BindingTypeDescriptor;
@@ -42,7 +43,10 @@ class TypeDefineCommand extends CompositeCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $logger = new ConsoleLogger($output);
+        $logger = new ConsoleLogger($output, array(), array(
+            LogLevel::WARNING => 'warn',
+        ));
+
         $factory = new ManagerFactory();
         $environment = $factory->createProjectEnvironment(getcwd());
         $packageManager = $factory->createPackageManager($environment);

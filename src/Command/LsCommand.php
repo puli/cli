@@ -11,15 +11,10 @@
 
 namespace Puli\Cli\Command;
 
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\RepositoryManager\ManagerFactory;
-use RecursiveIteratorIterator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\Command;
 use Webmozart\Console\Helper\WrappedGrid;
@@ -46,15 +41,18 @@ class LsCommand extends Command
         $repo = $environment->getRepository();
         $stderr = $output instanceof ConsoleOutput ? $output->getErrorOutput() : $output;
 
-        $directory = $repo->get($input->getArgument('directory'));
+        $resource = $repo->get($input->getArgument('directory'));
 
-        if (!$directory instanceof DirectoryResource) {
-            $stderr->writeln('Not a directory.');
+        if (!$resource->hasChildren()) {
+            $stderr->writeln(sprintf(
+                'fatal: The resource "%s" does not have children.',
+                $resource->getPath()
+            ));
 
             return 1;
         }
 
-        $this->listShort($output, $directory->listChildren());
+        $this->listShort($output, $resource->listChildren());
 
         return 0;
     }

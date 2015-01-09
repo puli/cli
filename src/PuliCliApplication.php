@@ -18,6 +18,7 @@ use Puli\Cli\Command\FindCommand;
 use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\MapCommand;
 use Puli\Cli\Command\PackageCommand;
+use Puli\Cli\Command\TreeCommand;
 use Puli\Cli\Command\TypeCommand;
 use Puli\Cli\Command\TypeDefineCommand;
 use Puli\Cli\Command\TypeRemoveCommand;
@@ -63,6 +64,7 @@ class PuliCliApplication extends Application
             new BindCommand(),
             new ConfigCommand(),
             new FindCommand(),
+            new TreeCommand(),
         ));
     }
 }

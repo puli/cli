@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Command;
 
+use Puli\Repository\Api\ResourceCollection;
 use Puli\RepositoryManager\ManagerFactory;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -61,11 +62,7 @@ class LsCommand extends Command
         return 0;
     }
 
-    /**
-     * @param OutputInterface $output
-     * @param Resource[]      $resources
-     */
-    protected function listShort(OutputInterface $output, $resources)
+    private function listShort(OutputInterface $output, ResourceCollection $resources)
     {
         $dimensions = $this->getApplication()->getTerminalDimensions();
         $grid = new WrappedGrid($dimensions[0]);

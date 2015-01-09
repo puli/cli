@@ -69,6 +69,7 @@ class TypeCommand extends Command
         $printStates = count($states) > 1;
         $printPackageName = count($packageNames) > 1;
         $printHeaders = $printStates || $printPackageName;
+        $printAdvice = false;
 
         foreach ($states as $state) {
             $statePrinted = !$printStates;
@@ -96,11 +97,14 @@ class TypeCommand extends Command
 
                 if ($printHeaders) {
                     $output->writeln('');
+
+                    // Only print the advice if at least one type was printed
+                    $printAdvice = true;
                 }
             }
         }
 
-        if ($printStates) {
+        if ($printAdvice) {
             $output->writeln('Use "puli bind <resource> <type>" to bind a resource to a type.');
         }
 

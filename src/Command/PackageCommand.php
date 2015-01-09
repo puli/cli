@@ -62,6 +62,7 @@ class PackageCommand extends Command
      */
     private function listPackages(OutputInterface $output, PackageManager $manager, array $states, $installer)
     {
+        $rootDir = $manager->getEnvironment()->getRootDirectory();
         $printStates = count($states) > 1;
 
         foreach ($states as $state) {
@@ -77,9 +78,13 @@ class PackageCommand extends Command
                 $this->printPackageState($output, $state);
             }
 
-            $styleTag = PackageState::ENABLED === $state ? null : 'fg=red';
+            if (PackageState::NOT_LOADABLE === $state) {
+                $this->printNotLoadablePackages($output, $packages, $rootDir, $printStates);
+            } else {
+                $styleTag = PackageState::ENABLED === $state ? null : 'fg=red';
 
-            $this->printPackageTable($output, $packages, $styleTag, $printStates, !$installer);
+                $this->printPackageTable($output, $packages, $styleTag, $printStates, !$installer);
+            }
 
             if ($printStates) {
                 $output->writeln('');
@@ -166,5 +171,44 @@ class PackageCommand extends Command
         }
 
         $table->render();
+    }
+
+    private function printNotLoadablePackages(OutputInterface $output, PackageCollection $packages, $rootDir, $indent = false)
+    {
+        $prefix = $indent ? '    ' : '';
+        $packages = $packages->toArray();
+        $dimensions = $this->getApplication()->getTerminalDimensions();
+        $screenWidth = $dimensions[0] ?: 80;
+
+        ksort($packages);
+
+        foreach ($packages as $package) {
+            $packageName = $package->getName();
+            $loadError = $package->getLoadError();
+
+            $errorMessage = $loadError
+                ? $this->getShortClassName(get_class($loadError)).': '.$loadError->getMessage()
+                : 'Unknown error.';
+
+            // Remove root directory
+            $errorMessage = str_replace($rootDir.'/', '', $errorMessage);
+
+            // TODO switch to WrappedTable once we have it
+            $errorPrefixLength = strlen($prefix.$packageName.': ');
+            $errorPrefix = str_repeat(' ', $errorPrefixLength);
+            $errorWidth = $screenWidth - $errorPrefixLength;
+
+            $wrappedErrorMessage = wordwrap($errorMessage, $errorWidth);
+            $wrappedErrorMessage = str_replace("\n", "\n".$errorPrefix, $wrappedErrorMessage);
+
+            $output->writeln("$prefix<fg=red>$packageName: $wrappedErrorMessage</fg=red>");
+        }
+    }
+
+    private function getShortClassName($className)
+    {
+        $pos = strrpos($className, '\\');
+
+        return false === $pos ? $className : substr($className, $pos + 1);
     }
 }

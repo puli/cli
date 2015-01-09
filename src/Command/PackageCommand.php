@@ -180,6 +180,9 @@ class PackageCommand extends Command
         $dimensions = $this->getApplication()->getTerminalDimensions();
         $screenWidth = $dimensions[0] ?: 80;
 
+        // Maintain one space to the right
+        $screenWidth--;
+
         ksort($packages);
 
         foreach ($packages as $package) {

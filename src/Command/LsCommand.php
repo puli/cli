@@ -18,6 +18,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\Command;
 use Webmozart\Console\Helper\WrappedGrid;
+use Webmozart\PathUtil\Path;
 
 /**
  * @since  1.0
@@ -25,12 +26,14 @@ use Webmozart\Console\Helper\WrappedGrid;
  */
 class LsCommand extends Command
 {
+    private $currentPath = '/';
+
     protected function configure()
     {
         $this
             ->setName('ls')
-            ->setDescription('List the contents of a directory in the resource repository')
-            ->addArgument('directory', InputArgument::OPTIONAL, 'The repository path of a directory', '/')
+            ->setDescription('List the children of a resource in the repository')
+            ->addArgument('path', InputArgument::OPTIONAL, 'The path of a resource', '/')
         ;
     }
 
@@ -40,8 +43,9 @@ class LsCommand extends Command
         $environment = $factory->createProjectEnvironment(getcwd());
         $repo = $environment->getRepository();
         $stderr = $output instanceof ConsoleOutput ? $output->getErrorOutput() : $output;
+        $path = Path::makeAbsolute($input->getArgument('path'), $this->currentPath);
 
-        $resource = $repo->get($input->getArgument('directory'));
+        $resource = $repo->get($path);
 
         if (!$resource->hasChildren()) {
             $stderr->writeln(sprintf(

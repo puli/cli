@@ -18,6 +18,7 @@ use Puli\Cli\Command\FindCommand;
 use Puli\Cli\Command\LsCommand;
 use Puli\Cli\Command\MapCommand;
 use Puli\Cli\Command\PackageCommand;
+use Puli\Cli\Command\PackageInstallCommand;
 use Puli\Cli\Command\TreeCommand;
 use Puli\Cli\Command\TypeCommand;
 use Puli\Cli\Command\TypeDefineCommand;
@@ -57,6 +58,7 @@ class PuliCliApplication extends Application
             new BuildCommand(),
             new LsCommand(),
             new PackageCommand(),
+            new PackageInstallCommand(),
             new TypeCommand(),
             new TypeDefineCommand(),
             new TypeRemoveCommand(),

@@ -25,9 +25,23 @@ class WrappedGrid
 
     private $cells = array();
 
+    private $horizontalSeparator = ' ';
+
+    private $excessWidthBetweenColumns = 0;
+
     public function __construct($screenWidth = null)
     {
         $this->screenWidth = $screenWidth ?: 80;
+    }
+
+    public function getHorizontalSeparator()
+    {
+        return $this->horizontalSeparator;
+    }
+
+    public function setHorizontalSeparator($horizontalSeparator)
+    {
+        $this->horizontalSeparator = $horizontalSeparator;
     }
 
     public function addCell($content)
@@ -40,8 +54,9 @@ class WrappedGrid
         $cellWidths = $this->getCellWidths();
         $minCellWidths = $this->getMinCellWidths();
 
-        // Subtract one for separating space
-        $maxWidth = floor($this->screenWidth / self::MIN_COLUMNS) - 1;
+        $this->excessWidthBetweenColumns = strlen($this->horizontalSeparator);
+        $availableScreenWidth = $this->screenWidth - (self::MIN_COLUMNS - 1)*$this->excessWidthBetweenColumns;
+        $maxWidth = floor($availableScreenWidth / self::MIN_COLUMNS);
 
         $columnWidths = $this->getColumnWidths($cellWidths, $minCellWidths, $maxWidth);
 
@@ -102,7 +117,7 @@ class WrappedGrid
 
         foreach ($cells as $cell) {
             if (0 !== $column) {
-                $output->write(' ');
+                $output->write($this->horizontalSeparator);
             }
 
             $columnWidth = $columnWidths[$column];
@@ -173,31 +188,31 @@ class WrappedGrid
 
     private function getColumnWidths(array $cellWidths, array $minCellWidths, $maxWidth)
     {
-        $nbColumns = $this->calcInitialNumberOfColumns($cellWidths, $maxWidth);
-        $widths = array($this->screenWidth);
+        $nbColumns = $this->calcInitialNumberOfColumns($cellWidths, $minCellWidths, $maxWidth);
 
-        // Add count for separating spaces
-        while ((array_sum($widths) + count($widths)) > $this->screenWidth) {
+        do {
             $widths = $this->calcColumnWidths($cellWidths, $minCellWidths, $maxWidth, $nbColumns);
+            $requiredScreenWidth = array_sum($widths) + (count($widths) - 1)*$this->excessWidthBetweenColumns;
             $nbColumns--;
-        }
+        } while ($requiredScreenWidth > $this->screenWidth);
 
         return $widths;
     }
 
-    private function calcInitialNumberOfColumns(array $cellWidths, $maxWidth)
+    private function calcInitialNumberOfColumns(array $cellWidths, array $minCellWidths, $maxWidth)
     {
         $totalWidth = 0;
         $nbColumns = 0;
 
-        foreach ($cellWidths as $cellWidth) {
-            // Add one for separating space
-            $totalWidth += min($maxWidth, $cellWidth) + 1;
+        foreach ($cellWidths as $i => $cellWidth) {
+            $maxCellWidth = max($maxWidth, $minCellWidths[$i]);
+            $totalWidth += min($maxCellWidth, $cellWidth);
 
             if ($totalWidth > $this->screenWidth) {
                 return $nbColumns;
             }
 
+            $totalWidth += $this->excessWidthBetweenColumns;
             $nbColumns++;
         }
 

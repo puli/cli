@@ -38,9 +38,36 @@ class WrappedGridTest extends PHPUnit_Framework_TestCase
         $grid->addCell('no');
         $grid->addCell('wtf');
 
-        $expected = "foo bar  hello some more\n".
-                    "baz boom stuff yes  no  \n".
-                    "wtf                     \n";
+        $expected = "foo  bar   hello some more baz\n".
+                    "boom stuff yes   no   wtf     \n";
+
+        $output = new BufferedOutput();
+        $grid->render($output);
+
+        $this->assertSame($expected, $output->fetch());
+    }
+
+    public function testAlignCellsNoWrappingCustomSeparator()
+    {
+        // Must be > length of longest cell * 4 (min number of columns)
+        // Otherwise the cells will wrap
+        $grid = new WrappedGrid(30);
+        $grid->setHorizontalSeparator(' | ');
+        $grid->addCell('foo');
+        $grid->addCell('bar');
+        $grid->addCell('hello');
+        $grid->addCell('some');
+        $grid->addCell('more');
+        $grid->addCell('baz');
+        $grid->addCell('boom');
+        $grid->addCell('stuff');
+        $grid->addCell('yes');
+        $grid->addCell('no');
+        $grid->addCell('wtf');
+
+        $expected = "foo  | bar | hello | some \n".
+                    "more | baz | boom  | stuff\n".
+                    "yes  | no  | wtf   |      \n";
 
         $output = new BufferedOutput();
         $grid->render($output);

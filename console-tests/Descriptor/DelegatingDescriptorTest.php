@@ -71,7 +71,7 @@ class DelegatingDescriptorTest extends PHPUnit_Framework_TestCase
     public function testDescribe()
     {
         $options = array(
-            'input' => new StringInput('--format=xml', $this->inputDefinition),
+            'input' => $this->getStringInput('--format=xml'),
             'option' => 'value',
         );
 
@@ -94,7 +94,7 @@ class DelegatingDescriptorTest extends PHPUnit_Framework_TestCase
     public function testDescribeUsesFirstRegisteredDescriptorByDefault()
     {
         $options = array(
-            'input' => new StringInput('', $this->inputDefinition),
+            'input' => $this->getStringInput(''),
             'option' => 'value',
         );
 
@@ -117,7 +117,7 @@ class DelegatingDescriptorTest extends PHPUnit_Framework_TestCase
     public function testDescribeUsesDefaultDescriptor()
     {
         $options = array(
-            'input' => new StringInput('', $this->inputDefinition),
+            'input' => $this->getStringInput(''),
             'option' => 'value',
         );
 
@@ -144,7 +144,15 @@ class DelegatingDescriptorTest extends PHPUnit_Framework_TestCase
     public function testDescribeFailsIfFormatNotSupported()
     {
         $this->descriptor->describe($this->output, $this->object, array(
-            'input' => new StringInput('--format=xml', $this->inputDefinition),
+            'input' => $this->getStringInput('--format=xml'),
         ));
+    }
+
+    private function getStringInput($inputString)
+    {
+        $input = new StringInput($inputString);
+        $input->bind($this->inputDefinition);
+
+        return $input;
     }
 }

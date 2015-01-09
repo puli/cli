@@ -132,7 +132,7 @@ class DefaultDescriptorTest extends PHPUnit_Framework_TestCase
     public function testDescribeApplicationAsText($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
         );
 
         $object = $this->createApplication();
@@ -161,7 +161,7 @@ class DefaultDescriptorTest extends PHPUnit_Framework_TestCase
     public function testDescribeApplicationAsTextWithCompositeCommands($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString.' --all', $this->inputDefinition),
+            'input' => $this->getStringInput($inputString.' --all'),
             'printCompositeCommands' => true,
         );
 
@@ -227,7 +227,7 @@ EOF;
     public function testDescribeApplicationAsXml($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
         );
 
         $object = $this->createApplication();
@@ -258,7 +258,7 @@ EOF;
     public function testDescribeApplicationAsJson($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
         );
 
         $object = $this->createApplication();
@@ -288,7 +288,7 @@ EOF;
     public function testDescribeApplicationAsMan($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
             'manDir' => __DIR__.'/Fixtures/man',
             'defaultPage' => 'application',
         );
@@ -322,7 +322,7 @@ EOF;
     public function testDescribeApplicationAsAsciiDoc($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
             'defaultPage' => 'application',
         );
@@ -358,7 +358,7 @@ EOF;
     public function testDescribeApplicationAsAsciiDocPrintsWhenLessNotFound()
     {
         $options = array(
-            'input' => new StringInput('--ascii-doc', $this->inputDefinition),
+            'input' => $this->getStringInput('--ascii-doc'),
             'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
             'defaultPage' => 'application',
@@ -392,7 +392,7 @@ EOF;
     public function testDescribeApplicationAsAsciiDocPrintsWhenProcessLauncherNotSupported()
     {
         $options = array(
-            'input' => new StringInput('--ascii-doc', $this->inputDefinition),
+            'input' => $this->getStringInput('--ascii-doc'),
             'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
             'defaultPage' => 'application',
@@ -426,7 +426,7 @@ EOF;
     public function testDescribeApplicationAsAsciiDocWhenManBinaryNotFound()
     {
         $options = array(
-            'input' => new StringInput('--help', $this->inputDefinition),
+            'input' => $this->getStringInput('--help'),
             'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
             'defaultPage' => 'application',
@@ -463,7 +463,7 @@ EOF;
     public function testDescribeApplicationAsAsciiDocWhenManPageNotFound()
     {
         $options = array(
-            'input' => new StringInput('--help', $this->inputDefinition),
+            'input' => $this->getStringInput('--help'),
             'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
             'defaultPage' => 'man-not-found',
@@ -500,7 +500,7 @@ EOF;
     public function testPrintAsciiDocWhenProcessLauncherNotSupported()
     {
         $options = array(
-            'input' => new StringInput('--help', $this->inputDefinition),
+            'input' => $this->getStringInput('--help'),
             'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
             'defaultPage' => 'application',
@@ -534,7 +534,7 @@ EOF;
     public function testDescribeApplicationAsTextWhenAsciiDocPageNotFound()
     {
         $options = array(
-            'input' => new StringInput('--help', $this->inputDefinition),
+            'input' => $this->getStringInput('--help'),
             'manDir' => __DIR__.'/Fixtures/man',
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
             'defaultPage' => 'not-found',
@@ -566,7 +566,7 @@ EOF;
     public function testDescribeCommandAsText($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
         );
 
         $object = $this->createCommand();
@@ -616,7 +616,7 @@ EOF;
     public function testDescribeCommandWithMultipleSynopsises()
     {
         $options = array(
-            'input' => new StringInput('-h', $this->inputDefinition),
+            'input' => $this->getStringInput('-h'),
         );
 
         $object = new TestSynopsisCommand();
@@ -667,7 +667,7 @@ EOF;
     public function testDescribeCommandAsXml($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
         );
 
         $object = new TestPackageAddCommand();
@@ -699,7 +699,7 @@ EOF;
     public function testDescribeCommandAsJson($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
         );
 
         $object = new TestPackageAddCommand();
@@ -729,7 +729,7 @@ EOF;
     public function testDescribeCommandAsMan($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
             'manDir' => __DIR__.'/Fixtures/man',
         );
 
@@ -762,7 +762,7 @@ EOF;
     public function testDescribeCommandAsManWithPrefix($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
             'manDir' => __DIR__.'/Fixtures/man',
             'commandPrefix' => 'prefix-',
         );
@@ -796,7 +796,7 @@ EOF;
     public function testDescribeCommandAsAsciiDoc($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
         );
 
@@ -834,7 +834,7 @@ EOF;
     public function testDescribeCommandAsAsciiDocWithPrefix($inputString)
     {
         $options = array(
-            'input' => new StringInput($inputString, $this->inputDefinition),
+            'input' => $this->getStringInput($inputString),
             'asciiDocDir' => __DIR__.'/Fixtures/ascii-doc',
             'commandPrefix' => 'prefix-',
         );
@@ -915,5 +915,13 @@ EOF;
         $object->setApplication($this->createApplication());
 
         return $object;
+    }
+
+    private function getStringInput($inputString)
+    {
+        $input = new StringInput($inputString);
+        $input->bind($this->inputDefinition);
+
+        return $input;
     }
 }

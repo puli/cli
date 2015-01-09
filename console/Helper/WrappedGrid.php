@@ -11,6 +11,7 @@
 
 namespace Webmozart\Console\Helper;
 
+use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -28,6 +29,11 @@ class WrappedGrid
     private $horizontalSeparator = ' ';
 
     private $excessWidthBetweenColumns = 0;
+
+    /**
+     * @var OutputFormatterInterface
+     */
+    private $nullFormatter;
 
     public function __construct($screenWidth = null)
     {
@@ -51,8 +57,11 @@ class WrappedGrid
 
     public function render(OutputInterface $output)
     {
-        $cellWidths = $this->getCellWidths();
-        $minCellWidths = $this->getMinCellWidths();
+        $this->nullFormatter = clone $output->getFormatter();
+        $this->nullFormatter->setDecorated(false);
+
+        $cellWidths = $this->getCellWidths($this->cells);
+        $minCellWidths = $this->getMinCellWidths($this->cells);
 
         $this->excessWidthBetweenColumns = strlen($this->horizontalSeparator);
         $availableScreenWidth = $this->screenWidth - (self::MIN_COLUMNS - 1)*$this->excessWidthBetweenColumns;
@@ -60,9 +69,11 @@ class WrappedGrid
 
         $columnWidths = $this->getColumnWidths($cellWidths, $minCellWidths, $maxWidth);
 
-        $cells = $this->wrapCells($this->cells, $columnWidths);
+        $wrappedCells = $this->wrapCells($this->cells, $columnWidths);
 
-        $this->renderCells($output, $cells, $columnWidths);
+        $this->renderCells($output, $wrappedCells, $columnWidths);
+
+        $this->nullFormatter = null;
     }
 
     private function wrapCells(array $cells, array $columnWidths)
@@ -121,8 +132,9 @@ class WrappedGrid
             }
 
             $columnWidth = $columnWidths[$column];
+            $missingSpace = $columnWidth - $this->getTextWidth($cell);
 
-            $output->write(str_pad(wordwrap($cell, $columnWidth), $columnWidth, ' '));
+            $output->write($cell.str_repeat(' ', $missingSpace));
 
             $column = ($column + 1) % $nbColumns;
 
@@ -137,22 +149,22 @@ class WrappedGrid
         }
     }
 
-    private function getCellWidths()
+    private function getCellWidths(array $cells)
     {
         $widths = array();
 
-        foreach ($this->cells as $cell) {
+        foreach ($cells as $cell) {
             $widths[] = $this->getTextWidth($cell);
         }
 
         return $widths;
     }
 
-    private function getMinCellWidths()
+    private function getMinCellWidths(array $cells)
     {
         $minWidths = array();
 
-        foreach ($this->cells as $cell) {
+        foreach ($cells as $cell) {
             $minWidths[] = $this->getMinTextWidth($cell);
         }
 
@@ -163,6 +175,9 @@ class WrappedGrid
     {
         $width = 0;
 
+        // Remove decoration
+        $text = $this->nullFormatter->format($text);
+
         foreach (explode("\n", $text) as $line) {
             $width = max($width, strlen($line));
         }
@@ -172,6 +187,9 @@ class WrappedGrid
 
     private function getMinTextWidth($text)
     {
+        // Remove decoration
+        $text = $this->nullFormatter->format($text);
+
         $spacePos = strpos($text, ' ');
         $nlPos = strpos($text, "\n");
 

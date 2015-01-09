@@ -18,9 +18,11 @@ use RecursiveIteratorIterator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\Command;
+use Webmozart\Console\Helper\WrappedGrid;
 
 /**
  * @since  1.0
@@ -34,40 +36,49 @@ class LsCommand extends Command
             ->setName('ls')
             ->setDescription('List the contents of a directory in the resource repository')
             ->addArgument('directory', InputArgument::OPTIONAL, 'The repository path of a directory', '/')
-            ->addOption('recursive', 'r', InputOption::VALUE_NONE, 'Recursively list the contents of sub-directories')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var ConsoleOutputInterface $output */
         $factory = new ManagerFactory();
         $environment = $factory->createProjectEnvironment(getcwd());
         $repo = $environment->getRepository();
+        $stderr = $output instanceof ConsoleOutput ? $output->getErrorOutput() : $output;
 
         $directory = $repo->get($input->getArgument('directory'));
 
         if (!$directory instanceof DirectoryResource) {
-            $output->getErrorOutput()->writeln('Not a directory.');
+            $stderr->writeln('Not a directory.');
 
             return 1;
         }
 
-        $iterator = $directory->listChildren();
-
-        if ($input->getOption('recursive')) {
-            $iterator = new RecursiveIteratorIterator(
-                new ResourceCollectionIterator(
-                    $iterator
-                ),
-                RecursiveIteratorIterator::SELF_FIRST
-            );
-        }
-
-        foreach ($iterator as $resource) {
-            $output->writeln($resource->getPath());
-        }
+        $this->listShort($output, $directory->listChildren());
 
         return 0;
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @param Resource[]      $resources
+     */
+    protected function listShort(OutputInterface $output, $resources)
+    {
+        $dimensions = $this->getApplication()->getTerminalDimensions();
+        $grid = new WrappedGrid($dimensions[0]);
+        $grid->setHorizontalSeparator('  ');
+
+        foreach ($resources as $resource) {
+            $name = $resource->getName();
+
+            if ($resource->hasChildren()) {
+                $name = '<em>'.$name.'</em>';
+            }
+
+            $grid->addCell($name);
+        }
+
+        $grid->render($output);
     }
 }

@@ -51,35 +51,38 @@ class TreeCommand extends Command
         $repo = $environment->getRepository();
         $path = Path::makeAbsolute($input->getArgument('path'), $this->currentPath);
 
+        $resource = $repo->get($path);
         $total = 0;
 
-        $this->printTree($output, $repo->get($path), $total);
+        $output->writeln('<em>'.$resource->getPath().'</em>');
+
+        $this->printTree($output, $resource, $total);
 
         $output->writeln('');
-        $output->writeln($total.' resources');
+        $output->writeln($total.' child resources');
 
         return 0;
     }
 
     private function printTree(OutputInterface $output, Resource $resource, &$total, $prefix = '')
     {
-        $name = $resource->getName();
+        // The root node has an empty name
         $children = $resource->listChildren();
         $lastIndex = count($children) - 1;
         $index = 0;
-
-        if ($resource->hasChildren()) {
-            $name = '<em>'.$name.'</em>';
-        }
-
-        $output->writeln($name);
 
         foreach ($children as $child) {
             $isLastChild = $index === $lastIndex;
             $childPrefix = $isLastChild ? self::LAST_CHILD_PREFIX : self::CHILD_PREFIX;
             $nestingPrefix = $isLastChild ? self::NESTING_CLOSED_PREFIX : self::NESTING_OPEN_PREFIX;
 
-            $output->write($prefix.$childPrefix);
+            $name = $child->getName() ?: '/';
+
+            if ($child->hasChildren()) {
+                $name = '<em>'.$name.'</em>';
+            }
+
+            $output->writeln($prefix.$childPrefix.$name);
 
             $this->printTree($output, $child, $total, $prefix.$nestingPrefix);
 

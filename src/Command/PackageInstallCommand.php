@@ -52,7 +52,7 @@ class PackageInstallCommand extends CompositeCommand
     {
         $installPath = Path::makeAbsolute($installPath, getcwd());
 
-        $packageManager->installPackage($installPath, $packageName, 'User');
+        $packageManager->installPackage($installPath, $packageName, 'user');
 
         return 0;
     }

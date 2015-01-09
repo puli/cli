@@ -16,6 +16,7 @@ use Puli\RepositoryManager\Package\PackageCollection;
 use Puli\RepositoryManager\Package\PackageManager;
 use Puli\RepositoryManager\Package\PackageState;
 use Puli\RepositoryManager\Package\RootPackage;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\Command;
@@ -78,7 +79,7 @@ class PackageCommand extends Command
 
             $styleTag = PackageState::ENABLED === $state ? null : 'fg=red';
 
-            $this->printPackageList($output, $packages, $styleTag, $printStates, !$installer);
+            $this->printPackageTable($output, $packages, $styleTag, $printStates, !$installer);
 
             if ($printStates) {
                 $output->writeln('');
@@ -125,33 +126,45 @@ class PackageCommand extends Command
         }
     }
 
-    private function printPackageList(OutputInterface $output, PackageCollection $packages, $styleTag = null, $indent = false, $addInstaller = true)
+    private function printPackageTable(OutputInterface $output, PackageCollection $packages, $styleTag = null, $indent = false, $addInstaller = true)
     {
+        $table = new Table($output);
+        $table->setStyle('compact');
+        $table->getStyle()->setBorderFormat('');
+
         $prefix = $indent ? '    ' : '';
-        $detailsTag = $styleTag ?: 'comment';
-        $packageNames = array();
+        $rootTag = $styleTag ?: 'b';
+        $installerTag = $styleTag ?: 'em';
+        $pathTag = $styleTag ?: 'comment';
+        $packages = $packages->toArray();
+
+        ksort($packages);
 
         foreach ($packages as $package) {
             $packageName = $package->getName();
+            $installInfo = $package->getInstallInfo();
+            $installPath = $installInfo ? $installInfo->getInstallPath() : '';
+            $row = array();
 
-            if ($styleTag) {
+            if ($package instanceof RootPackage) {
+                $packageName = "<$rootTag>$packageName</$rootTag>";
+            } elseif ($styleTag) {
                 $packageName = "<$styleTag>$packageName</$styleTag>";
             }
 
-            if ($package instanceof RootPackage) {
-                $packageName = "<b>$packageName</b> <$detailsTag>(root package)</$detailsTag>";
-            } elseif ($package->getInstallInfo() && $addInstaller) {
-                $installer = $package->getInstallInfo()->getInstaller();
-                $packageName .= " <$detailsTag>(installer: $installer)</$detailsTag>";
+            if ($addInstaller) {
+                $installer = $installInfo ? $installInfo->getInstaller().' ' : 'root';
+                $row[] = "<$installerTag>$installer</$installerTag>";
             }
 
-            $packageNames[$package->getName()] = $packageName;
+            $row[] = $packageName;
+            $row[] = " <$pathTag>$installPath</$pathTag>";
+
+            $row[0] = $prefix.$row[0];
+
+            $table->addRow($row);
         }
 
-        ksort($packageNames);
-
-        foreach ($packageNames as $packageName) {
-            $output->writeln($prefix.$packageName);
-        }
+        $table->render();
     }
 }

@@ -117,6 +117,7 @@ class PackageCommand extends Command
                 return;
             case PackageState::NOT_FOUND:
                 $output->writeln('The following packages could not be found:');
+                $output->writeln(' (use "puli package clean" to remove)');
                 $output->writeln('');
                 return;
             case PackageState::NOT_LOADABLE:

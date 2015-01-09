@@ -13,7 +13,7 @@ namespace Puli\Cli\Command;
 
 use Puli\RepositoryManager\ManagerFactory;
 use Puli\RepositoryManager\Package\PackageManager;
-use Symfony\Component\Console\Input\InputArgument;
+use Puli\RepositoryManager\Package\PackageState;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\CompositeCommand;
@@ -22,14 +22,13 @@ use Webmozart\Console\Command\CompositeCommand;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PackageRemoveCommand extends CompositeCommand
+class PackageCleanCommand extends CompositeCommand
 {
     protected function configure()
     {
         $this
-            ->setName('package remove')
-            ->setDescription('Remove a package')
-            ->addArgument('name', InputArgument::REQUIRED, 'The name of the package')
+            ->setName('package clean')
+            ->setDescription('Remove all packages that cannot be found')
         ;
     }
 
@@ -39,15 +38,15 @@ class PackageRemoveCommand extends CompositeCommand
         $environment = $factory->createProjectEnvironment(getcwd());
         $packageManager = $factory->createPackageManager($environment);
 
-        return $this->removePackage(
-            $input->getArgument('name'),
-            $packageManager
-        );
+        return $this->cleanPackages($output, $packageManager);
     }
 
-    private function removePackage($packageName, PackageManager $packageManager)
+    private function cleanPackages(OutputInterface $output, PackageManager $packageManager)
     {
-        $packageManager->removePackage($packageName);
+        foreach ($packageManager->getPackages(PackageState::NOT_FOUND) as $package) {
+            $output->writeln('Removing '.$package->getName());
+            $packageManager->removePackage($package->getName());
+        }
 
         return 0;
     }

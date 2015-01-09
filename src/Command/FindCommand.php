@@ -41,7 +41,8 @@ class FindCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $environment = ManagerFactory::createProjectEnvironment(getcwd());
+        $factory = new ManagerFactory();
+        $environment = $factory->createProjectEnvironment(getcwd());
         $repo = $environment->getRepository();
         $discovery = $environment->getDiscovery();
         $criteria = array();

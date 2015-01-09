@@ -50,9 +50,10 @@ class MapCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $environment = ManagerFactory::createProjectEnvironment(getcwd());
-        $packageManager = ManagerFactory::createPackageManager($environment);
-        $repoManager = ManagerFactory::createRepositoryManager($environment, $packageManager);
+        $factory = new ManagerFactory();
+        $environment = $factory->createProjectEnvironment(getcwd());
+        $packageManager = $factory->createPackageManager($environment);
+        $repoManager = $factory->createRepositoryManager($environment, $packageManager);
 
         if ($input->getOption('delete')) {
             return $this->deleteMapping(

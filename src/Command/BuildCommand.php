@@ -40,10 +40,11 @@ class BuildCommand extends Command
             LogLevel::WARNING => 'warn',
         ));
 
-        $environment = ManagerFactory::createProjectEnvironment(getcwd());
-        $packageManager = ManagerFactory::createPackageManager($environment);
-        $repoManager = ManagerFactory::createRepositoryManager($environment, $packageManager);
-        $discoveryManager = ManagerFactory::createDiscoveryManager($environment, $packageManager, $logger);
+        $factory = new ManagerFactory();
+        $environment = $factory->createProjectEnvironment(getcwd());
+        $packageManager = $factory->createPackageManager($environment);
+        $repoManager = $factory->createRepositoryManager($environment, $packageManager);
+        $discoveryManager = $factory->createDiscoveryManager($environment, $packageManager, $logger);
 
         if ($input->getOption('force')) {
             $repoManager->clearRepository();

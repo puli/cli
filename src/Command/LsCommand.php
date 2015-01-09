@@ -41,7 +41,8 @@ class LsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var ConsoleOutputInterface $output */
-        $environment = ManagerFactory::createProjectEnvironment(getcwd());
+        $factory = new ManagerFactory();
+        $environment = $factory->createProjectEnvironment(getcwd());
         $repo = $environment->getRepository();
 
         $directory = $repo->get($input->getArgument('directory'));

@@ -13,7 +13,7 @@ namespace Puli\Cli\Command;
 
 use Puli\Cli\Util\StringUtil;
 use Puli\RepositoryManager\ManagerFactory;
-use Puli\RepositoryManager\Package\PackageFile\PackageFileManager;
+use Puli\RepositoryManager\Package\PackageFile\RootPackageFileManager;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -40,8 +40,9 @@ class ConfigCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $environment = ManagerFactory::createProjectEnvironment(getcwd());
-        $manager = ManagerFactory::createPackageFileManager($environment);
+        $factory = new ManagerFactory();
+        $environment = $factory->createProjectEnvironment(getcwd());
+        $manager = $factory->createRootPackageFileManager($environment);
         $all = $input->getOption('all');
         $key = $input->getArgument('key');
 
@@ -64,14 +65,14 @@ class ConfigCommand extends Command
         return $this->listValues($output, $manager->getConfigKeys($all, $all));
     }
 
-    private function setValue($key, $value, PackageFileManager $manager)
+    private function setValue($key, $value, RootPackageFileManager $manager)
     {
         $manager->setConfigKey($key, StringUtil::parseValue($value));
 
         return 0;
     }
 
-    private function removeValue($key, PackageFileManager $manager)
+    private function removeValue($key, RootPackageFileManager $manager)
     {
         $keys = false !== strpos($key, '*')
             ? array_keys($manager->findConfigKeys($key))
@@ -82,7 +83,7 @@ class ConfigCommand extends Command
         return 0;
     }
 
-    private function displayValue(OutputInterface $output, $key, PackageFileManager $manager)
+    private function displayValue(OutputInterface $output, $key, RootPackageFileManager $manager)
     {
         $output->writeln(StringUtil::formatValue($manager->getConfigKey($key, null, true), false));
 

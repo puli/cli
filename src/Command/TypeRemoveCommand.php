@@ -37,9 +37,10 @@ class TypeRemoveCommand extends CompositeCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $logger = new ConsoleLogger($output);
-        $environment = ManagerFactory::createProjectEnvironment(getcwd());
-        $packageManager = ManagerFactory::createPackageManager($environment);
-        $discoveryManager = ManagerFactory::createDiscoveryManager($environment, $packageManager, $logger);
+        $factory = new ManagerFactory();
+        $environment = $factory->createProjectEnvironment(getcwd());
+        $packageManager = $factory->createPackageManager($environment);
+        $discoveryManager = $factory->createDiscoveryManager($environment, $packageManager, $logger);
 
         return $this->removeBindingType($input->getArgument('name'), $discoveryManager);
     }

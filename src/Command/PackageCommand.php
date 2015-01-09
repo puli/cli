@@ -33,8 +33,9 @@ class PackageCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $environment = ManagerFactory::createProjectEnvironment(getcwd());
-        $manager = ManagerFactory::createPackageManager($environment);
+        $factory = new ManagerFactory();
+        $environment = $factory->createProjectEnvironment(getcwd());
+        $manager = $factory->createPackageManager($environment);
 
         $packages = $manager->getPackages()->toArray();
         $packageNames = array_map(function (Package $p) { return $p->getName(); }, $packages);

@@ -46,9 +46,10 @@ class TypeCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $logger = new ConsoleLogger($output);
-        $environment = ManagerFactory::createProjectEnvironment(getcwd());
-        $packageManager = ManagerFactory::createPackageManager($environment);
-        $discoveryManager = ManagerFactory::createDiscoveryManager($environment, $packageManager, $logger);
+        $factory = new ManagerFactory();
+        $environment = $factory->createProjectEnvironment(getcwd());
+        $packageManager = $factory->createPackageManager($environment);
+        $discoveryManager = $factory->createDiscoveryManager($environment, $packageManager, $logger);
         $packages = $packageManager->getPackages();
         $packageNames = $this->getPackageNames($input, $packageManager, $packages->getPackageNames());
         $states = $this->getBindingTypeStates($input);

@@ -64,14 +64,14 @@ License
 
 All contents of this package are licensed under the [MIT license].
 
-[Puli]: https://github.com/puli/puli
-[Puli Repository Manager]: https://github.com/puli/puli-repository-manager
+[Puli]: http://puli.io
+[Puli Repository Manager]: https://github.com/puli/repository-manager
 [Bernhard Schussek]: http://webmozarts.com
 [The Community Contributors]: https://github.com/puli/cli/graphs/contributors
 [Getting Started]: http://docs.puli.io/en/latest/getting-started.html
 [Puli Documentation]: http://docs.puli.io/en/latest/index.html
 [Puli at a Glance]: http://docs.puli.io/en/latest/at-a-glance.html
-[issue tracker]: https://github.com/puli/puli/issues
+[issue tracker]: https://github.com/puli/issues/issues
 [Git repository]: https://github.com/puli/cli
 [@webmozart]: https://twitter.com/webmozart
 [MIT license]: LICENSE

@@ -21,6 +21,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\Command;
 use Webmozart\Console\Input\InputOption;
+use Webmozart\PathUtil\Path;
 
 /**
  * @since  1.0
@@ -34,13 +35,15 @@ class MapCommand extends Command
 
     const MODE_REMOVE = 3;
 
+    private $currentPath = '/';
+
     protected function configure()
     {
         $this
             ->setName('map')
             ->setDescription('Display and change resource mappings')
-            ->addArgument('repository-path', InputArgument::OPTIONAL)
-            ->addArgument('path', InputArgument::OPTIONAL | InputArgument::IS_ARRAY)
+            ->addArgument('path', InputArgument::OPTIONAL)
+            ->addArgument('file', InputArgument::OPTIONAL | InputArgument::IS_ARRAY)
             ->addOption('root', null, InputOption::VALUE_NONE, 'Show mappings of the root package')
             ->addOption('package', 'p', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Show mappings of a package', null, 'package')
             ->addOption('all', 'a', InputOption::VALUE_NONE, 'Show mappings of all packages')
@@ -57,15 +60,15 @@ class MapCommand extends Command
 
         if ($input->getOption('delete')) {
             return $this->deleteMapping(
-                $input->getArgument('repository-path'),
+                Path::makeAbsolute($input->getArgument('path'), $this->currentPath),
                 $repoManager
             );
         }
 
-        if ($input->getArgument('repository-path')) {
+        if ($input->getArgument('path')) {
             return $this->updateMapping(
-                $input->getArgument('repository-path'),
-                $input->getArgument('path'),
+                Path::makeAbsolute($input->getArgument('path'), $this->currentPath),
+                $input->getArgument('file'),
                 $repoManager
             );
         }
@@ -197,6 +200,8 @@ class MapCommand extends Command
         $cleared = false;
 
         foreach ($mergedPaths as $filesystemPath) {
+            $filesystemPath = trim($filesystemPath, '/');
+
             if ('+' === $filesystemPath[0]) {
                 $filesystemPath = substr($filesystemPath, 1);
                 $mode = self::MODE_ADD;

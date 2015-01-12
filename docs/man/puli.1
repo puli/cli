@@ -1,0 +1,123 @@
+'\" t
+.\"     Title: puli
+.\"    Author: [see the "AUTHOR" section]
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 01/12/2015
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "PULI" "1" "01/12/2015" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+puli \- PHP\*(Aqs powerful resource manager
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIpuli\fR [\-\-help] [\-\-quiet] [\-\-verbose] [\-\-version] [\-\-ansi]
+     [\-\-no\-ansi] [\-\-no\-interaction]
+     <command> [<sub\-command>] [<arg1>] \&... [<argN>]
+.fi
+.SH "DESCRIPTION"
+.sp
+Puli is a PHP library that manages files, directories and other resources in a repository \- much like a virtual file system\&. \fIResources\fR can be anything, but usually we use the term for machine\-processed files that are not PHP, such as CSS, JavaScript, XLIFF, YAML, XML or HTML files\&.
+.SH "ARGUMENTS"
+.PP
+<command>
+.RS 4
+The name of the command to execute\&. The list of commands is displayed in the output of
+\fBpuli\fR\&.
+.RE
+.PP
+<sub\-command>
+.RS 4
+Some Puli commands have sub\-commands\&. Pass the name of a sub\-command in this argument\&. You can list the commands and their sub\-commands with
+\fBpuli \-a\fR\&.
+.RE
+.PP
+<arg*>
+.RS 4
+The arguments of the command\&. Run
+\fBpuli <command> \-h\fR
+to learn more about the arguments supported by a command\&.
+.RE
+.SH "OPTIONS"
+.PP
+\-\-help, \-h
+.RS 4
+Print the synopsis and a list of the most commonly used commands\&.
+.RE
+.PP
+\-\-quiet, \-q
+.RS 4
+Mute all output of the command\&.
+.RE
+.PP
+\-\-verbose, \-v, \-vv, \-vvv
+.RS 4
+Enable verbose output of the command\&. You can enable three levels of verbosity\&. The option
+\fI\-v\fR
+enables slightly verbose,
+\fI\-vv\fR
+more verbose and
+\fI\-vvv\fR
+very verbose output\&.
+.RE
+.PP
+\-\-version, \-V
+.RS 4
+Print the version of Puli\&.
+.RE
+.PP
+\-\-ansi
+.RS 4
+Enable colorization of the output\&. If the terminal supports colorization, the output will be colorized by default\&.
+.RE
+.PP
+\-\-no\-ansi
+.RS 4
+Disable output colorization\&. This is useful if you want to process the output of a command in a script\&.
+.RE
+.PP
+\-\-no\-interaction, \-n
+.RS 4
+Disable all dialogs and assumes the suggested answers\&. This is useful for running a command in a script\&.
+.RE
+.SH "LICENSE"
+.sp
+The MIT License (MIT)
+.sp
+Copyright (c) 2014 Bernhard Schussek
+.sp
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+.sp
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software\&.
+.sp
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT\&. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE\&.
+.SH "AUTHOR"
+.sp
+Written by Bernhard Schussek <\m[blue]\fBbschussek@gmail\&.com\fR\m[]\&\s-2\u[1]\d\s+2>
+.SH "NOTES"
+.IP " 1." 4
+bschussek@gmail.com
+.RS 4
+\%mailto:bschussek@gmail.com
+.RE

@@ -34,9 +34,9 @@ use Webmozart\Console\Command\HelpCommand;
  */
 class PuliCliApplication extends Application
 {
-    const VERSION = '@package_version@';
+    const VERSION = '1.0.0-beta';
 
-    const RELEASE_DATE = '@release_date@';
+    const RELEASE_DATE = '2015-01-12';
 
     public function __construct()
     {

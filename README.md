@@ -38,6 +38,7 @@ Command                              | Description
 `puli package`                       | Display all installed packages
 `puli package install <name> <path>` | Install a custom package
 `puli package remove <name>`         | Remove an installed package
+`puli package clean`                 | Remove all non-existing packages
 **Configuration**                    |
 `puli config`                        | Show the current configuration
 `puli config -a`                     | Show the current configuration (including default values)

@@ -1,5 +1,5 @@
-The Puli CLI
-============
+The Puli Command Line Interface
+===============================
 
 [![Build Status](https://travis-ci.org/puli/cli.svg?branch=master)](https://travis-ci.org/puli/cli)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/cli/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/cli/?branch=master)
@@ -12,22 +12,45 @@ Latest release: [1.0.0-alpha1](https://packagist.org/packages/puli/cli#1.0.0-alp
 
 PHP >= 5.3.9
 
-The [Puli] CLI is a command-line interface for the [Puli Repository Manager].
-The most important command is `puli dump`, which generates the resource
-repository for your puli.json files as PHP file:
+The [Puli] Command Line Interface gives access to the [Puli Repository Manager]
+via your favorite terminal. The following is a list of the currently supported
+commands:
 
-```
-$ puli dump
-```
+Command                              | Description
+------------------------------------ | -------------
+**Resource Mappings**                |
+`puli map`                           | Display all resource mappings
+`puli map <path> <file>...`          | Map a repository path to one or several file paths
+`puli map -d <path>`                 | Delete the mapping for a repository path
+**Resource Bindings**                |
+`puli type`                          | Display all binding types
+`puli type define <type>`            | Define a new binding type
+`puli type remove <type>`            | Remove a defined binding type
+`puli bind`                          | Display all resource bindings
+`puli bind <glob> <type>`            | Bind resources to a type
+`puli bind -d <uuid>`                | Delete a resource binding
+`puli bind --enable <uuid>`          | Enable a binding of an installed package
+`puli bind --disable <uuid>`         | Disable a binding of an installed package
+**Packages**                         |
+`puli package`                       | Display all installed packages
+`puli package install <name> <path>` | Install a custom package
+`puli package remove <name>`         | Remove an installed package
+**Configuration**                    |
+`puli config`                        | Show the current configuration
+`puli config -a`                     | Show the current configuration (including default values)
+`puli config <key>`                  | Show the current value of a configuration key
+`puli config <key> <value>`          | Change a configuration key
+`puli config -d <key>`               | Remove a configuration key (reset to default)
+**Repository Access**                |
+`puli ls <path>`                     | List the child resources of a resource path
+`puli tree <path>`                   | Print a resource and its children as tree
+`puli find <glob>`                   | Find resources matching a glob
+`puli find -b <type>`                | Find resources bound to a binding type
 
-Use `puli ls` to list the contents of the repository:
+Run any of the commands with the `-h` option to find out more about other
+supported options.
 
-```
-$ puli ls
-$ puli ls /acme/demo
-```
-
-Read [Puli at a Glance] if you want to learn more about Puli.
+Read [Puli at a Glance] to learn more about Puli.
 
 Authors
 -------
@@ -43,7 +66,7 @@ Follow the [Getting Started] guide to install Puli in your project.
 Documentation
 -------------
 
-Read the [Puli Documentation] if you want to learn more about Puli.
+Read the [Puli Documentation] to learn more about Puli.
 
 Contribute
 ----------

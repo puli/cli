@@ -3,3 +3,5 @@
 /docs/html
 /docs/*.xml
 composer.lock
+puli.json
+.puli

@@ -31,6 +31,9 @@ Command                              | Description
 `puli bind -d <uuid>`                | Delete a resource binding
 `puli bind --enable <uuid>`          | Enable a binding of an installed package
 `puli bind --disable <uuid>`         | Disable a binding of an installed package
+**Building**                         |
+`puli build`                         | Build the repository and the discovery
+`puli build -f`                      | Rebuild the existing repository/discovery
 **Packages**                         |
 `puli package`                       | Display all installed packages
 `puli package install <name> <path>` | Install a custom package

@@ -161,7 +161,7 @@ class PackageCommand extends Command
             $row[] = $prefix.$packageName;
 
             if ($addInstaller) {
-                $installer = $installInfo ? $installInfo->getInstaller() : 'root';
+                $installer = $installInfo ? $installInfo->getInstallerName() : 'root';
                 $row[] = " <$installerTag>$installer</$installerTag>";
             }
 

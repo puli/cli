@@ -13,11 +13,11 @@ namespace Puli\Cli\Command;
 
 use Psr\Log\LogLevel;
 use Puli\Cli\Util\StringUtil;
-use Puli\RepositoryManager\Discovery\BindingTypeDescriptor;
-use Puli\RepositoryManager\Discovery\BindingTypeState;
-use Puli\RepositoryManager\Discovery\DiscoveryManager;
-use Puli\RepositoryManager\ManagerFactory;
-use Puli\RepositoryManager\Package\PackageManager;
+use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
+use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
+use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
+use Puli\RepositoryManager\Api\Package\PackageManager;
+use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
@@ -50,10 +50,10 @@ class TypeCommand extends Command
             LogLevel::WARNING => 'warn',
         ));
 
-        $factory = new ManagerFactory();
-        $environment = $factory->createProjectEnvironment(getcwd());
-        $packageManager = $factory->createPackageManager($environment);
-        $discoveryManager = $factory->createDiscoveryManager($environment, $packageManager, $logger);
+        $puli = new Puli(getcwd());
+        $puli->setLogger($logger);
+        $packageManager = $puli->getPackageManager();
+        $discoveryManager = $puli->getDiscoveryManager();
         $packages = $packageManager->getPackages();
         $packageNames = $this->getPackageNames($input, $packageManager, $packages->getPackageNames());
         $states = $this->getBindingTypeStates($input);

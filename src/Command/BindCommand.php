@@ -13,11 +13,11 @@ namespace Puli\Cli\Command;
 
 use Psr\Log\LogLevel;
 use Puli\Cli\Util\StringUtil;
-use Puli\RepositoryManager\Discovery\BindingDescriptor;
-use Puli\RepositoryManager\Discovery\BindingState;
-use Puli\RepositoryManager\Discovery\DiscoveryManager;
-use Puli\RepositoryManager\ManagerFactory;
-use Puli\RepositoryManager\Package\PackageManager;
+use Puli\RepositoryManager\Api\Discovery\BindingDescriptor;
+use Puli\RepositoryManager\Api\Discovery\BindingState;
+use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
+use Puli\RepositoryManager\Api\Package\PackageCollection;
+use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -62,11 +62,10 @@ class BindCommand extends Command
             LogLevel::WARNING => 'warn',
         ));
 
-        $factory = new ManagerFactory();
-        $environment = $factory->createProjectEnvironment(getcwd());
-        $packageManager = $factory->createPackageManager($environment);
-        $discoveryManager = $factory->createDiscoveryManager($environment, $packageManager, $logger);
-        $packages = $packageManager->getPackages();
+        $puli = new Puli(getcwd());
+        $puli->setLogger($logger);
+        $discoveryManager = $puli->getDiscoveryManager();
+        $packages = $puli->getPackageManager()->getPackages();
 
         if ($input->getOption('delete')) {
             return $this->removeBinding(
@@ -78,7 +77,7 @@ class BindCommand extends Command
         if ($input->getOption('enable')) {
             return $this->enableBinding(
                 $input->getOption('enable'),
-                $this->getPackageNames($input, $packageManager, $packages->getInstalledPackageNames()),
+                $this->getPackageNames($input, $packages, $packages->getInstalledPackageNames()),
                 $discoveryManager
             );
         }
@@ -86,7 +85,7 @@ class BindCommand extends Command
         if ($input->getOption('disable')) {
             return $this->disableBinding(
                 $input->getOption('disable'),
-                $this->getPackageNames($input, $packageManager, $packages->getInstalledPackageNames()),
+                $this->getPackageNames($input, $packages, $packages->getInstalledPackageNames()),
                 $discoveryManager
             );
         }
@@ -101,7 +100,7 @@ class BindCommand extends Command
             );
         }
 
-        $packageNames = $this->getPackageNames($input, $packageManager, $packages->getPackageNames());
+        $packageNames = $this->getPackageNames($input, $packages, $packages->getPackageNames());
 
         $bindingStates = $this->getBindingStates($input, $discoveryManager);
 
@@ -125,7 +124,7 @@ class BindCommand extends Command
             $bindingParams[$key] = $value;
         }
 
-        $discoveryManager->addBinding($query, $typeName, $bindingParams, $language);
+        $discoveryManager->addBinding(new BindingDescriptor($query, $typeName, $bindingParams, $language));
 
         return 0;
     }
@@ -231,22 +230,23 @@ class BindCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
-     * @param PackageManager $packageManager
+     * @param InputInterface    $input
+     * @param PackageCollection $packages
+     * @param array             $default
      *
-     * @return string[]|null
+     * @return string[]
      */
-    private function getPackageNames(InputInterface $input, PackageManager $packageManager, $default = array())
+    private function getPackageNames(InputInterface $input, PackageCollection $packages, $default = array())
     {
         // Display all packages if "all" is set
         if ($input->getOption('all')) {
-            return $packageManager->getPackages()->getPackageNames();
+            return $packages->getPackageNames();
         }
 
         $packageNames = array();
 
         if ($input->getOption('root')) {
-            $packageNames[] = $packageManager->getRootPackage()->getName();
+            $packageNames[] = $packages->getRootPackage()->getName();
         }
 
         foreach ($input->getOption('package') as $packageName) {
@@ -274,10 +274,6 @@ class BindCommand extends Command
 
         if ($input->getOption('held-back')) {
             $states[] = BindingState::HELD_BACK;
-        }
-
-        if ($input->getOption('ignored')) {
-            $states[] = BindingState::IGNORED;
         }
 
         if ($input->getOption('invalid')) {
@@ -342,12 +338,7 @@ class BindCommand extends Command
                 return;
             case BindingState::HELD_BACK:
                 $output->writeln('The following bindings are held back:');
-                $output->writeln(' (install/add their type definitions to enable)');
-                $output->writeln('');
-                return;
-            case BindingState::IGNORED:
-                $output->writeln('The following bindings are ignored:');
-                $output->writeln(' (remove the duplicated type definitions to enable)');
+                $output->writeln(' (install or fix their type definitions to enable)');
                 $output->writeln('');
                 return;
             case BindingState::INVALID:

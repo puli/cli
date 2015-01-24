@@ -13,10 +13,10 @@ namespace Puli\Cli\Command;
 
 use Psr\Log\LogLevel;
 use Puli\Cli\Util\StringUtil;
-use Puli\RepositoryManager\Discovery\BindingParameterDescriptor;
-use Puli\RepositoryManager\Discovery\BindingTypeDescriptor;
-use Puli\RepositoryManager\Discovery\DiscoveryManager;
-use Puli\RepositoryManager\ManagerFactory;
+use Puli\RepositoryManager\Api\Discovery\BindingParameterDescriptor;
+use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
+use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
+use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
@@ -47,10 +47,9 @@ class TypeDefineCommand extends CompositeCommand
             LogLevel::WARNING => 'warn',
         ));
 
-        $factory = new ManagerFactory();
-        $environment = $factory->createProjectEnvironment(getcwd());
-        $packageManager = $factory->createPackageManager($environment);
-        $discoveryManager = $factory->createDiscoveryManager($environment, $packageManager, $logger);
+        $puli = new Puli(getcwd());
+        $puli->setLogger($logger);
+        $discoveryManager = $puli->getDiscoveryManager();
 
         return $this->addBindingType(
             $input->getArgument('name'),

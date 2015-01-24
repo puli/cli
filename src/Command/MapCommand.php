@@ -11,10 +11,10 @@
 
 namespace Puli\Cli\Command;
 
-use Puli\RepositoryManager\ManagerFactory;
-use Puli\RepositoryManager\Package\PackageManager;
-use Puli\RepositoryManager\Repository\RepositoryManager;
-use Puli\RepositoryManager\Repository\ResourceMapping;
+use Puli\RepositoryManager\Api\Package\PackageManager;
+use Puli\RepositoryManager\Api\Repository\RepositoryManager;
+use Puli\RepositoryManager\Api\Repository\ResourceMapping;
+use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -53,10 +53,9 @@ class MapCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $factory = new ManagerFactory();
-        $environment = $factory->createProjectEnvironment(getcwd());
-        $packageManager = $factory->createPackageManager($environment);
-        $repoManager = $factory->createRepositoryManager($environment, $packageManager);
+        $puli = new Puli(getcwd());
+        $packageManager = $puli->getPackageManager();
+        $repoManager = $puli->getRepositoryManager();
 
         if ($input->getOption('delete')) {
             return $this->deleteMapping(

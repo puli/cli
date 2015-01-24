@@ -11,9 +11,9 @@
 
 namespace Puli\Cli\Command;
 
-use Puli\RepositoryManager\ManagerFactory;
-use Puli\RepositoryManager\Package\PackageManager;
-use Puli\RepositoryManager\Package\PackageState;
+use Puli\RepositoryManager\Api\Package\PackageManager;
+use Puli\RepositoryManager\Api\Package\PackageState;
+use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\Console\Command\CompositeCommand;
@@ -34,9 +34,8 @@ class PackageCleanCommand extends CompositeCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $factory = new ManagerFactory();
-        $environment = $factory->createProjectEnvironment(getcwd());
-        $packageManager = $factory->createPackageManager($environment);
+        $puli = new Puli(getcwd());
+        $packageManager = $puli->getPackageManager();
 
         return $this->cleanPackages($output, $packageManager);
     }

@@ -12,7 +12,7 @@
 namespace Puli\Cli\Command;
 
 use Puli\Repository\Api\ResourceCollection;
-use Puli\RepositoryManager\ManagerFactory;
+use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -40,9 +40,8 @@ class LsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $factory = new ManagerFactory();
-        $environment = $factory->createProjectEnvironment(getcwd());
-        $repo = $environment->getRepository();
+        $puli = new Puli(getcwd());
+        $repo = $puli->getEnvironment()->getRepository();
         $stderr = $output instanceof ConsoleOutput ? $output->getErrorOutput() : $output;
         $path = Path::makeAbsolute($input->getArgument('path'), $this->currentPath);
 

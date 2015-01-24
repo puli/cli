@@ -13,7 +13,7 @@ namespace Puli\Cli\Command;
 
 use Puli\Discovery\Api\ResourceDiscovery;
 use Puli\Repository\Api\ResourceRepository;
-use Puli\RepositoryManager\ManagerFactory;
+use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,10 +41,9 @@ class FindCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $factory = new ManagerFactory();
-        $environment = $factory->createProjectEnvironment(getcwd());
-        $repo = $environment->getRepository();
-        $discovery = $environment->getDiscovery();
+        $puli = new Puli(getcwd());
+        $repo = $puli->getEnvironment()->getRepository();
+        $discovery = $puli->getEnvironment()->getDiscovery();
         $criteria = array();
 
         if ($input->getArgument('pattern')) {

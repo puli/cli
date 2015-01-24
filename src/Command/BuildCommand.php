@@ -12,7 +12,7 @@
 namespace Puli\Cli\Command;
 
 use Psr\Log\LogLevel;
-use Puli\RepositoryManager\ManagerFactory;
+use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -40,11 +40,10 @@ class BuildCommand extends Command
             LogLevel::WARNING => 'warn',
         ));
 
-        $factory = new ManagerFactory();
-        $environment = $factory->createProjectEnvironment(getcwd());
-        $packageManager = $factory->createPackageManager($environment);
-        $repoManager = $factory->createRepositoryManager($environment, $packageManager);
-        $discoveryManager = $factory->createDiscoveryManager($environment, $packageManager, $logger);
+        $puli = new Puli(getcwd());
+        $puli->setLogger($logger);
+        $repoManager = $puli->getRepositoryManager();
+        $discoveryManager = $puli->getDiscoveryManager();
 
         if ($input->getOption('force')) {
             $repoManager->clearRepository();

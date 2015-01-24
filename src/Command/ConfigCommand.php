@@ -12,8 +12,8 @@
 namespace Puli\Cli\Command;
 
 use Puli\Cli\Util\StringUtil;
-use Puli\RepositoryManager\ManagerFactory;
-use Puli\RepositoryManager\Package\PackageFile\RootPackageFileManager;
+use Puli\RepositoryManager\Api\Package\RootPackageFileManager;
+use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -40,9 +40,8 @@ class ConfigCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $factory = new ManagerFactory();
-        $environment = $factory->createProjectEnvironment(getcwd());
-        $manager = $factory->createRootPackageFileManager($environment);
+        $puli = new Puli(getcwd());
+        $manager = $puli->getRootPackageFileManager();
         $all = $input->getOption('all');
         $key = $input->getArgument('key');
 

@@ -11,11 +11,11 @@
 
 namespace Puli\Cli\Command;
 
-use Puli\RepositoryManager\ManagerFactory;
-use Puli\RepositoryManager\Package\PackageCollection;
-use Puli\RepositoryManager\Package\PackageManager;
-use Puli\RepositoryManager\Package\PackageState;
-use Puli\RepositoryManager\Package\RootPackage;
+use Puli\RepositoryManager\Api\Package\PackageCollection;
+use Puli\RepositoryManager\Api\Package\PackageManager;
+use Puli\RepositoryManager\Api\Package\PackageState;
+use Puli\RepositoryManager\Api\Package\RootPackage;
+use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -42,14 +42,13 @@ class PackageCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $factory = new ManagerFactory();
-        $environment = $factory->createProjectEnvironment(getcwd());
+        $puli = new Puli(getcwd());
         $states = $this->getPackageStates($input);
         $installer = $input->getOption('installer');
 
         // Don't inject logger. We get all the information we want in the
         // output anyway.
-        $manager = $factory->createPackageManager($environment);
+        $manager = $puli->getPackageManager();
 
         return $this->listPackages($output, $manager, $states, $installer);
     }

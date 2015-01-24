@@ -79,22 +79,22 @@ class MapCommand extends Command
 
     /**
      * @param string            $repositoryPath
-     * @param string[]          $filesystemPaths
+     * @param string[]          $pathReferences
      * @param RepositoryManager $repoManager
      *
      * @return int
      */
-    private function updateMapping($repositoryPath, array $filesystemPaths, RepositoryManager $repoManager)
+    private function updateMapping($repositoryPath, array $pathReferences, RepositoryManager $repoManager)
     {
-        $filesystemPaths = $this->mergeFilesystemPaths(
+        $pathReferences = $this->mergePathReferences(
             $repoManager->hasResourceMapping($repositoryPath)
-                ? $repoManager->getResourceMapping($repositoryPath)->getFilesystemPaths()
+                ? $repoManager->getResourceMapping($repositoryPath)->getPathReferences()
                 : array(),
-            $filesystemPaths
+            $pathReferences
         );
 
-        if (count($filesystemPaths) > 0) {
-            $repoManager->addResourceMapping(new ResourceMapping($repositoryPath, $filesystemPaths));
+        if (count($pathReferences) > 0) {
+            $repoManager->addResourceMapping(new ResourceMapping($repositoryPath, $pathReferences));
         } else {
             $repoManager->removeResourceMapping($repositoryPath);
         }
@@ -185,42 +185,44 @@ class MapCommand extends Command
         foreach ($mappings as $mapping) {
             $table->addRow(array(
                 '<em>'.$mapping->getRepositoryPath().'</em>',
-                ' '.implode(', ', $mapping->getFilesystemPaths())
+                ' '.implode(', ', $mapping->getPathReferences())
             ));
         }
 
         $table->render();
     }
 
-    private function mergeFilesystemPaths($filesystemPaths, $mergedPaths)
+    private function mergePathReferences($pathReferences, $mergeStatements)
     {
         $mode = self::MODE_REPLACE;
-        $filesystemPaths = array_flip($filesystemPaths);
+        $pathReferences = array_flip($pathReferences);
         $cleared = false;
 
-        foreach ($mergedPaths as $filesystemPath) {
-            $filesystemPath = trim($filesystemPath, '/');
+        foreach ($mergeStatements as $statement) {
+            $statement = trim($statement, '/');
 
-            if ('+' === $filesystemPath[0]) {
-                $filesystemPath = substr($filesystemPath, 1);
+            if ('+' === $statement[0]) {
+                $pathReference = substr($statement, 1);
                 $mode = self::MODE_ADD;
-            } elseif ('-' === $filesystemPath[0]) {
-                $filesystemPath = substr($filesystemPath, 1);
+            } elseif ('-' === $statement[0]) {
+                $pathReference = substr($statement, 1);
                 $mode = self::MODE_REMOVE;
+            } else {
+                $pathReference = $statement;
             }
 
             if (!$cleared && self::MODE_REPLACE === $mode) {
-                $filesystemPaths = array();
+                $pathReferences = array();
                 $cleared = true;
             }
 
             if (self::MODE_REMOVE === $mode) {
-                unset($filesystemPaths[$filesystemPath]);
+                unset($pathReferences[$pathReference]);
             } else {
-                $filesystemPaths[$filesystemPath] = true;
+                $pathReferences[$pathReference] = true;
             }
         }
 
-        return array_keys($filesystemPaths);
+        return array_keys($pathReferences);
     }
 }

@@ -126,6 +126,24 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
             array('package add-alias -v 1 arg', '"package add -v1 arg" executed'),
             array('package add-alias --value="1" arg', '"package add -v1 arg" executed'),
             array('package add-alias --value=\'1\' arg', '"package add -v1 arg" executed'),
+
+            // regex special chars
+            array('package *', '"package *" executed'),
+            array('package **', '"package **" executed'),
+            array('package /app/*', '"package /app/*" executed'),
+            array('package /app/**', '"package /app/**" executed'),
+            array('package -v * arg', '"package -v* arg" executed'),
+            array('package -v ** arg', '"package -v** arg" executed'),
+            array('package -v /app/* arg', '"package -v/app/* arg" executed'),
+            array('package -v /app/** arg', '"package -v/app/** arg" executed'),
+            array('package add *', '"package add *" executed'),
+            array('package add **', '"package add **" executed'),
+            array('package add /app/*', '"package add /app/*" executed'),
+            array('package add /app/**', '"package add /app/**" executed'),
+            array('package add -v *', '"package add -v*" executed'),
+            array('package add -v **', '"package add -v**" executed'),
+            array('package add -v /app/*', '"package add -v/app/*" executed'),
+            array('package add -v /app/**', '"package add -v/app/**" executed'),
         );
     }
 

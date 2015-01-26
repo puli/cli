@@ -128,13 +128,13 @@ class Application extends \Symfony\Component\Console\Application
         list($mainCommand, $subOrArg) = $this->parseCommandName($name);
 
         // Replace "pack" by "pack[^ ]*" to match "pack" and "package"
-        $simpleMatches = preg_grep('~^'.$mainCommand.'[^ ]*$~', $commandNames);
+        $simpleMatches = preg_grep('~^'.preg_quote($mainCommand, '~').'[^ ]*$~', $commandNames);
         $compositeMatches = array();
 
         if (null !== $subOrArg) {
             // Replace "pack add" by "pack[^ ]* add[^ ]*" to match
             // "package add" and "package addon"
-            $compositeMatches = preg_grep('~^'.$mainCommand.'[^ ]* '.$subOrArg.'[^ ]*$~', $commandNames);
+            $compositeMatches = preg_grep('~^'.preg_quote($mainCommand, '~').'[^ ]* '.preg_quote($subOrArg, '~').'[^ ]*$~', $commandNames);
         }
 
         // If we found an exact match, return it now

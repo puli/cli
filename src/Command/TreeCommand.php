@@ -16,7 +16,7 @@ use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Console\Command\Command;
+use Puli\Cli\Console\Command\Command;
 use Webmozart\PathUtil\Path;
 
 /**

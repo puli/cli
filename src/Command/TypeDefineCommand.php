@@ -21,8 +21,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Console\Command\CompositeCommand;
-use Webmozart\Console\Input\InputOption;
+use Puli\Cli\Console\Command\CompositeCommand;
+use Puli\Cli\Console\Input\InputOption;
 
 /**
  * @since  1.0

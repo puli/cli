@@ -25,8 +25,8 @@ use Puli\Cli\Command\TreeCommand;
 use Puli\Cli\Command\TypeCommand;
 use Puli\Cli\Command\TypeDefineCommand;
 use Puli\Cli\Command\TypeRemoveCommand;
-use Webmozart\Console\Application;
-use Webmozart\Console\Command\HelpCommand;
+use Puli\Cli\Console\Application;
+use Puli\Cli\Console\Command\HelpCommand;
 
 /**
  * @since  1.0

@@ -16,7 +16,7 @@ use Puli\RepositoryManager\Api\Package\PackageState;
 use Puli\RepositoryManager\Puli;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Console\Command\CompositeCommand;
+use Puli\Cli\Console\Command\CompositeCommand;
 
 /**
  * @since  1.0

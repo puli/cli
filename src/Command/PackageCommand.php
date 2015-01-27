@@ -186,11 +186,18 @@ class PackageCommand extends Command
 
         foreach ($packages as $package) {
             $packageName = $package->getName();
-            $loadError = $package->getLoadError();
+            $loadErrors = $package->getLoadErrors();
+            $errorMessage = '';
 
-            $errorMessage = $loadError
-                ? $this->getShortClassName(get_class($loadError)).': '.$loadError->getMessage()
-                : 'Unknown error.';
+            foreach ($loadErrors as $loadError) {
+                $errorMessage .= $this->getShortClassName(get_class($loadError)).': '.$loadError->getMessage()."\n";
+            }
+
+            $errorMessage = rtrim($errorMessage);
+
+            if (!$errorMessage) {
+                $errorMessage = 'Unknown error.';
+            }
 
             // Remove root directory
             $errorMessage = str_replace($rootDir.'/', '', $errorMessage);

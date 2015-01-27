@@ -8,7 +8,7 @@ The Puli Command Line Interface
 [![Total Downloads](https://poser.pugx.org/puli/cli/downloads.svg)](https://packagist.org/packages/puli/cli)
 [![Dependency Status](https://www.versioneye.com/php/puli:cli/1.0.0/badge.svg)](https://www.versioneye.com/php/puli:cli/1.0.0)
 
-Latest release: [1.0.0-beta](https://packagist.org/packages/puli/cli#1.0.0-beta)
+Latest release: [1.0.0-beta2](https://packagist.org/packages/puli/cli#1.0.0-beta2)
 
 PHP >= 5.3.9
 

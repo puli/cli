@@ -1,14 +1,14 @@
 The Puli Command Line Interface
 ===============================
 
-[![Build Status](https://travis-ci.org/puli/cli.svg?branch=master)](https://travis-ci.org/puli/cli)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/cli/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/cli/?branch=master)
+[![Build Status](https://travis-ci.org/puli/cli.svg?branch=1.0.0-beta2)](https://travis-ci.org/puli/cli)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/cli/badges/quality-score.png?b=1.0.0-beta2)](https://scrutinizer-ci.com/g/puli/cli/?branch=1.0.0-beta2)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/96bbb04c-f5c3-47c2-8e43-1f92d26f7c3a/mini.png)](https://insight.sensiolabs.com/projects/96bbb04c-f5c3-47c2-8e43-1f92d26f7c3a)
 [![Latest Stable Version](https://poser.pugx.org/puli/cli/v/stable.svg)](https://packagist.org/packages/puli/cli)
 [![Total Downloads](https://poser.pugx.org/puli/cli/downloads.svg)](https://packagist.org/packages/puli/cli)
 [![Dependency Status](https://www.versioneye.com/php/puli:cli/1.0.0/badge.svg)](https://www.versioneye.com/php/puli:cli/1.0.0)
 
-Latest release: [1.0.0-beta](https://packagist.org/packages/puli/cli#1.0.0-beta)
+Latest release: [1.0.0-beta2](https://packagist.org/packages/puli/cli#1.0.0-beta2)
 
 PHP >= 5.3.9
 

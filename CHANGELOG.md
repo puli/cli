@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* 1.0.0-next (@release_date@)
+
+ * added command handlers
+
 * 1.0.0-beta2 (2015-01-27)
 
  * updated to work with Puli components in version 1.0.0-beta2

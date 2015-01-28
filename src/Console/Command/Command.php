@@ -33,6 +33,11 @@ class Command extends \Symfony\Component\Console\Command\Command
     private $localDefinition;
 
     /**
+     * @var string|null
+     */
+    private $processTitle;
+
+    /**
      * @var string[]
      */
     private $synopsises = array();
@@ -59,6 +64,28 @@ class Command extends \Symfony\Component\Console\Command\Command
     public function getLocalDefinition()
     {
         return $this->localDefinition;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getProcessTitle()
+    {
+        return $this->processTitle;
+    }
+
+    /**
+     * @param null|string $processTitle
+     *
+     * @return $this
+     */
+    public function setProcessTitle($processTitle)
+    {
+        parent::setProcessTitle($processTitle);
+
+        $this->processTitle = $processTitle;
+
+        return $this;
     }
 
     /**

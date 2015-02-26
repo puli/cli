@@ -13,12 +13,15 @@ namespace Puli\Cli\Handler;
 
 use Puli\Discovery\Api\ResourceDiscovery;
 use Puli\Repository\Api\ResourceRepository;
+use RuntimeException;
 use Symfony\Component\Console\Helper\Table;
 use Webmozart\Console\Adapter\IOOutput;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 
 /**
+ * Handles the "find" command.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
@@ -34,12 +37,26 @@ class FindHandler
      */
     private $discovery;
 
+    /**
+     * Creates the handler.
+     *
+     * @param ResourceRepository $repo      The resource repository.
+     * @param ResourceDiscovery  $discovery The resource discovery.
+     */
     public function __construct(ResourceRepository $repo, ResourceDiscovery $discovery)
     {
         $this->repo = $repo;
         $this->discovery = $discovery;
     }
 
+    /**
+     * Handles the "find" command.
+     *
+     * @param Args $args The console arguments.
+     * @param IO   $io   The I/O.
+     *
+     * @return int The status code.
+     */
     public function handle(Args $args, IO $io)
     {
         $criteria = array();
@@ -57,14 +74,21 @@ class FindHandler
         }
 
         if (!$criteria) {
-            $io->errorLine('fatal: No search criteria specified.');
-
-            return 1;
+            throw new RuntimeException('No search criteria specified.');
         }
 
         return $this->listMatches($io, $criteria);
     }
 
+    /**
+     * Lists the matches for the given search criteria.
+     *
+     * @param IO    $io       The I/O.
+     * @param array $criteria The array with the optional keys "pattern",
+     *                        "shortClass" and "bindingType".
+     *
+     * @return int The status code.
+     */
     private function listMatches(IO $io, array $criteria)
     {
         if (isset($criteria['pattern']) && isset($criteria['bindingType'])) {
@@ -93,6 +117,14 @@ class FindHandler
         return 0;
     }
 
+    /**
+     * Finds the resources for a given path pattern.
+     *
+     * @param string $pattern The path pattern.
+     *
+     * @return string[] An array of short resource class names indexed by
+     *                  the resource path.
+     */
     private function findByPattern($pattern)
     {
         $matches = array();
@@ -108,6 +140,14 @@ class FindHandler
         return $matches;
     }
 
+    /**
+     * Finds the resources for a given binding type.
+     *
+     * @param string $typeName The type name.
+     *
+     * @return string[] An array of short resource class names indexed by
+     *                  the resource path.
+     */
     private function findByBindingType($typeName)
     {
         $matches = array();
@@ -123,6 +163,13 @@ class FindHandler
         return $matches;
     }
 
+    /**
+     * Prints the given resources.
+     *
+     * @param IO       $io      The I/O.
+     * @param string[] $matches An array of short resource class names indexed
+     *                          by the resource path.
+     */
     private function printTable(IO $io, array $matches)
     {
         $table = new Table(new IOOutput($io));
@@ -139,6 +186,13 @@ class FindHandler
         $table->render();
     }
 
+    /**
+     * Returns the short class name for a fully-qualified class name.
+     *
+     * @param string $className The fully-qualified class name.
+     *
+     * @return string The short class name.
+     */
     private function getShortName($className)
     {
         if (false !== ($pos = strrpos($className, '\\'))) {

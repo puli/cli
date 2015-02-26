@@ -27,16 +27,29 @@ use Webmozart\Console\Config\DefaultApplicationConfig;
 use Webmozart\Console\Handler\Help\HelpHandler;
 
 /**
+ * The configuration of the Puli CLI.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class PuliApplicationConfig extends DefaultApplicationConfig
 {
     /**
+     * The version of the Puli CLI.
+     */
+    const VERSION = '@package_version@';
+
+    /**
      * @var Puli
      */
     private $puli;
 
+    /**
+     * Creates the configuration.
+     *
+     * @param Puli $puli The {@link Puli} instance. A new ones is created for
+     *                   the current working directory if none is provided.
+     */
     public function __construct(Puli $puli = null)
     {
         $this->puli = $puli ?: new Puli(getcwd());
@@ -44,6 +57,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         parent::__construct();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function configure()
     {
         parent::configure();
@@ -54,8 +70,11 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         $this
             ->setName('puli')
             ->setDisplayName('Puli')
-            ->setVersion('@package_version@')
-            ->setDebug(true)
+            ->setVersion(self::VERSION)
+
+            // Enable debug for unreleased versions only. Split the string to
+            // prevent its replacement during release
+            ->setDebug('@pack'.'age_version@' === self::VERSION)
 
             ->beginCommand('bind')
                 ->setDescription('Bind resources to binding types')
@@ -127,28 +146,24 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginSubCommand('list')
                     ->markAnonymous()
-                    ->setDescription('List all configuration values')
                     ->addOption('all', 'a', Option::NO_VALUE, 'Include default values in the output')
                     ->setHandlerMethod('handleList')
                 ->end()
 
                 ->beginSubCommand('show')
                     ->markAnonymous()
-                    ->setDescription('Display a configuration value')
                     ->addArgument('key', Argument::REQUIRED, 'The configuration key. May contain wildcards ("*").')
                     ->setHandlerMethod('handleShow')
                 ->end()
 
                 ->beginSubCommand('set')
                     ->markAnonymous()
-                    ->setDescription('Set a configuration value')
                     ->addArgument('key', Argument::REQUIRED, 'The configuration key')
                     ->addArgument('value', Argument::REQUIRED, 'The value to set for the configuration key')
                     ->setHandlerMethod('handleSet')
                 ->end()
 
                 ->beginOptionCommand('delete', 'd')
-                    ->setDescription('Delete a configuration value')
                     ->addArgument('key', Argument::REQUIRED, 'The configuration key')
                     ->setHandlerMethod('handleDelete')
                 ->end()
@@ -215,7 +230,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->end()
 
                 ->beginOptionCommand('delete', 'd')
-                    ->setDescription('Delete a mapping')
                     ->addArgument('path', Argument::REQUIRED)
                     ->addArgument('file', Argument::OPTIONAL)
                     ->setHandlerMethod('handleDelete')
@@ -229,7 +243,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 })
 
                 ->beginSubCommand('list')
-                    ->setDescription('List all installed packages')
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'Show packages installed by a specific installer')
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled packages')
                     ->addOption('not-found', null, Option::NO_VALUE, 'Show packages that could not be found')
@@ -238,7 +251,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->end()
 
                 ->beginSubCommand('install')
-                    ->setDescription('Install a package')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the package')
                     ->addArgument('path', Argument::REQUIRED, 'The path to the package')
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the installer', 'user')
@@ -246,13 +258,11 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->end()
 
                 ->beginSubCommand('remove')
-                    ->setDescription('Remove a package')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the package')
                     ->setHandlerMethod('handleRemove')
                 ->end()
 
                 ->beginSubCommand('clean')
-                    ->setDescription('Remove all packages that cannot be found')
                     ->setHandlerMethod('handleClean')
                 ->end()
             ->end()
@@ -276,7 +286,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginSubCommand('list')
                     ->markDefault()
-                    ->setDescription('List all binding types')
                     ->addOption('root', null, Option::NO_VALUE, 'Show types of the root package')
                     ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show types of a package', null, 'package')
                     ->addOption('all', 'a', Option::NO_VALUE, 'Show types of all packages')
@@ -286,15 +295,13 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->end()
 
                 ->beginSubCommand('define')
-                    ->setDescription('Define a new binding type')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
                     ->addOption('description', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A human-readable description')
-                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <param> or <param>=<default>')
+                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <key> or <key>=<value>', null, 'key=value')
                     ->setHandlerMethod('handleDefine')
                 ->end()
 
                 ->beginSubCommand('remove')
-                    ->setDescription('Remove a binding type')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
                     ->setHandlerMethod('handleRemove')
                 ->end()

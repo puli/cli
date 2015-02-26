@@ -24,8 +24,10 @@ use Puli\RepositoryManager\Api\Package\PackageFile;
 use Puli\RepositoryManager\Api\Package\RootPackage;
 use Puli\RepositoryManager\Api\Package\RootPackageFile;
 use Webmozart\Console\Api\Command\Command;
+use Webmozart\Console\Api\Formatter\StyleSet;
 use Webmozart\Console\Args\StringArgs;
 use Webmozart\Console\ConsoleApplication;
+use Webmozart\Console\Formatter\PlainFormatter;
 use Webmozart\Console\IO\BufferedIO;
 
 /**
@@ -35,6 +37,11 @@ use Webmozart\Console\IO\BufferedIO;
 class BindHandlerTest extends PHPUnit_Framework_TestCase
 {
     /**
+     * @var StyleSet
+     */
+    private static $styleSet;
+
+    /**
      * @var Command
      */
     private static $listCommand;
@@ -43,6 +50,21 @@ class BindHandlerTest extends PHPUnit_Framework_TestCase
      * @var Command
      */
     private static $saveCommand;
+
+    /**
+     * @var Command
+     */
+    private static $deleteCommand;
+
+    /**
+     * @var Command
+     */
+    private static $enableCommand;
+
+    /**
+     * @var Command
+     */
+    private static $disableCommand;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject|DiscoveryManager
@@ -68,8 +90,12 @@ class BindHandlerTest extends PHPUnit_Framework_TestCase
     {
         $application = new ConsoleApplication(new PuliApplicationConfig());
 
+        self::$styleSet = $application->getConfig()->getStyleSet();
         self::$listCommand = $application->getCommand('bind')->getSubCommand('list');
         self::$saveCommand = $application->getCommand('bind')->getSubCommand('save');
+        self::$deleteCommand = $application->getCommand('bind')->getSubCommand('delete');
+        self::$enableCommand = $application->getCommand('bind')->getSubCommand('enable');
+        self::$disableCommand = $application->getCommand('bind')->getSubCommand('disable');
     }
 
     protected function setUp()
@@ -137,7 +163,7 @@ class BindHandlerTest extends PHPUnit_Framework_TestCase
                     new BindingDescriptor('/package2/invalid', 'my/type'),
                 )),
             ));
-        $this->io = new BufferedIO();
+        $this->io = new BufferedIO('', new PlainFormatter(self::$styleSet));
         $this->handler = new BindHandler($this->discoveryManager, $this->packages);
     }
 
@@ -145,7 +171,7 @@ class BindHandlerTest extends PHPUnit_Framework_TestCase
     {
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 Enabled bindings:
@@ -219,6 +245,7 @@ The following bindings have invalid parameters:
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -227,7 +254,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--root'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 Enabled bindings:
@@ -258,6 +285,7 @@ The following bindings have invalid parameters:
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -266,7 +294,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--package=vendor/package1'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 Enabled bindings:
@@ -300,6 +328,7 @@ The following bindings have invalid parameters:
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -308,7 +337,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--root --package=vendor/package1'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 Enabled bindings:
@@ -364,6 +393,7 @@ The following bindings have invalid parameters:
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -372,7 +402,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--package=vendor/package1 --package=vendor/package2'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 Enabled bindings:
@@ -430,6 +460,7 @@ The following bindings have invalid parameters:
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -438,7 +469,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 vendor/root
@@ -454,6 +485,7 @@ vendor/package2
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -462,7 +494,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--disabled'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 vendor/root
@@ -477,6 +509,7 @@ cbc774 /package2/disabled my/type
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -485,7 +518,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--undecided'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 vendor/root
@@ -500,6 +533,7 @@ vendor/package2
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -508,7 +542,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--duplicate'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 vendor/package1
@@ -520,6 +554,7 @@ vendor/package2
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -528,7 +563,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--held-back'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 vendor/root
@@ -543,6 +578,7 @@ vendor/package2
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -551,7 +587,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--invalid'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 vendor/root
@@ -566,6 +602,7 @@ c19a35 /package2/invalid my/type
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -575,7 +612,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --disabled'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 Enabled bindings:
@@ -605,6 +642,7 @@ Disabled bindings:
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -613,7 +651,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --root'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 0f1933 /root/enabled my/type
@@ -621,6 +659,7 @@ EOF;
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -629,14 +668,310 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --package=vendor/package2'));
 
-        $this->handler->handleList($args, $this->io);
+        $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 1db044 /package2/enabled my/type
 
 EOF;
 
+        $this->assertSame(0, $statusCode);
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testSaveBinding()
+    {
+        $args = self::$saveCommand->parseArgs(new StringArgs('/path my/type'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addBinding')
+            ->with(new BindingDescriptor('/path', 'my/type', array(), 'glob'));
+
+        $statusCode = $this->handler->handleSave($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testSaveBindingWithLanguage()
+    {
+        $args = self::$saveCommand->parseArgs(new StringArgs('/path my/type --language lang'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addBinding')
+            ->with(new BindingDescriptor('/path', 'my/type', array(), 'lang'));
+
+        $statusCode = $this->handler->handleSave($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testSaveBindingWithParameters()
+    {
+        $args = self::$saveCommand->parseArgs(new StringArgs('/path my/type --param key1=value --param key2=true'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addBinding')
+            ->with(new BindingDescriptor('/path', 'my/type', array(
+                'key1' => 'value',
+                'key2' => true,
+            ), 'glob'));
+
+        $statusCode = $this->handler->handleSave($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The "--param" option expects a parameter in the form "key=value". Got: "key1"
+     */
+    public function testSaveFailsIfInvalidParameter()
+    {
+        $args = self::$saveCommand->parseArgs(new StringArgs('/path my/type --param key1'));
+
+        $this->discoveryManager->expects($this->never())
+            ->method('addBinding');
+
+        $this->handler->handleSave($args, $this->io);
+    }
+
+    public function testRemoveBinding()
+    {
+        $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
+        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+
+        $this->discoveryManager->expects($this->once())
+            ->method('findBindings')
+            ->with('ab12', 'vendor/root')
+            ->willReturn(array($descriptor));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('removeBinding')
+            ->with($descriptor->getUuid());
+
+        $statusCode = $this->handler->handleDelete($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage More than one binding
+     */
+    public function testRemoveBindingFailsIfAmbiguous()
+    {
+        $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('findBindings')
+            ->with('ab12', 'vendor/root')
+            ->willReturn(array(
+                new BindingDescriptor('/path1', 'my/type', array(), 'glob'),
+                new BindingDescriptor('/path2', 'my/type', array(), 'glob'),
+            ));
+
+        $this->discoveryManager->expects($this->never())
+            ->method('removeBinding');
+
+        $this->handler->handleDelete($args, $this->io);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The binding "ab12" does not exist
+     */
+    public function testRemoveBindingFailsIfNotFound()
+    {
+        $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindings')
+            ->with('ab12', 'vendor/root')
+            ->willReturn(array());
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('findBindings')
+            ->with('ab12')
+            ->willReturn(array());
+
+        $this->discoveryManager->expects($this->never())
+            ->method('removeBinding');
+
+        $this->handler->handleDelete($args, $this->io);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Can only delete bindings from the root package
+     */
+    public function testRemoveBindingFailsIfNoRootBinding()
+    {
+        $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindings')
+            ->with('ab12', 'vendor/root')
+            ->willReturn(array());
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('findBindings')
+            ->with('ab12')
+            ->willReturn(array(new BindingDescriptor('/path1', 'my/type', array(), 'glob')));
+
+        $this->discoveryManager->expects($this->never())
+            ->method('removeBinding');
+
+        $this->handler->handleDelete($args, $this->io);
+    }
+
+    public function testEnableBindings()
+    {
+        $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
+        $descriptor1 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor2 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindings')
+            ->with('ab12')
+            ->willReturn(array($descriptor1, $descriptor2));
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('enableBinding')
+            ->with($descriptor1->getUuid());
+
+        $this->discoveryManager->expects($this->at(2))
+            ->method('enableBinding')
+            ->with($descriptor2->getUuid());
+
+        $statusCode = $this->handler->handleEnable($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testEnableBindingsInSpecificPackages()
+    {
+        $args = self::$enableCommand->parseArgs(new StringArgs('ab12 --package vendor/package1 --package vendor/package2'));
+        $descriptor1 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor2 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindings')
+            ->with('ab12', array('vendor/package1', 'vendor/package2'))
+            ->willReturn(array($descriptor1, $descriptor2));
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('enableBinding')
+            ->with($descriptor1->getUuid(), array('vendor/package1', 'vendor/package2'));
+
+        $this->discoveryManager->expects($this->at(2))
+            ->method('enableBinding')
+            ->with($descriptor2->getUuid(), array('vendor/package1', 'vendor/package2'));
+
+        $statusCode = $this->handler->handleEnable($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The binding "ab12" does not exist
+     */
+    public function testEnableBindingsFailsIfNotFound()
+    {
+        $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('findBindings')
+            ->with('ab12')
+            ->willReturn(array());
+
+        $this->discoveryManager->expects($this->never())
+            ->method('enableBinding');
+
+        $this->handler->handleEnable($args, $this->io);
+    }
+
+    public function testDisableBindings()
+    {
+        $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
+        $descriptor1 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor2 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindings')
+            ->with('ab12')
+            ->willReturn(array($descriptor1, $descriptor2));
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('disableBinding')
+            ->with($descriptor1->getUuid());
+
+        $this->discoveryManager->expects($this->at(2))
+            ->method('disableBinding')
+            ->with($descriptor2->getUuid());
+
+        $statusCode = $this->handler->handleDisable($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testDisableBindingsInSpecificPackages()
+    {
+        $args = self::$disableCommand->parseArgs(new StringArgs('ab12 --package vendor/package1 --package vendor/package2'));
+        $descriptor1 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor2 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindings')
+            ->with('ab12', array('vendor/package1', 'vendor/package2'))
+            ->willReturn(array($descriptor1, $descriptor2));
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('disableBinding')
+            ->with($descriptor1->getUuid(), array('vendor/package1', 'vendor/package2'));
+
+        $this->discoveryManager->expects($this->at(2))
+            ->method('disableBinding')
+            ->with($descriptor2->getUuid(), array('vendor/package1', 'vendor/package2'));
+
+        $statusCode = $this->handler->handleDisable($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The binding "ab12" does not exist
+     */
+    public function testDisableBindingsFailsIfNotFound()
+    {
+        $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('findBindings')
+            ->with('ab12')
+            ->willReturn(array());
+
+        $this->discoveryManager->expects($this->never())
+            ->method('disableBinding');
+
+        $this->handler->handleDisable($args, $this->io);
     }
 }

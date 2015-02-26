@@ -23,6 +23,7 @@ use Puli\Cli\Handler\TypeHandler;
 use Puli\RepositoryManager\Puli;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
+use Webmozart\Console\Api\Formatter\Style;
 use Webmozart\Console\Config\DefaultApplicationConfig;
 use Webmozart\Console\Handler\Help\HelpHandler;
 
@@ -76,6 +77,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             // prevent its replacement during release
             ->setDebug('@pack'.'age_version@' === self::VERSION)
 
+            ->addStyle(Style::tag('good')->fgGreen())
+            ->addStyle(Style::tag('bad')->fgRed())
+
             ->beginCommand('bind')
                 ->setDescription('Bind resources to binding types')
                 ->setHandler(function () use ($puli) {
@@ -118,11 +122,13 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginOptionCommand('enable')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the enabled binding')
+                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Only enable bindings in the given package(s)', null, 'package')
                     ->setHandlerMethod('handleEnable')
                 ->end()
 
                 ->beginOptionCommand('disable')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the disabled binding')
+                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Only enable bindings in the given package(s)', null, 'package')
                     ->setHandlerMethod('handleDisable')
                 ->end()
             ->end()

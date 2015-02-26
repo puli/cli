@@ -16,12 +16,15 @@ use Puli\RepositoryManager\Api\Discovery\BindingDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
 use Puli\RepositoryManager\Api\Package\PackageCollection;
+use RuntimeException;
 use Symfony\Component\Console\Helper\Table;
 use Webmozart\Console\Adapter\IOOutput;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 
 /**
+ * Handles the "bind" command.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
@@ -37,15 +40,29 @@ class BindHandler
      */
     private $packages;
 
+    /**
+     * Creates the handler.
+     *
+     * @param DiscoveryManager  $discoveryManager The discovery manager.
+     * @param PackageCollection $packages         The loaded packages.
+     */
     public function __construct(DiscoveryManager $discoveryManager, PackageCollection $packages)
     {
         $this->discoveryManager = $discoveryManager;
         $this->packages = $packages;
     }
 
+    /**
+     * Handles the "bind -l" command.
+     *
+     * @param Args $args The console arguments.
+     * @param IO   $io   The I/O.
+     *
+     * @return int The status code.
+     */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = self::getPackageNames($args, $this->packages->getPackageNames());
+        $packageNames = $this->getPackageNames($args);
         $bindingStates = $this->getBindingStates($args);
 
         $printBindingState = count($bindingStates) > 1;
@@ -63,18 +80,16 @@ class BindHandler
                 }
 
                 if (!$bindingStatePrinted) {
-                    $this->printBindingState($io, $bindingState);
+                    $this->printBindingStateHeader($io, $bindingState);
                     $bindingStatePrinted = true;
                 }
 
                 if ($printPackageName) {
                     $prefix = $printBindingState ? '    ' : '';
-                    $io->writeLine("<h>$prefix$packageName</h>");
+                    $io->writeLine("<b>$prefix$packageName</b>");
                 }
 
-                $styleTag = BindingState::ENABLED === $bindingState ? null : 'fg=red';
-
-                $this->printBindingTable($io, $bindings, $styleTag, $printBindingState);
+                $this->printBindingTable($io, $bindings, $printBindingState, BindingState::ENABLED === $bindingState);
 
                 if ($printHeaders) {
                     $io->writeLine('');
@@ -85,6 +100,13 @@ class BindHandler
         return 0;
     }
 
+    /**
+     * Handles the "bind <query> <type>" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
     public function handleSave(Args $args)
     {
         $bindingParams = array();
@@ -93,7 +115,11 @@ class BindHandler
             $pos = strpos($parameter, '=');
 
             if (false === $pos) {
-                // invalid parameter
+                throw new RuntimeException(sprintf(
+                    'The "--param" option expects a parameter in the form '.
+                    '"key=value". Got: "%s"',
+                    $parameter
+                ));
             }
 
             $key = substr($parameter, 0, $pos);
@@ -112,16 +138,37 @@ class BindHandler
         return 0;
     }
 
+    /**
+     * Handles the "bind -d" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
     public function handleDelete(Args $args)
     {
-        $bindings = $this->discoveryManager->findBindings($args->getArgument('uuid'));
+        $uuid = $args->getArgument('uuid');
+        $rootPackageName = $this->packages->getRootPackageName();
+        $bindings = $this->discoveryManager->findBindings($uuid, $rootPackageName);
 
         if (0 === count($bindings)) {
-            return 0;
+            $nonRootBindings = $this->discoveryManager->findBindings($uuid);
+
+            if (count($nonRootBindings) > 0) {
+                throw new RuntimeException('Can only delete bindings from the root package.');
+            }
+
+            throw new RuntimeException(sprintf(
+                'The binding "%s" does not exist.',
+                $uuid
+            ));
         }
 
         if (count($bindings) > 1) {
-            // ambiguous
+            throw new RuntimeException(sprintf(
+                'More than one binding matches the UUID prefix "%s".',
+                $uuid
+            ));
         }
 
         $bindingToRemove = reset($bindings);
@@ -130,42 +177,67 @@ class BindHandler
         return 0;
     }
 
+    /**
+     * Handles the "bind --enable" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
     public function handleEnable(Args $args)
     {
-        $packageNames = $this->getPackageNames($args, $this->packages->getInstalledPackageNames());
-        $bindings = $this->discoveryManager->findBindings($args->getArgument('uuid'));
+        $uuid = $args->getArgument('uuid');
+        $packageNames = $this->getInstalledPackageNames($args);
+        $bindings = $this->discoveryManager->findBindings($uuid, $packageNames);
 
         if (0 === count($bindings)) {
-            return 0;
+            throw new RuntimeException(sprintf(
+                'The binding "%s" does not exist.',
+                $uuid
+            ));
         }
 
-        if (count($bindings) > 1) {
-            // ambiguous
+        foreach ($bindings as $binding) {
+            $this->discoveryManager->enableBinding($binding->getUuid(), $packageNames);
         }
-
-        $this->discoveryManager->enableBinding(reset($bindings)->getUuid(), $packageNames);
 
         return 0;
     }
 
+    /**
+     * Handles the "bind --disable" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
     public function handleDisable(Args $args)
     {
-        $packageNames = $this->getPackageNames($args, $this->packages->getInstalledPackageNames());
-        $bindings = $this->discoveryManager->findBindings($args->getArgument('uuid'));
+        $uuid = $args->getArgument('uuid');
+        $packageNames = $this->getInstalledPackageNames($args);
+        $bindings = $this->discoveryManager->findBindings($uuid, $packageNames);
 
         if (0 === count($bindings)) {
-            return 0;
+            throw new RuntimeException(sprintf(
+                'The binding "%s" does not exist.',
+                $uuid
+            ));
         }
 
-        if (count($bindings) > 1) {
-            // ambiguous
+        foreach ($bindings as $binding) {
+            $this->discoveryManager->disableBinding($binding->getUuid(), $packageNames);
         }
-
-        $this->discoveryManager->disableBinding(reset($bindings)->getUuid(), $packageNames);
 
         return 0;
     }
 
+    /**
+     * Returns the binding states selected in the console arguments.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int[] The selected {@link BindingState} constants.
+     */
     private function getBindingStates(Args $args)
     {
         $states = array();
@@ -198,44 +270,106 @@ class BindHandler
     }
 
     /**
-     * @param IO                  $io
-     * @param BindingDescriptor[] $bindings
-     * @param string              $styleTag
-     * @param bool                $indent
+     * Returns the packages selected in the console arguments.
+     *
+     * @param Args  $args The console arguments.
+     *
+     * @return string[] The package names.
      */
-    private function printBindingTable(IO $io, array $bindings, $styleTag = null, $indent = false)
+    private function getPackageNames(Args $args)
+    {
+        // Display all packages if "all" is set
+        if ($args->isOptionSet('all')) {
+            return $this->packages->getPackageNames();
+        }
+
+        $packageNames = array();
+
+        if ($args->isOptionSet('root')) {
+            $packageNames[] = $this->packages->getRootPackage()->getName();
+        }
+
+        foreach ($args->getOption('package') as $packageName) {
+            $packageNames[] = $packageName;
+        }
+
+        return $packageNames ?: $this->packages->getPackageNames();
+    }
+
+    /**
+     * Returns the installed packages selected in the console arguments.
+     *
+     * Contrary to {@link getPackageNames()}, the root package is not included.
+     *
+     * @param Args  $args The console arguments.
+     *
+     * @return string[] The package names.
+     */
+    private function getInstalledPackageNames(Args $args)
+    {
+        // Display all packages if "all" is set
+        if ($args->isOptionSet('all')) {
+            return $this->packages->getInstalledPackageNames();
+        }
+
+        $packageNames = array();
+
+        foreach ($args->getOption('package') as $packageName) {
+            $packageNames[] = $packageName;
+        }
+
+        return $packageNames ?: $this->packages->getInstalledPackageNames();
+    }
+
+    /**
+     * Prints a list of binding descriptors.
+     *
+     * @param IO                  $io          The I/O.
+     * @param BindingDescriptor[] $descriptors The binding descriptors.
+     * @param bool                $indent      Whether to indent the output.
+     * @param bool                $enabled     Whether the binding descriptors
+     *                                         are enabled. If not, the output
+     *                                         is printed in red.
+     */
+    private function printBindingTable(IO $io, array $descriptors, $indent = false, $enabled = true)
     {
         $table = new Table(new IOOutput($io));
         $table->setStyle('compact');
         $table->getStyle()->setBorderFormat('');
 
         $prefix = $indent ? '    ' : '';
-        $paramTag = $styleTag ?: 'comment';
-        $uuidTag = $styleTag ?: 'comment';
-        $queryTag = $styleTag ?: 'em';
-        $typeTag = $styleTag ?: 'tt';
+        $paramTag = $enabled ? 'good' : 'bad';
+        $uuidTag = $enabled ? 'good' : 'bad';
+        $queryTag = $enabled ? 'em' : 'bad';
+        $typeTag = $enabled ? 'u' : 'bad';
 
-        foreach ($bindings as $binding) {
+        foreach ($descriptors as $descriptor) {
             $parameters = array();
 
-            foreach ($binding->getParameterValues() as $parameterName => $value) {
+            foreach ($descriptor->getParameterValues() as $parameterName => $value) {
                 $parameters[] = $parameterName.'='.StringUtil::formatValue($value);
             }
 
-            $uuid = substr($binding->getUuid(), 0, 6);
+            $uuid = substr($descriptor->getUuid(), 0, 6);
             $paramString = $parameters ? " <$paramTag>(".implode(', ', $parameters).")</$paramTag>" : '';
 
             $table->addRow(array(
-                "$prefix<$uuidTag>".$uuid."</$uuidTag> ".
-                "<$queryTag>".$binding->getQuery()."</$queryTag>",
-                " <$typeTag>".$binding->getTypeName()."</$typeTag>".$paramString
+                "$prefix<$uuidTag>$uuid</$uuidTag> ".
+                "<$queryTag>{$descriptor->getQuery()}</$queryTag>",
+                " <$typeTag>{$descriptor->getTypeName()}</$typeTag>".$paramString
             ));
         }
 
         $table->render();
     }
 
-    private function printBindingState(IO $io, $bindingState)
+    /**
+     * Prints the header fora  binding state.
+     *
+     * @param IO  $io           The I/O.
+     * @param int $bindingState The {@link BindingState} constant.
+     */
+    private function printBindingStateHeader(IO $io, $bindingState)
     {
         switch ($bindingState) {
             case BindingState::ENABLED:
@@ -267,31 +401,5 @@ class BindHandler
                 $io->writeLine('');
                 return;
         }
-    }
-
-    /**
-     * @param Args  $args
-     * @param array $default
-     *
-     * @return string[]
-     */
-    private function getPackageNames(Args $args, array $default)
-    {
-        // Display all packages if "all" is set
-        if ($args->isOptionSet('all')) {
-            return $this->packages->getPackageNames();
-        }
-
-        $packageNames = array();
-
-        if ($args->isOptionSet('root')) {
-            $packageNames[] = $this->packages->getRootPackage()->getName();
-        }
-
-        foreach ($args->getOption('package') as $packageName) {
-            $packageNames[] = $packageName;
-        }
-
-        return $packageNames ?: $default;
     }
 }

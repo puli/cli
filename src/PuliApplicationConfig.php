@@ -159,19 +159,19 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginSubCommand('show')
                     ->markAnonymous()
-                    ->addArgument('key', Argument::REQUIRED, 'The configuration key. May contain wildcards ("*").')
+                    ->addArgument('key', Argument::REQUIRED, 'The configuration key to show. May contain wildcards ("*")')
                     ->setHandlerMethod('handleShow')
                 ->end()
 
                 ->beginSubCommand('set')
                     ->markAnonymous()
-                    ->addArgument('key', Argument::REQUIRED, 'The configuration key')
+                    ->addArgument('key', Argument::REQUIRED, 'The modified configuration key')
                     ->addArgument('value', Argument::REQUIRED, 'The value to set for the configuration key')
                     ->setHandlerMethod('handleSet')
                 ->end()
 
                 ->beginOptionCommand('delete', 'd')
-                    ->addArgument('key', Argument::REQUIRED, 'The configuration key')
+                    ->addArgument('key', Argument::REQUIRED, 'The configuration key to delete. May contain wildcards ("*")')
                     ->setHandlerMethod('handleDelete')
                 ->end()
             ->end()

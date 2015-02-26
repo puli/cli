@@ -23,7 +23,7 @@ class StringUtil
             case '': return null;
             case 'null': return null;
             case 'true': return true;
-            case 'false': return true;
+            case 'false': return false;
         }
 
         if ($string === (string) ($int = (int) $string)) {

@@ -1,0 +1,222 @@
+<?php
+
+/*
+ * This file is part of the puli/cli package.
+ *
+ * (c) Bernhard Schussek <bschussek@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Puli\Cli\Tests\Handler;
+
+use PHPUnit_Framework_MockObject_MockObject;
+use Puli\Cli\Handler\BuildHandler;
+use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
+use Puli\RepositoryManager\Api\Repository\RepositoryManager;
+use Webmozart\Console\Api\Command\Command;
+use Webmozart\Console\Args\StringArgs;
+
+/**
+ * @since  1.0
+ * @author Bernhard Schussek <bschussek@gmail.com>
+ */
+class BuildHandlerTest extends AbstractHandlerTest
+{
+    /**
+     * @var Command
+     */
+    private static $buildCommand;
+
+    /**
+     * @var PHPUnit_Framework_MockObject_MockObject|RepositoryManager
+     */
+    private $repoManager;
+
+    /**
+     * @var PHPUnit_Framework_MockObject_MockObject|DiscoveryManager
+     */
+    private $discoveryManager;
+
+    /**
+     * @var BuildHandler
+     */
+    private $handler;
+
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+
+        self::$buildCommand = self::$application->getCommand('build');
+    }
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->repoManager = $this->getMock('Puli\RepositoryManager\Api\Repository\RepositoryManager');
+        $this->discoveryManager = $this->getMock('Puli\RepositoryManager\Api\Discovery\DiscoveryManager');
+        $this->handler = new BuildHandler($this->repoManager, $this->discoveryManager);
+    }
+
+    public function testBuild()
+    {
+        $args = self::$buildCommand->parseArgs(new StringArgs(''));
+
+        $this->repoManager->expects($this->never())
+            ->method('clearRepository');
+        $this->repoManager->expects($this->once())
+            ->method('buildRepository');
+        $this->discoveryManager->expects($this->never())
+            ->method('clearDiscovery');
+        $this->discoveryManager->expects($this->once())
+            ->method('buildDiscovery');
+
+        $statusCode = $this->handler->handle($args);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testBuildAll()
+    {
+        $args = self::$buildCommand->parseArgs(new StringArgs('all'));
+
+        $this->repoManager->expects($this->never())
+            ->method('clearRepository');
+        $this->repoManager->expects($this->once())
+            ->method('buildRepository');
+        $this->discoveryManager->expects($this->never())
+            ->method('clearDiscovery');
+        $this->discoveryManager->expects($this->once())
+            ->method('buildDiscovery');
+
+        $statusCode = $this->handler->handle($args);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testBuildRepository()
+    {
+        $args = self::$buildCommand->parseArgs(new StringArgs('repository'));
+
+        $this->repoManager->expects($this->never())
+            ->method('clearRepository');
+        $this->repoManager->expects($this->once())
+            ->method('buildRepository');
+        $this->discoveryManager->expects($this->never())
+            ->method('clearDiscovery');
+        $this->discoveryManager->expects($this->never())
+            ->method('buildDiscovery');
+
+        $statusCode = $this->handler->handle($args);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testBuildDiscovery()
+    {
+        $args = self::$buildCommand->parseArgs(new StringArgs('discovery'));
+
+        $this->repoManager->expects($this->never())
+            ->method('clearRepository');
+        $this->repoManager->expects($this->never())
+            ->method('buildRepository');
+        $this->discoveryManager->expects($this->never())
+            ->method('clearDiscovery');
+        $this->discoveryManager->expects($this->once())
+            ->method('buildDiscovery');
+
+        $statusCode = $this->handler->handle($args);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testBuildForce()
+    {
+        $args = self::$buildCommand->parseArgs(new StringArgs('--force'));
+
+        $this->repoManager->expects($this->at(0))
+            ->method('clearRepository');
+        $this->repoManager->expects($this->at(1))
+            ->method('buildRepository');
+        $this->discoveryManager->expects($this->at(0))
+            ->method('clearDiscovery');
+        $this->discoveryManager->expects($this->at(1))
+            ->method('buildDiscovery');
+
+        $statusCode = $this->handler->handle($args);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testBuildRepositoryForce()
+    {
+        $args = self::$buildCommand->parseArgs(new StringArgs('--force repository'));
+
+        $this->repoManager->expects($this->at(0))
+            ->method('clearRepository');
+        $this->repoManager->expects($this->at(1))
+            ->method('buildRepository');
+        $this->discoveryManager->expects($this->never())
+            ->method('clearDiscovery');
+        $this->discoveryManager->expects($this->never())
+            ->method('buildDiscovery');
+
+        $statusCode = $this->handler->handle($args);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testBuildDiscoveryForce()
+    {
+        $args = self::$buildCommand->parseArgs(new StringArgs('--force discovery'));
+
+        $this->repoManager->expects($this->never())
+            ->method('clearRepository');
+        $this->repoManager->expects($this->never())
+            ->method('buildRepository');
+        $this->discoveryManager->expects($this->at(0))
+            ->method('clearDiscovery');
+        $this->discoveryManager->expects($this->at(1))
+            ->method('buildDiscovery');
+
+        $statusCode = $this->handler->handle($args);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Invalid build target "foobar". Expected one of: "all", "repository", "discovery"
+     */
+    public function testBuildFailsIfInvalidTarget()
+    {
+        $args = self::$buildCommand->parseArgs(new StringArgs('--force foobar'));
+
+        $this->repoManager->expects($this->never())
+            ->method('clearRepository');
+        $this->repoManager->expects($this->never())
+            ->method('buildRepository');
+        $this->discoveryManager->expects($this->never())
+            ->method('clearDiscovery');
+        $this->discoveryManager->expects($this->never())
+            ->method('buildDiscovery');
+
+        $this->handler->handle($args);
+    }
+}

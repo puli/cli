@@ -12,9 +12,7 @@
 namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
-use PHPUnit_Framework_TestCase;
 use Puli\Cli\Handler\BindHandler;
-use Puli\Cli\PuliApplicationConfig;
 use Puli\RepositoryManager\Api\Discovery\BindingDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
@@ -24,23 +22,14 @@ use Puli\RepositoryManager\Api\Package\PackageFile;
 use Puli\RepositoryManager\Api\Package\RootPackage;
 use Puli\RepositoryManager\Api\Package\RootPackageFile;
 use Webmozart\Console\Api\Command\Command;
-use Webmozart\Console\Api\Formatter\StyleSet;
 use Webmozart\Console\Args\StringArgs;
-use Webmozart\Console\ConsoleApplication;
-use Webmozart\Console\Formatter\PlainFormatter;
-use Webmozart\Console\IO\BufferedIO;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class BindHandlerTest extends PHPUnit_Framework_TestCase
+class BindHandlerTest extends AbstractHandlerTest
 {
-    /**
-     * @var StyleSet
-     */
-    private static $styleSet;
-
     /**
      * @var Command
      */
@@ -77,29 +66,25 @@ class BindHandlerTest extends PHPUnit_Framework_TestCase
     private $packages;
 
     /**
-     * @var BufferedIO
-     */
-    private $io;
-
-    /**
      * @var BindHandler
      */
     private $handler;
 
     public static function setUpBeforeClass()
     {
-        $application = new ConsoleApplication(new PuliApplicationConfig());
+        parent::setUpBeforeClass();
 
-        self::$styleSet = $application->getConfig()->getStyleSet();
-        self::$listCommand = $application->getCommand('bind')->getSubCommand('list');
-        self::$saveCommand = $application->getCommand('bind')->getSubCommand('save');
-        self::$deleteCommand = $application->getCommand('bind')->getSubCommand('delete');
-        self::$enableCommand = $application->getCommand('bind')->getSubCommand('enable');
-        self::$disableCommand = $application->getCommand('bind')->getSubCommand('disable');
+        self::$listCommand = self::$application->getCommand('bind')->getSubCommand('list');
+        self::$saveCommand = self::$application->getCommand('bind')->getSubCommand('save');
+        self::$deleteCommand = self::$application->getCommand('bind')->getSubCommand('delete');
+        self::$enableCommand = self::$application->getCommand('bind')->getSubCommand('enable');
+        self::$disableCommand = self::$application->getCommand('bind')->getSubCommand('disable');
     }
 
     protected function setUp()
     {
+        parent::setUp();
+
         $this->discoveryManager = $this->getMock('Puli\RepositoryManager\Api\Discovery\DiscoveryManager');
         $this->packages = new PackageCollection(array(
             new RootPackage(new RootPackageFile('vendor/root'), '/root'),
@@ -163,7 +148,6 @@ class BindHandlerTest extends PHPUnit_Framework_TestCase
                     new BindingDescriptor('/package2/invalid', 'my/type'),
                 )),
             ));
-        $this->io = new BufferedIO('', new PlainFormatter(self::$styleSet));
         $this->handler = new BindHandler($this->discoveryManager, $this->packages);
     }
 

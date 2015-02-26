@@ -1,0 +1,304 @@
+<?php
+
+/*
+ * This file is part of the puli/cli package.
+ *
+ * (c) Bernhard Schussek <bschussek@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Puli\Cli;
+
+use Puli\Cli\Handler\BindHandler;
+use Puli\Cli\Handler\BuildHandler;
+use Puli\Cli\Handler\ConfigHandler;
+use Puli\Cli\Handler\FindHandler;
+use Puli\Cli\Handler\LsHandler;
+use Puli\Cli\Handler\MapHandler;
+use Puli\Cli\Handler\PackageHandler;
+use Puli\Cli\Handler\TreeHandler;
+use Puli\Cli\Handler\TypeHandler;
+use Puli\RepositoryManager\Puli;
+use Webmozart\Console\Api\Args\Format\Argument;
+use Webmozart\Console\Api\Args\Format\Option;
+use Webmozart\Console\Config\DefaultApplicationConfig;
+use Webmozart\Console\Handler\Help\HelpHandler;
+
+/**
+ * @since  1.0
+ * @author Bernhard Schussek <bschussek@gmail.com>
+ */
+class PuliApplicationConfig extends DefaultApplicationConfig
+{
+    /**
+     * @var Puli
+     */
+    private $puli;
+
+    public function __construct(Puli $puli = null)
+    {
+        $this->puli = $puli ?: new Puli(getcwd());
+
+        parent::__construct();
+    }
+
+    protected function configure()
+    {
+        parent::configure();
+
+        $puli = $this->puli;
+        $rootDir = __DIR__.'/..';
+
+        $this
+            ->setName('puli')
+            ->setDisplayName('Puli')
+            ->setVersion('@package_version@')
+            ->setDebug(true)
+
+            ->beginCommand('bind')
+                ->setDescription('Bind resources to binding types')
+                ->setHandler(function () use ($puli) {
+                    return new BindHandler(
+                        $puli->getDiscoveryManager(),
+                        $puli->getPackageManager()->getPackages()
+                    );
+                })
+
+                ->beginSubCommand('save')
+                    ->markAnonymous()
+                    ->addArgument('query', Argument::REQUIRED, 'A query for resources')
+                    ->addArgument('type', Argument::REQUIRED, 'The name of the binding type')
+                    ->addOption('language', null, Option::REQUIRED_VALUE, 'The language of the resource query', 'glob', 'language')
+                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A binding parameter in the form <key>=<value>', null, 'key=value')
+                    ->setHandlerMethod('handleSave')
+                ->end()
+
+                ->beginOptionCommand('list', 'l')
+                    ->markDefault()
+                    ->addOption('root', null, Option::NO_VALUE, 'Show bindings of the root package')
+                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show bindings of a package', null, 'package')
+                    ->addOption('all', 'a', Option::NO_VALUE, 'Show bindings of all packages')
+                    ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled bindings')
+                    ->addOption('disabled', null, Option::NO_VALUE, 'Show disabled bindings')
+                    ->addOption('undecided', null, Option::NO_VALUE, 'Show bindings that are neither enabled nor disabled')
+                    ->addOption('duplicate', null, Option::NO_VALUE, 'Show duplicate bindings')
+                    ->addOption('held-back', null, Option::NO_VALUE, 'Show bindings whose type is not loaded')
+                    ->addOption('ignored', null, Option::NO_VALUE, 'Show bindings whose type is disabled')
+                    ->addOption('invalid', null, Option::NO_VALUE, 'Show bindings with invalid parameters')
+                    ->addOption('language', null, Option::REQUIRED_VALUE, 'The language of the resource query', 'glob', 'language')
+                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A binding parameter in the form <key>=<value>', null, 'key=value')
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginOptionCommand('delete', 'd')
+                    ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the deleted binding')
+                    ->setHandlerMethod('handleDelete')
+                ->end()
+
+                ->beginOptionCommand('enable')
+                    ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the enabled binding')
+                    ->setHandlerMethod('handleEnable')
+                ->end()
+
+                ->beginOptionCommand('disable')
+                    ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the disabled binding')
+                    ->setHandlerMethod('handleDisable')
+                ->end()
+            ->end()
+
+            ->beginCommand('build')
+                ->setDescription('Build the resource repository/discovery')
+                ->addOption('force', 'f', Option::NO_VALUE, 'Force building even if the repository/discovery is not empty')
+                ->setHandler(function () use ($puli) {
+                    return new BuildHandler(
+                        $puli->getRepositoryManager(),
+                        $puli->getDiscoveryManager()
+                    );
+                })
+            ->end()
+
+            ->beginCommand('config')
+                ->setDescription('Display and modify configuration values')
+                ->setHandler(function () use ($puli) {
+                    return new ConfigHandler($puli->getRootPackageFileManager());
+                })
+
+                ->beginSubCommand('list')
+                    ->markAnonymous()
+                    ->setDescription('List all configuration values')
+                    ->addOption('all', 'a', Option::NO_VALUE, 'Include default values in the output')
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginSubCommand('show')
+                    ->markAnonymous()
+                    ->setDescription('Display a configuration value')
+                    ->addArgument('key', Argument::REQUIRED, 'The configuration key. May contain wildcards ("*").')
+                    ->setHandlerMethod('handleShow')
+                ->end()
+
+                ->beginSubCommand('set')
+                    ->markAnonymous()
+                    ->setDescription('Set a configuration value')
+                    ->addArgument('key', Argument::REQUIRED, 'The configuration key')
+                    ->addArgument('value', Argument::REQUIRED, 'The value to set for the configuration key')
+                    ->setHandlerMethod('handleSet')
+                ->end()
+
+                ->beginOptionCommand('delete', 'd')
+                    ->setDescription('Delete a configuration value')
+                    ->addArgument('key', Argument::REQUIRED, 'The configuration key')
+                    ->setHandlerMethod('handleDelete')
+                ->end()
+            ->end()
+
+            ->beginCommand('find')
+                ->setDescription('Find resources by different criteria')
+                ->addArgument('pattern', Argument::OPTIONAL, 'A resource path pattern')
+                ->addOption('type', 't', Option::REQUIRED_VALUE, 'The short name of a resource class')
+                ->addOption('bound-to', 'b', Option::REQUIRED_VALUE, 'The name of a binding type')
+                ->setHandler(function () use ($puli) {
+                    return new FindHandler(
+                        $puli->getEnvironment()->getRepository(),
+                        $puli->getEnvironment()->getDiscovery()
+                    );
+                })
+            ->end()
+
+            ->editCommand('help')
+                ->setHandler(function () use ($rootDir) {
+                    $handler = new HelpHandler();
+                    if (is_dir($rootDir.'/docs/man')) {
+                        // The directory is generated by make
+                        $handler->setManDir($rootDir.'/docs/man');
+                    }
+                    $handler->setAsciiDocDir($rootDir.'/docs');
+                    $handler->setApplicationPage('puli');
+                    $handler->setCommandPagePrefix('puli-');
+
+                    return $handler;
+                })
+            ->end()
+
+            ->beginCommand('ls')
+                ->setDescription('List the children of a resource in the repository')
+                ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
+                ->setHandler(function () use ($puli) {
+                    return new LsHandler($puli->getEnvironment()->getRepository());
+                })
+            ->end()
+
+            ->beginCommand('map')
+                ->setDescription('Display and change resource mappings')
+                ->setHandler(function () use ($puli) {
+                    return new MapHandler(
+                        $puli->getRepositoryManager(),
+                        $puli->getPackageManager()
+                    );
+                })
+
+                ->beginSubCommand('list')
+                    ->markAnonymous()
+                    ->addOption('root', null, Option::NO_VALUE, 'Show mappings of the root package')
+                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show mappings of a package', null, 'package')
+                    ->addOption('all', 'a', Option::NO_VALUE, 'Show mappings of all packages')
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginSubCommand('save')
+                    ->markAnonymous()
+                    ->addArgument('path', Argument::REQUIRED)
+                    ->addArgument('file', Argument::REQUIRED | Argument::MULTI_VALUED)
+                    ->setHandlerMethod('handleSave')
+                ->end()
+
+                ->beginOptionCommand('delete', 'd')
+                    ->setDescription('Delete a mapping')
+                    ->addArgument('path', Argument::REQUIRED)
+                    ->addArgument('file', Argument::OPTIONAL)
+                    ->setHandlerMethod('handleDelete')
+                ->end()
+            ->end()
+
+            ->beginCommand('package')
+                ->setDescription('Display the installed packages')
+                ->setHandler(function () use ($puli) {
+                    return new PackageHandler($puli->getPackageManager());
+                })
+
+                ->beginSubCommand('list')
+                    ->setDescription('List all installed packages')
+                    ->addOption('installer', null, Option::REQUIRED_VALUE, 'Show packages installed by a specific installer')
+                    ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled packages')
+                    ->addOption('not-found', null, Option::NO_VALUE, 'Show packages that could not be found')
+                    ->addOption('not-loadable', null, Option::NO_VALUE, 'Show packages that could not be loaded')
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginSubCommand('install')
+                    ->setDescription('Install a package')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the package')
+                    ->addArgument('path', Argument::REQUIRED, 'The path to the package')
+                    ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the installer', 'user')
+                    ->setHandlerMethod('handleInstall')
+                ->end()
+
+                ->beginSubCommand('remove')
+                    ->setDescription('Remove a package')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the package')
+                    ->setHandlerMethod('handleRemove')
+                ->end()
+
+                ->beginSubCommand('clean')
+                    ->setDescription('Remove all packages that cannot be found')
+                    ->setHandlerMethod('handleClean')
+                ->end()
+            ->end()
+
+            ->beginCommand('tree')
+                ->setDescription('Print the contents of a resource as tree')
+                ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
+                ->setHandler(function () use ($puli) {
+                    return new TreeHandler($puli->getEnvironment()->getRepository());
+                })
+            ->end()
+
+            ->beginCommand('type')
+                ->setDescription('Display and change binding types')
+                ->setHandler(function () use ($puli) {
+                    return new TypeHandler(
+                        $puli->getDiscoveryManager(),
+                        $puli->getPackageManager()
+                    );
+                })
+
+                ->beginSubCommand('list')
+                    ->markDefault()
+                    ->setDescription('List all binding types')
+                    ->addOption('root', null, Option::NO_VALUE, 'Show types of the root package')
+                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show types of a package', null, 'package')
+                    ->addOption('all', 'a', Option::NO_VALUE, 'Show types of all packages')
+                    ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled types')
+                    ->addOption('duplicate', null, Option::NO_VALUE, 'Show duplicate types')
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginSubCommand('define')
+                    ->setDescription('Define a new binding type')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
+                    ->addOption('description', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A human-readable description')
+                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <param> or <param>=<default>')
+                    ->setHandlerMethod('handleDefine')
+                ->end()
+
+                ->beginSubCommand('remove')
+                    ->setDescription('Remove a binding type')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
+                    ->setHandlerMethod('handleRemove')
+                ->end()
+            ->end()
+        ;
+    }
+}

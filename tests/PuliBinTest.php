@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\tests;
+namespace Puli\Cli\Tests;
 
 use PHPUnit_Framework_TestCase;
 use Symfony\Component\Process\Process;
@@ -26,8 +26,9 @@ class PuliBinTest extends PHPUnit_Framework_TestCase
         $process = new Process($rootDir.'/bin/puli');
 
         $status = $process->run();
+        $output = $process->getOutput();
 
         $this->assertSame(0, $status);
-        $this->assertStringStartsWith('puli version ', $process->getOutput());
+        $this->assertTrue(0 === strpos($output, 'Puli version ') || 0 === strpos($output, "Debug Mode\nPuli version "));
     }
 }

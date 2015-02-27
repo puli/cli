@@ -16,8 +16,10 @@ use Puli\Repository\Api\ResourceRepository;
 use Webmozart\Console\Adapter\IOOutput;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
+use Webmozart\Console\Rendering\Canvas;
 use Webmozart\Console\Rendering\Dimensions;
-use Webmozart\Console\Rendering\Element\WrappedGrid;
+use Webmozart\Console\Rendering\Element\Grid;
+use Webmozart\Console\Rendering\Element\GridStyle;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -60,9 +62,10 @@ class LsHandler
 
     private function listShort(IO $io, ResourceCollection $resources)
     {
-        $dimensions = Dimensions::forCurrentWindow();
-        $grid = new WrappedGrid($dimensions->getWidth());
-        $grid->setHorizontalSeparator('  ');
+        $canvas = new Canvas($io);
+        $style = GridStyle::borderless();
+        $style->getBorderStyle()->setLineVCChar('  ');
+        $grid = new Grid($style);
 
         foreach ($resources as $resource) {
             $name = $resource->getName();
@@ -74,6 +77,6 @@ class LsHandler
             $grid->addCell($name);
         }
 
-        $grid->render(new IOOutput($io));
+        $grid->render($canvas);
     }
 }

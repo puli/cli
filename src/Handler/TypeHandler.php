@@ -17,10 +17,12 @@ use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
 use Puli\RepositoryManager\Api\Package\PackageManager;
-use Symfony\Component\Console\Helper\Table;
 use Webmozart\Console\Adapter\IOOutput;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
+use Webmozart\Console\Rendering\Canvas;
+use Webmozart\Console\Rendering\Element\Table;
+use Webmozart\Console\Rendering\Element\TableStyle;
 
 /**
  * @since  1.0
@@ -187,12 +189,10 @@ class TypeHandler
      */
     private function printTypeTable(IO $io, array $types, $styleTag = null, $indent = false)
     {
-        $table = new Table(new IOOutput($io));
-        $table->setStyle('compact');
-        $table->getStyle()->setBorderFormat('');
+        $canvas = new Canvas($io);
+        $table = new Table(TableStyle::borderless());
 
-        $prefix = $indent ? '    ' : '';
-        $paramTag = $styleTag ?: 'comment';
+        $paramTag = $styleTag ?: 'em';
         $typeTag = $styleTag ?: 'tt';
 
         foreach ($types as $type) {
@@ -216,12 +216,12 @@ class TypeHandler
             }
 
             $table->addRow(array(
-                "$prefix<$typeTag>".$type->getName()."</$typeTag>",
-                " ".ltrim($description.$paramString)
+                "<$typeTag>".$type->getName()."</$typeTag>",
+                ltrim($description.$paramString)
             ));
         }
 
-        $table->render();
+        $table->render($canvas, $indent ? 4 : 0);
     }
 
     private function printBindingTypeState(IO $io, $bindingState)

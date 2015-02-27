@@ -17,10 +17,12 @@ use Puli\RepositoryManager\Api\Discovery\BindingState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
 use Puli\RepositoryManager\Api\Package\PackageCollection;
 use RuntimeException;
-use Symfony\Component\Console\Helper\Table;
 use Webmozart\Console\Adapter\IOOutput;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
+use Webmozart\Console\Rendering\Canvas;
+use Webmozart\Console\Rendering\Element\Table;
+use Webmozart\Console\Rendering\Element\TableStyle;
 
 /**
  * Handles the "bind" command.
@@ -333,11 +335,9 @@ class BindHandler
      */
     private function printBindingTable(IO $io, array $descriptors, $indent = false, $enabled = true)
     {
-        $table = new Table(new IOOutput($io));
-        $table->setStyle('compact');
-        $table->getStyle()->setBorderFormat('');
+        $canvas = new Canvas($io);
+        $table = new Table(TableStyle::borderless());
 
-        $prefix = $indent ? '    ' : '';
         $paramTag = $enabled ? 'good' : 'bad';
         $uuidTag = $enabled ? 'good' : 'bad';
         $queryTag = $enabled ? 'em' : 'bad';
@@ -354,13 +354,12 @@ class BindHandler
             $paramString = $parameters ? " <$paramTag>(".implode(', ', $parameters).")</$paramTag>" : '';
 
             $table->addRow(array(
-                "$prefix<$uuidTag>$uuid</$uuidTag> ".
-                "<$queryTag>{$descriptor->getQuery()}</$queryTag>",
-                " <$typeTag>{$descriptor->getTypeName()}</$typeTag>".$paramString
+                "<$uuidTag>$uuid</$uuidTag> <$queryTag>{$descriptor->getQuery()}</$queryTag>",
+                "<$typeTag>{$descriptor->getTypeName()}</$typeTag>".$paramString
             ));
         }
 
-        $table->render();
+        $table->render($canvas, $indent ? 4 : 0);
     }
 
     /**

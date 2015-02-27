@@ -14,10 +14,11 @@ namespace Puli\Cli\Handler;
 use Puli\RepositoryManager\Api\Package\PackageManager;
 use Puli\RepositoryManager\Api\Repository\RepositoryManager;
 use Puli\RepositoryManager\Api\Repository\ResourceMapping;
-use Symfony\Component\Console\Helper\Table;
-use Webmozart\Console\Adapter\IOOutput;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
+use Webmozart\Console\Rendering\Canvas;
+use Webmozart\Console\Rendering\Element\Table;
+use Webmozart\Console\Rendering\Element\TableStyle;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -133,18 +134,17 @@ class MapHandler
      */
     private function printMappingTable(IO $io, array $mappings)
     {
-        $table = new Table(new IOOutput($io));
-        $table->setStyle('compact');
-        $table->getStyle()->setBorderFormat('');
+        $canvas = new Canvas($io);
+        $table = new Table(TableStyle::borderless());
 
         foreach ($mappings as $mapping) {
             $table->addRow(array(
                 '<em>'.$mapping->getRepositoryPath().'</em>',
-                ' '.implode(', ', $mapping->getPathReferences())
+                implode(', ', $mapping->getPathReferences())
             ));
         }
 
-        $table->render();
+        $table->render($canvas);
     }
 
     private function mergePathReferences($pathReferences, $mergeStatements)

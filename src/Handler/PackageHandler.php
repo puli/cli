@@ -15,11 +15,12 @@ use Puli\RepositoryManager\Api\Package\PackageCollection;
 use Puli\RepositoryManager\Api\Package\PackageManager;
 use Puli\RepositoryManager\Api\Package\PackageState;
 use Puli\RepositoryManager\Api\Package\RootPackage;
-use Symfony\Component\Console\Helper\Table;
-use Webmozart\Console\Adapter\IOOutput;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
+use Webmozart\Console\Rendering\Canvas;
 use Webmozart\Console\Rendering\Dimensions;
+use Webmozart\Console\Rendering\Element\Table;
+use Webmozart\Console\Rendering\Element\TableStyle;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -143,11 +144,9 @@ class PackageHandler
 
     private function printPackageTable(IO $io, PackageCollection $packages, $styleTag = null, $indent = false, $addInstaller = true)
     {
-        $table = new Table(new IOOutput($io));
-        $table->setStyle('compact');
-        $table->getStyle()->setBorderFormat('');
+        $canvas = new Canvas($io);
+        $table = new Table(TableStyle::borderless());
 
-        $prefix = $indent ? '    ' : '';
         $rootTag = $styleTag ?: 'b';
         $installerTag = $styleTag ?: 'em';
         $pathTag = $styleTag ?: 'comment';
@@ -162,24 +161,22 @@ class PackageHandler
             $row = array();
 
             if ($package instanceof RootPackage) {
-                $packageName = "<$rootTag>$packageName</$rootTag>";
+                $row[] = "<$rootTag>$packageName</$rootTag>";
             } elseif ($styleTag) {
-                $packageName = "<$styleTag>$packageName</$styleTag>";
+                $row[] = "<$styleTag>$packageName</$styleTag>";
             }
-
-            $row[] = $prefix.$packageName;
 
             if ($addInstaller) {
                 $installer = $installInfo ? $installInfo->getInstallerName() : 'root';
-                $row[] = " <$installerTag>$installer</$installerTag>";
+                $row[] = "<$installerTag>$installer</$installerTag>";
             }
 
-            $row[] = " <$pathTag>$installPath</$pathTag>";
+            $row[] = "<$pathTag>$installPath</$pathTag>";
 
             $table->addRow($row);
         }
 
-        $table->render();
+        $table->render($canvas, $indent ? 4 : 0);
     }
 
     private function printNotLoadablePackages(IO $io, PackageCollection $packages, $rootDir, $indent = false)

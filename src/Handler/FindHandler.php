@@ -14,10 +14,12 @@ namespace Puli\Cli\Handler;
 use Puli\Discovery\Api\ResourceDiscovery;
 use Puli\Repository\Api\ResourceRepository;
 use RuntimeException;
-use Symfony\Component\Console\Helper\Table;
 use Webmozart\Console\Adapter\IOOutput;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
+use Webmozart\Console\Rendering\Canvas;
+use Webmozart\Console\Rendering\Element\Table;
+use Webmozart\Console\Rendering\Element\TableStyle;
 
 /**
  * Handles the "find" command.
@@ -172,18 +174,14 @@ class FindHandler
      */
     private function printTable(IO $io, array $matches)
     {
-        $table = new Table(new IOOutput($io));
-        $table->setStyle('compact');
-        $table->getStyle()->setBorderFormat('');
+        $canvas = new Canvas($io);
+        $table = new Table(TableStyle::borderless());
 
         foreach ($matches as $path => $shortClass) {
-            $table->addRow(array(
-                $shortClass,
-                " <em>$path</em>"
-            ));
+            $table->addRow(array($shortClass, "<em>$path</em>"));
         }
 
-        $table->render();
+        $table->render($canvas);
     }
 
     /**

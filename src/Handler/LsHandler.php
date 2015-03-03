@@ -19,12 +19,11 @@ use Puli\Repository\Api\ResourceRepository;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
-use Webmozart\Console\Rendering\Canvas;
-use Webmozart\Console\Rendering\Element\Alignment;
-use Webmozart\Console\Rendering\Element\Grid;
-use Webmozart\Console\Rendering\Element\GridStyle;
-use Webmozart\Console\Rendering\Element\Table;
-use Webmozart\Console\Rendering\Element\TableStyle;
+use Webmozart\Console\UI\Component\Grid;
+use Webmozart\Console\UI\Component\Table;
+use Webmozart\Console\UI\Style\Alignment;
+use Webmozart\Console\UI\Style\GridStyle;
+use Webmozart\Console\UI\Style\TableStyle;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -76,12 +75,10 @@ class LsHandler
             ));
         }
 
-        $canvas = new Canvas($io);
-
         if ($args->isOptionSet('long')) {
-            $this->listLong($canvas, $resource->listChildren());
+            $this->listLong($io, $resource->listChildren());
         } else {
-            $this->listShort($canvas, $resource->listChildren());
+            $this->listShort($io, $resource->listChildren());
         }
 
         return 0;
@@ -90,10 +87,10 @@ class LsHandler
     /**
      * Prints the resources in the short style (without the "-l" option).
      *
-     * @param Canvas             $canvas    The canvas.
+     * @param IO                 $io        The I/O.
      * @param ResourceCollection $resources The resources.
      */
-    private function listShort(Canvas $canvas, ResourceCollection $resources)
+    private function listShort(IO $io, ResourceCollection $resources)
     {
         $style = GridStyle::borderless();
         $style->getBorderStyle()->setLineVCChar('  ');
@@ -103,16 +100,16 @@ class LsHandler
             $grid->addCell($this->formatName($resource));
         }
 
-        $grid->render($canvas);
+        $grid->render($io);
     }
 
     /**
      * Prints the resources in the long style (with the "-l" option).
      *
-     * @param Canvas             $canvas    The canvas.
+     * @param IO                 $io        The I/O.
      * @param ResourceCollection $resources The resources.
      */
-    private function listLong(Canvas $canvas, ResourceCollection $resources)
+    private function listLong(IO $io, ResourceCollection $resources)
     {
         $style = TableStyle::borderless();
         $style->setColumnAlignments(array(
@@ -147,7 +144,7 @@ class LsHandler
             ));
         }
 
-        $table->render($canvas);
+        $table->render($io);
     }
 
     /**

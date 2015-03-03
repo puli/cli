@@ -17,9 +17,8 @@ use Puli\Repository\Api\ResourceRepository;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
-use Webmozart\Console\Rendering\Canvas;
-use Webmozart\Console\Rendering\Element\Table;
-use Webmozart\Console\Rendering\Element\TableStyle;
+use Webmozart\Console\UI\Component\Table;
+use Webmozart\Console\UI\Style\TableStyle;
 
 /**
  * Handles the "find" command.
@@ -174,13 +173,12 @@ class FindHandler
      */
     private function printTable(IO $io, array $matches)
     {
-        $canvas = new Canvas($io);
         $table = new Table(TableStyle::borderless());
 
         foreach ($matches as $path => $shortClass) {
             $table->addRow(array($shortClass, "<em>$path</em>"));
         }
 
-        $table->render($canvas);
+        $table->render($io);
     }
 }

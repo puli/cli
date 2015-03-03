@@ -18,9 +18,8 @@ use Puli\RepositoryManager\Api\Package\PackageState;
 use Puli\RepositoryManager\Api\Package\RootPackage;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
-use Webmozart\Console\Rendering\Canvas;
-use Webmozart\Console\Rendering\Element\Table;
-use Webmozart\Console\Rendering\Element\TableStyle;
+use Webmozart\Console\UI\Component\Table;
+use Webmozart\Console\UI\Style\TableStyle;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -60,7 +59,6 @@ class PackageHandler
         $states = $this->getPackageStates($args);
         $installer = $args->getOption('installer');
         $printStates = count($states) > 1;
-        $canvas = new Canvas($io);
 
         foreach ($states as $state) {
             $packages = $installer
@@ -76,11 +74,11 @@ class PackageHandler
             }
 
             if (PackageState::NOT_LOADABLE === $state) {
-                $this->printNotLoadablePackages($canvas, $packages, $rootDir, $printStates);
+                $this->printNotLoadablePackages($io, $packages, $rootDir, $printStates);
             } else {
                 $styleTag = PackageState::ENABLED === $state ? null : 'bad';
 
-                $this->printPackageTable($canvas, $packages, $styleTag, $printStates);
+                $this->printPackageTable($io, $packages, $styleTag, $printStates);
             }
 
             if ($printStates) {
@@ -196,13 +194,13 @@ class PackageHandler
     /**
      * Prints a list of packages in a table.
      *
-     * @param Canvas            $canvas   The canvas to print the table on.
+     * @param IO                $io       The I/O.
      * @param PackageCollection $packages The packages.
      * @param string            $styleTag The tag used to style the output. If
      *                                    `null`, the default colors are used.
      * @param bool              $indent   Whether to indent the output.
      */
-    private function printPackageTable(Canvas $canvas, PackageCollection $packages, $styleTag = null, $indent = false)
+    private function printPackageTable(IO $io, PackageCollection $packages, $styleTag = null, $indent = false)
     {
         $table = new Table(TableStyle::borderless());
 
@@ -232,19 +230,19 @@ class PackageHandler
             $table->addRow($row);
         }
 
-        $table->render($canvas, $indent ? 4 : 0);
+        $table->render($io, $indent ? 4 : 0);
     }
 
     /**
      * Prints not-loadable packages in a table.
      *
-     * @param Canvas            $canvas   The canvas to print the table on.
+     * @param IO                $io       The I/O.
      * @param PackageCollection $packages The not-loadable packages.
      * @param string            $rootDir  The root directory used to calculate
      *                                    the relative package paths.
      * @param bool              $indent   Whether to indent the output.
      */
-    private function printNotLoadablePackages(Canvas $canvas, PackageCollection $packages, $rootDir, $indent = false)
+    private function printNotLoadablePackages(IO $io, PackageCollection $packages, $rootDir, $indent = false)
     {
         $table = new Table(TableStyle::borderless());
         $packages = $packages->toArray();
@@ -272,6 +270,6 @@ class PackageHandler
             $table->addRow(array("<bad>$packageName</bad>:", "<bad>$errorMessage</bad>"));
         }
 
-        $table->render($canvas, $indent ? 4 : 0);
+        $table->render($io, $indent ? 4 : 0);
     }
 }

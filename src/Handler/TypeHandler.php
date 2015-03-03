@@ -20,9 +20,8 @@ use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
 use Puli\RepositoryManager\Api\Package\PackageCollection;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
-use Webmozart\Console\Rendering\Canvas;
-use Webmozart\Console\Rendering\Element\Table;
-use Webmozart\Console\Rendering\Element\TableStyle;
+use Webmozart\Console\UI\Component\Table;
+use Webmozart\Console\UI\Style\TableStyle;
 
 /**
  * Handles the "type" command.
@@ -66,7 +65,6 @@ class TypeHandler
     {
         $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
         $states = $this->getBindingTypeStates($args);
-        $canvas = new Canvas($io);
 
         $printStates = count($states) > 1;
         $printPackageName = count($packageNames) > 1;
@@ -98,7 +96,7 @@ class TypeHandler
 
                 $styleTag = BindingTypeState::ENABLED === $state ? null : 'bad';
 
-                $this->printTypeTable($canvas, $bindingTypes, $styleTag, $printStates);
+                $this->printTypeTable($io, $bindingTypes, $styleTag, $printStates);
 
                 if ($printHeaders) {
                     $io->writeLine('');
@@ -202,12 +200,12 @@ class TypeHandler
     /**
      * Prints the binding types in a table.
      *
-     * @param Canvas                  $canvas   The canvas to print the table on.
+     * @param IO                      $io       The I/O.
      * @param BindingTypeDescriptor[] $types    The binding types to print.
      * @param string                  $styleTag The tag used to style the output
      * @param bool                    $indent   Whether to indent the output.
      */
-    private function printTypeTable(Canvas $canvas, array $types, $styleTag = null, $indent = false)
+    private function printTypeTable(IO $io, array $types, $styleTag = null, $indent = false)
     {
         $table = new Table(TableStyle::borderless());
 
@@ -240,7 +238,7 @@ class TypeHandler
             ));
         }
 
-        $table->render($canvas, $indent ? 4 : 0);
+        $table->render($io, $indent ? 4 : 0);
     }
 
     /**

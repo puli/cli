@@ -17,9 +17,8 @@ use Puli\RepositoryManager\Api\Repository\RepositoryManager;
 use Puli\RepositoryManager\Api\Repository\ResourceMapping;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
-use Webmozart\Console\Rendering\Canvas;
-use Webmozart\Console\Rendering\Element\Table;
-use Webmozart\Console\Rendering\Element\TableStyle;
+use Webmozart\Console\UI\Component\Table;
+use Webmozart\Console\UI\Style\TableStyle;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -89,11 +88,10 @@ class MapHandler
     public function handleList(Args $args, IO $io)
     {
         $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
-        $canvas = new Canvas($io);
 
         if (1 === count($packageNames)) {
             $mappings = $this->repoManager->getResourceMappings(reset($packageNames));
-            $this->printMappingTable($canvas, $mappings);
+            $this->printMappingTable($io, $mappings);
 
             return 0;
         }
@@ -106,7 +104,7 @@ class MapHandler
             }
 
             $io->writeLine("<b>$packageName</b>");
-            $this->printMappingTable($canvas, $mappings);
+            $this->printMappingTable($io, $mappings);
             $io->writeLine('');
         }
 
@@ -160,10 +158,10 @@ class MapHandler
     /**
      * Prints resource mappings in a table.
      *
-     * @param Canvas            $canvas   The canvas to render the mappings on.
+     * @param IO                $io       The I/O.
      * @param ResourceMapping[] $mappings The resource mappings.
      */
-    private function printMappingTable(Canvas $canvas, array $mappings)
+    private function printMappingTable(IO $io, array $mappings)
     {
         $table = new Table(TableStyle::borderless());
 
@@ -174,7 +172,7 @@ class MapHandler
             ));
         }
 
-        $table->render($canvas);
+        $table->render($io);
     }
 
     /**

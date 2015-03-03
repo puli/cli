@@ -20,9 +20,8 @@ use Puli\RepositoryManager\Api\Package\PackageCollection;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
-use Webmozart\Console\Rendering\Canvas;
-use Webmozart\Console\Rendering\Element\Table;
-use Webmozart\Console\Rendering\Element\TableStyle;
+use Webmozart\Console\UI\Component\Table;
+use Webmozart\Console\UI\Style\TableStyle;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -289,7 +288,6 @@ class BindHandler
      */
     private function printBindingTable(IO $io, array $descriptors, $indent = false, $enabled = true)
     {
-        $canvas = new Canvas($io);
         $table = new Table(TableStyle::borderless());
 
         $paramTag = $enabled ? 'good' : 'bad';
@@ -313,7 +311,7 @@ class BindHandler
             ));
         }
 
-        $table->render($canvas, $indent ? 4 : 0);
+        $table->render($io, $indent ? 4 : 0);
     }
 
     /**

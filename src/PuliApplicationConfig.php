@@ -73,6 +73,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->setDisplayName('Puli')
             ->setVersion(self::VERSION)
 
+            // Let Puli plugins extend the CLI
+            ->setEventDispatcher($puli->getEnvironment()->getEventDispatcher())
+
             // Enable debug for unreleased versions only. Split the string to
             // prevent its replacement during release
             ->setDebug('@pack'.'age_version@' === self::VERSION)

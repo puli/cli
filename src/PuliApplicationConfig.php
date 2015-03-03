@@ -210,6 +210,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('ls')
                 ->setDescription('List the children of a resource in the repository')
                 ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
+                ->addOption('long', 'l', Option::NO_VALUE, 'Print more information about each child')
                 ->setHandler(function () use ($puli) {
                     return new LsHandler($puli->getEnvironment()->getRepository());
                 })

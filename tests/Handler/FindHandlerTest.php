@@ -66,9 +66,38 @@ class FindHandlerTest extends AbstractHandlerTest
         $this->handler = new FindHandler($this->repo, $this->discovery);
     }
 
-    public function testFindByPattern()
+    public function testFindByRelativePattern()
     {
         $args = self::$findCommand->parseArgs(new StringArgs('*pattern*'));
+
+        $this->repo->expects($this->once())
+            ->method('find')
+            ->with('/*pattern*')
+            ->willReturn(new ArrayResourceCollection(array(
+                new FileResource(__FILE__, '/path/file'),
+                new GenericResource('/path/resource1'),
+                new GenericResource('/path/resource2'),
+            )));
+        $this->discovery->expects($this->never())
+            ->method('find');
+
+        $statusCode = $this->handler->handle($args, $this->io);
+
+        $expected = <<<EOF
+FileResource    /path/file
+GenericResource /path/resource1
+GenericResource /path/resource2
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testFindByAbsolutePattern()
+    {
+        $args = self::$findCommand->parseArgs(new StringArgs('/*pattern*'));
 
         $this->repo->expects($this->once())
             ->method('find')

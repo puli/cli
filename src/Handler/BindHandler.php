@@ -23,6 +23,7 @@ use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\Rendering\Canvas;
 use Webmozart\Console\Rendering\Element\Table;
 use Webmozart\Console\Rendering\Element\TableStyle;
+use Webmozart\PathUtil\Path;
 
 /**
  * Handles the "bind" command.
@@ -41,6 +42,11 @@ class BindHandler
      * @var PackageCollection
      */
     private $packages;
+
+    /**
+     * @var string
+     */
+    private $currentPath = '/';
 
     /**
      * Creates the handler.
@@ -131,7 +137,7 @@ class BindHandler
         }
 
         $this->discoveryManager->addBinding(new BindingDescriptor(
-            $args->getArgument('query'),
+            Path::makeAbsolute($args->getArgument('query'), $this->currentPath),
             $args->getArgument('type'),
             $bindingParams,
             $args->getOption('language')

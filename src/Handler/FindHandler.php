@@ -14,7 +14,6 @@ namespace Puli\Cli\Handler;
 use Puli\Discovery\Api\ResourceDiscovery;
 use Puli\Repository\Api\ResourceRepository;
 use RuntimeException;
-use Webmozart\Console\Adapter\IOOutput;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\Rendering\Canvas;
@@ -136,7 +135,7 @@ class FindHandler
         }
 
         foreach ($this->repo->find($pattern) as $resource) {
-            $matches[$resource->getPath()] = $this->getShortName(get_class($resource));
+            $matches[$resource->getPath()] = $this->getShortClass(get_class($resource));
         }
 
         return $matches;
@@ -156,7 +155,7 @@ class FindHandler
 
         foreach ($this->discovery->find($typeName) as $binding) {
             foreach ($binding->getResources() as $resource) {
-                $matches[$resource->getPath()] = $this->getShortName(get_class($resource));
+                $matches[$resource->getPath()] = $this->getShortClass(get_class($resource));
             }
         }
 
@@ -191,7 +190,7 @@ class FindHandler
      *
      * @return string The short class name.
      */
-    private function getShortName($className)
+    private function getShortClass($className)
     {
         if (false !== ($pos = strrpos($className, '\\'))) {
             return substr($className, $pos + 1);

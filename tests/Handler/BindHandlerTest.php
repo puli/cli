@@ -664,7 +664,22 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testSaveBinding()
+    public function testSaveBindingWithRelativePath()
+    {
+        $args = self::$saveCommand->parseArgs(new StringArgs('path my/type'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addBinding')
+            ->with(new BindingDescriptor('/path', 'my/type', array(), 'glob'));
+
+        $statusCode = $this->handler->handleSave($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testSaveBindingWithAbsolutePath()
     {
         $args = self::$saveCommand->parseArgs(new StringArgs('/path my/type'));
 

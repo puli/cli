@@ -18,17 +18,39 @@ use Webmozart\Console\Api\IO\IO;
 use Webmozart\PathUtil\Path;
 
 /**
+ * Handles the "tree" command.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class TreeHandler
 {
+    /**
+     * Prefix string for child resources.
+     *
+     * @internal
+     */
     const CHILD_PREFIX = '├── ';
 
+    /**
+     * Prefix string for the last child resource of a parent resource.
+     *
+     * @internal
+     */
     const LAST_CHILD_PREFIX = '└── ';
 
+    /**
+     * Prefix for nested resources when an ancestor resource is open.
+     *
+     * @internal
+     */
     const NESTING_OPEN_PREFIX = '│   ';
 
+    /**
+     * Prefix for nested resources when no ancestor resource is open.
+     *
+     * @internal
+     */
     const NESTING_CLOSED_PREFIX = '    ';
 
     /**
@@ -36,13 +58,29 @@ class TreeHandler
      */
     private $repo;
 
+    /**
+     * @var string
+     */
     private $currentPath = '/';
 
+    /**
+     * Creates the handler.
+     *
+     * @param ResourceRepository $repo The resource repository.
+     */
     public function __construct(ResourceRepository $repo)
     {
         $this->repo = $repo;
     }
 
+    /**
+     * Handles the "tree" command.
+     *
+     * @param Args $args The console arguments.
+     * @param IO   $io   The I/O.
+     *
+     * @return int The status code.
+     */
     public function handle(Args $args, IO $io)
     {
         $path = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
@@ -55,11 +93,19 @@ class TreeHandler
         $this->printTree($io, $resource, $total);
 
         $io->writeLine('');
-        $io->writeLine($total.' child resources');
+        $io->writeLine($total.' resources');
 
         return 0;
     }
 
+    /**
+     * Recursively prints the tree for the given resource.
+     *
+     * @param IO       $io       The I/O.
+     * @param Resource $resource The printed resource.
+     * @param int      $total    Collects the total number of printed resources.
+     * @param string   $prefix   The prefix for all printed resources.
+     */
     private function printTree(IO $io, Resource $resource, &$total, $prefix = '')
     {
         // The root node has an empty name

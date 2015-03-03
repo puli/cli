@@ -19,7 +19,6 @@ use Puli\RepositoryManager\Api\Package\RootPackage;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\Rendering\Canvas;
-use Webmozart\Console\Rendering\Dimensions;
 use Webmozart\Console\Rendering\Element\Table;
 use Webmozart\Console\Rendering\Element\TableStyle;
 use Webmozart\PathUtil\Path;

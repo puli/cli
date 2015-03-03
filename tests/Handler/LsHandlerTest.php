@@ -12,13 +12,8 @@
 namespace Puli\Cli\Tests\Handler;
 
 use DateTime;
-use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\LsHandler;
-use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\InMemoryRepository;
-use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Resource\GenericResource;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 use Webmozart\Console\Api\Command\Command;

@@ -17,7 +17,6 @@ use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
 use Puli\RepositoryManager\Api\Package\PackageManager;
-use Webmozart\Console\Adapter\IOOutput;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\Rendering\Canvas;

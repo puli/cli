@@ -257,6 +257,13 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     return new PackageHandler($puli->getPackageManager());
                 })
 
+                ->beginSubCommand('install')
+                    ->addArgument('path', Argument::REQUIRED, 'The path to the package')
+                    ->addArgument('name', Argument::OPTIONAL, 'The name of the package. Taken from puli.json if not passed.')
+                    ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the installer', InstallInfo::DEFAULT_INSTALLER_NAME)
+                    ->setHandlerMethod('handleInstall')
+                ->end()
+
                 ->beginSubCommand('list')
                     ->markDefault()
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'Show packages installed by a specific installer')
@@ -264,13 +271,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addOption('not-found', null, Option::NO_VALUE, 'Show packages that could not be found')
                     ->addOption('not-loadable', null, Option::NO_VALUE, 'Show packages that could not be loaded')
                     ->setHandlerMethod('handleList')
-                ->end()
-
-                ->beginSubCommand('install')
-                    ->addArgument('path', Argument::REQUIRED, 'The path to the package')
-                    ->addArgument('name', Argument::OPTIONAL, 'The name of the package. Taken from puli.json if not passed.')
-                    ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the installer', InstallInfo::DEFAULT_INSTALLER_NAME)
-                    ->setHandlerMethod('handleInstall')
                 ->end()
 
                 ->beginSubCommand('remove')
@@ -300,6 +300,13 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     );
                 })
 
+                ->beginSubCommand('define')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
+                    ->addOption('description', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A human-readable description')
+                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <key> or <key>=<value>', null, 'key=value')
+                    ->setHandlerMethod('handleDefine')
+                ->end()
+
                 ->beginSubCommand('list')
                     ->markDefault()
                     ->addOption('root', null, Option::NO_VALUE, 'Show types of the root package')
@@ -308,13 +315,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled types')
                     ->addOption('duplicate', null, Option::NO_VALUE, 'Show duplicate types')
                     ->setHandlerMethod('handleList')
-                ->end()
-
-                ->beginSubCommand('define')
-                    ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
-                    ->addOption('description', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A human-readable description')
-                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <key> or <key>=<value>', null, 'key=value')
-                    ->setHandlerMethod('handleDefine')
                 ->end()
 
                 ->beginSubCommand('remove')

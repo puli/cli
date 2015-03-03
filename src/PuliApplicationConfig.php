@@ -296,7 +296,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setHandler(function () use ($puli) {
                     return new TypeHandler(
                         $puli->getDiscoveryManager(),
-                        $puli->getPackageManager()
+                        $puli->getPackageManager()->getPackages()
                     );
                 })
 

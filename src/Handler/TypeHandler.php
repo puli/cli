@@ -11,12 +11,13 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
 use Puli\RepositoryManager\Api\Discovery\BindingParameterDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
-use Puli\RepositoryManager\Api\Package\PackageManager;
+use Puli\RepositoryManager\Api\Package\PackageCollection;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\Rendering\Canvas;
@@ -24,6 +25,8 @@ use Webmozart\Console\Rendering\Element\Table;
 use Webmozart\Console\Rendering\Element\TableStyle;
 
 /**
+ * Handles the "type" command.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
@@ -35,21 +38,35 @@ class TypeHandler
     private $discoveryManager;
 
     /**
-     * @var PackageManager
+     * @var PackageCollection
      */
-    private $packageManager;
+    private $packages;
 
-    public function __construct(DiscoveryManager $discoveryManager, PackageManager $packageManager)
+    /**
+     * Creates the handler.
+     *
+     * @param DiscoveryManager  $discoveryManager The discovery manager.
+     * @param PackageCollection $packages         The loaded packages.
+     */
+    public function __construct(DiscoveryManager $discoveryManager, PackageCollection $packages)
     {
         $this->discoveryManager = $discoveryManager;
-        $this->packageManager = $packageManager;
+        $this->packages = $packages;
     }
 
+    /**
+     * Handles the "type list" command.
+     *
+     * @param Args $args The console arguments.
+     * @param IO   $io   The I/O.
+     *
+     * @return int The status code.
+     */
     public function handleList(Args $args, IO $io)
     {
-        $packages = $this->packageManager->getPackages();
-        $packageNames = $this->getPackageNames($args, $packages->getPackageNames());
+        $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
         $states = $this->getBindingTypeStates($args);
+        $canvas = new Canvas($io);
 
         $printStates = count($states) > 1;
         $printPackageName = count($packageNames) > 1;
@@ -69,33 +86,41 @@ class TypeHandler
                 if (!$statePrinted) {
                     $this->printBindingTypeState($io, $state);
                     $statePrinted = true;
+
+                    // Only print the advice if at least one type was printed
+                    $printAdvice = true;
                 }
 
                 if ($printPackageName) {
                     $prefix = $printStates ? '    ' : '';
-                    $io->writeLine("<h>$prefix$packageName</h>");
+                    $io->writeLine("$prefix<b>$packageName</b>");
                 }
 
-                $styleTag = BindingTypeState::ENABLED === $state ? null : 'fg=red';
+                $styleTag = BindingTypeState::ENABLED === $state ? null : 'bad';
 
-                $this->printTypeTable($io, $bindingTypes, $styleTag, $printStates);
+                $this->printTypeTable($canvas, $bindingTypes, $styleTag, $printStates);
 
                 if ($printHeaders) {
                     $io->writeLine('');
-
-                    // Only print the advice if at least one type was printed
-                    $printAdvice = true;
                 }
             }
         }
 
         if ($printAdvice) {
             $io->writeLine('Use "puli bind <resource> <type>" to bind a resource to a type.');
+            $io->writeLine('');
         }
 
         return 0;
     }
 
+    /**
+     * Handles the "type define" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
     public function handleDefine(Args $args)
     {
         $descriptions = $args->getOption('description');
@@ -138,6 +163,13 @@ class TypeHandler
         return 0;
     }
 
+    /**
+     * Handles the "type remove" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
     public function handleRemove(Args $args)
     {
         $this->discoveryManager->removeBindingType($args->getArgument('name'));
@@ -145,6 +177,13 @@ class TypeHandler
         return 0;
     }
 
+    /**
+     * Returns the binding type states selected in the console arguments.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int[] A list of {@link BindingTypeState} constants.
+     */
     private function getBindingTypeStates(Args $args)
     {
         $states = array();
@@ -160,39 +199,20 @@ class TypeHandler
         return $states ?: BindingTypeState::all();
     }
 
-    private function getPackageNames(Args $args, $default = array())
-    {
-        // Display all packages if "all" is set
-        if ($args->isOptionSet('all')) {
-            return $this->packageManager->getPackages()->getPackageNames();
-        }
-
-        $packageNames = array();
-
-        if ($args->isOptionSet('root')) {
-            $packageNames[] = $this->packageManager->getRootPackage()->getName();
-        }
-
-        foreach ($args->getOption('package') as $packageName) {
-            $packageNames[] = $packageName;
-        }
-
-        return $packageNames ?: $default;
-    }
-
     /**
-     * @param IO                      $io
-     * @param BindingTypeDescriptor[] $types
-     * @param null                    $styleTag
-     * @param bool                    $indent
+     * Prints the binding types in a table.
+     *
+     * @param Canvas                  $canvas   The canvas to print the table on.
+     * @param BindingTypeDescriptor[] $types    The binding types to print.
+     * @param string                  $styleTag The tag used to style the output
+     * @param bool                    $indent   Whether to indent the output.
      */
-    private function printTypeTable(IO $io, array $types, $styleTag = null, $indent = false)
+    private function printTypeTable(Canvas $canvas, array $types, $styleTag = null, $indent = false)
     {
-        $canvas = new Canvas($io);
         $table = new Table(TableStyle::borderless());
 
         $paramTag = $styleTag ?: 'em';
-        $typeTag = $styleTag ?: 'tt';
+        $typeTag = $styleTag ?: 'u';
 
         foreach ($types as $type) {
             $parameters = array();
@@ -223,9 +243,15 @@ class TypeHandler
         $table->render($canvas, $indent ? 4 : 0);
     }
 
-    private function printBindingTypeState(IO $io, $bindingState)
+    /**
+     * Prints the heading for a binding type state.
+     *
+     * @param IO  $io        The I/O.
+     * @param int $typeState The {@link BindingTypeState} constant.
+     */
+    private function printBindingTypeState(IO $io, $typeState)
     {
-        switch ($bindingState) {
+        switch ($typeState) {
             case BindingTypeState::ENABLED:
                 $io->writeLine('Enabled binding types:');
                 $io->writeLine('');

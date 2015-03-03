@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Util\StringUtil;
 use Puli\Discovery\Api\ResourceDiscovery;
 use Puli\Repository\Api\ResourceRepository;
 use RuntimeException;
@@ -135,7 +136,7 @@ class FindHandler
         }
 
         foreach ($this->repo->find($pattern) as $resource) {
-            $matches[$resource->getPath()] = $this->getShortClass(get_class($resource));
+            $matches[$resource->getPath()] = StringUtil::getShortClassName(get_class($resource));
         }
 
         return $matches;
@@ -155,7 +156,7 @@ class FindHandler
 
         foreach ($this->discovery->find($typeName) as $binding) {
             foreach ($binding->getResources() as $resource) {
-                $matches[$resource->getPath()] = $this->getShortClass(get_class($resource));
+                $matches[$resource->getPath()] = StringUtil::getShortClassName(get_class($resource));
             }
         }
 
@@ -181,21 +182,5 @@ class FindHandler
         }
 
         $table->render($canvas);
-    }
-
-    /**
-     * Returns the short class name for a fully-qualified class name.
-     *
-     * @param string $className The fully-qualified class name.
-     *
-     * @return string The short class name.
-     */
-    private function getShortClass($className)
-    {
-        if (false !== ($pos = strrpos($className, '\\'))) {
-            return substr($className, $pos + 1);
-        }
-
-        return $className;
     }
 }

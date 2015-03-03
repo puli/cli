@@ -17,6 +17,22 @@ namespace Puli\Cli\Util;
  */
 class StringUtil
 {
+    /**
+     * Returns the short class name for a fully-qualified class name.
+     *
+     * @param string $className The fully-qualified class name.
+     *
+     * @return string The short class name.
+     */
+    public static function getShortClassName($className)
+    {
+        if (false !== ($pos = strrpos($className, '\\'))) {
+            return substr($className, $pos + 1);
+        }
+
+        return $className;
+    }
+
     public static function parseValue($string)
     {
         switch ($string) {

@@ -20,6 +20,7 @@ use Puli\Cli\Handler\MapHandler;
 use Puli\Cli\Handler\PackageHandler;
 use Puli\Cli\Handler\TreeHandler;
 use Puli\Cli\Handler\TypeHandler;
+use Puli\RepositoryManager\Api\Package\InstallInfo;
 use Puli\RepositoryManager\Puli;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
@@ -84,6 +85,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->addStyle(Style::tag('good')->fgGreen())
             ->addStyle(Style::tag('bad')->fgRed())
+            ->addStyle(Style::tag('real-path')->fgYellow())
 
             ->beginCommand('bind')
                 ->setDescription('Bind resources to binding types')
@@ -256,6 +258,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 })
 
                 ->beginSubCommand('list')
+                    ->markDefault()
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'Show packages installed by a specific installer')
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled packages')
                     ->addOption('not-found', null, Option::NO_VALUE, 'Show packages that could not be found')
@@ -264,9 +267,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->end()
 
                 ->beginSubCommand('install')
-                    ->addArgument('name', Argument::REQUIRED, 'The name of the package')
                     ->addArgument('path', Argument::REQUIRED, 'The path to the package')
-                    ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the installer', 'user')
+                    ->addArgument('name', Argument::OPTIONAL, 'The name of the package. Taken from puli.json if not passed.')
+                    ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the installer', InstallInfo::DEFAULT_INSTALLER_NAME)
                     ->setHandlerMethod('handleInstall')
                 ->end()
 

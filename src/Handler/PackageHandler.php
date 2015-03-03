@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Util\StringUtil;
 use Puli\RepositoryManager\Api\Package\PackageCollection;
 use Puli\RepositoryManager\Api\Package\PackageManager;
 use Puli\RepositoryManager\Api\Package\PackageState;
@@ -24,6 +25,8 @@ use Webmozart\Console\Rendering\Element\TableStyle;
 use Webmozart\PathUtil\Path;
 
 /**
+ * Handles the "package" command.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
@@ -34,17 +37,31 @@ class PackageHandler
      */
     private $packageManager;
 
+    /**
+     * Creates the handler.
+     *
+     * @param PackageManager $packageManager The package manager.
+     */
     public function __construct(PackageManager $packageManager)
     {
         $this->packageManager = $packageManager;
     }
 
+    /**
+     * Handles the "package list" command.
+     *
+     * @param Args $args The console arguments.
+     * @param IO   $io   The I/O.
+     *
+     * @return int The status code.
+     */
     public function handleList(Args $args, IO $io)
     {
         $rootDir = $this->packageManager->getEnvironment()->getRootDirectory();
         $states = $this->getPackageStates($args);
         $installer = $args->getOption('installer');
         $printStates = count($states) > 1;
+        $canvas = new Canvas($io);
 
         foreach ($states as $state) {
             $packages = $installer
@@ -60,11 +77,11 @@ class PackageHandler
             }
 
             if (PackageState::NOT_LOADABLE === $state) {
-                $this->printNotLoadablePackages($io, $packages, $rootDir, $printStates);
+                $this->printNotLoadablePackages($canvas, $packages, $rootDir, $printStates);
             } else {
-                $styleTag = PackageState::ENABLED === $state ? null : 'fg=red';
+                $styleTag = PackageState::ENABLED === $state ? null : 'bad';
 
-                $this->printPackageTable($io, $packages, $styleTag, $printStates, !$installer);
+                $this->printPackageTable($canvas, $packages, $styleTag, $printStates);
             }
 
             if ($printStates) {
@@ -75,7 +92,13 @@ class PackageHandler
         return 0;
     }
 
-
+    /**
+     * Handles the "package install" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
     public function handleInstall(Args $args)
     {
         $packageName = $args->getArgument('name');
@@ -87,6 +110,13 @@ class PackageHandler
         return 0;
     }
 
+    /**
+     * Handles the "package remove" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
     public function handleRemove(Args $args)
     {
         $this->packageManager->removePackage($args->getArgument('name'));
@@ -94,6 +124,14 @@ class PackageHandler
         return 0;
     }
 
+    /**
+     * Handles the "package clean" command.
+     *
+     * @param Args $args The console arguments.
+     * @param IO   $io   The I/O.
+     *
+     * @return int The status code.
+     */
     public function handleClean(Args $args, IO $io)
     {
         foreach ($this->packageManager->getPackages(PackageState::NOT_FOUND) as $package) {
@@ -104,6 +142,14 @@ class PackageHandler
         return 0;
     }
 
+    /**
+     * Returns the package states that should be displayed for the given
+     * console arguments.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int[] A list of {@link PackageState} constants.
+     */
     private function getPackageStates(Args $args)
     {
         $states = array();
@@ -123,9 +169,15 @@ class PackageHandler
         return $states ?: PackageState::all();
     }
 
-    private function printPackageState(IO $io, $bindingState)
+    /**
+     * Prints the heading for a given package state.
+     *
+     * @param IO  $io           The I/O.
+     * @param int $packageState The {@link PackageState} constant.
+     */
+    private function printPackageState(IO $io, $packageState)
     {
-        switch ($bindingState) {
+        switch ($packageState) {
             case PackageState::ENABLED:
                 $io->writeLine('Enabled packages:');
                 $io->writeLine('');
@@ -142,14 +194,22 @@ class PackageHandler
         }
     }
 
-    private function printPackageTable(IO $io, PackageCollection $packages, $styleTag = null, $indent = false, $addInstaller = true)
+    /**
+     * Prints a list of packages in a table.
+     *
+     * @param Canvas            $canvas   The canvas to print the table on.
+     * @param PackageCollection $packages The packages.
+     * @param string            $styleTag The tag used to style the output. If
+     *                                    `null`, the default colors are used.
+     * @param bool              $indent   Whether to indent the output.
+     */
+    private function printPackageTable(Canvas $canvas, PackageCollection $packages, $styleTag = null, $indent = false)
     {
-        $canvas = new Canvas($io);
         $table = new Table(TableStyle::borderless());
 
         $rootTag = $styleTag ?: 'b';
         $installerTag = $styleTag ?: 'em';
-        $pathTag = $styleTag ?: 'comment';
+        $pathTag = $styleTag ?: 'real-path';
         $packages = $packages->toArray();
 
         ksort($packages);
@@ -158,20 +218,17 @@ class PackageHandler
             $packageName = $package->getName();
             $installInfo = $package->getInstallInfo();
             $installPath = $installInfo ? $installInfo->getInstallPath() : '';
+            $installer = $installInfo ? $installInfo->getInstallerName() : '';
             $row = array();
 
             if ($package instanceof RootPackage) {
                 $row[] = "<$rootTag>$packageName</$rootTag>";
-            } elseif ($styleTag) {
-                $row[] = "<$styleTag>$packageName</$styleTag>";
+            } else {
+                $row[] = $styleTag ? "<$styleTag>$packageName</$styleTag>" : $packageName;
             }
 
-            if ($addInstaller) {
-                $installer = $installInfo ? $installInfo->getInstallerName() : 'root';
-                $row[] = "<$installerTag>$installer</$installerTag>";
-            }
-
-            $row[] = "<$pathTag>$installPath</$pathTag>";
+            $row[] = $installer ? "<$installerTag>$installer</$installerTag>" : '';
+            $row[] = $installPath ? "<$pathTag>$installPath</$pathTag>" : '';
 
             $table->addRow($row);
         }
@@ -179,15 +236,19 @@ class PackageHandler
         $table->render($canvas, $indent ? 4 : 0);
     }
 
-    private function printNotLoadablePackages(IO $io, PackageCollection $packages, $rootDir, $indent = false)
+    /**
+     * Prints not-loadable packages in a table.
+     *
+     * @param Canvas            $canvas   The canvas to print the table on.
+     * @param PackageCollection $packages The not-loadable packages.
+     * @param string            $rootDir  The root directory used to calculate
+     *                                    the relative package paths.
+     * @param bool              $indent   Whether to indent the output.
+     */
+    private function printNotLoadablePackages(Canvas $canvas, PackageCollection $packages, $rootDir, $indent = false)
     {
-        $prefix = $indent ? '    ' : '';
+        $table = new Table(TableStyle::borderless());
         $packages = $packages->toArray();
-        $dimensions = Dimensions::forCurrentWindow();
-        $screenWidth = $dimensions->getWidth();
-
-        // Maintain one space to the right
-        $screenWidth--;
 
         ksort($packages);
 
@@ -197,7 +258,7 @@ class PackageHandler
             $errorMessage = '';
 
             foreach ($loadErrors as $loadError) {
-                $errorMessage .= $this->getShortClassName(get_class($loadError)).': '.$loadError->getMessage()."\n";
+                $errorMessage .= StringUtil::getShortClassName(get_class($loadError)).': '.$loadError->getMessage()."\n";
             }
 
             $errorMessage = rtrim($errorMessage);
@@ -209,22 +270,9 @@ class PackageHandler
             // Remove root directory
             $errorMessage = str_replace($rootDir.'/', '', $errorMessage);
 
-            // TODO switch to WrappedTable once we have it
-            $errorPrefixLength = strlen($prefix.$packageName.': ');
-            $errorPrefix = str_repeat(' ', $errorPrefixLength);
-            $errorWidth = $screenWidth - $errorPrefixLength;
-
-            $wrappedErrorMessage = wordwrap($errorMessage, $errorWidth);
-            $wrappedErrorMessage = str_replace("\n", "\n".$errorPrefix, $wrappedErrorMessage);
-
-            $io->writeLine("$prefix<fg=red>$packageName: $wrappedErrorMessage</fg=red>");
+            $table->addRow(array("<bad>$packageName</bad>:", "<bad>$errorMessage</bad>"));
         }
-    }
 
-    private function getShortClassName($className)
-    {
-        $pos = strrpos($className, '\\');
-
-        return false === $pos ? $className : substr($className, $pos + 1);
+        $table->render($canvas, $indent ? 4 : 0);
     }
 }

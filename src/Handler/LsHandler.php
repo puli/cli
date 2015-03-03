@@ -12,6 +12,7 @@
 namespace Puli\Cli\Handler;
 
 use DateTime;
+use Puli\Cli\Util\StringUtil;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceRepository;
@@ -137,7 +138,7 @@ class LsHandler
             $year = (int) $modifiedAt->format('Y');
 
             $table->addRow(array(
-                $this->getShortClass(get_class($resource)),
+                StringUtil::getShortClassName(get_class($resource)),
                 $this->formatSize($resource->getMetadata()->getSize()),
                 $modifiedAt->format('M'),
                 $modifiedAt->format('j'),
@@ -199,21 +200,5 @@ class LsHandler
         }
 
         return round($size).$suffix;
-    }
-
-    /**
-     * Returns the short class name for a fully-qualified class name.
-     *
-     * @param string $className The fully-qualified class name.
-     *
-     * @return string The short class name.
-     */
-    private function getShortClass($className)
-    {
-        if (false !== ($pos = strrpos($className, '\\'))) {
-            return substr($className, $pos + 1);
-        }
-
-        return $className;
     }
 }

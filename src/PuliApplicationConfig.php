@@ -63,6 +63,11 @@ class PuliApplicationConfig extends DefaultApplicationConfig
      */
     protected function configure()
     {
+        // Let Puli plugins extend the CLI
+        // Set the dispatcher before parent::configure() so that the parent
+        // listeners are attached to the right dispatcher.
+        $this->setEventDispatcher($this->puli->getEnvironment()->getEventDispatcher());
+
         parent::configure();
 
         $puli = $this->puli;
@@ -72,9 +77,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->setName('puli')
             ->setDisplayName('Puli')
             ->setVersion(self::VERSION)
-
-            // Let Puli plugins extend the CLI
-            ->setEventDispatcher($puli->getEnvironment()->getEventDispatcher())
 
             // Enable debug for unreleased versions only. Split the string to
             // prevent its replacement during release
@@ -221,23 +223,23 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setHandler(function () use ($puli) {
                     return new MapHandler(
                         $puli->getRepositoryManager(),
-                        $puli->getPackageManager()
+                        $puli->getPackageManager()->getPackages()
                     );
                 })
-
-                ->beginSubCommand('list')
-                    ->markAnonymous()
-                    ->addOption('root', null, Option::NO_VALUE, 'Show mappings of the root package')
-                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show mappings of a package', null, 'package')
-                    ->addOption('all', 'a', Option::NO_VALUE, 'Show mappings of all packages')
-                    ->setHandlerMethod('handleList')
-                ->end()
 
                 ->beginSubCommand('save')
                     ->markAnonymous()
                     ->addArgument('path', Argument::REQUIRED)
                     ->addArgument('file', Argument::REQUIRED | Argument::MULTI_VALUED)
                     ->setHandlerMethod('handleSave')
+                ->end()
+
+                ->beginOptionCommand('list', 'l')
+                    ->markDefault()
+                    ->addOption('root', null, Option::NO_VALUE, 'Show mappings of the root package')
+                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show mappings of a package', null, 'package')
+                    ->addOption('all', 'a', Option::NO_VALUE, 'Show mappings of all packages')
+                    ->setHandlerMethod('handleList')
                 ->end()
 
                 ->beginOptionCommand('delete', 'd')

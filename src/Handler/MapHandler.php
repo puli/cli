@@ -11,7 +11,8 @@
 
 namespace Puli\Cli\Handler;
 
-use Puli\RepositoryManager\Api\Package\PackageManager;
+use Puli\Cli\Util\ArgsUtil;
+use Puli\RepositoryManager\Api\Package\PackageCollection;
 use Puli\RepositoryManager\Api\Repository\RepositoryManager;
 use Puli\RepositoryManager\Api\Repository\ResourceMapping;
 use Webmozart\Console\Api\Args\Args;
@@ -22,15 +23,32 @@ use Webmozart\Console\Rendering\Element\TableStyle;
 use Webmozart\PathUtil\Path;
 
 /**
+ * Handles the "map" command.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class MapHandler
 {
+    /**
+     * Mode: Replace existing path references.
+     *
+     * @internal
+     */
     const MODE_REPLACE = 1;
 
+    /**
+     * Mode: Add path references to the existing path references.
+     *
+     * @internal
+     */
     const MODE_ADD = 2;
 
+    /**
+     * Mode: Remove path references from the existing path references.
+     *
+     * @internal
+     */
     const MODE_REMOVE = 3;
 
     /**
@@ -39,25 +57,43 @@ class MapHandler
     private $repoManager;
 
     /**
-     * @var PackageManager
+     * @var PackageCollection
      */
-    private $packageManager;
+    private $packages;
 
+    /**
+     * @var string
+     */
     private $currentPath = '/';
 
-    public function __construct(RepositoryManager $repoManager, PackageManager $packageManager)
+    /**
+     * Creates the handler.
+     *
+     * @param RepositoryManager $repoManager The repository manager.
+     * @param PackageCollection $packages    The loaded packages.
+     */
+    public function __construct(RepositoryManager $repoManager, PackageCollection $packages)
     {
         $this->repoManager = $repoManager;
-        $this->packageManager = $packageManager;
+        $this->packages = $packages;
     }
 
+    /**
+     * Handles the "map -l" command.
+     *
+     * @param Args $args The console arguments.
+     * @param IO   $io   The I/O.
+     *
+     * @return int The status code.
+     */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = $this->getPackageNames($args);
+        $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
+        $canvas = new Canvas($io);
 
         if (1 === count($packageNames)) {
             $mappings = $this->repoManager->getResourceMappings(reset($packageNames));
-            $this->printMappingTable($io, $mappings);
+            $this->printMappingTable($canvas, $mappings);
 
             return 0;
         }
@@ -70,21 +106,28 @@ class MapHandler
             }
 
             $io->writeLine("<b>$packageName</b>");
-            $this->printMappingTable($io, $mappings);
+            $this->printMappingTable($canvas, $mappings);
             $io->writeLine('');
         }
 
         return 0;
     }
 
+    /**
+     * Handles the "map" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
     public function handleSave(Args $args)
     {
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
         $pathReferences = $args->getArgument('file');
 
         if ($this->repoManager->hasResourceMapping($repositoryPath)) {
-            $pathReferences = $this->mergePathReferences(
-                $this->repoManager->getResourceMapping($repositoryPath),
+            $pathReferences = $this->applyMergeStatements(
+                $this->repoManager->getResourceMapping($repositoryPath)->getPathReferences(),
                 $pathReferences
             );
         }
@@ -98,6 +141,13 @@ class MapHandler
         return 0;
     }
 
+    /**
+     * Handles the "map -d" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
     public function handleDelete(Args $args)
     {
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
@@ -107,34 +157,14 @@ class MapHandler
         return 0;
     }
 
-    private function getPackageNames(Args $args)
-    {
-        // Display all packages if "all" is set
-        if ($args->isOptionSet('all')) {
-            return $this->packageManager->getPackages()->getPackageNames();
-        }
-
-        $packageNames = array();
-
-        // Display root if "root" option is given or if no option is set
-        if ($args->isOptionSet('root') || !$args->isOptionSet('package')) {
-            $packageNames[] = $this->packageManager->getRootPackage()->getName();
-        }
-
-        foreach ($args->getOption('package') as $packageName) {
-            $packageNames[] = $packageName;
-        }
-
-        return $packageNames;
-    }
-
     /**
-     * @param IO                $io
-     * @param ResourceMapping[] $mappings
+     * Prints resource mappings in a table.
+     *
+     * @param Canvas            $canvas   The canvas to render the mappings on.
+     * @param ResourceMapping[] $mappings The resource mappings.
      */
-    private function printMappingTable(IO $io, array $mappings)
+    private function printMappingTable(Canvas $canvas, array $mappings)
     {
-        $canvas = new Canvas($io);
         $table = new Table(TableStyle::borderless());
 
         foreach ($mappings as $mapping) {
@@ -147,7 +177,16 @@ class MapHandler
         $table->render($canvas);
     }
 
-    private function mergePathReferences($pathReferences, $mergeStatements)
+    /**
+     * Applies merge statements of the form "+path" or "-path" to a set of path
+     * references.
+     *
+     * @param string[] $pathReferences  The path references.
+     * @param string[] $mergeStatements The merge statements.
+     *
+     * @return string[] The resulting path references.
+     */
+    private function applyMergeStatements(array $pathReferences, array $mergeStatements)
     {
         $mode = self::MODE_REPLACE;
         $pathReferences = array_flip($pathReferences);

@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
 use Puli\RepositoryManager\Api\Discovery\BindingDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingState;
@@ -69,7 +70,7 @@ class BindHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = $this->getPackageNames($args);
+        $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
         $bindingStates = $this->getBindingStates($args);
 
         $printBindingState = count($bindingStates) > 1;
@@ -194,7 +195,7 @@ class BindHandler
     public function handleEnable(Args $args)
     {
         $uuid = $args->getArgument('uuid');
-        $packageNames = $this->getInstalledPackageNames($args);
+        $packageNames = ArgsUtil::getPackageNamesWithoutRoot($args, $this->packages);
         $bindings = $this->discoveryManager->findBindings($uuid, $packageNames);
 
         if (0 === count($bindings)) {
@@ -221,7 +222,7 @@ class BindHandler
     public function handleDisable(Args $args)
     {
         $uuid = $args->getArgument('uuid');
-        $packageNames = $this->getInstalledPackageNames($args);
+        $packageNames = ArgsUtil::getPackageNamesWithoutRoot($args, $this->packages);
         $bindings = $this->discoveryManager->findBindings($uuid, $packageNames);
 
         if (0 === count($bindings)) {
@@ -274,58 +275,6 @@ class BindHandler
         }
 
         return $states ?: BindingState::all();
-    }
-
-    /**
-     * Returns the packages selected in the console arguments.
-     *
-     * @param Args  $args The console arguments.
-     *
-     * @return string[] The package names.
-     */
-    private function getPackageNames(Args $args)
-    {
-        // Display all packages if "all" is set
-        if ($args->isOptionSet('all')) {
-            return $this->packages->getPackageNames();
-        }
-
-        $packageNames = array();
-
-        if ($args->isOptionSet('root')) {
-            $packageNames[] = $this->packages->getRootPackage()->getName();
-        }
-
-        foreach ($args->getOption('package') as $packageName) {
-            $packageNames[] = $packageName;
-        }
-
-        return $packageNames ?: $this->packages->getPackageNames();
-    }
-
-    /**
-     * Returns the installed packages selected in the console arguments.
-     *
-     * Contrary to {@link getPackageNames()}, the root package is not included.
-     *
-     * @param Args  $args The console arguments.
-     *
-     * @return string[] The package names.
-     */
-    private function getInstalledPackageNames(Args $args)
-    {
-        // Display all packages if "all" is set
-        if ($args->isOptionSet('all')) {
-            return $this->packages->getInstalledPackageNames();
-        }
-
-        $packageNames = array();
-
-        foreach ($args->getOption('package') as $packageName) {
-            $packageNames[] = $packageName;
-        }
-
-        return $packageNames ?: $this->packages->getInstalledPackageNames();
     }
 
     /**

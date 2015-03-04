@@ -11,8 +11,10 @@
 
 namespace Puli\Cli\Tests\Handler;
 
+use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\BindHandler;
+use Puli\RepositoryManager\Api\Discovery\BindingCriteria;
 use Puli\RepositoryManager\Api\Discovery\BindingDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
@@ -91,68 +93,13 @@ class BindHandlerTest extends AbstractHandlerTest
             new Package(new PackageFile('vendor/package1'), '/package1'),
             new Package(new PackageFile('vendor/package2'), '/package2'),
         ));
-        $this->discoveryManager->expects($this->any())
-            ->method('getBindings')
-            ->willReturnMap(array(
-                array('vendor/root', BindingState::ENABLED, array(
-                    new BindingDescriptor('/root/enabled', 'my/type'),
-                    new BindingDescriptor('/duplicate', 'my/type'),
-                )),
-                array('vendor/root', BindingState::DISABLED, array(
-                    new BindingDescriptor('/root/disabled', 'my/type'),
-                )),
-                array('vendor/root', BindingState::UNDECIDED, array(
-                    new BindingDescriptor('/root/undecided', 'my/type'),
-                )),
-                array('vendor/root', BindingState::DUPLICATE, array()),
-                array('vendor/root', BindingState::HELD_BACK, array(
-                    new BindingDescriptor('/root/held-back', 'my/type'),
-                )),
-                array('vendor/root', BindingState::INVALID, array(
-                    new BindingDescriptor('/root/invalid', 'my/type'),
-                )),
-                array('vendor/package1', BindingState::ENABLED, array(
-                    new BindingDescriptor('/package1/enabled', 'my/type'),
-                )),
-                array('vendor/package1', BindingState::DISABLED, array(
-                    new BindingDescriptor('/package1/disabled', 'my/type'),
-                )),
-                array('vendor/package1', BindingState::UNDECIDED, array(
-                    new BindingDescriptor('/package1/undecided', 'my/type'),
-                )),
-                array('vendor/package1', BindingState::DUPLICATE, array(
-                    new BindingDescriptor('/duplicate', 'my/type'),
-                )),
-                array('vendor/package1', BindingState::HELD_BACK, array(
-                    new BindingDescriptor('/package1/held-back', 'my/type'),
-                )),
-                array('vendor/package1', BindingState::INVALID, array(
-                    new BindingDescriptor('/package1/invalid', 'my/type'),
-                )),
-                array('vendor/package2', BindingState::ENABLED, array(
-                    new BindingDescriptor('/package2/enabled', 'my/type'),
-                )),
-                array('vendor/package2', BindingState::DISABLED, array(
-                    new BindingDescriptor('/package2/disabled', 'my/type'),
-                )),
-                array('vendor/package2', BindingState::UNDECIDED, array(
-                    new BindingDescriptor('/package2/undecided', 'my/type'),
-                )),
-                array('vendor/package2', BindingState::DUPLICATE, array(
-                    new BindingDescriptor('/duplicate', 'my/type'),
-                )),
-                array('vendor/package2', BindingState::HELD_BACK, array(
-                    new BindingDescriptor('/package2/held-back', 'my/type'),
-                )),
-                array('vendor/package2', BindingState::INVALID, array(
-                    new BindingDescriptor('/package2/invalid', 'my/type'),
-                )),
-            ));
         $this->handler = new BindHandler($this->discoveryManager, $this->packages);
     }
 
     public function testListAllBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -236,6 +183,8 @@ EOF;
 
     public function testListRootBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--root'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -276,6 +225,8 @@ EOF;
 
     public function testListPackageBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--package=vendor/package1'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -319,6 +270,8 @@ EOF;
 
     public function testListRootAndPackageBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--root --package=vendor/package1'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -384,6 +337,8 @@ EOF;
 
     public function testListMultiplePackageBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--package=vendor/package1 --package=vendor/package2'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -451,6 +406,8 @@ EOF;
 
     public function testListEnabledBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -476,6 +433,8 @@ EOF;
 
     public function testListDisabledBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--disabled'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -500,6 +459,8 @@ EOF;
 
     public function testListUndecidedBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--undecided'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -524,6 +485,8 @@ EOF;
 
     public function testListDuplicateBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--duplicate'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -545,6 +508,8 @@ EOF;
 
     public function testListHeldBackBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--held-back'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -569,6 +534,8 @@ EOF;
 
     public function testListInvalidBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--invalid'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -594,6 +561,8 @@ EOF;
 
     public function testListEnabledAndDisabledBindings()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --disabled'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -633,6 +602,8 @@ EOF;
 
     public function testListEnabledBindingsFromRoot()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --root'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -650,6 +621,8 @@ EOF;
 
     public function testListEnabledBindingsFromPackage()
     {
+        $this->initDefaultBindings();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --package=vendor/package2'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -748,8 +721,10 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
-            ->with('ab12', 'vendor/root')
-            ->willReturn(array($descriptor));
+            ->willReturnCallback($this->returnForCriteria(
+                $this->packageAndUuid('vendor/root', 'ab12'),
+                array($descriptor)
+            ));
 
         $this->discoveryManager->expects($this->once())
             ->method('removeBinding')
@@ -772,10 +747,12 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
-            ->with('ab12', 'vendor/root')
-            ->willReturn(array(
-                new BindingDescriptor('/path1', 'my/type', array(), 'glob'),
-                new BindingDescriptor('/path2', 'my/type', array(), 'glob'),
+            ->willReturnCallback($this->returnForCriteria(
+                $this->packageAndUuid('vendor/root', 'ab12'),
+                array(
+                    new BindingDescriptor('/path1', 'my/type', array(), 'glob'),
+                    new BindingDescriptor('/path2', 'my/type', array(), 'glob'),
+                )
             ));
 
         $this->discoveryManager->expects($this->never())
@@ -794,13 +771,17 @@ EOF;
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
-            ->with('ab12', 'vendor/root')
-            ->willReturn(array());
+            ->willReturnCallback($this->returnForCriteria(
+                $this->packageAndUuid('vendor/root', 'ab12'),
+                array()
+            ));
 
         $this->discoveryManager->expects($this->at(1))
             ->method('findBindings')
-            ->with('ab12')
-            ->willReturn(array());
+            ->willReturnCallback($this->returnForCriteria(
+                $this->uuid('ab12'),
+                array()
+            ));
 
         $this->discoveryManager->expects($this->never())
             ->method('removeBinding');
@@ -818,13 +799,17 @@ EOF;
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
-            ->with('ab12', 'vendor/root')
-            ->willReturn(array());
+            ->willReturnCallback($this->returnForCriteria(
+                $this->packageAndUuid('vendor/root', 'ab12'),
+                array()
+            ));
 
         $this->discoveryManager->expects($this->at(1))
             ->method('findBindings')
-            ->with('ab12')
-            ->willReturn(array(new BindingDescriptor('/path1', 'my/type', array(), 'glob')));
+            ->willReturnCallback($this->returnForCriteria(
+                $this->uuid('ab12'),
+                array(new BindingDescriptor('/path1', 'my/type', array(), 'glob'))
+            ));
 
         $this->discoveryManager->expects($this->never())
             ->method('removeBinding');
@@ -840,7 +825,7 @@ EOF;
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
-            ->with('ab12')
+            ->with($this->packagesAndUuid(array('vendor/package1', 'vendor/package2'), 'ab12'))
             ->willReturn(array($descriptor1, $descriptor2));
 
         $this->discoveryManager->expects($this->at(1))
@@ -858,24 +843,24 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testEnableBindingsInSpecificPackages()
+    public function testEnableBindingsInSpecificPackage()
     {
-        $args = self::$enableCommand->parseArgs(new StringArgs('ab12 --package vendor/package1 --package vendor/package2'));
+        $args = self::$enableCommand->parseArgs(new StringArgs('ab12 --package vendor/package2'));
         $descriptor1 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
         $descriptor2 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
-            ->with('ab12', array('vendor/package1', 'vendor/package2'))
+            ->with($this->packageAndUuid('vendor/package2', 'ab12'))
             ->willReturn(array($descriptor1, $descriptor2));
 
         $this->discoveryManager->expects($this->at(1))
             ->method('enableBinding')
-            ->with($descriptor1->getUuid(), array('vendor/package1', 'vendor/package2'));
+            ->with($descriptor1->getUuid(), array('vendor/package2'));
 
         $this->discoveryManager->expects($this->at(2))
             ->method('enableBinding')
-            ->with($descriptor2->getUuid(), array('vendor/package1', 'vendor/package2'));
+            ->with($descriptor2->getUuid(), array('vendor/package2'));
 
         $statusCode = $this->handler->handleEnable($args, $this->io);
 
@@ -894,7 +879,7 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
-            ->with('ab12')
+            ->with($this->packagesAndUuid(array('vendor/package1', 'vendor/package2'), 'ab12'))
             ->willReturn(array());
 
         $this->discoveryManager->expects($this->never())
@@ -911,7 +896,7 @@ EOF;
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
-            ->with('ab12')
+            ->with($this->packagesAndUuid(array('vendor/package1', 'vendor/package2'), 'ab12'))
             ->willReturn(array($descriptor1, $descriptor2));
 
         $this->discoveryManager->expects($this->at(1))
@@ -929,24 +914,24 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testDisableBindingsInSpecificPackages()
+    public function testDisableBindingsInSpecificPackage()
     {
-        $args = self::$disableCommand->parseArgs(new StringArgs('ab12 --package vendor/package1 --package vendor/package2'));
+        $args = self::$disableCommand->parseArgs(new StringArgs('ab12 --package vendor/package2'));
         $descriptor1 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
         $descriptor2 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
-            ->with('ab12', array('vendor/package1', 'vendor/package2'))
+            ->with($this->packageAndUuid('vendor/package2', 'ab12'))
             ->willReturn(array($descriptor1, $descriptor2));
 
         $this->discoveryManager->expects($this->at(1))
             ->method('disableBinding')
-            ->with($descriptor1->getUuid(), array('vendor/package1', 'vendor/package2'));
+            ->with($descriptor1->getUuid(), array('vendor/package2'));
 
         $this->discoveryManager->expects($this->at(2))
             ->method('disableBinding')
-            ->with($descriptor2->getUuid(), array('vendor/package1', 'vendor/package2'));
+            ->with($descriptor2->getUuid(), array('vendor/package2'));
 
         $statusCode = $this->handler->handleDisable($args, $this->io);
 
@@ -965,12 +950,121 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
-            ->with('ab12')
+            ->with($this->packagesAndUuid(array('vendor/package1', 'vendor/package2'), 'ab12'))
             ->willReturn(array());
 
         $this->discoveryManager->expects($this->never())
             ->method('disableBinding');
 
         $this->handler->handleDisable($args, $this->io);
+    }
+
+    private function initDefaultBindings()
+    {
+        $this->discoveryManager->expects($this->any())
+            ->method('findBindings')
+            ->willReturnCallback($this->returnFromMap(array(
+                array($this->packageAndState('vendor/root', BindingState::ENABLED), array(
+                    new BindingDescriptor('/root/enabled', 'my/type'),
+                    new BindingDescriptor('/duplicate', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/root', BindingState::DISABLED), array(
+                    new BindingDescriptor('/root/disabled', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/root', BindingState::UNDECIDED), array(
+                    new BindingDescriptor('/root/undecided', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/root', BindingState::DUPLICATE), array()),
+                array($this->packageAndState('vendor/root', BindingState::HELD_BACK), array(
+                    new BindingDescriptor('/root/held-back', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/root', BindingState::INVALID), array(
+                    new BindingDescriptor('/root/invalid', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package1', BindingState::ENABLED), array(
+                    new BindingDescriptor('/package1/enabled', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package1', BindingState::DISABLED), array(
+                    new BindingDescriptor('/package1/disabled', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package1', BindingState::UNDECIDED), array(
+                    new BindingDescriptor('/package1/undecided', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package1', BindingState::DUPLICATE), array(
+                    new BindingDescriptor('/duplicate', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package1', BindingState::HELD_BACK), array(
+                    new BindingDescriptor('/package1/held-back', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package1', BindingState::INVALID), array(
+                    new BindingDescriptor('/package1/invalid', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package2', BindingState::ENABLED), array(
+                    new BindingDescriptor('/package2/enabled', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package2', BindingState::DISABLED), array(
+                    new BindingDescriptor('/package2/disabled', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package2', BindingState::UNDECIDED), array(
+                    new BindingDescriptor('/package2/undecided', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package2', BindingState::DUPLICATE), array(
+                    new BindingDescriptor('/duplicate', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package2', BindingState::HELD_BACK), array(
+                    new BindingDescriptor('/package2/held-back', 'my/type'),
+                )),
+                array($this->packageAndState('vendor/package2', BindingState::INVALID), array(
+                    new BindingDescriptor('/package2/invalid', 'my/type'),
+                )),
+            )));
+    }
+
+    private function packageAndState($packageName, $state)
+    {
+        return BindingCriteria::create()->addPackageName($packageName)->addState($state);
+    }
+
+    private function packageAndUuid($packageName, $uuid)
+    {
+        return BindingCriteria::create()->addPackageName($packageName)->setUuidPrefix($uuid);
+    }
+
+    private function packagesAndUuid(array $packageNames, $uuid)
+    {
+        return BindingCriteria::create()->addPackageNames($packageNames)->setUuidPrefix($uuid);
+    }
+
+    private function uuid($uuid)
+    {
+        return BindingCriteria::create()->setUuidPrefix($uuid);
+    }
+
+    private function returnForCriteria(BindingCriteria $criteria, $result)
+    {
+        // This method is needed since PHPUnit's ->with() method does not
+        // internally clone the passed argument. Since we call the same method
+        // findBindings() twice with the *same* object, but modify the state of
+        // that object in between, PHPUnit fails since the state of the object
+        // *after* the test does not match the first assertion anymore
+        return function (BindingCriteria $actualCriteria) use ($criteria, $result) {
+            PHPUnit_Framework_Assert::assertEquals($criteria, $actualCriteria);
+
+            return $result;
+        };
+    }
+
+    private function returnFromMap(array $map)
+    {
+        return function (BindingCriteria $criteria) use ($map) {
+            foreach ($map as $arguments) {
+                // Cannot use willReturnMap(), which uses ===
+                if ($arguments[0] == $criteria) {
+                    return $arguments[1];
+                }
+            }
+
+            return null;
+        };
     }
 }

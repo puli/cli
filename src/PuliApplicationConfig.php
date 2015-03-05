@@ -21,7 +21,7 @@ use Puli\Cli\Handler\PackageHandler;
 use Puli\Cli\Handler\TreeHandler;
 use Puli\Cli\Handler\TypeHandler;
 use Puli\RepositoryManager\Api\Package\InstallInfo;
-use Puli\RepositoryManager\Puli;
+use Puli\RepositoryManager\Api\Puli;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
 use Webmozart\Console\Api\Formatter\Style;
@@ -49,12 +49,16 @@ class PuliApplicationConfig extends DefaultApplicationConfig
     /**
      * Creates the configuration.
      *
-     * @param Puli $puli The {@link Puli} instance. A new ones is created for
+     * @param Puli $puli The {@link Puli} instance. A new one is created for
      *                   the current working directory if none is provided.
      */
     public function __construct(Puli $puli = null)
     {
         $this->puli = $puli ?: new Puli(getcwd());
+
+        if (!$this->puli->isStarted()) {
+            $this->puli->start();
+        }
 
         parent::__construct();
     }

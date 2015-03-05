@@ -14,6 +14,7 @@ namespace Puli\Cli\Tests\Handler;
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\TypeHandler;
 use Puli\RepositoryManager\Api\Discovery\BindingParameterDescriptor;
+use Puli\RepositoryManager\Api\Discovery\BindingTypeCriteria;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
@@ -83,31 +84,31 @@ class TypeHandlerTest extends AbstractHandlerTest
         $this->handler = new TypeHandler($this->discoveryManager, $this->packages);
 
         $this->discoveryManager->expects($this->any())
-            ->method('getBindingTypes')
-            ->willReturnMap(array(
-                array('vendor/root', BindingTypeState::ENABLED, array(
+            ->method('findBindingTypes')
+            ->willReturnCallback($this->returnFromMap(array(
+                array($this->packageAndState('vendor/root', BindingTypeState::ENABLED), array(
                     new BindingTypeDescriptor('root/enabled1', 'Description of root/enabled1', array(
                         new BindingParameterDescriptor('req-param', true, null, 'Description of req-param'),
                         new BindingParameterDescriptor('opt-param', false, 'default', 'Description of opt-param'),
                     )),
                     new BindingTypeDescriptor('root/enabled2', 'Description of root/enabled2'),
                 )),
-                array('vendor/root', BindingTypeState::DUPLICATE, array(
+                array($this->packageAndState('vendor/root', BindingTypeState::DUPLICATE), array(
                     new BindingTypeDescriptor('root/duplicate'),
                 )),
-                array('vendor/package1', BindingTypeState::ENABLED, array(
+                array($this->packageAndState('vendor/package1', BindingTypeState::ENABLED), array(
                     new BindingTypeDescriptor('package1/enabled'),
                 )),
-                array('vendor/package1', BindingTypeState::DUPLICATE, array(
+                array($this->packageAndState('vendor/package1', BindingTypeState::DUPLICATE), array(
                     new BindingTypeDescriptor('package1/duplicate'),
                 )),
-                array('vendor/package2', BindingTypeState::ENABLED, array(
+                array($this->packageAndState('vendor/package2', BindingTypeState::ENABLED), array(
                     new BindingTypeDescriptor('package2/enabled'),
                 )),
-                array('vendor/package2', BindingTypeState::DUPLICATE, array(
+                array($this->packageAndState('vendor/package2', BindingTypeState::DUPLICATE), array(
                     new BindingTypeDescriptor('package2/duplicate'),
                 )),
-            ));
+            )));
     }
 
     public function testListAllTypes()
@@ -442,4 +443,23 @@ EOF;
         $this->assertSame(0, $this->handler->handleRemove($args));
     }
 
+
+    private function packageAndState($packageName, $state)
+    {
+        return BindingTypeCriteria::create()->addPackageName($packageName)->addState($state);
+    }
+
+    private function returnFromMap(array $map)
+    {
+        return function (BindingTypeCriteria $criteria) use ($map) {
+            foreach ($map as $arguments) {
+                // Cannot use willReturnMap(), which uses ===
+                if ($arguments[0] == $criteria) {
+                    return $arguments[1];
+                }
+            }
+
+            return null;
+        };
+    }
 }

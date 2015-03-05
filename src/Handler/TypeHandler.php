@@ -14,6 +14,7 @@ namespace Puli\Cli\Handler;
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
 use Puli\RepositoryManager\Api\Discovery\BindingParameterDescriptor;
+use Puli\RepositoryManager\Api\Discovery\BindingTypeCriteria;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
@@ -75,7 +76,11 @@ class TypeHandler
             $statePrinted = !$printStates;
 
             foreach ($packageNames as $packageName) {
-                $bindingTypes = $this->discoveryManager->getBindingTypes($packageName, $state);
+                $criteria = BindingTypeCriteria::create()
+                    ->addPackageName($packageName)
+                    ->addState($state);
+
+                $bindingTypes = $this->discoveryManager->findBindingTypes($criteria);
 
                 if (!$bindingTypes) {
                     continue;

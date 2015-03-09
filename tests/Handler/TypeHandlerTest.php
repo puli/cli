@@ -71,8 +71,6 @@ class TypeHandlerTest extends AbstractHandlerTest
         self::$listCommand = self::$application->getCommand('type')->getSubCommand('list');
         self::$defineCommand = self::$application->getCommand('type')->getSubCommand('define');
         self::$removeCommand = self::$application->getCommand('type')->getSubCommand('remove');
-
-        CriteriaComparator::register();
     }
 
     protected function setUp()

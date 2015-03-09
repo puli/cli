@@ -83,8 +83,6 @@ class BindHandlerTest extends AbstractHandlerTest
         self::$deleteCommand = self::$application->getCommand('bind')->getSubCommand('delete');
         self::$enableCommand = self::$application->getCommand('bind')->getSubCommand('enable');
         self::$disableCommand = self::$application->getCommand('bind')->getSubCommand('disable');
-
-        CriteriaComparator::register();
     }
 
     protected function setUp()

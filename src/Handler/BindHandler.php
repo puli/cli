@@ -13,7 +13,6 @@ namespace Puli\Cli\Handler;
 
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
-use Puli\RepositoryManager\Api\Discovery\BindingCriteria;
 use Puli\RepositoryManager\Api\Discovery\BindingDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
@@ -23,6 +22,7 @@ use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
 use Webmozart\Console\UI\Style\TableStyle;
+use Webmozart\Criteria\Criterion;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -81,9 +81,8 @@ class BindHandler
             $bindingStatePrinted = !$printBindingState;
 
             foreach ($packageNames as $packageName) {
-                $criteria = BindingCriteria::create()
-                    ->addPackageName($packageName)
-                    ->addState($bindingState);
+                $criteria = Criterion::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
+                    ->andSame(BindingDescriptor::STATE, $bindingState);
 
                 $bindings = $this->discoveryManager->findBindings($criteria);
 
@@ -161,15 +160,12 @@ class BindHandler
     {
         $uuid = $args->getArgument('uuid');
         $rootPackageName = $this->packages->getRootPackageName();
-        $criteria = BindingCriteria::create()
-            ->setUuidPrefix($uuid)
-            ->addPackageName($rootPackageName);
-        $bindings = $this->discoveryManager->findBindings($criteria);
+        $uuidCriteria = Criterion::startsWith(BindingDescriptor::UUID, $uuid);
+        $uuidInRootCriteria = $uuidCriteria->andSame(BindingDescriptor::CONTAINING_PACKAGE, $rootPackageName);
+        $bindings = $this->discoveryManager->findBindings($uuidInRootCriteria);
 
         if (0 === count($bindings)) {
-            $criteria->clearPackageNames();
-
-            $nonRootBindings = $this->discoveryManager->findBindings($criteria);
+            $nonRootBindings = $this->discoveryManager->findBindings($uuidCriteria);
 
             if (count($nonRootBindings) > 0) {
                 throw new RuntimeException('Can only delete bindings from the root package.');
@@ -205,9 +201,8 @@ class BindHandler
     {
         $uuid = $args->getArgument('uuid');
         $packageNames = ArgsUtil::getPackageNamesWithoutRoot($args, $this->packages);
-        $criteria = BindingCriteria::create()
-            ->setUuidPrefix($uuid)
-            ->addPackageNames($packageNames);
+        $criteria = Criterion::oneOf(BindingDescriptor::CONTAINING_PACKAGE, $packageNames)
+            ->andStartsWith(BindingDescriptor::UUID, $uuid);
         $bindings = $this->discoveryManager->findBindings($criteria);
 
         if (0 === count($bindings)) {
@@ -235,9 +230,8 @@ class BindHandler
     {
         $uuid = $args->getArgument('uuid');
         $packageNames = ArgsUtil::getPackageNamesWithoutRoot($args, $this->packages);
-        $criteria = BindingCriteria::create()
-            ->setUuidPrefix($uuid)
-            ->addPackageNames($packageNames);
+        $criteria = Criterion::oneOf(BindingDescriptor::CONTAINING_PACKAGE, $packageNames)
+            ->andStartsWith(BindingDescriptor::UUID, $uuid);
         $bindings = $this->discoveryManager->findBindings($criteria);
 
         if (0 === count($bindings)) {

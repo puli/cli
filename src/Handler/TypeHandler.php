@@ -14,7 +14,6 @@ namespace Puli\Cli\Handler;
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
 use Puli\RepositoryManager\Api\Discovery\BindingParameterDescriptor;
-use Puli\RepositoryManager\Api\Discovery\BindingTypeCriteria;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
@@ -23,6 +22,7 @@ use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
 use Webmozart\Console\UI\Style\TableStyle;
+use Webmozart\Criteria\Criterion;
 
 /**
  * Handles the "type" command.
@@ -76,9 +76,8 @@ class TypeHandler
             $statePrinted = !$printStates;
 
             foreach ($packageNames as $packageName) {
-                $criteria = BindingTypeCriteria::create()
-                    ->addPackageName($packageName)
-                    ->addState($state);
+                $criteria = Criterion::same(BindingTypeDescriptor::CONTAINING_PACKAGE, $packageName)
+                    ->andSame(BindingTypeDescriptor::STATE, $state);
 
                 $bindingTypes = $this->discoveryManager->findBindingTypes($criteria);
 

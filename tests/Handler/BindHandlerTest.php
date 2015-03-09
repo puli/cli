@@ -14,7 +14,6 @@ namespace Puli\Cli\Tests\Handler;
 use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\BindHandler;
-use Puli\RepositoryManager\Api\Discovery\BindingCriteria;
 use Puli\RepositoryManager\Api\Discovery\BindingDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
@@ -25,6 +24,9 @@ use Puli\RepositoryManager\Api\Package\RootPackage;
 use Puli\RepositoryManager\Api\Package\RootPackageFile;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
+use Webmozart\Criteria\Criteria;
+use Webmozart\Criteria\Criterion;
+use Webmozart\Criteria\PhpUnit\CriteriaComparator;
 
 /**
  * @since  1.0
@@ -81,6 +83,8 @@ class BindHandlerTest extends AbstractHandlerTest
         self::$deleteCommand = self::$application->getCommand('bind')->getSubCommand('delete');
         self::$enableCommand = self::$application->getCommand('bind')->getSubCommand('enable');
         self::$disableCommand = self::$application->getCommand('bind')->getSubCommand('disable');
+
+        CriteriaComparator::register();
     }
 
     protected function setUp()
@@ -1022,33 +1026,36 @@ EOF;
 
     private function packageAndState($packageName, $state)
     {
-        return BindingCriteria::create()->addPackageName($packageName)->addState($state);
+        return Criterion::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
+            ->andSame(BindingDescriptor::STATE, $state);
     }
 
     private function packageAndUuid($packageName, $uuid)
     {
-        return BindingCriteria::create()->addPackageName($packageName)->setUuidPrefix($uuid);
+        return Criterion::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
+            ->andStartsWith(BindingDescriptor::UUID, $uuid);
     }
 
     private function packagesAndUuid(array $packageNames, $uuid)
     {
-        return BindingCriteria::create()->addPackageNames($packageNames)->setUuidPrefix($uuid);
+        return Criterion::oneOf(BindingDescriptor::CONTAINING_PACKAGE, $packageNames)
+            ->andStartsWith(BindingDescriptor::UUID, $uuid);
     }
 
     private function uuid($uuid)
     {
-        return BindingCriteria::create()->setUuidPrefix($uuid);
+        return Criterion::startsWith(BindingDescriptor::UUID, $uuid);
     }
 
-    private function returnForCriteria(BindingCriteria $criteria, $result)
+    private function returnForCriteria(Criteria $criteria, $result)
     {
         // This method is needed since PHPUnit's ->with() method does not
         // internally clone the passed argument. Since we call the same method
         // findBindings() twice with the *same* object, but modify the state of
         // that object in between, PHPUnit fails since the state of the object
         // *after* the test does not match the first assertion anymore
-        return function (BindingCriteria $actualCriteria) use ($criteria, $result) {
-            PHPUnit_Framework_Assert::assertEquals($criteria, $actualCriteria);
+        return function (Criteria $actualCriteria) use ($criteria, $result) {
+            PHPUnit_Framework_Assert::assertTrue($actualCriteria->equals($criteria));
 
             return $result;
         };
@@ -1056,10 +1063,10 @@ EOF;
 
     private function returnFromMap(array $map)
     {
-        return function (BindingCriteria $criteria) use ($map) {
+        return function (Criteria $criteria) use ($map) {
             foreach ($map as $arguments) {
                 // Cannot use willReturnMap(), which uses ===
-                if ($arguments[0] == $criteria) {
+                if ($criteria->equals($arguments[0])) {
                     return $arguments[1];
                 }
             }

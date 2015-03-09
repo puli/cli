@@ -14,7 +14,6 @@ namespace Puli\Cli\Tests\Handler;
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\TypeHandler;
 use Puli\RepositoryManager\Api\Discovery\BindingParameterDescriptor;
-use Puli\RepositoryManager\Api\Discovery\BindingTypeCriteria;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
@@ -25,6 +24,9 @@ use Puli\RepositoryManager\Api\Package\RootPackage;
 use Puli\RepositoryManager\Api\Package\RootPackageFile;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
+use Webmozart\Criteria\Criteria;
+use Webmozart\Criteria\Criterion;
+use Webmozart\Criteria\PhpUnit\CriteriaComparator;
 
 /**
  * @since  1.0
@@ -69,6 +71,8 @@ class TypeHandlerTest extends AbstractHandlerTest
         self::$listCommand = self::$application->getCommand('type')->getSubCommand('list');
         self::$defineCommand = self::$application->getCommand('type')->getSubCommand('define');
         self::$removeCommand = self::$application->getCommand('type')->getSubCommand('remove');
+
+        CriteriaComparator::register();
     }
 
     protected function setUp()
@@ -446,15 +450,16 @@ EOF;
 
     private function packageAndState($packageName, $state)
     {
-        return BindingTypeCriteria::create()->addPackageName($packageName)->addState($state);
+        return Criterion::same(BindingTypeDescriptor::CONTAINING_PACKAGE, $packageName)
+            ->andSame(BindingTypeDescriptor::STATE, $state);
     }
 
     private function returnFromMap(array $map)
     {
-        return function (BindingTypeCriteria $criteria) use ($map) {
+        return function (Criteria $criteria) use ($map) {
             foreach ($map as $arguments) {
                 // Cannot use willReturnMap(), which uses ===
-                if ($arguments[0] == $criteria) {
+                if ($criteria->equals($arguments[0])) {
                     return $arguments[1];
                 }
             }

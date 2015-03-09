@@ -25,6 +25,8 @@ use Puli\RepositoryManager\Api\Package\RootPackageFile;
 use RuntimeException;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
+use Webmozart\Criteria\Criteria;
+use Webmozart\Criteria\Criterion;
 
 /**
  * @since  1.0
@@ -120,20 +122,15 @@ class PackageHandlerTest extends AbstractHandlerTest
         $package4 = new Package(null, '/package4', $installInfo4, array(new RuntimeException('Load error')));
 
         $this->packageManager->expects($this->any())
-            ->method('getPackages')
-            ->willReturnMap(array(
-                array(PackageState::ENABLED, new PackageCollection(array($rootPackage, $package1, $package2))),
-                array(PackageState::NOT_FOUND, new PackageCollection(array($package3))),
-                array(PackageState::NOT_LOADABLE, new PackageCollection(array($package4))),
-            ));
-
-        $this->packageManager->expects($this->any())
-            ->method('getPackagesByInstaller')
-            ->willReturnMap(array(
-                array('spock', PackageState::ENABLED, new PackageCollection(array($package1, $package2))),
-                array('spock', PackageState::NOT_FOUND, new PackageCollection(array())),
-                array('spock', PackageState::NOT_LOADABLE, new PackageCollection(array($package4))),
-            ));
+            ->method('findPackages')
+            ->willReturnCallback($this->returnFromMap(array(
+                array($this->state(PackageState::ENABLED), new PackageCollection(array($rootPackage, $package1, $package2))),
+                array($this->state(PackageState::NOT_FOUND), new PackageCollection(array($package3))),
+                array($this->state(PackageState::NOT_LOADABLE), new PackageCollection(array($package4))),
+                array($this->installerAndState('spock', PackageState::ENABLED), new PackageCollection(array($package1, $package2))),
+                array($this->installerAndState('spock', PackageState::NOT_FOUND), new PackageCollection(array())),
+                array($this->installerAndState('spock', PackageState::NOT_LOADABLE), new PackageCollection(array($package4))),
+            )));
 
         $this->previousWd = getcwd();
         $this->wd = __DIR__;
@@ -365,5 +362,30 @@ EOF;
         $this->assertSame(0, $this->handler->handleClean($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    private function state($state)
+    {
+        return Criterion::same(Package::STATE, $state);
+    }
+
+    private function installerAndState($installer, $state)
+    {
+        return Criterion::same(Package::INSTALLER, $installer)
+            ->andSame(Package::STATE, $state);
+    }
+
+    private function returnFromMap(array $map)
+    {
+        return function (Criteria $criteria) use ($map) {
+            foreach ($map as $arguments) {
+                // Cannot use willReturnMap(), which uses ===
+                if ($criteria->equals($arguments[0])) {
+                    return $arguments[1];
+                }
+            }
+
+            return null;
+        };
     }
 }

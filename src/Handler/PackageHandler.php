@@ -12,6 +12,7 @@
 namespace Puli\Cli\Handler;
 
 use Puli\Cli\Util\StringUtil;
+use Puli\RepositoryManager\Api\Package\Package;
 use Puli\RepositoryManager\Api\Package\PackageCollection;
 use Puli\RepositoryManager\Api\Package\PackageManager;
 use Puli\RepositoryManager\Api\Package\PackageState;
@@ -20,6 +21,7 @@ use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
 use Webmozart\Console\UI\Style\TableStyle;
+use Webmozart\Criteria\Criterion;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -60,10 +62,16 @@ class PackageHandler
         $installer = $args->getOption('installer');
         $printStates = count($states) > 1;
 
+        $installerCriteria = $installer ? Criterion::same(Package::INSTALLER, $installer) : null;
+
         foreach ($states as $state) {
-            $packages = $installer
-                ? $this->packageManager->getPackagesByInstaller($installer, $state)
-                : $this->packageManager->getPackages($state);
+            $criteria = Criterion::same(Package::STATE, $state);
+
+            if ($installerCriteria) {
+                $criteria = $criteria->andX($installerCriteria);
+            }
+
+            $packages = $this->packageManager->findPackages($criteria);
 
             if (0 === count($packages)) {
                 continue;
@@ -131,7 +139,9 @@ class PackageHandler
      */
     public function handleClean(Args $args, IO $io)
     {
-        foreach ($this->packageManager->getPackages(PackageState::NOT_FOUND) as $package) {
+        $criteria = Criterion::same(Package::STATE, PackageState::NOT_FOUND);
+
+        foreach ($this->packageManager->findPackages($criteria) as $package) {
             $io->writeLine('Removing '.$package->getName());
             $this->packageManager->removePackage($package->getName());
         }

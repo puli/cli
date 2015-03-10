@@ -9,8 +9,9 @@
  * file that was distributed with this source code.
  */
 
+use SebastianBergmann\Comparator\Factory;
 use Webmozart\Criteria\PhpUnit\CriteriaComparator;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-CriteriaComparator::register();
+Factory::getInstance()->register(new CriteriaComparator());

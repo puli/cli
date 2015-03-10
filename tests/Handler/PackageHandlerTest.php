@@ -25,8 +25,8 @@ use Puli\RepositoryManager\Api\Package\RootPackageFile;
 use RuntimeException;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
-use Webmozart\Criteria\Criteria;
-use Webmozart\Criteria\Criterion;
+use Webmozart\Expression\Expr;
+use Webmozart\Expression\Expression;
 
 /**
  * @since  1.0
@@ -366,21 +366,21 @@ EOF;
 
     private function state($state)
     {
-        return Criterion::same(Package::STATE, $state);
+        return Expr::same(Package::STATE, $state);
     }
 
     private function installerAndState($installer, $state)
     {
-        return Criterion::same(Package::INSTALLER, $installer)
+        return Expr::same(Package::INSTALLER, $installer)
             ->andSame(Package::STATE, $state);
     }
 
     private function returnFromMap(array $map)
     {
-        return function (Criteria $criteria) use ($map) {
+        return function (Expression $expr) use ($map) {
             foreach ($map as $arguments) {
                 // Cannot use willReturnMap(), which uses ===
-                if ($criteria->equals($arguments[0])) {
+                if ($expr->equals($arguments[0])) {
                     return $arguments[1];
                 }
             }

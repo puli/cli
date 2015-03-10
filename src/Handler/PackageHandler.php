@@ -21,7 +21,7 @@ use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
 use Webmozart\Console\UI\Style\TableStyle;
-use Webmozart\Criteria\Criterion;
+use Webmozart\Expression\Expr;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -62,16 +62,14 @@ class PackageHandler
         $installer = $args->getOption('installer');
         $printStates = count($states) > 1;
 
-        $installerCriteria = $installer ? Criterion::same(Package::INSTALLER, $installer) : null;
-
         foreach ($states as $state) {
-            $criteria = Criterion::same(Package::STATE, $state);
+            $expr = Expr::same(Package::STATE, $state);
 
-            if ($installerCriteria) {
-                $criteria = $criteria->andX($installerCriteria);
+            if ($installer) {
+                $expr = $expr->andSame(Package::INSTALLER, $installer);
             }
 
-            $packages = $this->packageManager->findPackages($criteria);
+            $packages = $this->packageManager->findPackages($expr);
 
             if (0 === count($packages)) {
                 continue;
@@ -139,9 +137,9 @@ class PackageHandler
      */
     public function handleClean(Args $args, IO $io)
     {
-        $criteria = Criterion::same(Package::STATE, PackageState::NOT_FOUND);
+        $expr = Expr::same(Package::STATE, PackageState::NOT_FOUND);
 
-        foreach ($this->packageManager->findPackages($criteria) as $package) {
+        foreach ($this->packageManager->findPackages($expr) as $package) {
             $io->writeLine('Removing '.$package->getName());
             $this->packageManager->removePackage($package->getName());
         }

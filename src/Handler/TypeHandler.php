@@ -22,7 +22,7 @@ use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
 use Webmozart\Console\UI\Style\TableStyle;
-use Webmozart\Criteria\Criterion;
+use Webmozart\Expression\Expr;
 
 /**
  * Handles the "type" command.
@@ -76,10 +76,10 @@ class TypeHandler
             $statePrinted = !$printStates;
 
             foreach ($packageNames as $packageName) {
-                $criteria = Criterion::same(BindingTypeDescriptor::CONTAINING_PACKAGE, $packageName)
+                $expr = Expr::same(BindingTypeDescriptor::CONTAINING_PACKAGE, $packageName)
                     ->andSame(BindingTypeDescriptor::STATE, $state);
 
-                $bindingTypes = $this->discoveryManager->findBindingTypes($criteria);
+                $bindingTypes = $this->discoveryManager->findBindingTypes($expr);
 
                 if (!$bindingTypes) {
                     continue;

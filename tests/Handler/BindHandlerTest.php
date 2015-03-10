@@ -27,6 +27,8 @@ use Webmozart\Console\Args\StringArgs;
 use Webmozart\Criteria\Criteria;
 use Webmozart\Criteria\Criterion;
 use Webmozart\Criteria\PhpUnit\CriteriaComparator;
+use Webmozart\Expression\Expr;
+use Webmozart\Expression\Expression;
 
 /**
  * @since  1.0
@@ -1024,36 +1026,36 @@ EOF;
 
     private function packageAndState($packageName, $state)
     {
-        return Criterion::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
+        return Expr::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
             ->andSame(BindingDescriptor::STATE, $state);
     }
 
     private function packageAndUuid($packageName, $uuid)
     {
-        return Criterion::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
+        return Expr::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
             ->andStartsWith(BindingDescriptor::UUID, $uuid);
     }
 
     private function packagesAndUuid(array $packageNames, $uuid)
     {
-        return Criterion::oneOf(BindingDescriptor::CONTAINING_PACKAGE, $packageNames)
+        return Expr::oneOf(BindingDescriptor::CONTAINING_PACKAGE, $packageNames)
             ->andStartsWith(BindingDescriptor::UUID, $uuid);
     }
 
     private function uuid($uuid)
     {
-        return Criterion::startsWith(BindingDescriptor::UUID, $uuid);
+        return Expr::startsWith(BindingDescriptor::UUID, $uuid);
     }
 
-    private function returnForCriteria(Criteria $criteria, $result)
+    private function returnForCriteria(Expression $expr, $result)
     {
         // This method is needed since PHPUnit's ->with() method does not
         // internally clone the passed argument. Since we call the same method
         // findBindings() twice with the *same* object, but modify the state of
         // that object in between, PHPUnit fails since the state of the object
         // *after* the test does not match the first assertion anymore
-        return function (Criteria $actualCriteria) use ($criteria, $result) {
-            PHPUnit_Framework_Assert::assertTrue($actualCriteria->equals($criteria));
+        return function (Expression $actualExpr) use ($expr, $result) {
+            PHPUnit_Framework_Assert::assertTrue($actualExpr->equals($expr));
 
             return $result;
         };
@@ -1061,10 +1063,10 @@ EOF;
 
     private function returnFromMap(array $map)
     {
-        return function (Criteria $criteria) use ($map) {
+        return function (Expression $expr) use ($map) {
             foreach ($map as $arguments) {
                 // Cannot use willReturnMap(), which uses ===
-                if ($criteria->equals($arguments[0])) {
+                if ($expr->equals($arguments[0])) {
                     return $arguments[1];
                 }
             }

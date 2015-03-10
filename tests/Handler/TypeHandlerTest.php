@@ -24,9 +24,8 @@ use Puli\RepositoryManager\Api\Package\RootPackage;
 use Puli\RepositoryManager\Api\Package\RootPackageFile;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
-use Webmozart\Criteria\Criteria;
-use Webmozart\Criteria\Criterion;
-use Webmozart\Criteria\PhpUnit\CriteriaComparator;
+use Webmozart\Expression\Expr;
+use Webmozart\Expression\Expression;
 
 /**
  * @since  1.0
@@ -448,16 +447,16 @@ EOF;
 
     private function packageAndState($packageName, $state)
     {
-        return Criterion::same(BindingTypeDescriptor::CONTAINING_PACKAGE, $packageName)
+        return Expr::same(BindingTypeDescriptor::CONTAINING_PACKAGE, $packageName)
             ->andSame(BindingTypeDescriptor::STATE, $state);
     }
 
     private function returnFromMap(array $map)
     {
-        return function (Criteria $criteria) use ($map) {
+        return function (Expression $expr) use ($map) {
             foreach ($map as $arguments) {
                 // Cannot use willReturnMap(), which uses ===
-                if ($criteria->equals($arguments[0])) {
+                if ($expr->equals($arguments[0])) {
                     return $arguments[1];
                 }
             }

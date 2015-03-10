@@ -10,8 +10,8 @@
  */
 
 use SebastianBergmann\Comparator\Factory;
-use Webmozart\Criteria\PhpUnit\CriteriaComparator;
+use Webmozart\Expression\PhpUnit\ExpressionComparator;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-Factory::getInstance()->register(new CriteriaComparator());
+Factory::getInstance()->register(new ExpressionComparator());

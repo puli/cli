@@ -117,7 +117,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled bindings')
                     ->addOption('disabled', null, Option::NO_VALUE, 'Show disabled bindings')
                     ->addOption('undecided', null, Option::NO_VALUE, 'Show bindings that are neither enabled nor disabled')
-                    ->addOption('duplicate', null, Option::NO_VALUE, 'Show duplicate bindings')
+                    ->addOption('overridden', null, Option::NO_VALUE, 'Show overridden bindings')
                     ->addOption('held-back', null, Option::NO_VALUE, 'Show bindings whose type is not loaded')
                     ->addOption('ignored', null, Option::NO_VALUE, 'Show bindings whose type is disabled')
                     ->addOption('invalid', null, Option::NO_VALUE, 'Show bindings with invalid parameters')

@@ -267,8 +267,8 @@ class BindHandler
             $states[] = BindingState::DISABLED;
         }
 
-        if ($args->isOptionSet('duplicate')) {
-            $states[] = BindingState::DUPLICATE;
+        if ($args->isOptionSet('overridden')) {
+            $states[] = BindingState::OVERRIDDEN;
         }
 
         if ($args->isOptionSet('undecided')) {
@@ -347,8 +347,8 @@ class BindHandler
                 $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
                 $io->writeLine('');
                 return;
-            case BindingState::DUPLICATE:
-                $io->writeLine('The following bindings are duplicates and ignored:');
+            case BindingState::OVERRIDDEN:
+                $io->writeLine('The following bindings are overridden:');
                 $io->writeLine('');
                 return;
             case BindingState::HELD_BACK:

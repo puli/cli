@@ -24,9 +24,6 @@ use Puli\RepositoryManager\Api\Package\RootPackage;
 use Puli\RepositoryManager\Api\Package\RootPackageFile;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
-use Webmozart\Criteria\Criteria;
-use Webmozart\Criteria\Criterion;
-use Webmozart\Criteria\PhpUnit\CriteriaComparator;
 use Webmozart\Expression\Expr;
 use Webmozart\Expression\Expression;
 
@@ -113,7 +110,7 @@ Enabled bindings:
 
     vendor/root
     0f1933 /root/enabled my/type
-    288290 /duplicate    my/type
+    71dfa8 /overridden   my/type
 
     vendor/package1
     7d5312 /package1/enabled my/type
@@ -145,13 +142,13 @@ Bindings that are neither enabled nor disabled:
     vendor/package2
     446842 /package2/undecided my/type
 
-The following bindings are duplicates and ignored:
+The following bindings are overridden:
 
     vendor/package1
-    288290 /duplicate my/type
+    71dfa8 /overridden my/type
 
     vendor/package2
-    288290 /duplicate my/type
+    71dfa8 /overridden my/type
 
 The following bindings are held back:
  (install or fix their type definitions to enable)
@@ -197,7 +194,7 @@ EOF;
 Enabled bindings:
 
     0f1933 /root/enabled my/type
-    288290 /duplicate    my/type
+    71dfa8 /overridden   my/type
 
 Disabled bindings:
  (use "puli bind --enable <uuid>" to enable)
@@ -250,9 +247,9 @@ Bindings that are neither enabled nor disabled:
 
     2611ca /package1/undecided my/type
 
-The following bindings are duplicates and ignored:
+The following bindings are overridden:
 
-    288290 /duplicate my/type
+    71dfa8 /overridden my/type
 
 The following bindings are held back:
  (install or fix their type definitions to enable)
@@ -285,7 +282,7 @@ Enabled bindings:
 
     vendor/root
     0f1933 /root/enabled my/type
-    288290 /duplicate    my/type
+    71dfa8 /overridden   my/type
 
     vendor/package1
     7d5312 /package1/enabled my/type
@@ -308,10 +305,10 @@ Bindings that are neither enabled nor disabled:
     vendor/package1
     2611ca /package1/undecided my/type
 
-The following bindings are duplicates and ignored:
+The following bindings are overridden:
 
     vendor/package1
-    288290 /duplicate my/type
+    71dfa8 /overridden my/type
 
 The following bindings are held back:
  (install or fix their type definitions to enable)
@@ -374,13 +371,13 @@ Bindings that are neither enabled nor disabled:
     vendor/package2
     446842 /package2/undecided my/type
 
-The following bindings are duplicates and ignored:
+The following bindings are overridden:
 
     vendor/package1
-    288290 /duplicate my/type
+    71dfa8 /overridden my/type
 
     vendor/package2
-    288290 /duplicate my/type
+    71dfa8 /overridden my/type
 
 The following bindings are held back:
  (install or fix their type definitions to enable)
@@ -419,7 +416,7 @@ EOF;
         $expected = <<<EOF
 vendor/root
 0f1933 /root/enabled my/type
-288290 /duplicate    my/type
+71dfa8 /overridden   my/type
 
 vendor/package1
 7d5312 /package1/enabled my/type
@@ -487,20 +484,20 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListDuplicateBindings()
+    public function testListOverriddenBindings()
     {
         $this->initDefaultBindings();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--duplicate'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--overridden'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 vendor/package1
-288290 /duplicate my/type
+71dfa8 /overridden my/type
 
 vendor/package2
-288290 /duplicate my/type
+71dfa8 /overridden my/type
 
 
 EOF;
@@ -576,7 +573,7 @@ Enabled bindings:
 
     vendor/root
     0f1933 /root/enabled my/type
-    288290 /duplicate    my/type
+    71dfa8 /overridden   my/type
 
     vendor/package1
     7d5312 /package1/enabled my/type
@@ -614,7 +611,7 @@ EOF;
 
         $expected = <<<EOF
 0f1933 /root/enabled my/type
-288290 /duplicate    my/type
+71dfa8 /overridden   my/type
 
 EOF;
 
@@ -725,7 +722,7 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
-            ->willReturnCallback($this->returnForCriteria(
+            ->willReturnCallback($this->returnForExpr(
                 $this->packageAndUuid('vendor/root', 'ab12'),
                 array($descriptor)
             ));
@@ -751,7 +748,7 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
-            ->willReturnCallback($this->returnForCriteria(
+            ->willReturnCallback($this->returnForExpr(
                 $this->packageAndUuid('vendor/root', 'ab12'),
                 array(
                     new BindingDescriptor('/path1', 'my/type', array(), 'glob'),
@@ -775,14 +772,14 @@ EOF;
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
-            ->willReturnCallback($this->returnForCriteria(
+            ->willReturnCallback($this->returnForExpr(
                 $this->packageAndUuid('vendor/root', 'ab12'),
                 array()
             ));
 
         $this->discoveryManager->expects($this->at(1))
             ->method('findBindings')
-            ->willReturnCallback($this->returnForCriteria(
+            ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array()
             ));
@@ -803,14 +800,14 @@ EOF;
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
-            ->willReturnCallback($this->returnForCriteria(
+            ->willReturnCallback($this->returnForExpr(
                 $this->packageAndUuid('vendor/root', 'ab12'),
                 array()
             ));
 
         $this->discoveryManager->expects($this->at(1))
             ->method('findBindings')
-            ->willReturnCallback($this->returnForCriteria(
+            ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array(new BindingDescriptor('/path1', 'my/type', array(), 'glob'))
             ));
@@ -970,7 +967,7 @@ EOF;
             ->willReturnCallback($this->returnFromMap(array(
                 array($this->packageAndState('vendor/root', BindingState::ENABLED), array(
                     new BindingDescriptor('/root/enabled', 'my/type'),
-                    new BindingDescriptor('/duplicate', 'my/type'),
+                    new BindingDescriptor('/overridden', 'my/type'),
                 )),
                 array($this->packageAndState('vendor/root', BindingState::DISABLED), array(
                     new BindingDescriptor('/root/disabled', 'my/type'),
@@ -978,7 +975,7 @@ EOF;
                 array($this->packageAndState('vendor/root', BindingState::UNDECIDED), array(
                     new BindingDescriptor('/root/undecided', 'my/type'),
                 )),
-                array($this->packageAndState('vendor/root', BindingState::DUPLICATE), array()),
+                array($this->packageAndState('vendor/root', BindingState::OVERRIDDEN), array()),
                 array($this->packageAndState('vendor/root', BindingState::HELD_BACK), array(
                     new BindingDescriptor('/root/held-back', 'my/type'),
                 )),
@@ -994,8 +991,8 @@ EOF;
                 array($this->packageAndState('vendor/package1', BindingState::UNDECIDED), array(
                     new BindingDescriptor('/package1/undecided', 'my/type'),
                 )),
-                array($this->packageAndState('vendor/package1', BindingState::DUPLICATE), array(
-                    new BindingDescriptor('/duplicate', 'my/type'),
+                array($this->packageAndState('vendor/package1', BindingState::OVERRIDDEN), array(
+                    new BindingDescriptor('/overridden', 'my/type'),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::HELD_BACK), array(
                     new BindingDescriptor('/package1/held-back', 'my/type'),
@@ -1012,8 +1009,8 @@ EOF;
                 array($this->packageAndState('vendor/package2', BindingState::UNDECIDED), array(
                     new BindingDescriptor('/package2/undecided', 'my/type'),
                 )),
-                array($this->packageAndState('vendor/package2', BindingState::DUPLICATE), array(
-                    new BindingDescriptor('/duplicate', 'my/type'),
+                array($this->packageAndState('vendor/package2', BindingState::OVERRIDDEN), array(
+                    new BindingDescriptor('/overridden', 'my/type'),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::HELD_BACK), array(
                     new BindingDescriptor('/package2/held-back', 'my/type'),
@@ -1047,7 +1044,7 @@ EOF;
         return Expr::startsWith(BindingDescriptor::UUID, $uuid);
     }
 
-    private function returnForCriteria(Expression $expr, $result)
+    private function returnForExpr(Expression $expr, $result)
     {
         // This method is needed since PHPUnit's ->with() method does not
         // internally clone the passed argument. Since we call the same method

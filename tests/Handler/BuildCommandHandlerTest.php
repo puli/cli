@@ -13,8 +13,9 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\BuildCommandHandler;
-use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
-use Puli\RepositoryManager\Api\Repository\RepositoryManager;
+use Puli\Manager\Api\Discovery\DiscoveryManager;
+use Puli\Manager\Api\Factory\FactoryManager;
+use Puli\Manager\Api\Repository\RepositoryManager;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 
@@ -55,8 +56,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUp();
 
-        $this->repoManager = $this->getMock('Puli\RepositoryManager\Api\Repository\RepositoryManager');
-        $this->discoveryManager = $this->getMock('Puli\RepositoryManager\Api\Discovery\DiscoveryManager');
+        $this->repoManager = $this->getMock('Puli\Manager\Api\Repository\RepositoryManager');
+        $this->discoveryManager = $this->getMock('Puli\Manager\Api\Discovery\DiscoveryManager');
         $this->handler = new BuildCommandHandler($this->repoManager, $this->discoveryManager);
     }
 

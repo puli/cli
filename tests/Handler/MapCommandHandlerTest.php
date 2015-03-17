@@ -13,13 +13,13 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\MapCommandHandler;
-use Puli\RepositoryManager\Api\Package\Package;
-use Puli\RepositoryManager\Api\Package\PackageCollection;
-use Puli\RepositoryManager\Api\Package\PackageFile;
-use Puli\RepositoryManager\Api\Package\RootPackage;
-use Puli\RepositoryManager\Api\Package\RootPackageFile;
-use Puli\RepositoryManager\Api\Repository\RepositoryManager;
-use Puli\RepositoryManager\Api\Repository\ResourceMapping;
+use Puli\Manager\Api\Package\Package;
+use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Package\PackageFile;
+use Puli\Manager\Api\Package\RootPackage;
+use Puli\Manager\Api\Package\RootPackageFile;
+use Puli\Manager\Api\Repository\RepositoryManager;
+use Puli\Manager\Api\Repository\ResourceMapping;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 
@@ -72,7 +72,7 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUp();
 
-        $this->repoManager = $this->getMock('Puli\RepositoryManager\Api\Repository\RepositoryManager');
+        $this->repoManager = $this->getMock('Puli\Manager\Api\Repository\RepositoryManager');
         $this->packages = new PackageCollection(array(
             new RootPackage(new RootPackageFile('vendor/root'), '/root'),
             new Package(new PackageFile('vendor/package1'), '/package1'),

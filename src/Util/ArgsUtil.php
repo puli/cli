@@ -11,7 +11,7 @@
 
 namespace Puli\Cli\Util;
 
-use Puli\RepositoryManager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Package\PackageCollection;
 use Webmozart\Console\Api\Args\Args;
 
 /**

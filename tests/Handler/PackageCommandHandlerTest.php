@@ -13,15 +13,15 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\PackageCommandHandler;
-use Puli\RepositoryManager\Api\Environment\ProjectEnvironment;
-use Puli\RepositoryManager\Api\Package\InstallInfo;
-use Puli\RepositoryManager\Api\Package\Package;
-use Puli\RepositoryManager\Api\Package\PackageCollection;
-use Puli\RepositoryManager\Api\Package\PackageFile;
-use Puli\RepositoryManager\Api\Package\PackageManager;
-use Puli\RepositoryManager\Api\Package\PackageState;
-use Puli\RepositoryManager\Api\Package\RootPackage;
-use Puli\RepositoryManager\Api\Package\RootPackageFile;
+use Puli\Manager\Api\Environment\ProjectEnvironment;
+use Puli\Manager\Api\Package\InstallInfo;
+use Puli\Manager\Api\Package\Package;
+use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Package\PackageFile;
+use Puli\Manager\Api\Package\PackageManager;
+use Puli\Manager\Api\Package\PackageState;
+use Puli\Manager\Api\Package\RootPackage;
+use Puli\Manager\Api\Package\RootPackageFile;
 use RuntimeException;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
@@ -93,10 +93,10 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUp();
 
-        $this->environment = $this->getMockBuilder('Puli\RepositoryManager\Api\Environment\ProjectEnvironment')
+        $this->environment = $this->getMockBuilder('Puli\Manager\Api\Environment\ProjectEnvironment')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->packageManager = $this->getMock('Puli\RepositoryManager\Api\Package\PackageManager');
+        $this->packageManager = $this->getMock('Puli\Manager\Api\Package\PackageManager');
         $this->handler = new PackageCommandHandler($this->packageManager);
 
         $this->environment->expects($this->any())

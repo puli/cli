@@ -12,11 +12,11 @@
 namespace Puli\Cli\Handler;
 
 use Puli\Cli\Util\StringUtil;
-use Puli\RepositoryManager\Api\Package\Package;
-use Puli\RepositoryManager\Api\Package\PackageCollection;
-use Puli\RepositoryManager\Api\Package\PackageManager;
-use Puli\RepositoryManager\Api\Package\PackageState;
-use Puli\RepositoryManager\Api\Package\RootPackage;
+use Puli\Manager\Api\Package\Package;
+use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Package\PackageManager;
+use Puli\Manager\Api\Package\PackageState;
+use Puli\Manager\Api\Package\RootPackage;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;

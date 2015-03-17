@@ -12,9 +12,9 @@
 namespace Puli\Cli\Handler;
 
 use Puli\Cli\Util\ArgsUtil;
-use Puli\RepositoryManager\Api\Package\PackageCollection;
-use Puli\RepositoryManager\Api\Repository\RepositoryManager;
-use Puli\RepositoryManager\Api\Repository\ResourceMapping;
+use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Repository\RepositoryManager;
+use Puli\Manager\Api\Repository\ResourceMapping;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;

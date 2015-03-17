@@ -12,7 +12,7 @@
 namespace Puli\Cli\Handler;
 
 use Puli\Cli\Util\StringUtil;
-use Puli\RepositoryManager\Api\Package\RootPackageFileManager;
+use Puli\Manager\Api\Package\RootPackageFileManager;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 

@@ -13,15 +13,15 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\TypeCommandHandler;
-use Puli\RepositoryManager\Api\Discovery\BindingParameterDescriptor;
-use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
-use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
-use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
-use Puli\RepositoryManager\Api\Package\Package;
-use Puli\RepositoryManager\Api\Package\PackageCollection;
-use Puli\RepositoryManager\Api\Package\PackageFile;
-use Puli\RepositoryManager\Api\Package\RootPackage;
-use Puli\RepositoryManager\Api\Package\RootPackageFile;
+use Puli\Manager\Api\Discovery\BindingParameterDescriptor;
+use Puli\Manager\Api\Discovery\BindingTypeDescriptor;
+use Puli\Manager\Api\Discovery\BindingTypeState;
+use Puli\Manager\Api\Discovery\DiscoveryManager;
+use Puli\Manager\Api\Package\Package;
+use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Package\PackageFile;
+use Puli\Manager\Api\Package\RootPackage;
+use Puli\Manager\Api\Package\RootPackageFile;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 use Webmozart\Expression\Expr;
@@ -76,7 +76,7 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUp();
 
-        $this->discoveryManager = $this->getMock('Puli\RepositoryManager\Api\Discovery\DiscoveryManager');
+        $this->discoveryManager = $this->getMock('Puli\Manager\Api\Discovery\DiscoveryManager');
         $this->packages = new PackageCollection(array(
             new RootPackage(new RootPackageFile('vendor/root'), '/root'),
             new Package(new PackageFile('vendor/package1'), '/package1'),

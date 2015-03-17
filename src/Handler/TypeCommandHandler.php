@@ -13,11 +13,11 @@ namespace Puli\Cli\Handler;
 
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
-use Puli\RepositoryManager\Api\Discovery\BindingParameterDescriptor;
-use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
-use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
-use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
-use Puli\RepositoryManager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Discovery\BindingParameterDescriptor;
+use Puli\Manager\Api\Discovery\BindingTypeDescriptor;
+use Puli\Manager\Api\Discovery\BindingTypeState;
+use Puli\Manager\Api\Discovery\DiscoveryManager;
+use Puli\Manager\Api\Package\PackageCollection;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;

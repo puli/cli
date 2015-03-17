@@ -13,7 +13,7 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\ConfigCommandHandler;
-use Puli\RepositoryManager\Api\Package\RootPackageFileManager;
+use Puli\Manager\Api\Package\RootPackageFileManager;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 
@@ -67,7 +67,7 @@ class ConfigCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUp();
 
-        $this->manager = $this->getMock('Puli\RepositoryManager\Api\Package\RootPackageFileManager');
+        $this->manager = $this->getMock('Puli\Manager\Api\Package\RootPackageFileManager');
         $this->handler = new ConfigCommandHandler($this->manager);
     }
 

@@ -13,10 +13,10 @@ namespace Puli\Cli\Handler;
 
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
-use Puli\RepositoryManager\Api\Discovery\BindingDescriptor;
-use Puli\RepositoryManager\Api\Discovery\BindingState;
-use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
-use Puli\RepositoryManager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Discovery\BindingDescriptor;
+use Puli\Manager\Api\Discovery\BindingState;
+use Puli\Manager\Api\Discovery\DiscoveryManager;
+use Puli\Manager\Api\Package\PackageCollection;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;

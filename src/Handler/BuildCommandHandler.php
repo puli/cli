@@ -11,8 +11,8 @@
 
 namespace Puli\Cli\Handler;
 
-use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
-use Puli\RepositoryManager\Api\Repository\RepositoryManager;
+use Puli\Manager\Api\Discovery\DiscoveryManager;
+use Puli\Manager\Api\Repository\RepositoryManager;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 

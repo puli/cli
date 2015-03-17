@@ -20,8 +20,8 @@ use Puli\Cli\Handler\MapCommandHandler;
 use Puli\Cli\Handler\PackageCommandHandler;
 use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Cli\Handler\TypeCommandHandler;
-use Puli\RepositoryManager\Api\Package\InstallInfo;
-use Puli\RepositoryManager\Api\Puli;
+use Puli\Manager\Api\Package\InstallInfo;
+use Puli\Manager\Api\Puli;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
 use Webmozart\Console\Api\Formatter\Style;
@@ -146,8 +146,8 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->beginCommand('build')
                 ->setDescription('Build the resource repository/discovery')
-                ->addArgument('target', Argument::OPTIONAL, 'The build target. One of "repository", "discovery" and "all"', 'all')
-                ->addOption('force', 'f', Option::NO_VALUE, 'Force building even if the repository/discovery is not empty')
+                ->addArgument('target', Argument::OPTIONAL, 'The build target. One of "repository", "discovery", "factory" and "all"', 'all')
+                ->addOption('force', 'f', Option::NO_VALUE, 'Force building even if build target exists already')
                 ->setHandler(function () use ($puli) {
                     return new BuildCommandHandler(
                         $puli->getRepositoryManager(),

@@ -13,7 +13,7 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_MockObject_MockObject;
-use Puli\Cli\Handler\BindHandler;
+use Puli\Cli\Handler\BindCommandHandler;
 use Puli\RepositoryManager\Api\Discovery\BindingDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingState;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
@@ -31,7 +31,7 @@ use Webmozart\Expression\Expression;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class BindHandlerTest extends AbstractHandlerTest
+class BindCommandHandlerTest extends AbstractCommandHandlerTest
 {
     /**
      * @var Command
@@ -69,7 +69,7 @@ class BindHandlerTest extends AbstractHandlerTest
     private $packages;
 
     /**
-     * @var BindHandler
+     * @var BindCommandHandler
      */
     private $handler;
 
@@ -94,7 +94,7 @@ class BindHandlerTest extends AbstractHandlerTest
             new Package(new PackageFile('vendor/package1'), '/package1'),
             new Package(new PackageFile('vendor/package2'), '/package2'),
         ));
-        $this->handler = new BindHandler($this->discoveryManager, $this->packages);
+        $this->handler = new BindCommandHandler($this->discoveryManager, $this->packages);
     }
 
     public function testListAllBindings()

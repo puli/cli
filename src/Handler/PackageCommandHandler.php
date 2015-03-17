@@ -30,7 +30,7 @@ use Webmozart\PathUtil\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PackageHandler
+class PackageCommandHandler
 {
     /**
      * @var PackageManager

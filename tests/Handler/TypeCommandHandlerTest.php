@@ -12,7 +12,7 @@
 namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
-use Puli\Cli\Handler\TypeHandler;
+use Puli\Cli\Handler\TypeCommandHandler;
 use Puli\RepositoryManager\Api\Discovery\BindingParameterDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeDescriptor;
 use Puli\RepositoryManager\Api\Discovery\BindingTypeState;
@@ -31,7 +31,7 @@ use Webmozart\Expression\Expression;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TypeHandlerTest extends AbstractHandlerTest
+class TypeCommandHandlerTest extends AbstractCommandHandlerTest
 {
     /**
      * @var Command
@@ -59,7 +59,7 @@ class TypeHandlerTest extends AbstractHandlerTest
     private $packages;
 
     /**
-     * @var TypeHandler
+     * @var TypeCommandHandler
      */
     private $handler;
 
@@ -82,7 +82,7 @@ class TypeHandlerTest extends AbstractHandlerTest
             new Package(new PackageFile('vendor/package1'), '/package1'),
             new Package(new PackageFile('vendor/package2'), '/package2'),
         ));
-        $this->handler = new TypeHandler($this->discoveryManager, $this->packages);
+        $this->handler = new TypeCommandHandler($this->discoveryManager, $this->packages);
 
         $this->discoveryManager->expects($this->any())
             ->method('findBindingTypes')

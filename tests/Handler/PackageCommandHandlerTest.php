@@ -12,7 +12,7 @@
 namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
-use Puli\Cli\Handler\PackageHandler;
+use Puli\Cli\Handler\PackageCommandHandler;
 use Puli\RepositoryManager\Api\Environment\ProjectEnvironment;
 use Puli\RepositoryManager\Api\Package\InstallInfo;
 use Puli\RepositoryManager\Api\Package\Package;
@@ -32,7 +32,7 @@ use Webmozart\Expression\Expression;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PackageHandlerTest extends AbstractHandlerTest
+class PackageCommandHandlerTest extends AbstractCommandHandlerTest
 {
     /**
      * @var Command
@@ -65,7 +65,7 @@ class PackageHandlerTest extends AbstractHandlerTest
     private $packageManager;
 
     /**
-     * @var PackageHandler
+     * @var PackageCommandHandler
      */
     private $handler;
 
@@ -97,7 +97,7 @@ class PackageHandlerTest extends AbstractHandlerTest
             ->disableOriginalConstructor()
             ->getMock();
         $this->packageManager = $this->getMock('Puli\RepositoryManager\Api\Package\PackageManager');
-        $this->handler = new PackageHandler($this->packageManager);
+        $this->handler = new PackageCommandHandler($this->packageManager);
 
         $this->environment->expects($this->any())
             ->method('getRootDirectory')

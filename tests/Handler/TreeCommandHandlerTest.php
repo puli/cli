@@ -11,7 +11,7 @@
 
 namespace Puli\Cli\Tests\Handler;
 
-use Puli\Cli\Handler\TreeHandler;
+use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
@@ -22,7 +22,7 @@ use Webmozart\Console\Args\StringArgs;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TreeHandlerTest extends AbstractHandlerTest
+class TreeCommandHandlerTest extends AbstractCommandHandlerTest
 {
     /**
      * @var Command
@@ -35,7 +35,7 @@ class TreeHandlerTest extends AbstractHandlerTest
     private $repo;
 
     /**
-     * @var TreeHandler
+     * @var TreeCommandHandler
      */
     private $handler;
 
@@ -51,7 +51,7 @@ class TreeHandlerTest extends AbstractHandlerTest
         parent::setUp();
 
         $this->repo = new InMemoryRepository();
-        $this->handler = new TreeHandler($this->repo);
+        $this->handler = new TreeCommandHandler($this->repo);
     }
 
     public function testPrintRootTree()

@@ -12,7 +12,7 @@
 namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
-use Puli\Cli\Handler\FindHandler;
+use Puli\Cli\Handler\FindCommandHandler;
 use Puli\Discovery\Api\Binding\BindingType;
 use Puli\Discovery\Api\ResourceDiscovery;
 use Puli\Discovery\Binding\EagerBinding;
@@ -28,7 +28,7 @@ use Webmozart\Console\Args\StringArgs;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FindHandlerTest extends AbstractHandlerTest
+class FindCommandHandlerTest extends AbstractCommandHandlerTest
 {
     /**
      * @var Command
@@ -46,7 +46,7 @@ class FindHandlerTest extends AbstractHandlerTest
     private $discovery;
 
     /**
-     * @var FindHandler
+     * @var FindCommandHandler
      */
     private $handler;
 
@@ -63,7 +63,7 @@ class FindHandlerTest extends AbstractHandlerTest
 
         $this->repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
         $this->discovery = $this->getMock('Puli\Discovery\Api\ResourceDiscovery');
-        $this->handler = new FindHandler($this->repo, $this->discovery);
+        $this->handler = new FindCommandHandler($this->repo, $this->discovery);
     }
 
     public function testFindByRelativePattern()

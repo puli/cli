@@ -12,7 +12,7 @@
 namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
-use Puli\Cli\Handler\MapHandler;
+use Puli\Cli\Handler\MapCommandHandler;
 use Puli\RepositoryManager\Api\Package\Package;
 use Puli\RepositoryManager\Api\Package\PackageCollection;
 use Puli\RepositoryManager\Api\Package\PackageFile;
@@ -27,7 +27,7 @@ use Webmozart\Console\Args\StringArgs;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class MapHandlerTest extends AbstractHandlerTest
+class MapCommandHandlerTest extends AbstractCommandHandlerTest
 {
     /**
      * @var Command
@@ -55,7 +55,7 @@ class MapHandlerTest extends AbstractHandlerTest
     private $packages;
 
     /**
-     * @var MapHandler
+     * @var MapCommandHandler
      */
     private $handler;
 
@@ -78,7 +78,7 @@ class MapHandlerTest extends AbstractHandlerTest
             new Package(new PackageFile('vendor/package1'), '/package1'),
             new Package(new PackageFile('vendor/package2'), '/package2'),
         ));
-        $this->handler = new MapHandler($this->repoManager, $this->packages);
+        $this->handler = new MapCommandHandler($this->repoManager, $this->packages);
 
         $this->repoManager->expects($this->any())
             ->method('getResourceMappings')

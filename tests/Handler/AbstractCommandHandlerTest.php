@@ -23,7 +23,7 @@ use Webmozart\Console\IO\BufferedIO;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class AbstractHandlerTest extends PHPUnit_Framework_TestCase
+abstract class AbstractCommandHandlerTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Application

@@ -26,7 +26,7 @@ use Webmozart\Console\UI\Style\TableStyle;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FindHandler
+class FindCommandHandler
 {
     /**
      * @var ResourceRepository

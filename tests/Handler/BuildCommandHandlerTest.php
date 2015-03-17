@@ -12,7 +12,7 @@
 namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
-use Puli\Cli\Handler\BuildHandler;
+use Puli\Cli\Handler\BuildCommandHandler;
 use Puli\RepositoryManager\Api\Discovery\DiscoveryManager;
 use Puli\RepositoryManager\Api\Repository\RepositoryManager;
 use Webmozart\Console\Api\Command\Command;
@@ -22,7 +22,7 @@ use Webmozart\Console\Args\StringArgs;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class BuildHandlerTest extends AbstractHandlerTest
+class BuildCommandHandlerTest extends AbstractCommandHandlerTest
 {
     /**
      * @var Command
@@ -40,7 +40,7 @@ class BuildHandlerTest extends AbstractHandlerTest
     private $discoveryManager;
 
     /**
-     * @var BuildHandler
+     * @var BuildCommandHandler
      */
     private $handler;
 
@@ -57,7 +57,7 @@ class BuildHandlerTest extends AbstractHandlerTest
 
         $this->repoManager = $this->getMock('Puli\RepositoryManager\Api\Repository\RepositoryManager');
         $this->discoveryManager = $this->getMock('Puli\RepositoryManager\Api\Discovery\DiscoveryManager');
-        $this->handler = new BuildHandler($this->repoManager, $this->discoveryManager);
+        $this->handler = new BuildCommandHandler($this->repoManager, $this->discoveryManager);
     }
 
     public function testBuild()

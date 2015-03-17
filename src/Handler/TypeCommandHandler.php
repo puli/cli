@@ -30,7 +30,7 @@ use Webmozart\Expression\Expr;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TypeHandler
+class TypeCommandHandler
 {
     /**
      * @var DiscoveryManager

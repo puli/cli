@@ -22,7 +22,7 @@ use Webmozart\Console\Api\Args\Args;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class BuildHandler
+class BuildCommandHandler
 {
     /**
      * @var string[]

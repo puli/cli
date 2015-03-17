@@ -12,7 +12,7 @@
 namespace Puli\Cli\Tests\Handler;
 
 use DateTime;
-use Puli\Cli\Handler\LsHandler;
+use Puli\Cli\Handler\LsCommandHandler;
 use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
@@ -23,7 +23,7 @@ use Webmozart\Console\Args\StringArgs;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LsHandlerTest extends AbstractHandlerTest
+class LsCommandHandlerTest extends AbstractCommandHandlerTest
 {
     /**
      * @var Command
@@ -36,7 +36,7 @@ class LsHandlerTest extends AbstractHandlerTest
     private $repo;
 
     /**
-     * @var LsHandler
+     * @var LsCommandHandler
      */
     private $handler;
 
@@ -52,7 +52,7 @@ class LsHandlerTest extends AbstractHandlerTest
         parent::setUp();
 
         $this->repo = new InMemoryRepository();
-        $this->handler = new LsHandler($this->repo);
+        $this->handler = new LsCommandHandler($this->repo);
     }
 
     public function testListRelativePath()

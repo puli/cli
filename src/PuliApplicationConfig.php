@@ -11,15 +11,15 @@
 
 namespace Puli\Cli;
 
-use Puli\Cli\Handler\BindHandler;
-use Puli\Cli\Handler\BuildHandler;
-use Puli\Cli\Handler\ConfigHandler;
-use Puli\Cli\Handler\FindHandler;
-use Puli\Cli\Handler\LsHandler;
-use Puli\Cli\Handler\MapHandler;
-use Puli\Cli\Handler\PackageHandler;
-use Puli\Cli\Handler\TreeHandler;
-use Puli\Cli\Handler\TypeHandler;
+use Puli\Cli\Handler\BindCommandHandler;
+use Puli\Cli\Handler\BuildCommandHandler;
+use Puli\Cli\Handler\ConfigCommandHandler;
+use Puli\Cli\Handler\FindCommandHandler;
+use Puli\Cli\Handler\LsCommandHandler;
+use Puli\Cli\Handler\MapCommandHandler;
+use Puli\Cli\Handler\PackageCommandHandler;
+use Puli\Cli\Handler\TreeCommandHandler;
+use Puli\Cli\Handler\TypeCommandHandler;
 use Puli\RepositoryManager\Api\Package\InstallInfo;
 use Puli\RepositoryManager\Api\Puli;
 use Webmozart\Console\Api\Args\Format\Argument;
@@ -94,7 +94,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('bind')
                 ->setDescription('Bind resources to binding types')
                 ->setHandler(function () use ($puli) {
-                    return new BindHandler(
+                    return new BindCommandHandler(
                         $puli->getDiscoveryManager(),
                         $puli->getPackageManager()->getPackages()
                     );
@@ -149,7 +149,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->addArgument('target', Argument::OPTIONAL, 'The build target. One of "repository", "discovery" and "all"', 'all')
                 ->addOption('force', 'f', Option::NO_VALUE, 'Force building even if the repository/discovery is not empty')
                 ->setHandler(function () use ($puli) {
-                    return new BuildHandler(
+                    return new BuildCommandHandler(
                         $puli->getRepositoryManager(),
                         $puli->getDiscoveryManager()
                     );
@@ -159,7 +159,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('config')
                 ->setDescription('Display and modify configuration values')
                 ->setHandler(function () use ($puli) {
-                    return new ConfigHandler($puli->getRootPackageFileManager());
+                    return new ConfigCommandHandler($puli->getRootPackageFileManager());
                 })
 
                 ->beginSubCommand('list')
@@ -193,7 +193,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->addOption('type', 't', Option::REQUIRED_VALUE, 'The short name of a resource class')
                 ->addOption('bound-to', 'b', Option::REQUIRED_VALUE, 'The name of a binding type')
                 ->setHandler(function () use ($puli) {
-                    return new FindHandler($puli->getRepository(), $puli->getDiscovery());
+                    return new FindCommandHandler($puli->getRepository(), $puli->getDiscovery());
                 })
             ->end()
 
@@ -217,14 +217,14 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
                 ->addOption('long', 'l', Option::NO_VALUE, 'Print more information about each child')
                 ->setHandler(function () use ($puli) {
-                    return new LsHandler($puli->getRepository());
+                    return new LsCommandHandler($puli->getRepository());
                 })
             ->end()
 
             ->beginCommand('map')
                 ->setDescription('Display and change resource mappings')
                 ->setHandler(function () use ($puli) {
-                    return new MapHandler(
+                    return new MapCommandHandler(
                         $puli->getRepositoryManager(),
                         $puli->getPackageManager()->getPackages()
                     );
@@ -255,7 +255,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('package')
                 ->setDescription('Display the installed packages')
                 ->setHandler(function () use ($puli) {
-                    return new PackageHandler($puli->getPackageManager());
+                    return new PackageCommandHandler($puli->getPackageManager());
                 })
 
                 ->beginSubCommand('install')
@@ -288,14 +288,14 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setDescription('Print the contents of a resource as tree')
                 ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
                 ->setHandler(function () use ($puli) {
-                    return new TreeHandler($puli->getRepository());
+                    return new TreeCommandHandler($puli->getRepository());
                 })
             ->end()
 
             ->beginCommand('type')
                 ->setDescription('Display and change binding types')
                 ->setHandler(function () use ($puli) {
-                    return new TypeHandler(
+                    return new TypeCommandHandler(
                         $puli->getDiscoveryManager(),
                         $puli->getPackageManager()->getPackages()
                     );

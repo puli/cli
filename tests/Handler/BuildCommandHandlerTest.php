@@ -41,6 +41,11 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
     private $discoveryManager;
 
     /**
+     * @var PHPUnit_Framework_MockObject_MockObject|FactoryManager
+     */
+    private $factoryManager;
+
+    /**
      * @var BuildCommandHandler
      */
     private $handler;
@@ -58,13 +63,16 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
 
         $this->repoManager = $this->getMock('Puli\Manager\Api\Repository\RepositoryManager');
         $this->discoveryManager = $this->getMock('Puli\Manager\Api\Discovery\DiscoveryManager');
-        $this->handler = new BuildCommandHandler($this->repoManager, $this->discoveryManager);
+        $this->factoryManager = $this->getMock('Puli\Manager\Api\Factory\FactoryManager');
+        $this->handler = new BuildCommandHandler($this->repoManager, $this->discoveryManager, $this->factoryManager);
     }
 
     public function testBuild()
     {
         $args = self::$buildCommand->parseArgs(new StringArgs(''));
 
+        $this->factoryManager->expects($this->once())
+            ->method('autoGenerateFactoryClass');
         $this->repoManager->expects($this->never())
             ->method('clearRepository');
         $this->repoManager->expects($this->once())
@@ -85,6 +93,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
     {
         $args = self::$buildCommand->parseArgs(new StringArgs('all'));
 
+        $this->factoryManager->expects($this->once())
+            ->method('autoGenerateFactoryClass');
         $this->repoManager->expects($this->never())
             ->method('clearRepository');
         $this->repoManager->expects($this->once())
@@ -105,6 +115,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
     {
         $args = self::$buildCommand->parseArgs(new StringArgs('repository'));
 
+        $this->factoryManager->expects($this->never())
+            ->method('autoGenerateFactoryClass');
         $this->repoManager->expects($this->never())
             ->method('clearRepository');
         $this->repoManager->expects($this->once())
@@ -125,6 +137,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
     {
         $args = self::$buildCommand->parseArgs(new StringArgs('discovery'));
 
+        $this->factoryManager->expects($this->never())
+            ->method('autoGenerateFactoryClass');
         $this->repoManager->expects($this->never())
             ->method('clearRepository');
         $this->repoManager->expects($this->never())
@@ -141,10 +155,34 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
         $this->assertEmpty($this->io->fetchErrors());
     }
 
+    public function testBuildFactory()
+    {
+        $args = self::$buildCommand->parseArgs(new StringArgs('factory'));
+
+        $this->factoryManager->expects($this->once())
+            ->method('autoGenerateFactoryClass');
+        $this->repoManager->expects($this->never())
+            ->method('clearRepository');
+        $this->repoManager->expects($this->never())
+            ->method('buildRepository');
+        $this->discoveryManager->expects($this->never())
+            ->method('clearDiscovery');
+        $this->discoveryManager->expects($this->never())
+            ->method('buildDiscovery');
+
+        $statusCode = $this->handler->handle($args);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
     public function testBuildForce()
     {
         $args = self::$buildCommand->parseArgs(new StringArgs('--force'));
 
+        $this->factoryManager->expects($this->once())
+            ->method('autoGenerateFactoryClass');
         $this->repoManager->expects($this->at(0))
             ->method('clearRepository');
         $this->repoManager->expects($this->at(1))
@@ -165,6 +203,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
     {
         $args = self::$buildCommand->parseArgs(new StringArgs('--force repository'));
 
+        $this->factoryManager->expects($this->never())
+            ->method('autoGenerateFactoryClass');
         $this->repoManager->expects($this->at(0))
             ->method('clearRepository');
         $this->repoManager->expects($this->at(1))
@@ -185,6 +225,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
     {
         $args = self::$buildCommand->parseArgs(new StringArgs('--force discovery'));
 
+        $this->factoryManager->expects($this->never())
+            ->method('autoGenerateFactoryClass');
         $this->repoManager->expects($this->never())
             ->method('clearRepository');
         $this->repoManager->expects($this->never())
@@ -201,14 +243,38 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
         $this->assertEmpty($this->io->fetchErrors());
     }
 
+    public function testBuildFactoryForce()
+    {
+        $args = self::$buildCommand->parseArgs(new StringArgs('--force factory'));
+
+        $this->factoryManager->expects($this->once())
+            ->method('autoGenerateFactoryClass');
+        $this->repoManager->expects($this->never())
+            ->method('clearRepository');
+        $this->repoManager->expects($this->never())
+            ->method('buildRepository');
+        $this->discoveryManager->expects($this->never())
+            ->method('clearDiscovery');
+        $this->discoveryManager->expects($this->never())
+            ->method('buildDiscovery');
+
+        $statusCode = $this->handler->handle($args);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Invalid build target "foobar". Expected one of: "all", "repository", "discovery"
+     * @expectedExceptionMessage Invalid build target "foobar". Expected one of: "all", "factory", "repository", "discovery"
      */
     public function testBuildFailsIfInvalidTarget()
     {
         $args = self::$buildCommand->parseArgs(new StringArgs('--force foobar'));
 
+        $this->factoryManager->expects($this->never())
+            ->method('autoGenerateFactoryClass');
         $this->repoManager->expects($this->never())
             ->method('clearRepository');
         $this->repoManager->expects($this->never())

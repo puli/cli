@@ -12,6 +12,7 @@
 namespace Puli\Cli\Handler;
 
 use Puli\Manager\Api\Discovery\DiscoveryManager;
+use Puli\Manager\Api\Factory\FactoryManager;
 use Puli\Manager\Api\Repository\RepositoryManager;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
@@ -27,7 +28,7 @@ class BuildCommandHandler
     /**
      * @var string[]
      */
-    private static $targets = array('all', 'repository', 'discovery');
+    private static $targets = array('all', 'factory', 'repository', 'discovery');
 
     /**
      * @var RepositoryManager
@@ -40,15 +41,22 @@ class BuildCommandHandler
     private $discoveryManager;
 
     /**
+     * @var FactoryManager
+     */
+    private $factoryManager;
+
+    /**
      * Creates the handler.
      *
      * @param RepositoryManager $repoManager      The repository manager.
      * @param DiscoveryManager  $discoveryManager The discovery manager.
+     * @param FactoryManager    $factoryManager   The factory manager.
      */
-    public function __construct(RepositoryManager $repoManager, DiscoveryManager $discoveryManager)
+    public function __construct(RepositoryManager $repoManager, DiscoveryManager $discoveryManager, FactoryManager $factoryManager)
     {
         $this->repoManager = $repoManager;
         $this->discoveryManager = $discoveryManager;
+        $this->factoryManager = $factoryManager;
     }
 
     /**
@@ -68,6 +76,10 @@ class BuildCommandHandler
                 $target,
                 implode('", "', self::$targets)
             ));
+        }
+
+        if ('all' === $target || 'factory' === $target) {
+            $this->factoryManager->autoGenerateFactoryClass();
         }
 
         if ('all' === $target || 'repository' === $target) {

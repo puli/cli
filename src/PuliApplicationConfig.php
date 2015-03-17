@@ -151,7 +151,8 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setHandler(function () use ($puli) {
                     return new BuildCommandHandler(
                         $puli->getRepositoryManager(),
-                        $puli->getDiscoveryManager()
+                        $puli->getDiscoveryManager(),
+                        $puli->getFactoryManager()
                     );
                 })
             ->end()

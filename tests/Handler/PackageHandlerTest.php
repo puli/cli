@@ -93,7 +93,9 @@ class PackageHandlerTest extends AbstractHandlerTest
     {
         parent::setUp();
 
-        $this->environment = $this->getMock('Puli\RepositoryManager\Api\Environment\ProjectEnvironment');
+        $this->environment = $this->getMockBuilder('Puli\RepositoryManager\Api\Environment\ProjectEnvironment')
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->packageManager = $this->getMock('Puli\RepositoryManager\Api\Package\PackageManager');
         $this->handler = new PackageHandler($this->packageManager);
 

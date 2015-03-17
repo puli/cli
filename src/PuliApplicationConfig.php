@@ -193,10 +193,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->addOption('type', 't', Option::REQUIRED_VALUE, 'The short name of a resource class')
                 ->addOption('bound-to', 'b', Option::REQUIRED_VALUE, 'The name of a binding type')
                 ->setHandler(function () use ($puli) {
-                    return new FindHandler(
-                        $puli->getEnvironment()->getRepository(),
-                        $puli->getEnvironment()->getDiscovery()
-                    );
+                    return new FindHandler($puli->getRepository(), $puli->getDiscovery());
                 })
             ->end()
 
@@ -220,7 +217,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
                 ->addOption('long', 'l', Option::NO_VALUE, 'Print more information about each child')
                 ->setHandler(function () use ($puli) {
-                    return new LsHandler($puli->getEnvironment()->getRepository());
+                    return new LsHandler($puli->getRepository());
                 })
             ->end()
 
@@ -291,7 +288,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setDescription('Print the contents of a resource as tree')
                 ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
                 ->setHandler(function () use ($puli) {
-                    return new TreeHandler($puli->getEnvironment()->getRepository());
+                    return new TreeHandler($puli->getRepository());
                 })
             ->end()
 

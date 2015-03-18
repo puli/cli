@@ -79,7 +79,7 @@ class FindCommandHandlerTest extends AbstractCommandHandlerTest
                 new GenericResource('/path/resource2'),
             )));
         $this->discovery->expects($this->never())
-            ->method('find');
+            ->method('findByType');
 
         $statusCode = $this->handler->handle($args, $this->io);
 
@@ -108,7 +108,7 @@ EOF;
                 new GenericResource('/path/resource2'),
             )));
         $this->discovery->expects($this->never())
-            ->method('find');
+            ->method('findByType');
 
         $statusCode = $this->handler->handle($args, $this->io);
 
@@ -137,7 +137,7 @@ EOF;
                 new GenericResource('/path/resource2'),
             )));
         $this->discovery->expects($this->never())
-            ->method('find');
+            ->method('findByType');
 
         $statusCode = $this->handler->handle($args, $this->io);
 
@@ -160,7 +160,7 @@ EOF;
         $this->repo->expects($this->never())
             ->method('find');
         $this->discovery->expects($this->once())
-            ->method('find')
+            ->method('findByType')
             ->with('vendor/type')
             ->willReturn(array(
                 new EagerBinding('/path', new ArrayResourceCollection(array(
@@ -200,7 +200,7 @@ EOF;
                 new GenericResource('/path/resource2'),
             )));
         $this->discovery->expects($this->never())
-            ->method('find');
+            ->method('findByType');
 
         $statusCode = $this->handler->handle($args, $this->io);
 
@@ -223,7 +223,7 @@ EOF;
         $this->repo->expects($this->never())
             ->method('find');
         $this->discovery->expects($this->once())
-            ->method('find')
+            ->method('findByType')
             ->with('vendor/type')
             ->willReturn(array(
                 new EagerBinding('/path', new ArrayResourceCollection(array(
@@ -265,7 +265,7 @@ EOF;
                 new GenericResource('/path/resource3'),
             )));
         $this->discovery->expects($this->once())
-            ->method('find')
+            ->method('findByType')
             ->with('vendor/type')
             ->willReturn(array(
                 new EagerBinding('/path', new ArrayResourceCollection(array(
@@ -304,7 +304,7 @@ EOF;
         $this->repo->expects($this->never())
             ->method('find');
         $this->discovery->expects($this->never())
-            ->method('find');
+            ->method('findByType');
 
         $this->handler->handle($args, $this->io);
     }

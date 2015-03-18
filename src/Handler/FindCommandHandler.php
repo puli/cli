@@ -153,7 +153,7 @@ class FindCommandHandler
     {
         $matches = array();
 
-        foreach ($this->discovery->find($typeName) as $binding) {
+        foreach ($this->discovery->findByType($typeName) as $binding) {
             foreach ($binding->getResources() as $resource) {
                 $matches[$resource->getPath()] = StringUtil::getShortClassName(get_class($resource));
             }

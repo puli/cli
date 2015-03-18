@@ -638,6 +638,38 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
+    public function testListBindingsWithParameters()
+    {
+        $this->discoveryManager->expects($this->any())
+            ->method('findBindings')
+            ->willReturnCallback($this->returnFromMap(array(
+                array($this->packageAndState('vendor/root', BindingState::ENABLED), array(
+                    new BindingDescriptor('/path', 'my/type', array(
+                        'param1' => 'value1',
+                        'param2' => 'value2',
+                    )),
+                )),
+            )));
+
+        $args = self::$listCommand->parseArgs(new StringArgs(''));
+
+        $statusCode = $this->handler->handleList($args, $this->io);
+
+        $nbsp = "\xc2\xa0";
+        $expected = <<<EOF
+Enabled bindings:
+
+    vendor/root
+    8fd9c3 /path my/type (param1="value1",{$nbsp}param2="value2")
+
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
     public function testSaveBindingWithRelativePath()
     {
         $args = self::$saveCommand->parseArgs(new StringArgs('path my/type'));

@@ -300,8 +300,7 @@ class BindCommandHandler
     {
         $table = new Table(TableStyle::borderless());
 
-        $paramTag = $enabled ? 'good' : 'bad';
-        $uuidTag = $enabled ? 'good' : 'bad';
+        $paramTag = $enabled ? 'em' : 'bad';
         $queryTag = $enabled ? 'em' : 'bad';
         $typeTag = $enabled ? 'u' : 'bad';
 
@@ -313,10 +312,20 @@ class BindCommandHandler
             }
 
             $uuid = substr($descriptor->getUuid(), 0, 6);
-            $paramString = $parameters ? " <$paramTag>(".implode(', ', $parameters).")</$paramTag>" : '';
+
+            if (!$enabled) {
+                $uuid = "<bad>$uuid</bad>";
+            }
+
+            if ($parameters) {
+                // \xc2\xa0 is a non-breaking space
+                $paramString = " <$paramTag>(".implode(",\xc2\xa0", $parameters).")</$paramTag>";
+            } else {
+                $paramString = '';
+            }
 
             $table->addRow(array(
-                "<$uuidTag>$uuid</$uuidTag> <$queryTag>{$descriptor->getQuery()}</$queryTag>",
+                "$uuid <$queryTag>{$descriptor->getQuery()}</$queryTag>",
                 "<$typeTag>{$descriptor->getTypeName()}</$typeTag>".$paramString
             ));
         }

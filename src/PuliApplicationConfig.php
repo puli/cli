@@ -26,6 +26,7 @@ use Puli\Manager\Api\Puli;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
+use Webmozart\Console\Api\Event\ConsoleEvents;
 use Webmozart\Console\Api\Formatter\Style;
 use Webmozart\Console\Config\DefaultApplicationConfig;
 use Webmozart\Console\Handler\Help\HelpHandler;
@@ -44,11 +45,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
     const VERSION = '@package_version@';
 
     /**
-     * @var string
-     */
-    private $rootDir;
-
-    /**
      * @var Puli
      */
     private $puli;
@@ -61,35 +57,11 @@ class PuliApplicationConfig extends DefaultApplicationConfig
      */
     public function __construct($rootDir = null)
     {
-        $this->rootDir = $rootDir ?: getcwd();
+        // Start Puli already so that plugins can change the CLI configuration
+        $this->puli = new Puli($rootDir ?: getcwd());
+        $this->puli->start();
 
         parent::__construct();
-    }
-
-    /**
-     * Returns the root directory of the project.
-     *
-     * @return string The root directory.
-     */
-    public function getRootDirectory()
-    {
-        return $this->rootDir;
-    }
-
-    /**
-     * Returns the Puli service container.
-     *
-     * @return Puli The Puli service container.
-     */
-    public function getPuli()
-    {
-        if (!$this->puli) {
-            $this->puli = new Puli($this->rootDir);
-            $this->puli->setEventDispatcher($this->getEventDispatcher());
-            $this->puli->start();
-        }
-
-        return $this->puli;
     }
 
     /**
@@ -97,14 +69,15 @@ class PuliApplicationConfig extends DefaultApplicationConfig
      */
     protected function configure()
     {
-        // Make sure an event dispatcher is available
+        // Make sure the console and Puli use the same event dispatcher so that
+        // Puli plugins can listen to the console events.
         // Add the dispatcher before parent::configure() so that the parent
-        // listeners don't get overwritten
-        $this->setEventDispatcher(new EventDispatcher());
+        // listeners don't get overwritten.
+        $this->setEventDispatcher($this->puli->getEventDispatcher());
 
         parent::configure();
 
-        $config = $this;
+        $puli = $this->puli;
         $rootDir = __DIR__.'/..';
 
         $this
@@ -122,10 +95,10 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->beginCommand('bind')
                 ->setDescription('Bind resources to binding types')
-                ->setHandler(function () use ($config) {
+                ->setHandler(function () use ($puli) {
                     return new BindCommandHandler(
-                        $config->getPuli()->getDiscoveryManager(),
-                        $config->getPuli()->getPackageManager()->getPackages()
+                        $puli->getDiscoveryManager(),
+                        $puli->getPackageManager()->getPackages()
                     );
                 })
 
@@ -177,19 +150,19 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setDescription('Build the resource repository/discovery')
                 ->addArgument('target', Argument::OPTIONAL, 'The build target. One of "repository", "discovery", "factory" and "all"', 'all')
                 ->addOption('force', 'f', Option::NO_VALUE, 'Force building even if build target exists already')
-                ->setHandler(function () use ($config) {
+                ->setHandler(function () use ($puli) {
                     return new BuildCommandHandler(
-                        $config->getPuli()->getRepositoryManager(),
-                        $config->getPuli()->getDiscoveryManager(),
-                        $config->getPuli()->getFactoryManager()
+                        $puli->getRepositoryManager(),
+                        $puli->getDiscoveryManager(),
+                        $puli->getFactoryManager()
                     );
                 })
             ->end()
 
             ->beginCommand('config')
                 ->setDescription('Display and modify configuration values')
-                ->setHandler(function () use ($config) {
-                    return new ConfigCommandHandler($config->getPuli()->getRootPackageFileManager());
+                ->setHandler(function () use ($puli) {
+                    return new ConfigCommandHandler($puli->getRootPackageFileManager());
                 })
 
                 ->beginSubCommand('list')
@@ -222,10 +195,10 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->addArgument('pattern', Argument::OPTIONAL, 'A resource path pattern')
                 ->addOption('type', 't', Option::REQUIRED_VALUE, 'The short name of a resource class')
                 ->addOption('bound-to', 'b', Option::REQUIRED_VALUE, 'The name of a binding type')
-                ->setHandler(function () use ($config) {
+                ->setHandler(function () use ($puli) {
                     return new FindCommandHandler(
-                        $config->getPuli()->getRepository(),
-                        $config->getPuli()->getDiscovery()
+                        $puli->getRepository(),
+                        $puli->getDiscovery()
                     );
                 })
             ->end()
@@ -249,19 +222,19 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setDescription('List the children of a resource in the repository')
                 ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
                 ->addOption('long', 'l', Option::NO_VALUE, 'Print more information about each child')
-                ->setHandler(function () use ($config) {
+                ->setHandler(function () use ($puli) {
                     return new LsCommandHandler(
-                        $config->getPuli()->getRepository()
+                        $puli->getRepository()
                     );
                 })
             ->end()
 
             ->beginCommand('map')
                 ->setDescription('Display and change resource mappings')
-                ->setHandler(function () use ($config) {
+                ->setHandler(function () use ($puli) {
                     return new MapCommandHandler(
-                        $config->getPuli()->getRepositoryManager(),
-                        $config->getPuli()->getPackageManager()->getPackages()
+                        $puli->getRepositoryManager(),
+                        $puli->getPackageManager()->getPackages()
                     );
                 })
 
@@ -289,8 +262,8 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->beginCommand('package')
                 ->setDescription('Display the installed packages')
-                ->setHandler(function () use ($config) {
-                    return new PackageCommandHandler($config->getPuli()->getPackageManager());
+                ->setHandler(function () use ($puli) {
+                    return new PackageCommandHandler($puli->getPackageManager());
                 })
 
                 ->beginSubCommand('install')
@@ -321,14 +294,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->beginCommand('plugin')
                 ->setDescription('Manage the installed Puli plugins')
-                ->setHandler(function () use ($config) {
-                    // Do not activate plugins so that we can fix an erroneous
-                    // install
-                    $puli = new Puli($config->getRootDirectory());
-                    $puli->setEventDispatcher($config->getEventDispatcher());
-                    $puli->disablePlugins();
-                    $puli->start();
-
+                ->setHandler(function () use ($puli) {
                     return new PluginCommandHandler($puli->getRootPackageFileManager());
                 })
 
@@ -351,17 +317,17 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('tree')
                 ->setDescription('Print the contents of a resource as tree')
                 ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
-                ->setHandler(function () use ($config) {
-                    return new TreeCommandHandler($config->getPuli()->getRepository());
+                ->setHandler(function () use ($puli) {
+                    return new TreeCommandHandler($puli->getRepository());
                 })
             ->end()
 
             ->beginCommand('type')
                 ->setDescription('Display and change binding types')
-                ->setHandler(function () use ($config) {
+                ->setHandler(function () use ($puli) {
                     return new TypeCommandHandler(
-                        $config->getPuli()->getDiscoveryManager(),
-                        $config->getPuli()->getPackageManager()->getPackages()
+                        $puli->getDiscoveryManager(),
+                        $puli->getPackageManager()->getPackages()
                     );
                 })
 

@@ -26,6 +26,11 @@ use Webmozart\Console\IO\BufferedIO;
 abstract class AbstractCommandHandlerTest extends PHPUnit_Framework_TestCase
 {
     /**
+     * @var string
+     */
+    protected static $tempDir;
+
+    /**
      * @var Application
      */
     protected static $application;
@@ -42,7 +47,9 @@ abstract class AbstractCommandHandlerTest extends PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        self::$application = new ConsoleApplication(new PuliApplicationConfig());
+        while (false === @mkdir(self::$tempDir = sys_get_temp_dir().'/puli-cli/AbstractCommandHandlerTest'.rand(10000, 99999), 0777, true)) {}
+
+        self::$application = new ConsoleApplication(new PuliApplicationConfig(self::$tempDir));
         self::$formatter = new PlainFormatter(self::$application->getConfig()->getStyleSet());
     }
 

@@ -52,14 +52,16 @@ class PuliApplicationConfig extends DefaultApplicationConfig
     /**
      * Creates the configuration.
      *
-     * @param string $rootDir The root directory of the project. If `null`, the
-     *                        current working directory is used.
+     * @param Puli $puli The Puli service container.
      */
-    public function __construct($rootDir = null)
+    public function __construct(Puli $puli = null)
     {
         // Start Puli already so that plugins can change the CLI configuration
-        $this->puli = new Puli($rootDir ?: getcwd());
-        $this->puli->start();
+        $this->puli = $puli ?: new Puli(getcwd());
+
+        if (!$this->puli->isStarted()) {
+            $this->puli->start();
+        }
 
         parent::__construct();
     }

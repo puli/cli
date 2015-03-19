@@ -88,7 +88,7 @@ class TreeCommandHandler
         $resource = $this->repo->get($path);
         $total = 0;
 
-        $io->writeLine('<em>'.$resource->getPath().'</em>');
+        $io->writeLine('<c1>'.$resource->getPath().'</c1>');
 
         $this->printTree($io, $resource, $total);
 
@@ -121,7 +121,7 @@ class TreeCommandHandler
             $name = $child->getName() ?: '/';
 
             if ($child->hasChildren()) {
-                $name = '<em>'.$name.'</em>';
+                $name = '<c1>'.$name.'</c1>';
             }
 
             $io->writeLine($prefix.$childPrefix.$name);

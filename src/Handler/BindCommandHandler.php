@@ -300,8 +300,8 @@ class BindCommandHandler
     {
         $table = new Table(TableStyle::borderless());
 
-        $paramTag = $enabled ? 'em' : 'bad';
-        $queryTag = $enabled ? 'em' : 'bad';
+        $paramTag = $enabled ? 'c1' : 'bad';
+        $queryTag = $enabled ? 'c1' : 'bad';
         $typeTag = $enabled ? 'u' : 'bad';
 
         foreach ($descriptors as $descriptor) {

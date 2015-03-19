@@ -213,8 +213,8 @@ class PackageCommandHandler
         $table = new Table(TableStyle::borderless());
 
         $rootTag = $styleTag ?: 'b';
-        $installerTag = $styleTag ?: 'em';
-        $pathTag = $styleTag ?: 'real-path';
+        $installerTag = $styleTag ?: 'c1';
+        $pathTag = $styleTag ?: 'c2';
         $packages = $packages->toArray();
 
         ksort($packages);

@@ -167,7 +167,7 @@ class MapCommandHandler
 
         foreach ($mappings as $mapping) {
             $table->addRow(array(
-                '<em>'.$mapping->getRepositoryPath().'</em>',
+                '<c1>'.$mapping->getRepositoryPath().'</c1>',
                 implode(', ', $mapping->getPathReferences())
             ));
         }

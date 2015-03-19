@@ -58,7 +58,7 @@ class PluginCommandHandler
         }
 
         foreach ($pluginClasses as $pluginClass) {
-            $io->writeLine("<em>$pluginClass</em>");
+            $io->writeLine("<c1>$pluginClass</c1>");
         }
 
         return 0;

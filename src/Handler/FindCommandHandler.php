@@ -176,7 +176,7 @@ class FindCommandHandler
         $table = new Table(TableStyle::borderless());
 
         foreach ($matches as $path => $shortClass) {
-            $table->addRow(array($shortClass, "<em>$path</em>"));
+            $table->addRow(array($shortClass, "<c1>$path</c1>"));
         }
 
         $table->render($io);

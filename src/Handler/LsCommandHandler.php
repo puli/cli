@@ -161,7 +161,7 @@ class LsCommandHandler
         $name = $resource->getName();
 
         if ($resource->hasChildren()) {
-            return '<em>'.$name.'</em>';
+            return '<c1>'.$name.'</c1>';
         }
 
         return $name;

@@ -91,7 +91,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->addStyle(Style::tag('good')->fgGreen())
             ->addStyle(Style::tag('bad')->fgRed())
-            ->addStyle(Style::tag('real-path')->fgYellow())
 
             ->beginCommand('bind')
                 ->setDescription('Bind resources to binding types')

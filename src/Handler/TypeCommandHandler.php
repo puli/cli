@@ -213,7 +213,7 @@ class TypeCommandHandler
     {
         $table = new Table(TableStyle::borderless());
 
-        $paramTag = $styleTag ?: 'em';
+        $paramTag = $styleTag ?: 'c1';
         $typeTag = $styleTag ?: 'u';
 
         foreach ($types as $type) {

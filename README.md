@@ -8,13 +8,12 @@ The Puli Command Line Interface
 [![Total Downloads](https://poser.pugx.org/puli/cli/downloads.svg)](https://packagist.org/packages/puli/cli)
 [![Dependency Status](https://www.versioneye.com/php/puli:cli/1.0.0/badge.svg)](https://www.versioneye.com/php/puli:cli/1.0.0)
 
-Latest release: [1.0.0-beta2](https://packagist.org/packages/puli/cli#1.0.0-beta2)
+Latest release: [1.0.0-beta3](https://packagist.org/packages/puli/cli#1.0.0-beta3)
 
 PHP >= 5.3.9
 
-The [Puli] Command Line Interface gives access to the [Puli Repository Manager]
-via your favorite terminal. The following is a list of the currently supported
-commands:
+The [Puli] Command Line Interface gives access to the [Puli Manager] via your
+favorite terminal. The following is a list of the currently supported commands:
 
 Command                              | Description
 ------------------------------------ | -------------
@@ -50,6 +49,10 @@ Command                              | Description
 `puli tree <path>`                   | Print a resource and its children as tree
 `puli find <glob>`                   | Find resources matching a glob
 `puli find -b <type>`                | Find resources bound to a binding type
+**Plugin Management**                |
+`puli plugin`                        | List the currently installed plugins
+`puli plugin install <class>`        | Install a plugin class
+`puli plugin remove <class>`         | Remove a plugin class
 
 Run any of the commands with the `-h` option to find out more about other
 supported options.
@@ -92,7 +95,7 @@ License
 All contents of this package are licensed under the [MIT license].
 
 [Puli]: http://puli.io
-[Puli Repository Manager]: https://github.com/puli/repository-manager
+[Puli Manager]: https://github.com/puli/manager
 [Bernhard Schussek]: http://webmozarts.com
 [The Community Contributors]: https://github.com/puli/cli/graphs/contributors
 [Getting Started]: http://docs.puli.io/en/latest/getting-started.html

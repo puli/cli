@@ -1,20 +1,19 @@
 The Puli Command Line Interface
 ===============================
 
-[![Build Status](https://travis-ci.org/puli/cli.svg?branch=master)](https://travis-ci.org/puli/cli)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/cli/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/cli/?branch=master)
+[![Build Status](https://travis-ci.org/puli/cli.svg?branch=1.0.0-beta3)](https://travis-ci.org/puli/cli)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/cli/badges/quality-score.png?b=1.0.0-beta3)](https://scrutinizer-ci.com/g/puli/cli/?branch=1.0.0-beta3)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/96bbb04c-f5c3-47c2-8e43-1f92d26f7c3a/mini.png)](https://insight.sensiolabs.com/projects/96bbb04c-f5c3-47c2-8e43-1f92d26f7c3a)
 [![Latest Stable Version](https://poser.pugx.org/puli/cli/v/stable.svg)](https://packagist.org/packages/puli/cli)
 [![Total Downloads](https://poser.pugx.org/puli/cli/downloads.svg)](https://packagist.org/packages/puli/cli)
 [![Dependency Status](https://www.versioneye.com/php/puli:cli/1.0.0/badge.svg)](https://www.versioneye.com/php/puli:cli/1.0.0)
 
-Latest release: [1.0.0-beta2](https://packagist.org/packages/puli/cli#1.0.0-beta2)
+Latest release: [1.0.0-beta3](https://packagist.org/packages/puli/cli#1.0.0-beta3)
 
 PHP >= 5.3.9
 
-The [Puli] Command Line Interface gives access to the [Puli Repository Manager]
-via your favorite terminal. The following is a list of the currently supported
-commands:
+The [Puli] Command Line Interface gives access to the [Puli Manager] via your
+favorite terminal. The following is a list of the currently supported commands:
 
 Command                              | Description
 ------------------------------------ | -------------
@@ -50,6 +49,10 @@ Command                              | Description
 `puli tree <path>`                   | Print a resource and its children as tree
 `puli find <glob>`                   | Find resources matching a glob
 `puli find -b <type>`                | Find resources bound to a binding type
+**Plugin Management**                |
+`puli plugin`                        | List the currently installed plugins
+`puli plugin install <class>`        | Install a plugin class
+`puli plugin remove <class>`         | Remove a plugin class
 
 Run any of the commands with the `-h` option to find out more about other
 supported options.
@@ -92,7 +95,7 @@ License
 All contents of this package are licensed under the [MIT license].
 
 [Puli]: http://puli.io
-[Puli Repository Manager]: https://github.com/puli/repository-manager
+[Puli Manager]: https://github.com/puli/manager
 [Bernhard Schussek]: http://webmozarts.com
 [The Community Contributors]: https://github.com/puli/cli/graphs/contributors
 [Getting Started]: http://docs.puli.io/en/latest/getting-started.html

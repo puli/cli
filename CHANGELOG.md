@@ -1,10 +1,16 @@
 Changelog
 =========
 
-* 1.0.0-next (@release_date@)
+* 1.0.0-beta3 (2015-03-19)
 
- * added command handlers
- * added `InputOption`
+ * switched to webmozart/console package
+ * moved command code to command handler classes
+ * added tests for command handler classes
+ * injected Puli's event dispatcher into the console application to let plugins
+   extend the console configuration
+ * renamed `puli bind` option `--duplicate` to `--overridden`
+ * added "factory" target to `puli build` command
+ * added `puli plugin` command
 
 * 1.0.0-beta2 (2015-01-27)
 

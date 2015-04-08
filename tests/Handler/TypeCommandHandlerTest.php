@@ -89,8 +89,8 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
             ->willReturnCallback($this->returnFromMap(array(
                 array($this->packageAndState('vendor/root', BindingTypeState::ENABLED), array(
                     new BindingTypeDescriptor('root/enabled1', 'Description of root/enabled1', array(
-                        new BindingParameterDescriptor('req-param', true, null, 'Description of req-param'),
-                        new BindingParameterDescriptor('opt-param', false, 'default', 'Description of opt-param'),
+                        new BindingParameterDescriptor('req-param', BindingParameterDescriptor::REQUIRED, null, 'Description of req-param'),
+                        new BindingParameterDescriptor('opt-param', BindingParameterDescriptor::OPTIONAL, 'default', 'Description of opt-param'),
                     )),
                     new BindingTypeDescriptor('root/enabled2', 'Description of root/enabled2'),
                 )),
@@ -401,7 +401,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addBindingType')
             ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('required', true),
+                new BindingParameterDescriptor('required', BindingParameterDescriptor::REQUIRED),
             )));
 
         $this->assertSame(0, $this->handler->handleDefine($args));
@@ -414,7 +414,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addBindingType')
             ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('optional', false, true),
+                new BindingParameterDescriptor('optional', BindingParameterDescriptor::OPTIONAL, true),
             )));
 
         $this->assertSame(0, $this->handler->handleDefine($args));
@@ -427,7 +427,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addBindingType')
             ->with(new BindingTypeDescriptor('my/type', 'The description', array(
-                new BindingParameterDescriptor('param', true, null, 'The parameter description')
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The parameter description')
             )));
 
         $this->assertSame(0, $this->handler->handleDefine($args));

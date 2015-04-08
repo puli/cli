@@ -140,7 +140,7 @@ class TypeCommandHandler
             if (false !== ($pos = strpos($parameter, '='))) {
                 $bindingParams[] = new BindingParameterDescriptor(
                     substr($parameter, 0, $pos),
-                    false,
+                    BindingParameterDescriptor::OPTIONAL,
                     StringUtil::parseValue(substr($parameter, $pos + 1)),
                     $paramDescription
                 );
@@ -151,7 +151,7 @@ class TypeCommandHandler
             // Required parameter
             $bindingParams[] = new BindingParameterDescriptor(
                 $parameter,
-                true,
+                BindingParameterDescriptor::REQUIRED,
                 null,
                 $paramDescription
             );

@@ -125,6 +125,7 @@ class TypeCommandHandler
      */
     public function handleDefine(Args $args)
     {
+        $flags = $args->isOptionSet('force') ? DiscoveryManager::NO_DUPLICATE_CHECK : 0;
         $descriptions = $args->getOption('description');
         $bindingParams = array();
 
@@ -160,7 +161,7 @@ class TypeCommandHandler
             $args->getArgument('name'),
             $description,
             $bindingParams
-        ));
+        ), $flags);
 
         return 0;
     }

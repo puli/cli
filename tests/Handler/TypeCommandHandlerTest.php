@@ -433,6 +433,17 @@ EOF;
         $this->assertSame(0, $this->handler->handleDefine($args));
     }
 
+    public function testDefineTypeForce()
+    {
+        $args = self::$defineCommand->parseArgs(new StringArgs('--force my/type'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addBindingType')
+            ->with(new BindingTypeDescriptor('my/type'), DiscoveryManager::NO_DUPLICATE_CHECK);
+
+        $this->assertSame(0, $this->handler->handleDefine($args));
+    }
+
     public function testRemoveType()
     {
         $args = self::$removeCommand->parseArgs(new StringArgs('my/type'));

@@ -15,6 +15,7 @@ Changelog
  * changed `puli config` to display all user and effective values by default
  * removed `--force` option from `puli build`
  * added `--force` option to `puli bind`
+ * added `--force` option to `puli type define`
 
 * 1.0.0-beta2 (2015-01-27)
 

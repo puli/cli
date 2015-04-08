@@ -335,6 +335,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
                     ->addOption('description', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A human-readable description')
                     ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <key> or <key>=<value>', null, 'key=value')
+                    ->addOption('force', 'f', Option::NO_VALUE, 'Add type even if another type exists with the same name')
                     ->setHandlerMethod('handleDefine')
                 ->end()
 

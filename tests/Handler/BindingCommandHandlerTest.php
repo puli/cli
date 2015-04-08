@@ -136,7 +136,7 @@ Enabled bindings:
     ddb655 /package2/enabled my/type
 
 Disabled bindings:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     vendor/root
     9ac78a /root/disabled my/type
@@ -148,7 +148,7 @@ Disabled bindings:
     424d68 /package2/disabled my/type
 
 Bindings that are neither enabled nor disabled:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     vendor/root
     3cf757 /root/undecided my/type
@@ -206,12 +206,12 @@ Enabled bindings:
     cc9f22 /overridden   my/type
 
 Disabled bindings:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     9ac78a /root/disabled my/type
 
 Bindings that are neither enabled nor disabled:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     3cf757 /root/undecided my/type
 
@@ -247,12 +247,12 @@ Enabled bindings:
     970aba /package1/enabled my/type
 
 Disabled bindings:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     a0b6c7 /package1/disabled my/type
 
 Bindings that are neither enabled nor disabled:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     e33d03 /package1/undecided my/type
 
@@ -293,7 +293,7 @@ Enabled bindings:
     970aba /package1/enabled my/type
 
 Disabled bindings:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     vendor/root
     9ac78a /root/disabled my/type
@@ -302,7 +302,7 @@ Disabled bindings:
     a0b6c7 /package1/disabled my/type
 
 Bindings that are neither enabled nor disabled:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     vendor/root
     3cf757 /root/undecided my/type
@@ -354,7 +354,7 @@ Enabled bindings:
     ddb655 /package2/enabled my/type
 
 Disabled bindings:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     vendor/package1
     a0b6c7 /package1/disabled my/type
@@ -363,7 +363,7 @@ Disabled bindings:
     424d68 /package2/disabled my/type
 
 Bindings that are neither enabled nor disabled:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     vendor/package1
     e33d03 /package1/undecided my/type
@@ -551,7 +551,7 @@ Enabled bindings:
     ddb655 /package2/enabled my/type
 
 Disabled bindings:
- (use "puli bind --enable <uuid>" to enable)
+ (use "puli binding enable <uuid>" to enable)
 
     vendor/root
     9ac78a /root/disabled my/type

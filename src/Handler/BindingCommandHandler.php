@@ -61,7 +61,7 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "bind -l" command.
+     * Handles the "binding list" command.
      *
      * @param Args $args The console arguments.
      * @param IO   $io   The I/O.
@@ -112,13 +112,13 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "bind <query> <type>" command.
+     * Handles the "binding add <query> <type>" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleSave(Args $args)
+    public function handleAdd(Args $args)
     {
         $flags = $args->isOptionSet('force') ? DiscoveryManager::NO_TYPE_CHECK : 0;
 

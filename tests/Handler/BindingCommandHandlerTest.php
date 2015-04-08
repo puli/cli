@@ -58,7 +58,7 @@ class BindingCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $saveCommand;
+    private static $addCommand;
 
     /**
      * @var Command
@@ -95,7 +95,7 @@ class BindingCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUpBeforeClass();
 
         self::$listCommand = self::$application->getCommand('binding')->getSubCommand('list');
-        self::$saveCommand = self::$application->getCommand('binding')->getSubCommand('add');
+        self::$addCommand = self::$application->getCommand('binding')->getSubCommand('add');
         self::$removeCommand = self::$application->getCommand('binding')->getSubCommand('remove');
         self::$enableCommand = self::$application->getCommand('binding')->getSubCommand('enable');
         self::$disableCommand = self::$application->getCommand('binding')->getSubCommand('disable');
@@ -639,9 +639,9 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testSaveBindingWithRelativePath()
+    public function testAddBindingWithRelativePath()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('path my/type'));
+        $args = self::$addCommand->parseArgs(new StringArgs('path my/type'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addBinding')
@@ -652,16 +652,16 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
             });
 
-        $statusCode = $this->handler->handleSave($args, $this->io);
+        $statusCode = $this->handler->handleAdd($args, $this->io);
 
         $this->assertSame(0, $statusCode);
         $this->assertEmpty($this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testSaveBindingWithAbsolutePath()
+    public function testAddBindingWithAbsolutePath()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('/path my/type'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path my/type'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addBinding')
@@ -672,16 +672,16 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
             });
 
-        $statusCode = $this->handler->handleSave($args, $this->io);
+        $statusCode = $this->handler->handleAdd($args, $this->io);
 
         $this->assertSame(0, $statusCode);
         $this->assertEmpty($this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testSaveBindingWithLanguage()
+    public function testAddBindingWithLanguage()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('/path my/type --language lang'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path my/type --language lang'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addBinding')
@@ -692,16 +692,16 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame('lang', $bindingDescriptor->getLanguage());
             });
 
-        $statusCode = $this->handler->handleSave($args, $this->io);
+        $statusCode = $this->handler->handleAdd($args, $this->io);
 
         $this->assertSame(0, $statusCode);
         $this->assertEmpty($this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testSaveBindingWithParameters()
+    public function testAddBindingWithParameters()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('/path my/type --param key1=value --param key2=true'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path my/type --param key1=value --param key2=true'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addBinding')
@@ -715,7 +715,7 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
             });
 
-        $statusCode = $this->handler->handleSave($args, $this->io);
+        $statusCode = $this->handler->handleAdd($args, $this->io);
 
         $this->assertSame(0, $statusCode);
         $this->assertEmpty($this->io->fetchOutput());
@@ -726,19 +726,19 @@ EOF;
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The "--param" option expects a parameter in the form "key=value". Got: "key1"
      */
-    public function testSaveFailsIfInvalidParameter()
+    public function testAddFailsIfInvalidParameter()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('/path my/type --param key1'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path my/type --param key1'));
 
         $this->discoveryManager->expects($this->never())
             ->method('addBinding');
 
-        $this->handler->handleSave($args, $this->io);
+        $this->handler->handleAdd($args, $this->io);
     }
 
-    public function testSaveBindingForce()
+    public function testAddBindingForce()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('--force path my/type'));
+        $args = self::$addCommand->parseArgs(new StringArgs('--force path my/type'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addBinding')
@@ -750,7 +750,7 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame(DiscoveryManager::NO_TYPE_CHECK, $flags);
             });
 
-        $statusCode = $this->handler->handleSave($args, $this->io);
+        $statusCode = $this->handler->handleAdd($args, $this->io);
 
         $this->assertSame(0, $statusCode);
         $this->assertEmpty($this->io->fetchOutput());

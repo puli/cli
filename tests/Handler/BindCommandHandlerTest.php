@@ -747,6 +747,21 @@ EOF;
         $this->handler->handleSave($args, $this->io);
     }
 
+    public function testSaveBindingForce()
+    {
+        $args = self::$saveCommand->parseArgs(new StringArgs('--force path my/type'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addBinding')
+            ->with(new BindingDescriptor('/path', 'my/type', array(), 'glob'), DiscoveryManager::NO_TYPE_CHECK);
+
+        $statusCode = $this->handler->handleSave($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
     public function testRemoveBinding()
     {
         $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));

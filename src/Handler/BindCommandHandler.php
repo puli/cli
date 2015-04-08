@@ -120,6 +120,8 @@ class BindCommandHandler
      */
     public function handleSave(Args $args)
     {
+        $flags = $args->isOptionSet('force') ? DiscoveryManager::NO_TYPE_CHECK : 0;
+
         $bindingParams = array();
 
         foreach ($args->getOption('param') as $parameter) {
@@ -144,7 +146,7 @@ class BindCommandHandler
             $args->getArgument('type'),
             $bindingParams,
             $args->getOption('language')
-        ));
+        ), $flags);
 
         return 0;
     }

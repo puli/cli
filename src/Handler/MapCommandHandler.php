@@ -13,8 +13,8 @@ namespace Puli\Cli\Handler;
 
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Repository\PathMapping;
 use Puli\Manager\Api\Repository\RepositoryManager;
-use Puli\Manager\Api\Repository\ResourceMapping;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
@@ -91,14 +91,14 @@ class MapCommandHandler
         $printRecommendation = true;
 
         if (1 === count($packageNames)) {
-            $mappings = $this->repoManager->getResourceMappings(reset($packageNames));
+            $mappings = $this->repoManager->getPathMappings(reset($packageNames));
             $this->printMappingTable($io, $mappings);
 
             return 0;
         }
 
         foreach ($packageNames as $packageName) {
-            $mappings = $this->repoManager->getResourceMappings($packageName);
+            $mappings = $this->repoManager->getPathMappings($packageName);
 
             if (!$mappings) {
                 continue;
@@ -130,17 +130,17 @@ class MapCommandHandler
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
         $pathReferences = $args->getArgument('file');
 
-        if ($this->repoManager->hasResourceMapping($repositoryPath)) {
+        if ($this->repoManager->hasPathMapping($repositoryPath)) {
             $pathReferences = $this->applyMergeStatements(
-                $this->repoManager->getResourceMapping($repositoryPath)->getPathReferences(),
+                $this->repoManager->getPathMapping($repositoryPath)->getPathReferences(),
                 $pathReferences
             );
         }
 
         if (count($pathReferences) > 0) {
-            $this->repoManager->addResourceMapping(new ResourceMapping($repositoryPath, $pathReferences));
+            $this->repoManager->addPathMapping(new PathMapping($repositoryPath, $pathReferences));
         } else {
-            $this->repoManager->removeResourceMapping($repositoryPath);
+            $this->repoManager->removePathMapping($repositoryPath);
         }
 
         return 0;
@@ -157,7 +157,7 @@ class MapCommandHandler
     {
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
 
-        $this->repoManager->removeResourceMapping($repositoryPath);
+        $this->repoManager->removePathMapping($repositoryPath);
 
         return 0;
     }
@@ -166,7 +166,7 @@ class MapCommandHandler
      * Prints resource mappings in a table.
      *
      * @param IO                $io       The I/O.
-     * @param ResourceMapping[] $mappings The resource mappings.
+     * @param PathMapping[] $mappings The resource mappings.
      */
     private function printMappingTable(IO $io, array $mappings)
     {

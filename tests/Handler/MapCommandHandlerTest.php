@@ -18,8 +18,8 @@ use Puli\Manager\Api\Package\PackageCollection;
 use Puli\Manager\Api\Package\PackageFile;
 use Puli\Manager\Api\Package\RootPackage;
 use Puli\Manager\Api\Package\RootPackageFile;
+use Puli\Manager\Api\Repository\PathMapping;
 use Puli\Manager\Api\Repository\RepositoryManager;
-use Puli\Manager\Api\Repository\ResourceMapping;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 
@@ -195,7 +195,7 @@ EOF;
     public function testListNoMappings()
     {
         $this->repoManager->expects($this->any())
-            ->method('getResourceMappings')
+            ->method('getPathMappings')
             ->willReturn(array());
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
@@ -217,13 +217,13 @@ EOF;
         $args = self::$saveCommand->parseArgs(new StringArgs('path res assets'));
 
         $this->repoManager->expects($this->once())
-            ->method('hasResourceMapping')
+            ->method('hasPathMapping')
             ->with('/path')
             ->willReturn(false);
 
         $this->repoManager->expects($this->once())
-            ->method('addResourceMapping')
-            ->with(new ResourceMapping('/path', array('res', 'assets')));
+            ->method('addPathMapping')
+            ->with(new PathMapping('/path', array('res', 'assets')));
 
         $this->assertSame(0, $this->handler->handleSave($args));
     }
@@ -233,13 +233,13 @@ EOF;
         $args = self::$saveCommand->parseArgs(new StringArgs('/path res assets'));
 
         $this->repoManager->expects($this->once())
-            ->method('hasResourceMapping')
+            ->method('hasPathMapping')
             ->with('/path')
             ->willReturn(false);
 
         $this->repoManager->expects($this->once())
-            ->method('addResourceMapping')
-            ->with(new ResourceMapping('/path', array('res', 'assets')));
+            ->method('addPathMapping')
+            ->with(new PathMapping('/path', array('res', 'assets')));
 
         $this->assertSame(0, $this->handler->handleSave($args));
     }
@@ -249,18 +249,18 @@ EOF;
         $args = self::$saveCommand->parseArgs(new StringArgs('/path res assets'));
 
         $this->repoManager->expects($this->once())
-            ->method('hasResourceMapping')
+            ->method('hasPathMapping')
             ->with('/path')
             ->willReturn(true);
 
         $this->repoManager->expects($this->once())
-            ->method('getResourceMapping')
+            ->method('getPathMapping')
             ->with('/path')
-            ->willReturn(new ResourceMapping('/path', array('previous')));
+            ->willReturn(new PathMapping('/path', array('previous')));
 
         $this->repoManager->expects($this->once())
-            ->method('addResourceMapping')
-            ->with(new ResourceMapping('/path', array('res', 'assets')));
+            ->method('addPathMapping')
+            ->with(new PathMapping('/path', array('res', 'assets')));
 
         $this->assertSame(0, $this->handler->handleSave($args));
     }
@@ -270,18 +270,18 @@ EOF;
         $args = self::$saveCommand->parseArgs(new StringArgs('/path +assets'));
 
         $this->repoManager->expects($this->once())
-            ->method('hasResourceMapping')
+            ->method('hasPathMapping')
             ->with('/path')
             ->willReturn(true);
 
         $this->repoManager->expects($this->once())
-            ->method('getResourceMapping')
+            ->method('getPathMapping')
             ->with('/path')
-            ->willReturn(new ResourceMapping('/path', array('res')));
+            ->willReturn(new PathMapping('/path', array('res')));
 
         $this->repoManager->expects($this->once())
-            ->method('addResourceMapping')
-            ->with(new ResourceMapping('/path', array('res', 'assets')));
+            ->method('addPathMapping')
+            ->with(new PathMapping('/path', array('res', 'assets')));
 
         $this->assertSame(0, $this->handler->handleSave($args));
     }
@@ -291,18 +291,18 @@ EOF;
         $args = self::$saveCommand->parseArgs(new StringArgs('/path -- -assets'));
 
         $this->repoManager->expects($this->once())
-            ->method('hasResourceMapping')
+            ->method('hasPathMapping')
             ->with('/path')
             ->willReturn(true);
 
         $this->repoManager->expects($this->once())
-            ->method('getResourceMapping')
+            ->method('getPathMapping')
             ->with('/path')
-            ->willReturn(new ResourceMapping('/path', array('res', 'assets')));
+            ->willReturn(new PathMapping('/path', array('res', 'assets')));
 
         $this->repoManager->expects($this->once())
-            ->method('addResourceMapping')
-            ->with(new ResourceMapping('/path', array('res')));
+            ->method('addPathMapping')
+            ->with(new PathMapping('/path', array('res')));
 
         $this->assertSame(0, $this->handler->handleSave($args));
     }
@@ -312,17 +312,17 @@ EOF;
         $args = self::$saveCommand->parseArgs(new StringArgs('/path -- -res -assets'));
 
         $this->repoManager->expects($this->once())
-            ->method('hasResourceMapping')
+            ->method('hasPathMapping')
             ->with('/path')
             ->willReturn(true);
 
         $this->repoManager->expects($this->once())
-            ->method('getResourceMapping')
+            ->method('getPathMapping')
             ->with('/path')
-            ->willReturn(new ResourceMapping('/path', array('res', 'assets')));
+            ->willReturn(new PathMapping('/path', array('res', 'assets')));
 
         $this->repoManager->expects($this->once())
-            ->method('removeResourceMapping')
+            ->method('removePathMapping')
             ->with('/path');
 
         $this->assertSame(0, $this->handler->handleSave($args));
@@ -333,7 +333,7 @@ EOF;
         $args = self::$deleteCommand->parseArgs(new StringArgs('path'));
 
         $this->repoManager->expects($this->once())
-            ->method('removeResourceMapping')
+            ->method('removePathMapping')
             ->with('/path');
 
         $this->assertSame(0, $this->handler->handleDelete($args));
@@ -344,7 +344,7 @@ EOF;
         $args = self::$deleteCommand->parseArgs(new StringArgs('/path'));
 
         $this->repoManager->expects($this->once())
-            ->method('removeResourceMapping')
+            ->method('removePathMapping')
             ->with('/path');
 
         $this->assertSame(0, $this->handler->handleDelete($args));
@@ -353,17 +353,17 @@ EOF;
     private function initDefaultManager()
     {
         $this->repoManager->expects($this->any())
-            ->method('getResourceMappings')
+            ->method('getPathMappings')
             ->willReturnMap(array(
                 array('vendor/root', null, array(
-                    new ResourceMapping('/path1', 'res'),
-                    new ResourceMapping('/path2', array('res', 'assets')),
+                    new PathMapping('/path1', 'res'),
+                    new PathMapping('/path2', array('res', 'assets')),
                 )),
                 array('vendor/package1', null, array(
-                    new ResourceMapping('/path3', 'resources'),
+                    new PathMapping('/path3', 'resources'),
                 )),
                 array('vendor/package2', null, array(
-                    new ResourceMapping('/path4', 'Resources/css'),
+                    new PathMapping('/path4', 'Resources/css'),
                 )),
             ));
 

@@ -26,12 +26,12 @@ use Webmozart\Expression\Expr;
 use Webmozart\PathUtil\Path;
 
 /**
- * Handles the "bind" command.
+ * Handles the "binding" command.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class BindCommandHandler
+class BindingCommandHandler
 {
     /**
      * @var DiscoveryManager
@@ -158,7 +158,7 @@ class BindCommandHandler
      *
      * @return int The status code.
      */
-    public function handleDelete(Args $args)
+    public function handleRemove(Args $args)
     {
         $uuid = $args->getArgument('uuid');
         $rootPackageName = $this->packages->getRootPackageName();

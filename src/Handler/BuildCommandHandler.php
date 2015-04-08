@@ -83,18 +83,12 @@ class BuildCommandHandler
         }
 
         if ('all' === $target || 'repository' === $target) {
-            if ($args->isOptionSet('force')) {
-                $this->repoManager->clearRepository();
-            }
-
+            $this->repoManager->clearRepository();
             $this->repoManager->buildRepository();
         }
 
         if ('all' === $target || 'discovery' === $target) {
-            if ($args->isOptionSet('force')) {
-                $this->discoveryManager->clearDiscovery();
-            }
-
+            $this->discoveryManager->clearDiscovery();
             $this->discoveryManager->buildDiscovery();
         }
 

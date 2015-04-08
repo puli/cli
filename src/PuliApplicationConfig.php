@@ -150,7 +150,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('build')
                 ->setDescription('Build the resource repository/discovery')
                 ->addArgument('target', Argument::OPTIONAL, 'The build target. One of "repository", "discovery", "factory" and "all"', 'all')
-                ->addOption('force', 'f', Option::NO_VALUE, 'Force building even if build target exists already')
                 ->setHandler(function () use ($puli) {
                     return new BuildCommandHandler(
                         $puli->getRepositoryManager(),

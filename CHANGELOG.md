@@ -13,6 +13,7 @@ Changelog
  * added `puli plugin` command
  * removed `--all` option from `puli config`
  * changed `puli config` to display all user and effective values by default
+ * removed `--force` option from `puli build`
 
 * 1.0.0-beta2 (2015-01-27)
 

@@ -244,6 +244,22 @@ EOF;
         $this->assertSame(0, $this->handler->handleMap($args));
     }
 
+    public function testAddMappingForce()
+    {
+        $args = self::$mapCommand->parseArgs(new StringArgs('--force /path res'));
+
+        $this->repoManager->expects($this->once())
+            ->method('hasPathMapping')
+            ->with('/path')
+            ->willReturn(false);
+
+        $this->repoManager->expects($this->once())
+            ->method('addPathMapping')
+            ->with(new PathMapping('/path', array('res')), RepositoryManager::NO_TARGET_PATH_CHECK);
+
+        $this->assertSame(0, $this->handler->handleMap($args));
+    }
+
     public function testReplaceMapping()
     {
         $args = self::$mapCommand->parseArgs(new StringArgs('/path res assets'));

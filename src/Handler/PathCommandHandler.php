@@ -127,6 +127,7 @@ class PathCommandHandler
      */
     public function handleMap(Args $args)
     {
+        $flags = $args->isOptionSet('force') ? RepositoryManager::NO_TARGET_PATH_CHECK : 0;
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
         $pathReferences = $args->getArgument('file');
 
@@ -138,7 +139,7 @@ class PathCommandHandler
         }
 
         if (count($pathReferences) > 0) {
-            $this->repoManager->addPathMapping(new PathMapping($repositoryPath, $pathReferences));
+            $this->repoManager->addPathMapping(new PathMapping($repositoryPath, $pathReferences), $flags);
         } else {
             $this->repoManager->removePathMapping($repositoryPath);
         }

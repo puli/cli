@@ -16,6 +16,7 @@ Changelog
  * removed the `--package` option of `puli bind --enable|--disable`
  * renamed `puli bind` to `puli binding add|list|remove|enable|disable`
  * renamed `puli map` to `puli path map|list|remove`
+ * added `--force` option to `puli path map`
 
 * 1.0.0-beta3 (2015-03-19)
 

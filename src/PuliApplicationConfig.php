@@ -270,6 +270,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->beginSubCommand('map')
                     ->addArgument('path', Argument::REQUIRED)
                     ->addArgument('file', Argument::REQUIRED | Argument::MULTI_VALUED)
+                    ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the target path does not exist')
                     ->setHandlerMethod('handleMap')
                 ->end()
 

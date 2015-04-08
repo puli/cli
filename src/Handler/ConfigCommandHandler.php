@@ -110,13 +110,13 @@ class ConfigCommandHandler
     }
 
     /**
-     * Handles the "config -d <key>" command.
+     * Handles the "config -r <key>" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleDelete(Args $args)
+    public function handleReset(Args $args)
     {
         $this->manager->removeConfigKey($args->getArgument('key'));
 

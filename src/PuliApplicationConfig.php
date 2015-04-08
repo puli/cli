@@ -184,9 +184,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleSet')
                 ->end()
 
-                ->beginOptionCommand('delete', 'd')
-                    ->addArgument('key', Argument::REQUIRED, 'The configuration key to delete. May contain wildcards ("*")')
-                    ->setHandlerMethod('handleDelete')
+                ->beginOptionCommand('reset', 'r')
+                    ->addArgument('key', Argument::REQUIRED, 'The configuration key(s) to reset. May contain wildcards ("*")')
+                    ->setHandlerMethod('handleReset')
                 ->end()
             ->end()
 

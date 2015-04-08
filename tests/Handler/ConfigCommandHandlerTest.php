@@ -41,7 +41,7 @@ class ConfigCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $deleteCommand;
+    private static $resetCommand;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject|RootPackageFileManager
@@ -60,7 +60,7 @@ class ConfigCommandHandlerTest extends AbstractCommandHandlerTest
         self::$listCommand = self::$application->getCommand('config')->getSubCommand('list');
         self::$showCommand = self::$application->getCommand('config')->getSubCommand('show');
         self::$setCommand = self::$application->getCommand('config')->getSubCommand('set');
-        self::$deleteCommand = self::$application->getCommand('config')->getSubCommand('delete');
+        self::$resetCommand = self::$application->getCommand('config')->getSubCommand('reset');
     }
 
     protected function setUp()
@@ -161,15 +161,15 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testDeleteKey()
+    public function testResetKey()
     {
-        $args = self::$deleteCommand->parseArgs(new StringArgs('the-key'));
+        $args = self::$resetCommand->parseArgs(new StringArgs('the-key'));
 
         $this->manager->expects($this->once())
             ->method('removeConfigKey')
             ->with('the-key');
 
-        $statusCode = $this->handler->handleDelete($args);
+        $statusCode = $this->handler->handleReset($args);
 
         $this->assertSame(0, $statusCode);
         $this->assertEmpty($this->io->fetchOutput());

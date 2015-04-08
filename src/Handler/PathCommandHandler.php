@@ -22,12 +22,12 @@ use Webmozart\Console\UI\Style\TableStyle;
 use Webmozart\PathUtil\Path;
 
 /**
- * Handles the "map" command.
+ * Handles the "path" command.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class MapCommandHandler
+class PathCommandHandler
 {
     /**
      * Mode: Replace existing path references.
@@ -78,7 +78,7 @@ class MapCommandHandler
     }
 
     /**
-     * Handles the "map -l" command.
+     * Handles the "path list" command.
      *
      * @param Args $args The console arguments.
      * @param IO   $io   The I/O.
@@ -112,20 +112,20 @@ class MapCommandHandler
         }
 
         if ($printRecommendation) {
-            $io->writeLine('No path mappings. Use "puli map <path> <file>" to map a Puli path to a file or directory.');
+            $io->writeLine('No path mappings. Use "puli path map <path> <file>" to map a Puli path to a file or directory.');
         }
 
         return 0;
     }
 
     /**
-     * Handles the "map" command.
+     * Handles the "path map" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleSave(Args $args)
+    public function handleMap(Args $args)
     {
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
         $pathReferences = $args->getArgument('file');
@@ -147,13 +147,13 @@ class MapCommandHandler
     }
 
     /**
-     * Handles the "map -d" command.
+     * Handles the "path remove" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleDelete(Args $args)
+    public function handleRemove(Args $args)
     {
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
 
@@ -163,10 +163,10 @@ class MapCommandHandler
     }
 
     /**
-     * Prints resource mappings in a table.
+     * Prints path mappings in a table.
      *
-     * @param IO                $io       The I/O.
-     * @param PathMapping[] $mappings The resource mappings.
+     * @param IO            $io       The I/O.
+     * @param PathMapping[] $mappings The path mappings.
      */
     private function printMappingTable(IO $io, array $mappings)
     {

@@ -12,7 +12,7 @@
 namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
-use Puli\Cli\Handler\MapCommandHandler;
+use Puli\Cli\Handler\PathCommandHandler;
 use Puli\Manager\Api\Package\Package;
 use Puli\Manager\Api\Package\PackageCollection;
 use Puli\Manager\Api\Package\PackageFile;
@@ -27,7 +27,7 @@ use Webmozart\Console\Args\StringArgs;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class MapCommandHandlerTest extends AbstractCommandHandlerTest
+class PathCommandHandlerTest extends AbstractCommandHandlerTest
 {
     /**
      * @var Command
@@ -37,12 +37,12 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $saveCommand;
+    private static $mapCommand;
 
     /**
      * @var Command
      */
-    private static $deleteCommand;
+    private static $removeCommand;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject|RepositoryManager
@@ -55,7 +55,7 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
     private $packages;
 
     /**
-     * @var MapCommandHandler
+     * @var PathCommandHandler
      */
     private $handler;
 
@@ -63,9 +63,9 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUpBeforeClass();
 
-        self::$listCommand = self::$application->getCommand('map')->getSubCommand('list');
-        self::$saveCommand = self::$application->getCommand('map')->getSubCommand('save');
-        self::$deleteCommand = self::$application->getCommand('map')->getSubCommand('delete');
+        self::$listCommand = self::$application->getCommand('path')->getSubCommand('list');
+        self::$mapCommand = self::$application->getCommand('path')->getSubCommand('map');
+        self::$removeCommand = self::$application->getCommand('path')->getSubCommand('remove');
     }
 
     protected function setUp()
@@ -78,7 +78,7 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
             new Package(new PackageFile('vendor/package1'), '/package1'),
             new Package(new PackageFile('vendor/package2'), '/package2'),
         ));
-        $this->handler = new MapCommandHandler($this->repoManager, $this->packages);
+        $this->handler = new PathCommandHandler($this->repoManager, $this->packages);
     }
 
     public function testListAllMappings()
@@ -203,7 +203,7 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-No path mappings. Use "puli map <path> <file>" to map a Puli path to a file or directory.
+No path mappings. Use "puli path map <path> <file>" to map a Puli path to a file or directory.
 
 EOF;
 
@@ -212,41 +212,41 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testSaveNewMappingWithRelativePath()
+    public function testAddMappingWithRelativePath()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('path res assets'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('path1 res assets'));
 
         $this->repoManager->expects($this->once())
             ->method('hasPathMapping')
-            ->with('/path')
+            ->with('/path1')
             ->willReturn(false);
 
         $this->repoManager->expects($this->once())
             ->method('addPathMapping')
-            ->with(new PathMapping('/path', array('res', 'assets')));
+            ->with(new PathMapping('/path1', array('res', 'assets')));
 
-        $this->assertSame(0, $this->handler->handleSave($args));
+        $this->assertSame(0, $this->handler->handleMap($args));
     }
 
-    public function testSaveNewMappingWithAbsolutePath()
+    public function testAddMappingWithAbsolutePath()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('/path res assets'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('/path1 res assets'));
 
         $this->repoManager->expects($this->once())
             ->method('hasPathMapping')
-            ->with('/path')
+            ->with('/path1')
             ->willReturn(false);
 
         $this->repoManager->expects($this->once())
             ->method('addPathMapping')
-            ->with(new PathMapping('/path', array('res', 'assets')));
+            ->with(new PathMapping('/path1', array('res', 'assets')));
 
-        $this->assertSame(0, $this->handler->handleSave($args));
+        $this->assertSame(0, $this->handler->handleMap($args));
     }
 
     public function testReplaceMapping()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('/path res assets'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('/path res assets'));
 
         $this->repoManager->expects($this->once())
             ->method('hasPathMapping')
@@ -262,12 +262,12 @@ EOF;
             ->method('addPathMapping')
             ->with(new PathMapping('/path', array('res', 'assets')));
 
-        $this->assertSame(0, $this->handler->handleSave($args));
+        $this->assertSame(0, $this->handler->handleMap($args));
     }
 
     public function testAddPathReference()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('/path +assets'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('/path +assets'));
 
         $this->repoManager->expects($this->once())
             ->method('hasPathMapping')
@@ -283,12 +283,12 @@ EOF;
             ->method('addPathMapping')
             ->with(new PathMapping('/path', array('res', 'assets')));
 
-        $this->assertSame(0, $this->handler->handleSave($args));
+        $this->assertSame(0, $this->handler->handleMap($args));
     }
 
     public function testRemovePathReference()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('/path -- -assets'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('/path -- -assets'));
 
         $this->repoManager->expects($this->once())
             ->method('hasPathMapping')
@@ -304,12 +304,12 @@ EOF;
             ->method('addPathMapping')
             ->with(new PathMapping('/path', array('res')));
 
-        $this->assertSame(0, $this->handler->handleSave($args));
+        $this->assertSame(0, $this->handler->handleMap($args));
     }
 
     public function testRemoveAllPathReferences()
     {
-        $args = self::$saveCommand->parseArgs(new StringArgs('/path -- -res -assets'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('/path -- -res -assets'));
 
         $this->repoManager->expects($this->once())
             ->method('hasPathMapping')
@@ -325,29 +325,29 @@ EOF;
             ->method('removePathMapping')
             ->with('/path');
 
-        $this->assertSame(0, $this->handler->handleSave($args));
+        $this->assertSame(0, $this->handler->handleMap($args));
     }
 
-    public function testDeleteMappingWithRelativePath()
+    public function testRemoveMappingWithRelativePath()
     {
-        $args = self::$deleteCommand->parseArgs(new StringArgs('path'));
+        $args = self::$removeCommand->parseArgs(new StringArgs('path1'));
 
         $this->repoManager->expects($this->once())
             ->method('removePathMapping')
-            ->with('/path');
+            ->with('/path1');
 
-        $this->assertSame(0, $this->handler->handleDelete($args));
+        $this->assertSame(0, $this->handler->handleRemove($args));
     }
 
-    public function testDeleteMappingWithAbsolutePath()
+    public function testRemoveMappingWithAbsolutePath()
     {
-        $args = self::$deleteCommand->parseArgs(new StringArgs('/path'));
+        $args = self::$removeCommand->parseArgs(new StringArgs('/path1'));
 
         $this->repoManager->expects($this->once())
             ->method('removePathMapping')
-            ->with('/path');
+            ->with('/path1');
 
-        $this->assertSame(0, $this->handler->handleDelete($args));
+        $this->assertSame(0, $this->handler->handleRemove($args));
     }
 
     private function initDefaultManager()

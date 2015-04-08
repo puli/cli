@@ -16,7 +16,7 @@ use Puli\Cli\Handler\BuildCommandHandler;
 use Puli\Cli\Handler\ConfigCommandHandler;
 use Puli\Cli\Handler\FindCommandHandler;
 use Puli\Cli\Handler\LsCommandHandler;
-use Puli\Cli\Handler\MapCommandHandler;
+use Puli\Cli\Handler\PathCommandHandler;
 use Puli\Cli\Handler\PackageCommandHandler;
 use Puli\Cli\Handler\PluginCommandHandler;
 use Puli\Cli\Handler\TreeCommandHandler;
@@ -226,37 +226,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 })
             ->end()
 
-            ->beginCommand('map')
-                ->setDescription('Display and change resource mappings')
-                ->setHandler(function () use ($puli) {
-                    return new MapCommandHandler(
-                        $puli->getRepositoryManager(),
-                        $puli->getPackageManager()->getPackages()
-                    );
-                })
-
-                ->beginSubCommand('save')
-                    ->markAnonymous()
-                    ->addArgument('path', Argument::REQUIRED)
-                    ->addArgument('file', Argument::REQUIRED | Argument::MULTI_VALUED)
-                    ->setHandlerMethod('handleSave')
-                ->end()
-
-                ->beginOptionCommand('list', 'l')
-                    ->markDefault()
-                    ->addOption('root', null, Option::NO_VALUE, 'Show mappings of the root package')
-                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show mappings of a package', null, 'package')
-                    ->addOption('all', 'a', Option::NO_VALUE, 'Show mappings of all packages')
-                    ->setHandlerMethod('handleList')
-                ->end()
-
-                ->beginOptionCommand('delete', 'd')
-                    ->addArgument('path', Argument::REQUIRED)
-                    ->addArgument('file', Argument::OPTIONAL)
-                    ->setHandlerMethod('handleDelete')
-                ->end()
-            ->end()
-
             ->beginCommand('package')
                 ->setDescription('Display the installed packages')
                 ->setHandler(function () use ($puli) {
@@ -286,6 +255,36 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginSubCommand('clean')
                     ->setHandlerMethod('handleClean')
+                ->end()
+            ->end()
+
+            ->beginCommand('path')
+                ->setDescription('Display and change path mappings')
+                ->setHandler(function () use ($puli) {
+                    return new PathCommandHandler(
+                        $puli->getRepositoryManager(),
+                        $puli->getPackageManager()->getPackages()
+                    );
+                })
+
+                ->beginSubCommand('map')
+                    ->addArgument('path', Argument::REQUIRED)
+                    ->addArgument('file', Argument::REQUIRED | Argument::MULTI_VALUED)
+                    ->setHandlerMethod('handleMap')
+                ->end()
+
+                ->beginSubCommand('list')
+                    ->markDefault()
+                    ->addOption('root', null, Option::NO_VALUE, 'Show mappings of the root package')
+                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show mappings of a package', null, 'package')
+                    ->addOption('all', 'a', Option::NO_VALUE, 'Show mappings of all packages')
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginSubCommand('remove')
+                    ->addArgument('path', Argument::REQUIRED)
+                    ->addArgument('file', Argument::OPTIONAL)
+                    ->setHandlerMethod('handleRemove')
                 ->end()
             ->end()
 

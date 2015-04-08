@@ -152,7 +152,7 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "bind -d" command.
+     * Handles the "bind remove" command.
      *
      * @param Args $args The console arguments.
      *
@@ -193,7 +193,7 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "bind --enable" command.
+     * Handles the "bind enable" command.
      *
      * @param Args $args The console arguments.
      *
@@ -220,7 +220,7 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "bind --disable" command.
+     * Handles the "bind disable" command.
      *
      * @param Args $args The console arguments.
      *
@@ -342,12 +342,12 @@ class BindingCommandHandler
                 return;
             case BindingState::DISABLED:
                 $io->writeLine('Disabled bindings:');
-                $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
+                $io->writeLine(' (use "puli binding enable <uuid>" to enable)');
                 $io->writeLine('');
                 return;
             case BindingState::UNDECIDED:
                 $io->writeLine('Bindings that are neither enabled nor disabled:');
-                $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
+                $io->writeLine(' (use "puli binding enable <uuid>" to enable)');
                 $io->writeLine('');
                 return;
             case BindingState::TYPE_NOT_LOADED:

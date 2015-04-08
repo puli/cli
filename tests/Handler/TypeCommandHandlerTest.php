@@ -142,7 +142,6 @@ The following types have duplicate definitions and are disabled:
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
-
 EOF;
 
         $this->assertSame(0, $this->handler->handleList($args, $this->io));
@@ -166,7 +165,6 @@ The following types have duplicate definitions and are disabled:
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
-
 EOF;
 
         $this->assertSame(0, $this->handler->handleList($args, $this->io));
@@ -188,7 +186,6 @@ The following types have duplicate definitions and are disabled:
     package1/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
-
 
 EOF;
 
@@ -221,7 +218,6 @@ The following types have duplicate definitions and are disabled:
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
-
 EOF;
 
         $this->assertSame(0, $this->handler->handleList($args, $this->io));
@@ -251,7 +247,6 @@ The following types have duplicate definitions and are disabled:
     package2/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
-
 
 EOF;
 
@@ -334,7 +329,6 @@ The following types have duplicate definitions and are disabled:
     package2/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
-
 
 EOF;
 

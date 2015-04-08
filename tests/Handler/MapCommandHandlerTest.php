@@ -79,25 +79,12 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
             new Package(new PackageFile('vendor/package2'), '/package2'),
         ));
         $this->handler = new MapCommandHandler($this->repoManager, $this->packages);
-
-        $this->repoManager->expects($this->any())
-            ->method('getResourceMappings')
-            ->willReturnMap(array(
-                array('vendor/root', null, array(
-                    new ResourceMapping('/path1', 'res'),
-                    new ResourceMapping('/path2', array('res', 'assets')),
-                )),
-                array('vendor/package1', null, array(
-                    new ResourceMapping('/path3', 'resources'),
-                )),
-                array('vendor/package2', null, array(
-                    new ResourceMapping('/path4', 'Resources/css'),
-                )),
-            ));
     }
 
     public function testListAllMappings()
     {
+        $this->initDefaultManager();
+
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -123,6 +110,8 @@ EOF;
 
     public function testListRootPackageMappings()
     {
+        $this->initDefaultManager();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--root'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -140,6 +129,8 @@ EOF;
 
     public function testListPackageMappings()
     {
+        $this->initDefaultManager();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--package vendor/package1'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -156,6 +147,8 @@ EOF;
 
     public function testListRootAndPackageMappings()
     {
+        $this->initDefaultManager();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--root --package vendor/package1'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -178,6 +171,8 @@ EOF;
 
     public function testListMultiplePackageMappings()
     {
+        $this->initDefaultManager();
+
         $args = self::$listCommand->parseArgs(new StringArgs('--package vendor/package1 --package vendor/package2'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
@@ -189,6 +184,26 @@ vendor/package1
 vendor/package2
 /path4 Resources/css
 
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testListNoMappings()
+    {
+        $this->repoManager->expects($this->any())
+            ->method('getResourceMappings')
+            ->willReturn(array());
+
+        $args = self::$listCommand->parseArgs(new StringArgs(''));
+
+        $statusCode = $this->handler->handleList($args, $this->io);
+
+        $expected = <<<EOF
+No path mappings. Use "puli map <path> <file>" to map a Puli path to a file or directory.
 
 EOF;
 
@@ -333,5 +348,24 @@ EOF;
             ->with('/path');
 
         $this->assertSame(0, $this->handler->handleDelete($args));
+    }
+
+    private function initDefaultManager()
+    {
+        $this->repoManager->expects($this->any())
+            ->method('getResourceMappings')
+            ->willReturnMap(array(
+                array('vendor/root', null, array(
+                    new ResourceMapping('/path1', 'res'),
+                    new ResourceMapping('/path2', array('res', 'assets')),
+                )),
+                array('vendor/package1', null, array(
+                    new ResourceMapping('/path3', 'resources'),
+                )),
+                array('vendor/package2', null, array(
+                    new ResourceMapping('/path4', 'Resources/css'),
+                )),
+            ));
+
     }
 }

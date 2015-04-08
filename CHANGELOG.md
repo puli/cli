@@ -9,6 +9,7 @@ Changelog
  * added `--force` option to `puli bind`
  * added `--force` option to `puli type define`
  * renamed `puli config --delete|-d` to `puli config --reset|-r`
+ * added recommendation when `puli map` returns no results
 
 * 1.0.0-beta3 (2015-03-19)
 

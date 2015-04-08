@@ -88,6 +88,7 @@ class MapCommandHandler
     public function handleList(Args $args, IO $io)
     {
         $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
+        $printRecommendation = true;
 
         if (1 === count($packageNames)) {
             $mappings = $this->repoManager->getResourceMappings(reset($packageNames));
@@ -103,9 +104,15 @@ class MapCommandHandler
                 continue;
             }
 
+            $printRecommendation = false;
+
             $io->writeLine("<b>$packageName</b>");
             $this->printMappingTable($io, $mappings);
             $io->writeLine('');
+        }
+
+        if ($printRecommendation) {
+            $io->writeLine('No path mappings. Use "puli map <path> <file>" to map a Puli path to a file or directory.');
         }
 
         return 0;

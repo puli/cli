@@ -11,6 +11,8 @@ Changelog
  * renamed `puli bind` option `--duplicate` to `--overridden`
  * added "factory" target to `puli build` command
  * added `puli plugin` command
+ * removed `--all` option from `puli config`
+ * changed `puli config` to display all user and effective values by default
 
 * 1.0.0-beta2 (2015-01-27)
 

@@ -168,7 +168,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginSubCommand('list')
                     ->markAnonymous()
-                    ->addOption('all', 'a', Option::NO_VALUE, 'Include default values in the output')
                     ->setHandlerMethod('handleList')
                 ->end()
 

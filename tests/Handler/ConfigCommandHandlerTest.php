@@ -89,44 +89,28 @@ class ConfigCommandHandlerTest extends AbstractCommandHandlerTest
     {
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $this->manager->expects($this->once())
+        $this->manager->expects($this->at(0))
             ->method('getConfigKeys')
-            ->with(false, false)
+            ->with()
             ->willReturn(array(
-                'key' => $nativeValue,
-                'longer-key' => 'longer value',
+                'longer-key' => true,
             ));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
-        $expected = <<<EOF
-key = $stringValue
-longer-key = longer value
-
-EOF;
-
-        $this->assertSame(0, $statusCode);
-        $this->assertSame($expected, $this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
-    }
-
-    public function testListAllKeys()
-    {
-        $args = self::$listCommand->parseArgs(new StringArgs('--all'));
-
-        $this->manager->expects($this->once())
+        $this->manager->expects($this->at(1))
             ->method('getConfigKeys')
             ->with(true, true)
             ->willReturn(array(
-                'key1' => 'value1',
-                'key2' => 'value2',
+                'key' => $nativeValue,
+                'longer-key' => true,
             ));
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-key1 = value1
-key2 = value2
+Key        User Effective
+========== ==== =========
+key             $stringValue
+longer-key true true
 
 EOF;
 

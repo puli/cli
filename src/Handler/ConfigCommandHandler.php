@@ -15,6 +15,8 @@ use Puli\Cli\Util\StringUtil;
 use Puli\Manager\Api\Package\RootPackageFileManager;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
+use Webmozart\Console\UI\Component\Table;
+use Webmozart\Console\UI\Style\TableStyle;
 
 /**
  * Handles the "config" command.
@@ -49,13 +51,27 @@ class ConfigCommandHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $includeFallback = $args->isOptionSet('all');
-        $includeUnset = $args->isOptionSet('all');
-        $values = $this->manager->getConfigKeys($includeFallback, $includeUnset);
+        $userValues = $this->manager->getConfigKeys();
+        $effectiveValues = $this->manager->getConfigKeys(true, true);
 
-        foreach ($values as $key => $value) {
-            $io->writeLine("<comment>$key</comment> = ".StringUtil::formatValue($value, false));
+        $table = new Table(TableStyle::borderless());
+        $table->setHeaderRow(array(
+            'Key',
+            'User',
+            'Effective',
+        ));
+
+        foreach ($effectiveValues as $key => $value) {
+            $table->addRow(array(
+                "<c1>$key</c1>",
+                array_key_exists($key, $userValues)
+                    ? StringUtil::formatValue($userValues[$key], false)
+                    : '',
+                StringUtil::formatValue($value, false)
+            ));
         }
+
+        $table->render($io);
 
         return 0;
     }

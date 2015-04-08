@@ -55,11 +55,6 @@ class ConfigCommandHandler
         $effectiveValues = $this->manager->getConfigKeys(true, true);
 
         $table = new Table(TableStyle::borderless());
-        $table->setHeaderRow(array(
-            'Key',
-            'User',
-            'Effective',
-        ));
 
         foreach ($effectiveValues as $key => $value) {
             $table->addRow(array(

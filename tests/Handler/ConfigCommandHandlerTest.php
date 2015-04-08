@@ -107,8 +107,6 @@ class ConfigCommandHandlerTest extends AbstractCommandHandlerTest
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Key        User Effective
-========== ==== =========
 key             $stringValue
 longer-key true true
 

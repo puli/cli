@@ -13,6 +13,7 @@ Changelog
  * removed argument `<pattern>` from `puli find` and added `--path` option instead
  * renamed `--type` option to `--class` for `puli find`
  * renamed `--bound-to` option to `--type` for `puli find`
+ * removed the `--package` option of `puli bind --enable|--disable`
 
 * 1.0.0-beta3 (2015-03-19)
 

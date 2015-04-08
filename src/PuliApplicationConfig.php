@@ -136,13 +136,11 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginOptionCommand('enable')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the enabled binding')
-                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Only enable bindings in the given package(s)', null, 'package')
                     ->setHandlerMethod('handleEnable')
                 ->end()
 
                 ->beginOptionCommand('disable')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the disabled binding')
-                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Only enable bindings in the given package(s)', null, 'package')
                     ->setHandlerMethod('handleDisable')
                 ->end()
             ->end()

@@ -868,7 +868,7 @@ EOF;
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
-            ->with($this->packagesAndUuid(array('vendor/package1', 'vendor/package2'), 'ab12'))
+            ->with($this->uuid('ab12'))
             ->willReturn(array($descriptor1, $descriptor2));
 
         $this->discoveryManager->expects($this->at(1))
@@ -878,32 +878,6 @@ EOF;
         $this->discoveryManager->expects($this->at(2))
             ->method('enableBinding')
             ->with($descriptor2->getUuid());
-
-        $statusCode = $this->handler->handleEnable($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
-    }
-
-    public function testEnableBindingsInSpecificPackage()
-    {
-        $args = self::$enableCommand->parseArgs(new StringArgs('ab12 --package vendor/package2'));
-        $descriptor1 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
-        $descriptor2 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
-
-        $this->discoveryManager->expects($this->at(0))
-            ->method('findBindings')
-            ->with($this->packageAndUuid('vendor/package2', 'ab12'))
-            ->willReturn(array($descriptor1, $descriptor2));
-
-        $this->discoveryManager->expects($this->at(1))
-            ->method('enableBinding')
-            ->with($descriptor1->getUuid(), array('vendor/package2'));
-
-        $this->discoveryManager->expects($this->at(2))
-            ->method('enableBinding')
-            ->with($descriptor2->getUuid(), array('vendor/package2'));
 
         $statusCode = $this->handler->handleEnable($args, $this->io);
 
@@ -922,7 +896,7 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
-            ->with($this->packagesAndUuid(array('vendor/package1', 'vendor/package2'), 'ab12'))
+            ->with($this->uuid('ab12'))
             ->willReturn(array());
 
         $this->discoveryManager->expects($this->never())
@@ -939,7 +913,7 @@ EOF;
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
-            ->with($this->packagesAndUuid(array('vendor/package1', 'vendor/package2'), 'ab12'))
+            ->with($this->uuid('ab12'))
             ->willReturn(array($descriptor1, $descriptor2));
 
         $this->discoveryManager->expects($this->at(1))
@@ -949,32 +923,6 @@ EOF;
         $this->discoveryManager->expects($this->at(2))
             ->method('disableBinding')
             ->with($descriptor2->getUuid());
-
-        $statusCode = $this->handler->handleDisable($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
-    }
-
-    public function testDisableBindingsInSpecificPackage()
-    {
-        $args = self::$disableCommand->parseArgs(new StringArgs('ab12 --package vendor/package2'));
-        $descriptor1 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
-        $descriptor2 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
-
-        $this->discoveryManager->expects($this->at(0))
-            ->method('findBindings')
-            ->with($this->packageAndUuid('vendor/package2', 'ab12'))
-            ->willReturn(array($descriptor1, $descriptor2));
-
-        $this->discoveryManager->expects($this->at(1))
-            ->method('disableBinding')
-            ->with($descriptor1->getUuid(), array('vendor/package2'));
-
-        $this->discoveryManager->expects($this->at(2))
-            ->method('disableBinding')
-            ->with($descriptor2->getUuid(), array('vendor/package2'));
 
         $statusCode = $this->handler->handleDisable($args, $this->io);
 
@@ -993,7 +941,7 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
-            ->with($this->packagesAndUuid(array('vendor/package1', 'vendor/package2'), 'ab12'))
+            ->with($this->uuid('ab12'))
             ->willReturn(array());
 
         $this->discoveryManager->expects($this->never())
@@ -1065,12 +1013,6 @@ EOF;
     private function packageAndUuid($packageName, $uuid)
     {
         return Expr::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
-            ->andStartsWith(BindingDescriptor::UUID, $uuid);
-    }
-
-    private function packagesAndUuid(array $packageNames, $uuid)
-    {
-        return Expr::oneOf(BindingDescriptor::CONTAINING_PACKAGE, $packageNames)
             ->andStartsWith(BindingDescriptor::UUID, $uuid);
     }
 

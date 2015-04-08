@@ -202,9 +202,7 @@ class BindCommandHandler
     public function handleEnable(Args $args)
     {
         $uuid = $args->getArgument('uuid');
-        $packageNames = ArgsUtil::getPackageNamesWithoutRoot($args, $this->packages);
-        $expr = Expr::oneOf(BindingDescriptor::CONTAINING_PACKAGE, $packageNames)
-            ->andStartsWith(BindingDescriptor::UUID, $uuid);
+        $expr = Expr::startsWith(BindingDescriptor::UUID, $uuid);
         $bindings = $this->discoveryManager->findBindings($expr);
 
         if (0 === count($bindings)) {
@@ -215,7 +213,7 @@ class BindCommandHandler
         }
 
         foreach ($bindings as $binding) {
-            $this->discoveryManager->enableBinding($binding->getUuid(), $packageNames);
+            $this->discoveryManager->enableBinding($binding->getUuid());
         }
 
         return 0;
@@ -231,9 +229,7 @@ class BindCommandHandler
     public function handleDisable(Args $args)
     {
         $uuid = $args->getArgument('uuid');
-        $packageNames = ArgsUtil::getPackageNamesWithoutRoot($args, $this->packages);
-        $expr = Expr::oneOf(BindingDescriptor::CONTAINING_PACKAGE, $packageNames)
-            ->andStartsWith(BindingDescriptor::UUID, $uuid);
+        $expr = Expr::startsWith(BindingDescriptor::UUID, $uuid);
         $bindings = $this->discoveryManager->findBindings($expr);
 
         if (0 === count($bindings)) {
@@ -244,7 +240,7 @@ class BindCommandHandler
         }
 
         foreach ($bindings as $binding) {
-            $this->discoveryManager->disableBinding($binding->getUuid(), $packageNames);
+            $this->discoveryManager->disableBinding($binding->getUuid());
         }
 
         return 0;

@@ -66,9 +66,9 @@ class FindCommandHandlerTest extends AbstractCommandHandlerTest
         $this->handler = new FindCommandHandler($this->repo, $this->discovery);
     }
 
-    public function testFindByRelativePattern()
+    public function testFindByRelativePath()
     {
-        $args = self::$findCommand->parseArgs(new StringArgs('*pattern*'));
+        $args = self::$findCommand->parseArgs(new StringArgs('--path *pattern*'));
 
         $this->repo->expects($this->once())
             ->method('find')
@@ -95,9 +95,9 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testFindByAbsolutePattern()
+    public function testFindByAbsolutePath()
     {
-        $args = self::$findCommand->parseArgs(new StringArgs('/*pattern*'));
+        $args = self::$findCommand->parseArgs(new StringArgs('--path /*pattern*'));
 
         $this->repo->expects($this->once())
             ->method('find')
@@ -124,9 +124,38 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testFindByType()
+    public function testFindByPathAndLanguage()
     {
-        $args = self::$findCommand->parseArgs(new StringArgs('--type GenericResource'));
+        $args = self::$findCommand->parseArgs(new StringArgs('--path *pattern* --language xpath'));
+
+        $this->repo->expects($this->once())
+            ->method('find')
+            ->with('/*pattern*', 'xpath')
+            ->willReturn(new ArrayResourceCollection(array(
+                new FileResource(__FILE__, '/path/file'),
+                new GenericResource('/path/resource1'),
+                new GenericResource('/path/resource2'),
+            )));
+        $this->discovery->expects($this->never())
+            ->method('findByType');
+
+        $statusCode = $this->handler->handle($args, $this->io);
+
+        $expected = <<<EOF
+FileResource    /path/file
+GenericResource /path/resource1
+GenericResource /path/resource2
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testFindByClass()
+    {
+        $args = self::$findCommand->parseArgs(new StringArgs('--class GenericResource'));
 
         $this->repo->expects($this->once())
             ->method('find')
@@ -154,7 +183,7 @@ EOF;
 
     public function testFindByBindingType()
     {
-        $args = self::$findCommand->parseArgs(new StringArgs('--bound-to vendor/type'));
+        $args = self::$findCommand->parseArgs(new StringArgs('--type vendor/type'));
         $type = new BindingType('vendor/type');
 
         $this->repo->expects($this->never())
@@ -187,9 +216,9 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testFindByPatternAndType()
+    public function testFindByPathAndClass()
     {
-        $args = self::$findCommand->parseArgs(new StringArgs('*pattern* --type GenericResource'));
+        $args = self::$findCommand->parseArgs(new StringArgs('--path *pattern* --class GenericResource'));
 
         $this->repo->expects($this->once())
             ->method('find')
@@ -215,9 +244,9 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testFindByBindingTypeAndType()
+    public function testFindByBindingTypeAndClass()
     {
-        $args = self::$findCommand->parseArgs(new StringArgs('--bound-to vendor/type --type GenericResource'));
+        $args = self::$findCommand->parseArgs(new StringArgs('--type vendor/type --class GenericResource'));
         $type = new BindingType('vendor/type');
 
         $this->repo->expects($this->never())
@@ -249,14 +278,14 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testFindByPatternAndBindingType()
+    public function testFindByPathAndBindingType()
     {
-        $args = self::$findCommand->parseArgs(new StringArgs('*pattern* --bound-to vendor/type'));
+        $args = self::$findCommand->parseArgs(new StringArgs('--path *pattern* --language xpath --type vendor/type'));
         $type = new BindingType('vendor/type');
 
         $this->repo->expects($this->once())
             ->method('find')
-            ->with('/*pattern*')
+            ->with('/*pattern*', 'xpath')
             ->willReturn(new ArrayResourceCollection(array(
                 new FileResource(__FILE__, '/path/file'),
                 new DirectoryResource(__DIR__, '/path/dir'),

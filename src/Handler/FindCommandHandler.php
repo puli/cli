@@ -62,16 +62,17 @@ class FindCommandHandler
     {
         $criteria = array();
 
-        if ($args->isArgumentSet('pattern')) {
-            $criteria['pattern'] = $args->getArgument('pattern');
+        if ($args->isOptionSet('path')) {
+            $criteria['path'] = $args->getOption('path');
+            $criteria['language'] = $args->getOption('language');
+        }
+
+        if ($args->isOptionSet('class')) {
+            $criteria['class'] = $args->getOption('class');
         }
 
         if ($args->isOptionSet('type')) {
-            $criteria['shortClass'] = $args->getOption('type');
-        }
-
-        if ($args->isOptionSet('bound-to')) {
-            $criteria['bindingType'] = $args->getOption('bound-to');
+            $criteria['bindingType'] = $args->getOption('type');
         }
 
         if (!$criteria) {
@@ -92,21 +93,21 @@ class FindCommandHandler
      */
     private function listMatches(IO $io, array $criteria)
     {
-        if (isset($criteria['pattern']) && isset($criteria['bindingType'])) {
+        if (isset($criteria['path']) && isset($criteria['bindingType'])) {
             $matches = array_intersect_key(
-                $this->findByPattern($criteria['pattern']),
+                $this->findByPath($criteria['path'], $criteria['language']),
                 $this->findByBindingType($criteria['bindingType'])
             );
-        } elseif (isset($criteria['pattern'])) {
-            $matches = $this->findByPattern($criteria['pattern']);
+        } elseif (isset($criteria['path'])) {
+            $matches = $this->findByPath($criteria['path'], $criteria['language']);
         } elseif (isset($criteria['bindingType'])) {
             $matches = $this->findByBindingType($criteria['bindingType']);
         } else {
-            $matches = $this->findByPattern('/*');
+            $matches = $this->findByPath('/*');
         }
 
-        if (isset($criteria['shortClass'])) {
-            $shortClass = $criteria['shortClass'];
+        if (isset($criteria['class'])) {
+            $shortClass = $criteria['class'];
 
             $matches = array_filter($matches, function ($value) use ($shortClass) {
                 return $value === $shortClass;
@@ -121,20 +122,21 @@ class FindCommandHandler
     /**
      * Finds the resources for a given path pattern.
      *
-     * @param string $pattern The path pattern.
+     * @param string $query    The resource query.
+     * @param string $language The language of the query.
      *
      * @return string[] An array of short resource class names indexed by
      *                  the resource path.
      */
-    private function findByPattern($pattern)
+    private function findByPath($query, $language = 'glob')
     {
         $matches = array();
 
-        if ('/' !== $pattern[0]) {
-            $pattern = '/'.$pattern;
+        if ('/' !== $query[0]) {
+            $query = '/'.$query;
         }
 
-        foreach ($this->repo->find($pattern) as $resource) {
+        foreach ($this->repo->find($query, $language) as $resource) {
             $matches[$resource->getPath()] = StringUtil::getShortClassName(get_class($resource));
         }
 

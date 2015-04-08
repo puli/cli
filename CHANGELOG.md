@@ -10,6 +10,9 @@ Changelog
  * added `--force` option to `puli type define`
  * renamed `puli config --delete|-d` to `puli config --reset|-r`
  * added recommendation when `puli map` returns no results
+ * removed argument `<pattern>` from `puli find` and added `--path` option instead
+ * renamed `--type` option to `--class` for `puli find`
+ * renamed `--bound-to` option to `--type` for `puli find`
 
 * 1.0.0-beta3 (2015-03-19)
 

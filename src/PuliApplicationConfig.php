@@ -192,9 +192,10 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->beginCommand('find')
                 ->setDescription('Find resources by different criteria')
-                ->addArgument('pattern', Argument::OPTIONAL, 'A resource path pattern')
-                ->addOption('type', 't', Option::REQUIRED_VALUE, 'The short name of a resource class')
-                ->addOption('bound-to', 'b', Option::REQUIRED_VALUE, 'The name of a binding type')
+                ->addOption('path', 'p', Option::REQUIRED_VALUE | Option::PREFER_LONG_NAME, 'The resource path. May contain the wildcard "*"')
+                ->addOption('class', 'c', Option::REQUIRED_VALUE | Option::PREFER_LONG_NAME, 'The short name of a resource class')
+                ->addOption('type', 't', Option::REQUIRED_VALUE | Option::PREFER_LONG_NAME, 'The name of a binding type')
+                ->addOption('language', 'l', Option::REQUIRED_VALUE | Option::PREFER_LONG_NAME, 'The language of the query passed with --path', 'glob')
                 ->setHandler(function () use ($puli) {
                     return new FindCommandHandler(
                         $puli->getRepository(),

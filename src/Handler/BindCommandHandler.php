@@ -269,16 +269,12 @@ class BindCommandHandler
             $states[] = BindingState::DISABLED;
         }
 
-        if ($args->isOptionSet('overridden')) {
-            $states[] = BindingState::OVERRIDDEN;
-        }
-
         if ($args->isOptionSet('undecided')) {
             $states[] = BindingState::UNDECIDED;
         }
 
-        if ($args->isOptionSet('held-back')) {
-            $states[] = BindingState::HELD_BACK;
+        if ($args->isOptionSet('type-not-loaded')) {
+            $states[] = BindingState::TYPE_NOT_LOADED;
         }
 
         if ($args->isOptionSet('invalid')) {
@@ -358,12 +354,8 @@ class BindCommandHandler
                 $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
                 $io->writeLine('');
                 return;
-            case BindingState::OVERRIDDEN:
-                $io->writeLine('The following bindings are overridden:');
-                $io->writeLine('');
-                return;
-            case BindingState::HELD_BACK:
-                $io->writeLine('The following bindings are held back:');
+            case BindingState::TYPE_NOT_LOADED:
+                $io->writeLine('The types of the following bindings are not loaded:');
                 $io->writeLine(' (install or fix their type definitions to enable)');
                 $io->writeLine('');
                 return;

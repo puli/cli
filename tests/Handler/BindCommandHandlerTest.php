@@ -22,6 +22,7 @@ use Puli\Manager\Api\Package\PackageCollection;
 use Puli\Manager\Api\Package\PackageFile;
 use Puli\Manager\Api\Package\RootPackage;
 use Puli\Manager\Api\Package\RootPackageFile;
+use Rhumsaa\Uuid\Uuid;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 use Webmozart\Expression\Expr;
@@ -33,6 +34,22 @@ use Webmozart\Expression\Expression;
  */
 class BindCommandHandlerTest extends AbstractCommandHandlerTest
 {
+    const BINDING_UUID1 = 'bb5a07d6-e979-4c35-9883-4d8c1165e3d5';
+    const BINDING_UUID2 = 'cc9f2259-8587-4d4e-9dda-f0ff87b4e871';
+    const BINDING_UUID3 = '9ac78a31-12ef-4166-93fd-1470c5e34622';
+    const BINDING_UUID4 = '3cf75784-c86f-4b2c-bc91-aeba0b1a77af';
+    const BINDING_UUID5 = 'd0e9806c-092b-4641-a6b5-a414c00dc552';
+    const BINDING_UUID6 = 'd0670743-47c8-4493-a457-74c049aabc0a';
+    const BINDING_UUID7 = '970abaae-e251-4cc0-81eb-32722628246d';
+    const BINDING_UUID8 = 'a0b6c7d2-107a-496a-abfd-8b77ba298719';
+    const BINDING_UUID9 = 'e33d03bd-bb21-4e97-99d2-c33f679ce61d';
+    const BINDING_UUID10 = '19b06961-e54b-4c4b-bfee-fa2f408a283f';
+    const BINDING_UUID11 = 'dd7458ff-8d76-4033-bb58-f366b565958f';
+    const BINDING_UUID12 = 'ddb6554a-6a1d-4bb2-82de-97fa5ccdc497';
+    const BINDING_UUID13 = '424d6853-e381-46d4-b110-668cb16c3279';
+    const BINDING_UUID14 = '516159c4-e90a-44c8-b781-9d10b9f201ef';
+    const BINDING_UUID15 = 'b7b2c3ee-b8fa-4d76-827c-2879033aa28f';
+    const BINDING_UUID16 = '24213cf3-d609-4c00-b73d-deadc3098593';
     /**
      * @var Command
      */
@@ -109,70 +126,62 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
 Enabled bindings:
 
     vendor/root
-    0f1933 /root/enabled my/type
-    71dfa8 /overridden   my/type
+    bb5a07 /root/enabled my/type
+    cc9f22 /overridden   my/type
 
     vendor/package1
-    7d5312 /package1/enabled my/type
+    970aba /package1/enabled my/type
 
     vendor/package2
-    1db044 /package2/enabled my/type
+    ddb655 /package2/enabled my/type
 
 Disabled bindings:
  (use "puli bind --enable <uuid>" to enable)
 
     vendor/root
-    4e1bf9 /root/disabled my/type
+    9ac78a /root/disabled my/type
 
     vendor/package1
-    8eb772 /package1/disabled my/type
+    a0b6c7 /package1/disabled my/type
 
     vendor/package2
-    cbc774 /package2/disabled my/type
+    424d68 /package2/disabled my/type
 
 Bindings that are neither enabled nor disabled:
  (use "puli bind --enable <uuid>" to enable)
 
     vendor/root
-    414f83 /root/undecided my/type
+    3cf757 /root/undecided my/type
 
     vendor/package1
-    2611ca /package1/undecided my/type
+    e33d03 /package1/undecided my/type
 
     vendor/package2
-    446842 /package2/undecided my/type
+    516159 /package2/undecided my/type
 
-The following bindings are overridden:
-
-    vendor/package1
-    71dfa8 /overridden my/type
-
-    vendor/package2
-    71dfa8 /overridden my/type
-
-The following bindings are held back:
+The types of the following bindings are not loaded:
  (install or fix their type definitions to enable)
 
     vendor/root
-    853a98 /root/held-back my/type
+    d0e980 /root/type-not-loaded my/type
 
     vendor/package1
-    bdb328 /package1/held-back my/type
+    19b069 /package1/type-not-loaded my/type
 
     vendor/package2
-    5aa563 /package2/held-back my/type
+    b7b2c3 /package2/type-not-loaded my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
     vendor/root
-    23fac6 /root/invalid my/type
+    d06707 /root/invalid my/type
 
     vendor/package1
-    9d2297 /package1/invalid my/type
+    dd7458 /package1/invalid my/type
 
     vendor/package2
-    c19a35 /package2/invalid my/type
+    24213c /package2/invalid my/type
 
 
 EOF;
@@ -193,28 +202,28 @@ EOF;
         $expected = <<<EOF
 Enabled bindings:
 
-    0f1933 /root/enabled my/type
-    71dfa8 /overridden   my/type
+    bb5a07 /root/enabled my/type
+    cc9f22 /overridden   my/type
 
 Disabled bindings:
  (use "puli bind --enable <uuid>" to enable)
 
-    4e1bf9 /root/disabled my/type
+    9ac78a /root/disabled my/type
 
 Bindings that are neither enabled nor disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    414f83 /root/undecided my/type
+    3cf757 /root/undecided my/type
 
-The following bindings are held back:
+The types of the following bindings are not loaded:
  (install or fix their type definitions to enable)
 
-    853a98 /root/held-back my/type
+    d0e980 /root/type-not-loaded my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    23fac6 /root/invalid my/type
+    d06707 /root/invalid my/type
 
 
 EOF;
@@ -235,31 +244,27 @@ EOF;
         $expected = <<<EOF
 Enabled bindings:
 
-    7d5312 /package1/enabled my/type
+    970aba /package1/enabled my/type
 
 Disabled bindings:
  (use "puli bind --enable <uuid>" to enable)
 
-    8eb772 /package1/disabled my/type
+    a0b6c7 /package1/disabled my/type
 
 Bindings that are neither enabled nor disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    2611ca /package1/undecided my/type
+    e33d03 /package1/undecided my/type
 
-The following bindings are overridden:
-
-    71dfa8 /overridden my/type
-
-The following bindings are held back:
+The types of the following bindings are not loaded:
  (install or fix their type definitions to enable)
 
-    bdb328 /package1/held-back my/type
+    19b069 /package1/type-not-loaded my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    9d2297 /package1/invalid my/type
+    dd7458 /package1/invalid my/type
 
 
 EOF;
@@ -281,52 +286,47 @@ EOF;
 Enabled bindings:
 
     vendor/root
-    0f1933 /root/enabled my/type
-    71dfa8 /overridden   my/type
+    bb5a07 /root/enabled my/type
+    cc9f22 /overridden   my/type
 
     vendor/package1
-    7d5312 /package1/enabled my/type
+    970aba /package1/enabled my/type
 
 Disabled bindings:
  (use "puli bind --enable <uuid>" to enable)
 
     vendor/root
-    4e1bf9 /root/disabled my/type
+    9ac78a /root/disabled my/type
 
     vendor/package1
-    8eb772 /package1/disabled my/type
+    a0b6c7 /package1/disabled my/type
 
 Bindings that are neither enabled nor disabled:
  (use "puli bind --enable <uuid>" to enable)
 
     vendor/root
-    414f83 /root/undecided my/type
+    3cf757 /root/undecided my/type
 
     vendor/package1
-    2611ca /package1/undecided my/type
+    e33d03 /package1/undecided my/type
 
-The following bindings are overridden:
-
-    vendor/package1
-    71dfa8 /overridden my/type
-
-The following bindings are held back:
+The types of the following bindings are not loaded:
  (install or fix their type definitions to enable)
 
     vendor/root
-    853a98 /root/held-back my/type
+    d0e980 /root/type-not-loaded my/type
 
     vendor/package1
-    bdb328 /package1/held-back my/type
+    19b069 /package1/type-not-loaded my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
     vendor/root
-    23fac6 /root/invalid my/type
+    d06707 /root/invalid my/type
 
     vendor/package1
-    9d2297 /package1/invalid my/type
+    dd7458 /package1/invalid my/type
 
 
 EOF;
@@ -348,54 +348,46 @@ EOF;
 Enabled bindings:
 
     vendor/package1
-    7d5312 /package1/enabled my/type
+    970aba /package1/enabled my/type
 
     vendor/package2
-    1db044 /package2/enabled my/type
+    ddb655 /package2/enabled my/type
 
 Disabled bindings:
  (use "puli bind --enable <uuid>" to enable)
 
     vendor/package1
-    8eb772 /package1/disabled my/type
+    a0b6c7 /package1/disabled my/type
 
     vendor/package2
-    cbc774 /package2/disabled my/type
+    424d68 /package2/disabled my/type
 
 Bindings that are neither enabled nor disabled:
  (use "puli bind --enable <uuid>" to enable)
 
     vendor/package1
-    2611ca /package1/undecided my/type
+    e33d03 /package1/undecided my/type
 
     vendor/package2
-    446842 /package2/undecided my/type
+    516159 /package2/undecided my/type
 
-The following bindings are overridden:
-
-    vendor/package1
-    71dfa8 /overridden my/type
-
-    vendor/package2
-    71dfa8 /overridden my/type
-
-The following bindings are held back:
+The types of the following bindings are not loaded:
  (install or fix their type definitions to enable)
 
     vendor/package1
-    bdb328 /package1/held-back my/type
+    19b069 /package1/type-not-loaded my/type
 
     vendor/package2
-    5aa563 /package2/held-back my/type
+    b7b2c3 /package2/type-not-loaded my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
     vendor/package1
-    9d2297 /package1/invalid my/type
+    dd7458 /package1/invalid my/type
 
     vendor/package2
-    c19a35 /package2/invalid my/type
+    24213c /package2/invalid my/type
 
 
 EOF;
@@ -415,14 +407,14 @@ EOF;
 
         $expected = <<<EOF
 vendor/root
-0f1933 /root/enabled my/type
-71dfa8 /overridden   my/type
+bb5a07 /root/enabled my/type
+cc9f22 /overridden   my/type
 
 vendor/package1
-7d5312 /package1/enabled my/type
+970aba /package1/enabled my/type
 
 vendor/package2
-1db044 /package2/enabled my/type
+ddb655 /package2/enabled my/type
 
 
 EOF;
@@ -442,13 +434,13 @@ EOF;
 
         $expected = <<<EOF
 vendor/root
-4e1bf9 /root/disabled my/type
+9ac78a /root/disabled my/type
 
 vendor/package1
-8eb772 /package1/disabled my/type
+a0b6c7 /package1/disabled my/type
 
 vendor/package2
-cbc774 /package2/disabled my/type
+424d68 /package2/disabled my/type
 
 
 EOF;
@@ -468,13 +460,13 @@ EOF;
 
         $expected = <<<EOF
 vendor/root
-414f83 /root/undecided my/type
+3cf757 /root/undecided my/type
 
 vendor/package1
-2611ca /package1/undecided my/type
+e33d03 /package1/undecided my/type
 
 vendor/package2
-446842 /package2/undecided my/type
+516159 /package2/undecided my/type
 
 
 EOF;
@@ -484,46 +476,23 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListOverriddenBindings()
+    public function testListBindingsWithTypeNotLoaded()
     {
         $this->initDefaultBindings();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--overridden'));
-
-        $statusCode = $this->handler->handleList($args, $this->io);
-
-        $expected = <<<EOF
-vendor/package1
-71dfa8 /overridden my/type
-
-vendor/package2
-71dfa8 /overridden my/type
-
-
-EOF;
-
-        $this->assertSame(0, $statusCode);
-        $this->assertSame($expected, $this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
-    }
-
-    public function testListHeldBackBindings()
-    {
-        $this->initDefaultBindings();
-
-        $args = self::$listCommand->parseArgs(new StringArgs('--held-back'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--type-not-loaded'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 vendor/root
-853a98 /root/held-back my/type
+d0e980 /root/type-not-loaded my/type
 
 vendor/package1
-bdb328 /package1/held-back my/type
+19b069 /package1/type-not-loaded my/type
 
 vendor/package2
-5aa563 /package2/held-back my/type
+b7b2c3 /package2/type-not-loaded my/type
 
 
 EOF;
@@ -543,13 +512,13 @@ EOF;
 
         $expected = <<<EOF
 vendor/root
-23fac6 /root/invalid my/type
+d06707 /root/invalid my/type
 
 vendor/package1
-9d2297 /package1/invalid my/type
+dd7458 /package1/invalid my/type
 
 vendor/package2
-c19a35 /package2/invalid my/type
+24213c /package2/invalid my/type
 
 
 EOF;
@@ -572,26 +541,26 @@ EOF;
 Enabled bindings:
 
     vendor/root
-    0f1933 /root/enabled my/type
-    71dfa8 /overridden   my/type
+    bb5a07 /root/enabled my/type
+    cc9f22 /overridden   my/type
 
     vendor/package1
-    7d5312 /package1/enabled my/type
+    970aba /package1/enabled my/type
 
     vendor/package2
-    1db044 /package2/enabled my/type
+    ddb655 /package2/enabled my/type
 
 Disabled bindings:
  (use "puli bind --enable <uuid>" to enable)
 
     vendor/root
-    4e1bf9 /root/disabled my/type
+    9ac78a /root/disabled my/type
 
     vendor/package1
-    8eb772 /package1/disabled my/type
+    a0b6c7 /package1/disabled my/type
 
     vendor/package2
-    cbc774 /package2/disabled my/type
+    424d68 /package2/disabled my/type
 
 
 EOF;
@@ -610,8 +579,8 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-0f1933 /root/enabled my/type
-71dfa8 /overridden   my/type
+bb5a07 /root/enabled my/type
+cc9f22 /overridden   my/type
 
 EOF;
 
@@ -629,7 +598,7 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-1db044 /package2/enabled my/type
+ddb655 /package2/enabled my/type
 
 EOF;
 
@@ -647,7 +616,7 @@ EOF;
                     new BindingDescriptor('/path', 'my/type', array(
                         'param1' => 'value1',
                         'param2' => 'value2',
-                    )),
+                    ), 'glob', Uuid::fromString(self::BINDING_UUID1)),
                 )),
             )));
 
@@ -660,7 +629,7 @@ EOF;
 Enabled bindings:
 
     vendor/root
-    8fd9c3 /path my/type (param1="value1",{$nbsp}param2="value2")
+    bb5a07 /path my/type (param1="value1",{$nbsp}param2="value2")
 
 
 EOF;
@@ -676,7 +645,12 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('addBinding')
-            ->with(new BindingDescriptor('/path', 'my/type', array(), 'glob'));
+            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
+                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
+                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+            });
 
         $statusCode = $this->handler->handleSave($args, $this->io);
 
@@ -691,7 +665,12 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('addBinding')
-            ->with(new BindingDescriptor('/path', 'my/type', array(), 'glob'));
+            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
+                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
+                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+            });
 
         $statusCode = $this->handler->handleSave($args, $this->io);
 
@@ -706,7 +685,12 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('addBinding')
-            ->with(new BindingDescriptor('/path', 'my/type', array(), 'lang'));
+            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
+                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
+                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('lang', $bindingDescriptor->getLanguage());
+            });
 
         $statusCode = $this->handler->handleSave($args, $this->io);
 
@@ -721,10 +705,15 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('addBinding')
-            ->with(new BindingDescriptor('/path', 'my/type', array(
-                'key1' => 'value',
-                'key2' => true,
-            ), 'glob'));
+            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
+                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
+                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(
+                    'key1' => 'value',
+                    'key2' => true,
+                ), $bindingDescriptor->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+            });
 
         $statusCode = $this->handler->handleSave($args, $this->io);
 
@@ -753,7 +742,13 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('addBinding')
-            ->with(new BindingDescriptor('/path', 'my/type', array(), 'glob'), DiscoveryManager::NO_TYPE_CHECK);
+            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) {
+                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
+                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+                PHPUnit_Framework_Assert::assertSame(DiscoveryManager::NO_TYPE_CHECK, $flags);
+            });
 
         $statusCode = $this->handler->handleSave($args, $this->io);
 
@@ -1013,57 +1008,50 @@ EOF;
             ->method('findBindings')
             ->willReturnCallback($this->returnFromMap(array(
                 array($this->packageAndState('vendor/root', BindingState::ENABLED), array(
-                    new BindingDescriptor('/root/enabled', 'my/type'),
-                    new BindingDescriptor('/overridden', 'my/type'),
+                    new BindingDescriptor('/root/enabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID1)),
+                    new BindingDescriptor('/overridden', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID2)),
                 )),
                 array($this->packageAndState('vendor/root', BindingState::DISABLED), array(
-                    new BindingDescriptor('/root/disabled', 'my/type'),
+                    new BindingDescriptor('/root/disabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID3)),
                 )),
                 array($this->packageAndState('vendor/root', BindingState::UNDECIDED), array(
-                    new BindingDescriptor('/root/undecided', 'my/type'),
+                    new BindingDescriptor('/root/undecided', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID4)),
                 )),
-                array($this->packageAndState('vendor/root', BindingState::OVERRIDDEN), array()),
-                array($this->packageAndState('vendor/root', BindingState::HELD_BACK), array(
-                    new BindingDescriptor('/root/held-back', 'my/type'),
+                array($this->packageAndState('vendor/root', BindingState::TYPE_NOT_LOADED), array(
+                    new BindingDescriptor('/root/type-not-loaded', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID5)),
                 )),
                 array($this->packageAndState('vendor/root', BindingState::INVALID), array(
-                    new BindingDescriptor('/root/invalid', 'my/type'),
+                    new BindingDescriptor('/root/invalid', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID6)),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::ENABLED), array(
-                    new BindingDescriptor('/package1/enabled', 'my/type'),
+                    new BindingDescriptor('/package1/enabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID7)),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::DISABLED), array(
-                    new BindingDescriptor('/package1/disabled', 'my/type'),
+                    new BindingDescriptor('/package1/disabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID8)),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::UNDECIDED), array(
-                    new BindingDescriptor('/package1/undecided', 'my/type'),
+                    new BindingDescriptor('/package1/undecided', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID9)),
                 )),
-                array($this->packageAndState('vendor/package1', BindingState::OVERRIDDEN), array(
-                    new BindingDescriptor('/overridden', 'my/type'),
-                )),
-                array($this->packageAndState('vendor/package1', BindingState::HELD_BACK), array(
-                    new BindingDescriptor('/package1/held-back', 'my/type'),
+                array($this->packageAndState('vendor/package1', BindingState::TYPE_NOT_LOADED), array(
+                    new BindingDescriptor('/package1/type-not-loaded', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID10)),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::INVALID), array(
-                    new BindingDescriptor('/package1/invalid', 'my/type'),
+                    new BindingDescriptor('/package1/invalid', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID11)),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::ENABLED), array(
-                    new BindingDescriptor('/package2/enabled', 'my/type'),
+                    new BindingDescriptor('/package2/enabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID12)),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::DISABLED), array(
-                    new BindingDescriptor('/package2/disabled', 'my/type'),
+                    new BindingDescriptor('/package2/disabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID13)),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::UNDECIDED), array(
-                    new BindingDescriptor('/package2/undecided', 'my/type'),
+                    new BindingDescriptor('/package2/undecided', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID14)),
                 )),
-                array($this->packageAndState('vendor/package2', BindingState::OVERRIDDEN), array(
-                    new BindingDescriptor('/overridden', 'my/type'),
-                )),
-                array($this->packageAndState('vendor/package2', BindingState::HELD_BACK), array(
-                    new BindingDescriptor('/package2/held-back', 'my/type'),
+                array($this->packageAndState('vendor/package2', BindingState::TYPE_NOT_LOADED), array(
+                    new BindingDescriptor('/package2/type-not-loaded', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID15)),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::INVALID), array(
-                    new BindingDescriptor('/package2/invalid', 'my/type'),
+                    new BindingDescriptor('/package2/invalid', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID16)),
                 )),
             )));
     }

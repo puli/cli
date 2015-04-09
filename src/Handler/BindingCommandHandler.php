@@ -17,6 +17,7 @@ use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
 use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Package\RootPackage;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
@@ -127,22 +128,7 @@ class BindingCommandHandler
 
         $bindingParams = array();
 
-        foreach ($args->getOption('param') as $parameter) {
-            $pos = strpos($parameter, '=');
-
-            if (false === $pos) {
-                throw new RuntimeException(sprintf(
-                    'The "--param" option expects a parameter in the form '.
-                    '"key=value". Got: "%s"',
-                    $parameter
-                ));
-            }
-
-            $key = substr($parameter, 0, $pos);
-            $value = StringUtil::parseValue(substr($parameter, $pos + 1));
-
-            $bindingParams[$key] = $value;
-        }
+        $this->parseParams($args, $bindingParams);
 
         $this->discoveryManager->addRootBinding(new BindingDescriptor(
             Path::makeAbsolute($args->getArgument('query'), $this->currentPath),
@@ -168,31 +154,12 @@ class BindingCommandHandler
                 | DiscoveryManager::IGNORE_TYPE_NOT_ENABLED
             : DiscoveryManager::OVERRIDE;
 
-        $uuid = $args->getArgument('uuid');
-        $rootPackageName = $this->packages->getRootPackageName();
-        $uuidExpr = Expr::startsWith(BindingDescriptor::UUID, $uuid);
-        $uuidInRootExpr = $uuidExpr->andSame(BindingDescriptor::CONTAINING_PACKAGE, $rootPackageName);
-        $bindings = $this->discoveryManager->findBindings($uuidInRootExpr);
+        $bindingToUpdate = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
-        if (0 === count($bindings)) {
-            $nonRootBindings = $this->discoveryManager->findBindings($uuidExpr);
-
-            if (count($nonRootBindings) > 0) {
-                throw new RuntimeException('Can only update bindings in the root package.');
-            }
-
-            throw new RuntimeException(sprintf('The binding "%s" does not exist.', $uuid));
+        if (!$bindingToUpdate->getContainingPackage() instanceof RootPackage) {
+            throw new RuntimeException('Can only update bindings in the root package.');
         }
 
-        if (count($bindings) > 1) {
-            throw new RuntimeException(sprintf(
-                'More than one binding matches the UUID prefix "%s".',
-                $uuid
-            ));
-        }
-
-        /** @var BindingDescriptor $bindingToUpdate */
-        $bindingToUpdate = reset($bindings);
         $query = $bindingToUpdate->getQuery();
         $typeName = $bindingToUpdate->getTypeName();
         $language = $bindingToUpdate->getLanguage();
@@ -210,26 +177,8 @@ class BindingCommandHandler
             $language = $args->getOption('language');
         }
 
-        foreach ($args->getOption('param') as $parameter) {
-            $pos = strpos($parameter, '=');
-
-            if (false === $pos) {
-                throw new RuntimeException(sprintf(
-                    'The "--param" option expects a parameter in the form '.
-                    '"key=value". Got: "%s"',
-                    $parameter
-                ));
-            }
-
-            $key = substr($parameter, 0, $pos);
-            $value = StringUtil::parseValue(substr($parameter, $pos + 1));
-
-            $bindingParams[$key] = $value;
-        }
-
-        foreach ($args->getOption('unset-param') as $parameter) {
-            unset($bindingParams[$parameter]);
-        }
+        $this->parseParams($args, $bindingParams);
+        $this->unsetParams($args, $bindingParams);
 
         $updatedBinding = new BindingDescriptor(
             Path::makeAbsolute($query, $this->currentPath),
@@ -239,7 +188,7 @@ class BindingCommandHandler
             $bindingToUpdate->getUuid()
         );
 
-        if ($bindingToUpdate == $updatedBinding) {
+        if ($this->bindingsEqual($bindingToUpdate, $updatedBinding)) {
             throw new RuntimeException('Nothing to update.');
         }
 
@@ -257,30 +206,12 @@ class BindingCommandHandler
      */
     public function handleRemove(Args $args)
     {
-        $uuid = $args->getArgument('uuid');
-        $rootPackageName = $this->packages->getRootPackageName();
-        $uuidExpr = Expr::startsWith(BindingDescriptor::UUID, $uuid);
-        $uuidInRootExpr = $uuidExpr->andSame(BindingDescriptor::CONTAINING_PACKAGE, $rootPackageName);
-        $bindings = $this->discoveryManager->findBindings($uuidInRootExpr);
+        $bindingToRemove = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
-        if (0 === count($bindings)) {
-            $nonRootBindings = $this->discoveryManager->findBindings($uuidExpr);
-
-            if (count($nonRootBindings) > 0) {
-                throw new RuntimeException('Can only delete bindings from the root package.');
-            }
-
-            throw new RuntimeException(sprintf('The binding "%s" does not exist.', $uuid));
+        if (!$bindingToRemove->getContainingPackage() instanceof RootPackage) {
+            throw new RuntimeException('Can only delete bindings from the root package.');
         }
 
-        if (count($bindings) > 1) {
-            throw new RuntimeException(sprintf(
-                'More than one binding matches the UUID prefix "%s".',
-                $uuid
-            ));
-        }
-
-        $bindingToRemove = reset($bindings);
         $this->discoveryManager->removeRootBinding($bindingToRemove->getUuid());
 
         return 0;
@@ -295,20 +226,13 @@ class BindingCommandHandler
      */
     public function handleEnable(Args $args)
     {
-        $uuid = $args->getArgument('uuid');
-        $expr = Expr::startsWith(BindingDescriptor::UUID, $uuid);
-        $bindings = $this->discoveryManager->findBindings($expr);
+        $bindingToEnable = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
-        if (0 === count($bindings)) {
-            throw new RuntimeException(sprintf(
-                'The binding "%s" does not exist.',
-                $uuid
-            ));
+        if ($bindingToEnable->getContainingPackage() instanceof RootPackage) {
+            throw new RuntimeException('Cannot enable bindings in the root package.');
         }
 
-        foreach ($bindings as $binding) {
-            $this->discoveryManager->enableBinding($binding->getUuid());
-        }
+        $this->discoveryManager->enableBinding($bindingToEnable->getUuid());
 
         return 0;
     }
@@ -322,20 +246,14 @@ class BindingCommandHandler
      */
     public function handleDisable(Args $args)
     {
-        $uuid = $args->getArgument('uuid');
-        $expr = Expr::startsWith(BindingDescriptor::UUID, $uuid);
-        $bindings = $this->discoveryManager->findBindings($expr);
+        $bindingToDisable = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
-        if (0 === count($bindings)) {
-            throw new RuntimeException(sprintf(
-                'The binding "%s" does not exist.',
-                $uuid
-            ));
+        if ($bindingToDisable->getContainingPackage() instanceof RootPackage) {
+            throw new RuntimeException('Cannot disable bindings in the root package.');
         }
 
-        foreach ($bindings as $binding) {
-            $this->discoveryManager->disableBinding($binding->getUuid());
-        }
+        $this->discoveryManager->disableBinding($bindingToDisable->getUuid());
+
 
         return 0;
     }
@@ -464,5 +382,81 @@ class BindingCommandHandler
                 $io->writeLine('');
                 return;
         }
+    }
+
+    private function parseParams(Args $args, array &$bindingParams)
+    {
+        foreach ($args->getOption('param') as $parameter) {
+            $pos = strpos($parameter, '=');
+
+            if (false === $pos) {
+                throw new RuntimeException(sprintf(
+                    'The "--param" option expects a parameter in the form '.
+                    '"key=value". Got: "%s"',
+                    $parameter
+                ));
+            }
+
+            $key = substr($parameter, 0, $pos);
+            $value = StringUtil::parseValue(substr($parameter, $pos + 1));
+
+            $bindingParams[$key] = $value;
+        }
+    }
+
+    private function unsetParams(Args $args, array &$bindingParams)
+    {
+        foreach ($args->getOption('unset-param') as $parameter) {
+            unset($bindingParams[$parameter]);
+        }
+    }
+
+    /**
+     * @param string $uuidPrefix
+     *
+     * @return BindingDescriptor
+     */
+    private function getBindingByUuidPrefix($uuidPrefix)
+    {
+        $expr = Expr::startsWith(BindingDescriptor::UUID, $uuidPrefix);
+        $bindings = $this->discoveryManager->findBindings($expr);
+
+        if (0 === count($bindings)) {
+            throw new RuntimeException(sprintf('The binding "%s" does not exist.', $uuidPrefix));
+        }
+
+        if (count($bindings) > 1) {
+            throw new RuntimeException(sprintf(
+                'More than one binding matches the UUID prefix "%s".',
+                $uuidPrefix
+            ));
+        }
+
+        return reset($bindings);
+    }
+
+    private function bindingsEqual(BindingDescriptor $binding1, BindingDescriptor $binding2)
+    {
+        if ($binding1->getUuid() !== $binding2->getUuid()) {
+            return false;
+        }
+
+        if ($binding1->getTypeName() !== $binding2->getTypeName()) {
+            return false;
+        }
+
+        if ($binding1->getQuery() !== $binding2->getQuery()) {
+            return false;
+        }
+
+        if ($binding1->getLanguage() !== $binding2->getLanguage()) {
+            return false;
+        }
+
+        if ($binding1->getParameterValues() !== $binding2->getParameterValues()) {
+            return false;
+        }
+
+        return true;
     }
 }

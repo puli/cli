@@ -839,12 +839,13 @@ EOF;
             'param1' => 'value1',
             'param2' => 'value2',
         ), 'glob');
+        $descriptor->load($this->packages->getRootPackage());
         $uuid = $descriptor->getUuid();
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
             ->willReturnCallback($this->returnForExpr(
-                $this->packageAndUuid('vendor/root', 'ab12'),
+                $this->uuid('ab12'),
                 array($descriptor)
             ));
 
@@ -873,11 +874,12 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query new'));
         $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+        $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
             ->willReturnCallback($this->returnForExpr(
-                $this->packageAndUuid('vendor/root', 'ab12'),
+                $this->uuid('ab12'),
                 array($descriptor)
             ));
 
@@ -905,11 +907,12 @@ EOF;
             'param1' => 'value1',
             'param2' => 'value2',
         ), 'glob');
+        $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
             ->willReturnCallback($this->returnForExpr(
-                $this->packageAndUuid('vendor/root', 'ab12'),
+                $this->uuid('ab12'),
                 array($descriptor)
             ));
 
@@ -934,11 +937,12 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new --force'));
         $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+        $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindings')
             ->willReturnCallback($this->returnForExpr(
-                $this->packageAndUuid('vendor/root', 'ab12'),
+                $this->uuid('ab12'),
                 array($descriptor)
             ));
 
@@ -961,16 +965,41 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
+     * @expectedExceptionMessage Nothing to update.
      */
     public function testUpdateBindingFailsIfNoUpdateProvided()
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+        $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
             ->willReturnCallback($this->returnForExpr(
-                $this->packageAndUuid('vendor/root', 'ab12'),
+                $this->uuid('ab12'),
+                array($descriptor)
+            ));
+
+        $this->discoveryManager->expects($this->never())
+            ->method('addRootBinding');
+
+        $this->handler->handleUpdate($args, $this->io);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Can only update bindings in the root package.
+     */
+    public function testUpdateBindingFailsIfNoRootBinding()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new'));
+        $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+        $descriptor->load($this->packages->get('vendor/package1'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('findBindings')
+            ->willReturnCallback($this->returnForExpr(
+                $this->uuid('ab12'),
                 array($descriptor)
             ));
 
@@ -984,11 +1013,12 @@ EOF;
     {
         $args = self::$removeCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
             ->willReturnCallback($this->returnForExpr(
-                $this->packageAndUuid('vendor/root', 'ab12'),
+                $this->uuid('ab12'),
                 array($descriptor)
             ));
 
@@ -1014,7 +1044,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
             ->willReturnCallback($this->returnForExpr(
-                $this->packageAndUuid('vendor/root', 'ab12'),
+                $this->uuid('ab12'),
                 array(
                     new BindingDescriptor('/path1', 'my/type', array(), 'glob'),
                     new BindingDescriptor('/path2', 'my/type', array(), 'glob'),
@@ -1035,14 +1065,7 @@ EOF;
     {
         $args = self::$removeCommand->parseArgs(new StringArgs('ab12'));
 
-        $this->discoveryManager->expects($this->at(0))
-            ->method('findBindings')
-            ->willReturnCallback($this->returnForExpr(
-                $this->packageAndUuid('vendor/root', 'ab12'),
-                array()
-            ));
-
-        $this->discoveryManager->expects($this->at(1))
+        $this->discoveryManager->expects($this->once())
             ->method('findBindings')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
@@ -1062,19 +1085,14 @@ EOF;
     public function testRemoveBindingFailsIfNoRootBinding()
     {
         $args = self::$removeCommand->parseArgs(new StringArgs('ab12'));
+        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor->load($this->packages->get('vendor/package1'));
 
-        $this->discoveryManager->expects($this->at(0))
-            ->method('findBindings')
-            ->willReturnCallback($this->returnForExpr(
-                $this->packageAndUuid('vendor/root', 'ab12'),
-                array()
-            ));
-
-        $this->discoveryManager->expects($this->at(1))
+        $this->discoveryManager->expects($this->once())
             ->method('findBindings')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
-                array(new BindingDescriptor('/path1', 'my/type', array(), 'glob'))
+                array($descriptor)
             ));
 
         $this->discoveryManager->expects($this->never())
@@ -1083,24 +1101,20 @@ EOF;
         $this->handler->handleRemove($args, $this->io);
     }
 
-    public function testEnableBindings()
+    public function testEnableBinding()
     {
         $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
-        $descriptor1 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
-        $descriptor2 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor->load($this->packages->get('vendor/package1'));
 
-        $this->discoveryManager->expects($this->at(0))
+        $this->discoveryManager->expects($this->once())
             ->method('findBindings')
             ->with($this->uuid('ab12'))
-            ->willReturn(array($descriptor1, $descriptor2));
+            ->willReturn(array($descriptor));
 
-        $this->discoveryManager->expects($this->at(1))
+        $this->discoveryManager->expects($this->once())
             ->method('enableBinding')
-            ->with($descriptor1->getUuid());
-
-        $this->discoveryManager->expects($this->at(2))
-            ->method('enableBinding')
-            ->with($descriptor2->getUuid());
+            ->with($descriptor->getUuid());
 
         $statusCode = $this->handler->handleEnable($args, $this->io);
 
@@ -1113,7 +1127,7 @@ EOF;
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The binding "ab12" does not exist
      */
-    public function testEnableBindingsFailsIfNotFound()
+    public function testEnableBindingFailsIfNotFound()
     {
         $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
 
@@ -1128,24 +1142,41 @@ EOF;
         $this->handler->handleEnable($args, $this->io);
     }
 
-    public function testDisableBindings()
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Cannot enable bindings in the root package.
+     */
+    public function testEnableBindingFailsIfRoot()
     {
-        $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
-        $descriptor1 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
-        $descriptor2 = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
+        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor->load($this->packages->getRootPackage());
 
-        $this->discoveryManager->expects($this->at(0))
+        $this->discoveryManager->expects($this->once())
             ->method('findBindings')
             ->with($this->uuid('ab12'))
-            ->willReturn(array($descriptor1, $descriptor2));
+            ->willReturn(array($descriptor));
 
-        $this->discoveryManager->expects($this->at(1))
-            ->method('disableBinding')
-            ->with($descriptor1->getUuid());
+        $this->discoveryManager->expects($this->never())
+            ->method('enableBinding');
 
-        $this->discoveryManager->expects($this->at(2))
+        $this->handler->handleEnable($args, $this->io);
+    }
+
+    public function testDisableBinding()
+    {
+        $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
+        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor->load($this->packages->get('vendor/package1'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('findBindings')
+            ->with($this->uuid('ab12'))
+            ->willReturn(array($descriptor));
+
+        $this->discoveryManager->expects($this->once())
             ->method('disableBinding')
-            ->with($descriptor2->getUuid());
+            ->with($descriptor->getUuid());
 
         $statusCode = $this->handler->handleDisable($args, $this->io);
 
@@ -1166,6 +1197,27 @@ EOF;
             ->method('findBindings')
             ->with($this->uuid('ab12'))
             ->willReturn(array());
+
+        $this->discoveryManager->expects($this->never())
+            ->method('disableBinding');
+
+        $this->handler->handleDisable($args, $this->io);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Cannot disable bindings in the root package.
+     */
+    public function testDisableBindingFailsIfRoot()
+    {
+        $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
+        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor->load($this->packages->getRootPackage());
+
+        $this->discoveryManager->expects($this->once())
+            ->method('findBindings')
+            ->with($this->uuid('ab12'))
+            ->willReturn(array($descriptor));
 
         $this->discoveryManager->expects($this->never())
             ->method('disableBinding');

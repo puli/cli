@@ -46,6 +46,11 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
+    private static $updateCommand;
+
+    /**
+     * @var Command
+     */
     private static $removeCommand;
 
     /**
@@ -69,6 +74,7 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
 
         self::$listCommand = self::$application->getCommand('type')->getSubCommand('list');
         self::$defineCommand = self::$application->getCommand('type')->getSubCommand('define');
+        self::$updateCommand = self::$application->getCommand('type')->getSubCommand('update');
         self::$removeCommand = self::$application->getCommand('type')->getSubCommand('remove');
     }
 
@@ -416,11 +422,11 @@ EOF;
 
     public function testDefineTypeWithParameterDescription()
     {
-        $args = self::$defineCommand->parseArgs(new StringArgs('my/type --description "The description" --param param --description "The parameter description"'));
+        $args = self::$defineCommand->parseArgs(new StringArgs('my/type --param param --param-description param="The parameter description"'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type', 'The description', array(
+            ->with(new BindingTypeDescriptor('my/type', null, array(
                 new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The parameter description')
             )));
 
@@ -436,6 +442,121 @@ EOF;
             ->with(new BindingTypeDescriptor('my/type'), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleDefine($args));
+    }
+
+    public function testUpdateTypeDescription()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('my/type --description "New description"'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('getRootBindingType')
+            ->with('my/type')
+            ->willReturn(new BindingTypeDescriptor('my/type', 'Old description'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addRootBindingType')
+            ->with(new BindingTypeDescriptor('my/type', 'New description'), DiscoveryManager::OVERRIDE);
+
+        $this->assertSame(0, $this->handler->handleUpdate($args));
+    }
+
+    public function testUpdateTypeOptionalParameterToRequired()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param param'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('getRootBindingType')
+            ->with('my/type')
+            ->willReturn(new BindingTypeDescriptor('my/type', null, array(
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::OPTIONAL, 'default', 'The description')
+            )));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addRootBindingType')
+            ->with(new BindingTypeDescriptor('my/type', null, array(
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The description')
+            )), DiscoveryManager::OVERRIDE);
+
+        $this->assertSame(0, $this->handler->handleUpdate($args));
+    }
+
+    public function testUpdateTypeRequiredParameterToOptional()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param param=foobar'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('getRootBindingType')
+            ->with('my/type')
+            ->willReturn(new BindingTypeDescriptor('my/type', null, array(
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The description')
+            )));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addRootBindingType')
+            ->with(new BindingTypeDescriptor('my/type', null, array(
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::OPTIONAL, 'foobar', 'The description')
+            )), DiscoveryManager::OVERRIDE);
+
+        $this->assertSame(0, $this->handler->handleUpdate($args));
+    }
+
+    public function testUpdateTypeChangeParameterDescription()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param-description param="New description"'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('getRootBindingType')
+            ->with('my/type')
+            ->willReturn(new BindingTypeDescriptor('my/type', null, array(
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'Old description')
+            )));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addRootBindingType')
+            ->with(new BindingTypeDescriptor('my/type', null, array(
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'New description')
+            )), DiscoveryManager::OVERRIDE);
+
+        $this->assertSame(0, $this->handler->handleUpdate($args));
+    }
+
+    public function testUpdateTypeRemoveParameter()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('my/type --unset-param param2'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('getRootBindingType')
+            ->with('my/type')
+            ->willReturn(new BindingTypeDescriptor('my/type', null, array(
+                new BindingParameterDescriptor('param1', BindingParameterDescriptor::REQUIRED),
+                new BindingParameterDescriptor('param2', BindingParameterDescriptor::OPTIONAL),
+            )));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addRootBindingType')
+            ->with(new BindingTypeDescriptor('my/type', null, array(
+                new BindingParameterDescriptor('param1', BindingParameterDescriptor::REQUIRED),
+            )), DiscoveryManager::OVERRIDE);
+
+        $this->assertSame(0, $this->handler->handleUpdate($args));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testUpdateTypeFailsIfNoChanges()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('my/type'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('getRootBindingType')
+            ->with('my/type')
+            ->willReturn(new BindingTypeDescriptor('my/type'));
+
+        $this->discoveryManager->expects($this->never())
+            ->method('addRootBindingType');
+
+        $this->handler->handleUpdate($args);
     }
 
     public function testRemoveType()

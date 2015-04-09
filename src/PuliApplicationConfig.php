@@ -354,8 +354,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginSubCommand('define')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
-                    ->addOption('description', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A human-readable description')
+                    ->addOption('description', null, Option::REQUIRED_VALUE, 'A human-readable description of the type')
                     ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <key> or <key>=<value>', null, 'key=value')
+                    ->addOption('param-description', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A human-readable parameter description in the form <key>=<description>', null, 'key=description')
                     ->addOption('force', 'f', Option::NO_VALUE, 'Add type even if another type exists with the same name')
                     ->setHandlerMethod('handleDefine')
                 ->end()
@@ -368,6 +369,15 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled types')
                     ->addOption('duplicate', null, Option::NO_VALUE, 'Show duplicate types')
                     ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginSubCommand('update')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
+                    ->addOption('description', null, Option::REQUIRED_VALUE, 'A human-readable description of the type')
+                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <key> or <key>=<value>', null, 'key=value')
+                    ->addOption('param-description', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A human-readable parameter description in the form <key>=<description>', null, 'key=description')
+                    ->addOption('unset-param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Unset a type parameter', null, 'key')
+                    ->setHandlerMethod('handleUpdate')
                 ->end()
 
                 ->beginSubCommand('remove')

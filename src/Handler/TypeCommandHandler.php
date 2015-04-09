@@ -18,6 +18,7 @@ use Puli\Manager\Api\Discovery\BindingTypeDescriptor;
 use Puli\Manager\Api\Discovery\BindingTypeState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
 use Puli\Manager\Api\Package\PackageCollection;
+use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
@@ -125,42 +126,57 @@ class TypeCommandHandler
     public function handleDefine(Args $args)
     {
         $flags = $args->isOptionSet('force') ? DiscoveryManager::OVERRIDE : 0;
-        $descriptions = $args->getOption('description');
         $bindingParams = array();
+        $paramDescriptions = array();
 
-        // The first description is for the type
-        $description = $descriptions ? array_shift($descriptions) : null;
-
-        foreach ($args->getOption('param') as $parameter) {
-            // Subsequent descriptions are for the parameters
-            $paramDescription = $descriptions ? array_shift($descriptions) : null;
-
-            // Optional parameter with default value
-            if (false !== ($pos = strpos($parameter, '='))) {
-                $bindingParams[] = new BindingParameterDescriptor(
-                    substr($parameter, 0, $pos),
-                    BindingParameterDescriptor::OPTIONAL,
-                    StringUtil::parseValue(substr($parameter, $pos + 1)),
-                    $paramDescription
-                );
-
-                continue;
-            }
-
-            // Required parameter
-            $bindingParams[] = new BindingParameterDescriptor(
-                $parameter,
-                BindingParameterDescriptor::REQUIRED,
-                null,
-                $paramDescription
-            );
-        }
+        $this->parsesParamDescriptions($args, $paramDescriptions);
+        $this->parseParams($args, $paramDescriptions, $bindingParams);
 
         $this->discoveryManager->addRootBindingType(new BindingTypeDescriptor(
             $args->getArgument('name'),
-            $description,
+            $args->getOption('description'),
             $bindingParams
         ), $flags);
+
+        return 0;
+    }
+
+    /**
+     * Handles the "type update" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
+    public function handleUpdate(Args $args)
+    {
+        $name = $args->getArgument('name');
+        $typeToUpdate = $this->discoveryManager->getRootBindingType($name);
+        $bindingParams = $typeToUpdate->getParameters();
+        $description = $typeToUpdate->getDescription();
+        $paramDescriptions = array();
+
+        // Collect existing parameter descriptions
+        foreach ($bindingParams as $parameter) {
+            $paramDescriptions[$parameter->getName()] = $parameter->getDescription();
+        }
+
+        $this->parsesParamDescriptions($args, $paramDescriptions);
+        $this->parseParams($args, $paramDescriptions, $bindingParams);
+        $this->updateParamDescriptions($paramDescriptions, $bindingParams);
+        $this->parseUnsetParams($args, $bindingParams);
+
+        if ($args->isOptionSet('description')) {
+            $description = $args->getOption('description');
+        }
+
+        $updatedType = new BindingTypeDescriptor($name, $description, $bindingParams);
+
+        if ($typeToUpdate == $updatedType) {
+            throw new RuntimeException('Nothing to update.');
+        }
+
+        $this->discoveryManager->addRootBindingType($updatedType, DiscoveryManager::OVERRIDE);
 
         return 0;
     }
@@ -262,6 +278,84 @@ class TypeCommandHandler
                 $io->writeLine('The following types have duplicate definitions and are disabled:');
                 $io->writeLine('');
                 return;
+        }
+    }
+
+    private function parsesParamDescriptions(Args $args, array &$paramDescriptions)
+    {
+        foreach ($args->getOption('param-description') as $paramDescription) {
+            $pos = strpos($paramDescription, '=');
+
+            if (false === $pos) {
+                throw new RuntimeException(sprintf(
+                    'The "--param-description" option expects a parameter in '.
+                    'the form "key=value". Got: "%s"',
+                    $paramDescription
+                ));
+            }
+
+            $key = substr($paramDescription, 0, $pos);
+            $paramDescriptions[$key] = StringUtil::parseValue(substr($paramDescription, $pos + 1));
+        }
+    }
+
+    private function parseParams(Args $args, array $paramDescriptions, array &$bindingParams)
+    {
+        foreach ($args->getOption('param') as $parameter) {
+            // Optional parameter with default value
+            if (false !== ($pos = strpos($parameter, '='))) {
+                $key = substr($parameter, 0, $pos);
+
+                $bindingParams[$key] = new BindingParameterDescriptor(
+                    $key,
+                    BindingParameterDescriptor::OPTIONAL,
+                    StringUtil::parseValue(substr($parameter, $pos + 1)),
+                    isset($paramDescriptions[$key]) ? $paramDescriptions[$key] : null
+                );
+
+                continue;
+            }
+
+            // Required parameter
+            $bindingParams[$parameter] = new BindingParameterDescriptor(
+                $parameter,
+                BindingParameterDescriptor::REQUIRED,
+                null,
+                isset($paramDescriptions[$parameter]) ? $paramDescriptions[$parameter] : null
+            );
+        }
+    }
+
+    /**
+     * @param string[]                     $paramDescriptions
+     * @param BindingParameterDescriptor[] $bindingParams
+     */
+    private function updateParamDescriptions(array $paramDescriptions, array &$bindingParams)
+    {
+        foreach ($bindingParams as $parameterName => $parameter) {
+            if (!isset($paramDescriptions[$parameterName])) {
+                continue;
+            }
+
+            $description = $paramDescriptions[$parameterName];
+
+            if ($description === $parameter->getDescription()) {
+                continue;
+            }
+
+            $bindingParams[$parameterName] = new BindingParameterDescriptor(
+                $parameterName,
+                $parameter->getFlags(),
+                $parameter->getDefaultValue(),
+                $description
+            );
+        }
+    }
+
+    private function parseUnsetParams(Args $args, array &$bindingParams)
+    {
+        foreach ($args->getOption('unset-param') as $parameter) {
+            unset($bindingParams[$parameter]);
         }
     }
 

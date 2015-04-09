@@ -21,6 +21,7 @@ Changelog
  * added `--name` option to `puli find`
  * added `puli binding update` command
  * added `puli path update` command
+ * added `puli type update` command
 
 * 1.0.0-beta3 (2015-03-19)
 

@@ -190,7 +190,17 @@ class TypeCommandHandler
      */
     public function handleRemove(Args $args)
     {
-        $this->discoveryManager->removeRootBindingType($args->getArgument('name'));
+        $typeName = $args->getArgument('name');
+
+        if (!$this->discoveryManager->hasRootBindingType($typeName)) {
+            throw new RuntimeException(sprintf(
+                'The type "%s" does not exist in the package "%s".',
+                $typeName,
+                $this->packages->getRootPackageName()
+            ));
+        }
+
+        $this->discoveryManager->removeRootBindingType($typeName);
 
         return 0;
     }

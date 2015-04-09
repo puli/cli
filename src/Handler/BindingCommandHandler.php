@@ -157,7 +157,10 @@ class BindingCommandHandler
         $bindingToUpdate = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
         if (!$bindingToUpdate->getContainingPackage() instanceof RootPackage) {
-            throw new RuntimeException('Can only update bindings in the root package.');
+            throw new RuntimeException(sprintf(
+                'Can only update bindings in package "%s".',
+                $this->packages->getRootPackageName()
+            ));
         }
 
         $query = $bindingToUpdate->getQuery();
@@ -209,7 +212,10 @@ class BindingCommandHandler
         $bindingToRemove = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
         if (!$bindingToRemove->getContainingPackage() instanceof RootPackage) {
-            throw new RuntimeException('Can only delete bindings from the root package.');
+            throw new RuntimeException(sprintf(
+                'Can only delete bindings from the package "%s".',
+                $this->packages->getRootPackageName()
+            ));
         }
 
         $this->discoveryManager->removeRootBinding($bindingToRemove->getUuid());

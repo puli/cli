@@ -17,6 +17,7 @@ use Puli\Manager\Api\Package\PackageCollection;
 use Puli\Manager\Api\Package\PackageManager;
 use Puli\Manager\Api\Package\PackageState;
 use Puli\Manager\Api\Package\RootPackage;
+use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
@@ -122,7 +123,16 @@ class PackageCommandHandler
      */
     public function handleRemove(Args $args)
     {
-        $this->packageManager->removePackage($args->getArgument('name'));
+        $packageName = $args->getArgument('name');
+
+        if (!$this->packageManager->hasPackage($packageName)) {
+            throw new RuntimeException(sprintf(
+                'The package "%s" is not installed.',
+                $packageName
+            ));
+        }
+
+        $this->packageManager->removePackage($packageName);
 
         return 0;
     }

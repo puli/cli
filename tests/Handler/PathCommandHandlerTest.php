@@ -651,6 +651,11 @@ EOF;
         $args = self::$removeCommand->parseArgs(new StringArgs('path1'));
 
         $this->repoManager->expects($this->once())
+            ->method('hasRootPathMapping')
+            ->with('/path1')
+            ->willReturn(true);
+
+        $this->repoManager->expects($this->once())
             ->method('removeRootPathMapping')
             ->with('/path1');
 
@@ -662,6 +667,31 @@ EOF;
         $args = self::$removeCommand->parseArgs(new StringArgs('/path1'));
 
         $this->repoManager->expects($this->once())
+            ->method('hasRootPathMapping')
+            ->with('/path1')
+            ->willReturn(true);
+
+        $this->repoManager->expects($this->once())
+            ->method('removeRootPathMapping')
+            ->with('/path1');
+
+        $this->assertSame(0, $this->handler->handleRemove($args));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The path "/path1" is not mapped in the root package.
+     */
+    public function testRemoveMappingFailsIfNotFound()
+    {
+        $args = self::$removeCommand->parseArgs(new StringArgs('/path1'));
+
+        $this->repoManager->expects($this->once())
+            ->method('hasRootPathMapping')
+            ->with('/path1')
+            ->willReturn(false);
+
+        $this->repoManager->expects($this->never())
             ->method('removeRootPathMapping')
             ->with('/path1');
 

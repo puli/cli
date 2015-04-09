@@ -582,12 +582,35 @@ EOF;
         $args = self::$removeCommand->parseArgs(new StringArgs('my/type'));
 
         $this->discoveryManager->expects($this->once())
+            ->method('hasRootBindingType')
+            ->with('my/type')
+            ->willReturn(true);
+
+        $this->discoveryManager->expects($this->once())
             ->method('removeRootBindingType')
             ->with('my/type');
 
         $this->assertSame(0, $this->handler->handleRemove($args));
     }
 
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The type "my/type" does not exist in the root package.
+     */
+    public function testRemoveTypeFailsIfNotFound()
+    {
+        $args = self::$removeCommand->parseArgs(new StringArgs('my/type'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('hasRootBindingType')
+            ->with('my/type')
+            ->willReturn(false);
+
+        $this->discoveryManager->expects($this->never())
+            ->method('removeRootBindingType');
+
+        $this->assertSame(0, $this->handler->handleRemove($args));
+    }
 
     private function packageAndState($packageName, $state)
     {

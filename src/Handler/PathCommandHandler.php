@@ -237,6 +237,14 @@ class PathCommandHandler
     {
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
 
+        if (!$this->repoManager->hasRootPathMapping($repositoryPath)) {
+            throw new RuntimeException(sprintf(
+                'The path "%s" is not mapped in the package "%s".',
+                $repositoryPath,
+                $this->packages->getRootPackageName()
+            ));
+        }
+
         $this->repoManager->removeRootPathMapping($repositoryPath);
 
         return 0;

@@ -341,10 +341,35 @@ EOF;
         $args = self::$removeCommand->parseArgs(new StringArgs('vendor/package1'));
 
         $this->packageManager->expects($this->once())
+            ->method('hasPackage')
+            ->with('vendor/package1')
+            ->willReturn(true);
+
+        $this->packageManager->expects($this->once())
             ->method('removePackage')
             ->with('vendor/package1');
 
         $this->assertSame(0, $this->handler->handleRemove($args));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage The package "vendor/package1" is not installed.
+     */
+    public function testRemovePackageFailsIfNotFound()
+    {
+        $args = self::$removeCommand->parseArgs(new StringArgs('vendor/package1'));
+
+        $this->packageManager->expects($this->once())
+            ->method('hasPackage')
+            ->with('vendor/package1')
+            ->willReturn(false);
+
+        $this->packageManager->expects($this->never())
+            ->method('removePackage')
+            ->with('vendor/package1');
+
+        $this->handler->handleRemove($args);
     }
 
     public function testCleanPackages()

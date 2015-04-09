@@ -988,7 +988,7 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Can only update bindings in the root package.
+     * @expectedExceptionMessage Can only update bindings in the package "vendor/root".
      */
     public function testUpdateBindingFailsIfNoRootBinding()
     {
@@ -1080,7 +1080,7 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Can only delete bindings from the root package
+     * @expectedExceptionMessage Can only delete bindings from the package "vendor/root".
      */
     public function testRemoveBindingFailsIfNoRootBinding()
     {
@@ -1144,7 +1144,7 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Cannot enable bindings in the root package.
+     * @expectedExceptionMessage Cannot enable bindings in the package "vendor/root".
      */
     public function testEnableBindingFailsIfRoot()
     {
@@ -1206,7 +1206,7 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Cannot disable bindings in the root package.
+     * @expectedExceptionMessage Cannot disable bindings in the package "vendor/root".
      */
     public function testDisableBindingFailsIfRoot()
     {

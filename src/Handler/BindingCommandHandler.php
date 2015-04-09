@@ -158,7 +158,7 @@ class BindingCommandHandler
 
         if (!$bindingToUpdate->getContainingPackage() instanceof RootPackage) {
             throw new RuntimeException(sprintf(
-                'Can only update bindings in package "%s".',
+                'Can only update bindings in the package "%s".',
                 $this->packages->getRootPackageName()
             ));
         }
@@ -235,7 +235,10 @@ class BindingCommandHandler
         $bindingToEnable = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
         if ($bindingToEnable->getContainingPackage() instanceof RootPackage) {
-            throw new RuntimeException('Cannot enable bindings in the root package.');
+            throw new RuntimeException(sprintf(
+                'Cannot enable bindings in the package "%s".',
+                $bindingToEnable->getContainingPackage()->getName()
+            ));
         }
 
         $this->discoveryManager->enableBinding($bindingToEnable->getUuid());
@@ -255,7 +258,10 @@ class BindingCommandHandler
         $bindingToDisable = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
         if ($bindingToDisable->getContainingPackage() instanceof RootPackage) {
-            throw new RuntimeException('Cannot disable bindings in the root package.');
+            throw new RuntimeException(sprintf(
+                'Cannot disable bindings in the package "%s".',
+                $bindingToDisable->getContainingPackage()->getName()
+            ));
         }
 
         $this->discoveryManager->disableBinding($bindingToDisable->getUuid());

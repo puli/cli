@@ -595,7 +595,7 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage The type "my/type" does not exist in the root package.
+     * @expectedExceptionMessage The type "my/type" does not exist in the package "vendor/root".
      */
     public function testRemoveTypeFailsIfNotFound()
     {

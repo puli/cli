@@ -680,7 +680,7 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage The path "/path1" is not mapped in the root package.
+     * @expectedExceptionMessage The path "/path1" is not mapped in the package "vendor/root".
      */
     public function testRemoveMappingFailsIfNotFound()
     {

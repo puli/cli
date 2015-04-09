@@ -19,6 +19,7 @@ Changelog
  * added `--force` option to `puli path map`
  * added `--enabled`, `--not-found` and `--conflict` options to `puli binding [list]`
  * added `--name` option to `puli find`
+ * added `puli binding update` command
 
 * 1.0.0-beta3 (2015-03-19)
 

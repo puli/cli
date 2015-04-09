@@ -66,6 +66,11 @@ class BindingCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
+    private static $updateCommand;
+
+    /**
+     * @var Command
+     */
     private static $removeCommand;
 
     /**
@@ -99,6 +104,7 @@ class BindingCommandHandlerTest extends AbstractCommandHandlerTest
 
         self::$listCommand = self::$application->getCommand('binding')->getSubCommand('list');
         self::$addCommand = self::$application->getCommand('binding')->getSubCommand('add');
+        self::$updateCommand = self::$application->getCommand('binding')->getSubCommand('update');
         self::$removeCommand = self::$application->getCommand('binding')->getSubCommand('remove');
         self::$enableCommand = self::$application->getCommand('binding')->getSubCommand('enable');
         self::$disableCommand = self::$application->getCommand('binding')->getSubCommand('disable');
@@ -824,6 +830,154 @@ EOF;
         $this->assertSame(0, $statusCode);
         $this->assertEmpty($this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testUpdateBinding()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new --language xpath --type my/other --param param2=new2'));
+        $descriptor = new BindingDescriptor('/old', 'my/type', array(
+            'param1' => 'value1',
+            'param2' => 'value2',
+        ), 'glob');
+        $uuid = $descriptor->getUuid();
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindings')
+            ->willReturnCallback($this->returnForExpr(
+                $this->packageAndUuid('vendor/root', 'ab12'),
+                array($descriptor)
+            ));
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('addRootBinding')
+            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) use ($uuid) {
+                PHPUnit_Framework_Assert::assertSame($uuid, $bindingDescriptor->getUuid());
+                PHPUnit_Framework_Assert::assertSame('/new', $bindingDescriptor->getQuery());
+                PHPUnit_Framework_Assert::assertSame('my/other', $bindingDescriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(
+                    'param1' => 'value1',
+                    'param2' => 'new2',
+                ), $bindingDescriptor->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('xpath', $bindingDescriptor->getLanguage());
+                PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE, $flags);
+            });
+
+        $statusCode = $this->handler->handleUpdate($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testUpdateBindingWithRelativePath()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query new'));
+        $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindings')
+            ->willReturnCallback($this->returnForExpr(
+                $this->packageAndUuid('vendor/root', 'ab12'),
+                array($descriptor)
+            ));
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('addRootBinding')
+            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) {
+                PHPUnit_Framework_Assert::assertSame('/new', $bindingDescriptor->getQuery());
+                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+                PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE, $flags);
+            });
+
+        $statusCode = $this->handler->handleUpdate($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testUpdateBindingWithUnsetParameter()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --unset-param param2'));
+        $descriptor = new BindingDescriptor('/path', 'my/type', array(
+            'param1' => 'value1',
+            'param2' => 'value2',
+        ), 'glob');
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindings')
+            ->willReturnCallback($this->returnForExpr(
+                $this->packageAndUuid('vendor/root', 'ab12'),
+                array($descriptor)
+            ));
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('addRootBinding')
+            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) {
+                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
+                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array('param1' => 'value1'), $bindingDescriptor->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+                PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE, $flags);
+            });
+
+        $statusCode = $this->handler->handleUpdate($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testUpdateBindingForce()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new --force'));
+        $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindings')
+            ->willReturnCallback($this->returnForExpr(
+                $this->packageAndUuid('vendor/root', 'ab12'),
+                array($descriptor)
+            ));
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('addRootBinding')
+            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) {
+                PHPUnit_Framework_Assert::assertSame('/new', $bindingDescriptor->getQuery());
+                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+                PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE | DiscoveryManager::IGNORE_TYPE_NOT_FOUND | DiscoveryManager::IGNORE_TYPE_NOT_ENABLED, $flags);
+            });
+
+        $statusCode = $this->handler->handleUpdate($args, $this->io);
+
+        $this->assertSame(0, $statusCode);
+        $this->assertEmpty($this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testUpdateBindingFailsIfNoUpdateProvided()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('ab12'));
+        $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+
+        $this->discoveryManager->expects($this->once())
+            ->method('findBindings')
+            ->willReturnCallback($this->returnForExpr(
+                $this->packageAndUuid('vendor/root', 'ab12'),
+                array($descriptor)
+            ));
+
+        $this->discoveryManager->expects($this->never())
+            ->method('addRootBinding');
+
+        $this->handler->handleUpdate($args, $this->io);
     }
 
     public function testRemoveBinding()

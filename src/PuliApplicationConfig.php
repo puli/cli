@@ -129,6 +129,17 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleList')
                 ->end()
 
+                ->beginSubCommand('update')
+                    ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the updated binding')
+                    ->addOption('query', null, Option::REQUIRED_VALUE, 'A query for resources')
+                    ->addOption('type', null, Option::REQUIRED_VALUE, 'The name of the binding type')
+                    ->addOption('language', null, Option::REQUIRED_VALUE, 'The language of the resource query', 'glob', 'language')
+                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A binding parameter in the form <key>=<value>', null, 'key=value')
+                    ->addOption('unset-param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Unset a binding parameter', null, 'key')
+                    ->addOption('force', 'f', Option::NO_VALUE, 'Update binding even if the binding type does not exist')
+                    ->setHandlerMethod('handleUpdate')
+                ->end()
+
                 ->beginSubCommand('remove')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the removed binding')
                     ->setHandlerMethod('handleRemove')

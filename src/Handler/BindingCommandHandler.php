@@ -155,6 +155,100 @@ class BindingCommandHandler
     }
 
     /**
+     * Handles the "binding update <uuid>" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
+    public function handleUpdate(Args $args)
+    {
+        $flags = $args->isOptionSet('force')
+            ? DiscoveryManager::OVERRIDE | DiscoveryManager::IGNORE_TYPE_NOT_FOUND
+                | DiscoveryManager::IGNORE_TYPE_NOT_ENABLED
+            : DiscoveryManager::OVERRIDE;
+
+        $uuid = $args->getArgument('uuid');
+        $rootPackageName = $this->packages->getRootPackageName();
+        $uuidExpr = Expr::startsWith(BindingDescriptor::UUID, $uuid);
+        $uuidInRootExpr = $uuidExpr->andSame(BindingDescriptor::CONTAINING_PACKAGE, $rootPackageName);
+        $bindings = $this->discoveryManager->findBindings($uuidInRootExpr);
+
+        if (0 === count($bindings)) {
+            $nonRootBindings = $this->discoveryManager->findBindings($uuidExpr);
+
+            if (count($nonRootBindings) > 0) {
+                throw new RuntimeException('Can only update bindings in the root package.');
+            }
+
+            throw new RuntimeException(sprintf('The binding "%s" does not exist.', $uuid));
+        }
+
+        if (count($bindings) > 1) {
+            throw new RuntimeException(sprintf(
+                'More than one binding matches the UUID prefix "%s".',
+                $uuid
+            ));
+        }
+
+        /** @var BindingDescriptor $bindingToUpdate */
+        $bindingToUpdate = reset($bindings);
+        $query = $bindingToUpdate->getQuery();
+        $typeName = $bindingToUpdate->getTypeName();
+        $language = $bindingToUpdate->getLanguage();
+        $bindingParams = $bindingToUpdate->getParameterValues();
+
+        if ($args->isOptionSet('query')) {
+            $query = $args->getOption('query');
+        }
+
+        if ($args->isOptionSet('type')) {
+            $typeName = $args->getOption('type');
+        }
+
+        if ($args->isOptionSet('language')) {
+            $language = $args->getOption('language');
+        }
+
+        foreach ($args->getOption('param') as $parameter) {
+            $pos = strpos($parameter, '=');
+
+            if (false === $pos) {
+                throw new RuntimeException(sprintf(
+                    'The "--param" option expects a parameter in the form '.
+                    '"key=value". Got: "%s"',
+                    $parameter
+                ));
+            }
+
+            $key = substr($parameter, 0, $pos);
+            $value = StringUtil::parseValue(substr($parameter, $pos + 1));
+
+            $bindingParams[$key] = $value;
+        }
+
+        foreach ($args->getOption('unset-param') as $parameter) {
+            unset($bindingParams[$parameter]);
+        }
+
+        $updatedBinding = new BindingDescriptor(
+            Path::makeAbsolute($query, $this->currentPath),
+            $typeName,
+            $bindingParams,
+            $language,
+            $bindingToUpdate->getUuid()
+        );
+
+        if ($bindingToUpdate == $updatedBinding) {
+            throw new RuntimeException('Nothing to update');
+        }
+
+        $this->discoveryManager->addRootBinding($updatedBinding, $flags);
+
+        return 0;
+    }
+
+    /**
      * Handles the "bind remove" command.
      *
      * @param Args $args The console arguments.
@@ -176,10 +270,7 @@ class BindingCommandHandler
                 throw new RuntimeException('Can only delete bindings from the root package.');
             }
 
-            throw new RuntimeException(sprintf(
-                'The binding "%s" does not exist.',
-                $uuid
-            ));
+            throw new RuntimeException(sprintf('The binding "%s" does not exist.', $uuid));
         }
 
         if (count($bindings) > 1) {

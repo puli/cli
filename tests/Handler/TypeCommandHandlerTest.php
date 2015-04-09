@@ -448,10 +448,13 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --description "New description"'));
 
+        $typeDescriptor = new BindingTypeDescriptor('my/type', 'Old description');
+        $typeDescriptor->load($this->packages->getRootPackage());
+
         $this->discoveryManager->expects($this->once())
             ->method('getRootBindingType')
             ->with('my/type')
-            ->willReturn(new BindingTypeDescriptor('my/type', 'Old description'));
+            ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
@@ -464,12 +467,15 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param param'));
 
+        $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
+            new BindingParameterDescriptor('param', BindingParameterDescriptor::OPTIONAL, 'default', 'The description')
+        ));
+        $typeDescriptor->load($this->packages->getRootPackage());
+
         $this->discoveryManager->expects($this->once())
             ->method('getRootBindingType')
             ->with('my/type')
-            ->willReturn(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::OPTIONAL, 'default', 'The description')
-            )));
+            ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
@@ -484,12 +490,15 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param param=foobar'));
 
+        $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
+            new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The description')
+        ));
+        $typeDescriptor->load($this->packages->getRootPackage());
+
         $this->discoveryManager->expects($this->once())
             ->method('getRootBindingType')
             ->with('my/type')
-            ->willReturn(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The description')
-            )));
+            ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
@@ -504,12 +513,15 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param-description param="New description"'));
 
+        $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
+            new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'Old description')
+        ));
+        $typeDescriptor->load($this->packages->getRootPackage());
+
         $this->discoveryManager->expects($this->once())
             ->method('getRootBindingType')
             ->with('my/type')
-            ->willReturn(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'Old description')
-            )));
+            ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
@@ -524,13 +536,16 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --unset-param param2'));
 
+        $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
+            new BindingParameterDescriptor('param1', BindingParameterDescriptor::REQUIRED),
+            new BindingParameterDescriptor('param2', BindingParameterDescriptor::OPTIONAL),
+        ));
+        $typeDescriptor->load($this->packages->getRootPackage());
+
         $this->discoveryManager->expects($this->once())
             ->method('getRootBindingType')
             ->with('my/type')
-            ->willReturn(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param1', BindingParameterDescriptor::REQUIRED),
-                new BindingParameterDescriptor('param2', BindingParameterDescriptor::OPTIONAL),
-            )));
+            ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
@@ -548,10 +563,13 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type'));
 
+        $typeDescriptor = new BindingTypeDescriptor('my/type');
+        $typeDescriptor->load($this->packages->getRootPackage());
+
         $this->discoveryManager->expects($this->once())
             ->method('getRootBindingType')
             ->with('my/type')
-            ->willReturn(new BindingTypeDescriptor('my/type'));
+            ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->never())
             ->method('addRootBindingType');

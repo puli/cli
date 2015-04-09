@@ -172,7 +172,7 @@ class TypeCommandHandler
 
         $updatedType = new BindingTypeDescriptor($name, $description, $bindingParams);
 
-        if ($typeToUpdate == $updatedType) {
+        if ($this->typesEqual($typeToUpdate, $updatedType)) {
             throw new RuntimeException('Nothing to update.');
         }
 
@@ -359,4 +359,20 @@ class TypeCommandHandler
         }
     }
 
+    private function typesEqual(BindingTypeDescriptor $type1, BindingTypeDescriptor $type2)
+    {
+        if ($type1->getName() !== $type2->getName()) {
+            return false;
+        }
+
+        if ($type1->getDescription() !== $type2->getDescription()) {
+            return false;
+        }
+
+        if ($type1->getParameters() != $type2->getParameters()) {
+            return false;
+        }
+
+        return true;
+    }
 }

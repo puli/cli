@@ -17,6 +17,7 @@ Changelog
  * renamed `puli bind` to `puli binding add|list|remove|enable|disable`
  * renamed `puli map` to `puli path map|list|remove`
  * added `--force` option to `puli path map`
+ * added `--enabled`, `--not-found` and `--conflict` options to `puli binding [list]`
 
 * 1.0.0-beta3 (2015-03-19)
 

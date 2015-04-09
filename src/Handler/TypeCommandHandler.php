@@ -156,7 +156,7 @@ class TypeCommandHandler
             );
         }
 
-        $this->discoveryManager->addBindingType(new BindingTypeDescriptor(
+        $this->discoveryManager->addRootBindingType(new BindingTypeDescriptor(
             $args->getArgument('name'),
             $description,
             $bindingParams
@@ -174,7 +174,7 @@ class TypeCommandHandler
      */
     public function handleRemove(Args $args)
     {
-        $this->discoveryManager->removeBindingType($args->getArgument('name'));
+        $this->discoveryManager->removeRootBindingType($args->getArgument('name'));
 
         return 0;
     }

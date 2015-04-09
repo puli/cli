@@ -141,7 +141,7 @@ class BindingCommandHandler
             $bindingParams[$key] = $value;
         }
 
-        $this->discoveryManager->addBinding(new BindingDescriptor(
+        $this->discoveryManager->addRootBinding(new BindingDescriptor(
             Path::makeAbsolute($args->getArgument('query'), $this->currentPath),
             $args->getArgument('type'),
             $bindingParams,
@@ -187,7 +187,7 @@ class BindingCommandHandler
         }
 
         $bindingToRemove = reset($bindings);
-        $this->discoveryManager->removeBinding($bindingToRemove->getUuid());
+        $this->discoveryManager->removeRootBinding($bindingToRemove->getUuid());
 
         return 0;
     }
@@ -269,8 +269,12 @@ class BindingCommandHandler
             $states[] = BindingState::UNDECIDED;
         }
 
-        if ($args->isOptionSet('type-not-loaded')) {
-            $states[] = BindingState::TYPE_NOT_LOADED;
+        if ($args->isOptionSet('type-not-found')) {
+            $states[] = BindingState::TYPE_NOT_FOUND;
+        }
+
+        if ($args->isOptionSet('type-not-enabled')) {
+            $states[] = BindingState::TYPE_NOT_ENABLED;
         }
 
         if ($args->isOptionSet('invalid')) {
@@ -328,7 +332,7 @@ class BindingCommandHandler
     }
 
     /**
-     * Prints the header fora  binding state.
+     * Prints the header for a binding state.
      *
      * @param IO  $io           The I/O.
      * @param int $bindingState The {@link BindingState} constant.
@@ -350,9 +354,14 @@ class BindingCommandHandler
                 $io->writeLine(' (use "puli binding enable <uuid>" to enable)');
                 $io->writeLine('');
                 return;
-            case BindingState::TYPE_NOT_LOADED:
-                $io->writeLine('The types of the following bindings are not loaded:');
-                $io->writeLine(' (install or fix their type definitions to enable)');
+            case BindingState::TYPE_NOT_FOUND:
+                $io->writeLine('The types of the following bindings could not be found:');
+                $io->writeLine(' (install or create their type definitions to enable)');
+                $io->writeLine('');
+                return;
+            case BindingState::TYPE_NOT_ENABLED:
+                $io->writeLine('The types of the following bindings are not enabled:');
+                $io->writeLine(' (remove the duplicate type definitions to enable)');
                 $io->writeLine('');
                 return;
             case BindingState::INVALID:

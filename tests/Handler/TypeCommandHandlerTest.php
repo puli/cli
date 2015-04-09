@@ -371,7 +371,7 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBindingType')
+            ->method('addRootBindingType')
             ->with(new BindingTypeDescriptor('my/type'));
 
         $this->assertSame(0, $this->handler->handleDefine($args));
@@ -382,7 +382,7 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type --description "The description"'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBindingType')
+            ->method('addRootBindingType')
             ->with(new BindingTypeDescriptor('my/type', 'The description'));
 
         $this->assertSame(0, $this->handler->handleDefine($args));
@@ -393,7 +393,7 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type --param required'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBindingType')
+            ->method('addRootBindingType')
             ->with(new BindingTypeDescriptor('my/type', null, array(
                 new BindingParameterDescriptor('required', BindingParameterDescriptor::REQUIRED),
             )));
@@ -406,7 +406,7 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type --param optional=true'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBindingType')
+            ->method('addRootBindingType')
             ->with(new BindingTypeDescriptor('my/type', null, array(
                 new BindingParameterDescriptor('optional', BindingParameterDescriptor::OPTIONAL, true),
             )));
@@ -419,7 +419,7 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type --description "The description" --param param --description "The parameter description"'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBindingType')
+            ->method('addRootBindingType')
             ->with(new BindingTypeDescriptor('my/type', 'The description', array(
                 new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The parameter description')
             )));
@@ -432,7 +432,7 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('--force my/type'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBindingType')
+            ->method('addRootBindingType')
             ->with(new BindingTypeDescriptor('my/type'), DiscoveryManager::NO_DUPLICATE_CHECK);
 
         $this->assertSame(0, $this->handler->handleDefine($args));
@@ -443,7 +443,7 @@ EOF;
         $args = self::$removeCommand->parseArgs(new StringArgs('my/type'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('removeBindingType')
+            ->method('removeRootBindingType')
             ->with('my/type');
 
         $this->assertSame(0, $this->handler->handleRemove($args));

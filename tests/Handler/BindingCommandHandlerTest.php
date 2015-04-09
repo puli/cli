@@ -50,6 +50,9 @@ class BindingCommandHandlerTest extends AbstractCommandHandlerTest
     const BINDING_UUID14 = '516159c4-e90a-44c8-b781-9d10b9f201ef';
     const BINDING_UUID15 = 'b7b2c3ee-b8fa-4d76-827c-2879033aa28f';
     const BINDING_UUID16 = '24213cf3-d609-4c00-b73d-deadc3098593';
+    const BINDING_UUID17 = '47491d2e-8d20-4a61-947a-6448533146d2';
+    const BINDING_UUID18 = '7d26ae02-a3bb-4399-8829-95cccd20ceb7';
+    const BINDING_UUID19 = '53e67ca0-df93-4022-a9c8-1be4e012139b';
     /**
      * @var Command
      */
@@ -159,17 +162,29 @@ Bindings that are neither enabled nor disabled:
     vendor/package2
     516159 /package2/undecided my/type
 
-The types of the following bindings are not loaded:
- (install or fix their type definitions to enable)
+The types of the following bindings could not be found:
+ (install or create their type definitions to enable)
 
     vendor/root
-    d0e980 /root/type-not-loaded my/type
+    d0e980 /root/type-not-found my/type
 
     vendor/package1
-    19b069 /package1/type-not-loaded my/type
+    19b069 /package1/type-not-found my/type
 
     vendor/package2
-    b7b2c3 /package2/type-not-loaded my/type
+    b7b2c3 /package2/type-not-found my/type
+
+The types of the following bindings are not enabled:
+ (remove the duplicate type definitions to enable)
+
+    vendor/root
+    47491d /root/type-not-enabled my/type
+
+    vendor/package1
+    7d26ae /package1/type-not-enable my/type
+
+    vendor/package2
+    53e67c /package2/type-not-enabled my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
@@ -215,10 +230,15 @@ Bindings that are neither enabled nor disabled:
 
     3cf757 /root/undecided my/type
 
-The types of the following bindings are not loaded:
- (install or fix their type definitions to enable)
+The types of the following bindings could not be found:
+ (install or create their type definitions to enable)
 
-    d0e980 /root/type-not-loaded my/type
+    d0e980 /root/type-not-found my/type
+
+The types of the following bindings are not enabled:
+ (remove the duplicate type definitions to enable)
+
+    47491d /root/type-not-enabled my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
@@ -256,10 +276,15 @@ Bindings that are neither enabled nor disabled:
 
     e33d03 /package1/undecided my/type
 
-The types of the following bindings are not loaded:
- (install or fix their type definitions to enable)
+The types of the following bindings could not be found:
+ (install or create their type definitions to enable)
 
-    19b069 /package1/type-not-loaded my/type
+    19b069 /package1/type-not-found my/type
+
+The types of the following bindings are not enabled:
+ (remove the duplicate type definitions to enable)
+
+    7d26ae /package1/type-not-enable my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
@@ -310,14 +335,23 @@ Bindings that are neither enabled nor disabled:
     vendor/package1
     e33d03 /package1/undecided my/type
 
-The types of the following bindings are not loaded:
- (install or fix their type definitions to enable)
+The types of the following bindings could not be found:
+ (install or create their type definitions to enable)
 
     vendor/root
-    d0e980 /root/type-not-loaded my/type
+    d0e980 /root/type-not-found my/type
 
     vendor/package1
-    19b069 /package1/type-not-loaded my/type
+    19b069 /package1/type-not-found my/type
+
+The types of the following bindings are not enabled:
+ (remove the duplicate type definitions to enable)
+
+    vendor/root
+    47491d /root/type-not-enabled my/type
+
+    vendor/package1
+    7d26ae /package1/type-not-enable my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
@@ -371,14 +405,23 @@ Bindings that are neither enabled nor disabled:
     vendor/package2
     516159 /package2/undecided my/type
 
-The types of the following bindings are not loaded:
- (install or fix their type definitions to enable)
+The types of the following bindings could not be found:
+ (install or create their type definitions to enable)
 
     vendor/package1
-    19b069 /package1/type-not-loaded my/type
+    19b069 /package1/type-not-found my/type
 
     vendor/package2
-    b7b2c3 /package2/type-not-loaded my/type
+    b7b2c3 /package2/type-not-found my/type
+
+The types of the following bindings are not enabled:
+ (remove the duplicate type definitions to enable)
+
+    vendor/package1
+    7d26ae /package1/type-not-enable my/type
+
+    vendor/package2
+    53e67c /package2/type-not-enabled my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
@@ -476,23 +519,49 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListBindingsWithTypeNotLoaded()
+    public function testListBindingsWithTypeNotFound()
     {
         $this->initDefaultBindings();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--type-not-loaded'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--type-not-found'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 vendor/root
-d0e980 /root/type-not-loaded my/type
+d0e980 /root/type-not-found my/type
 
 vendor/package1
-19b069 /package1/type-not-loaded my/type
+19b069 /package1/type-not-found my/type
 
 vendor/package2
-b7b2c3 /package2/type-not-loaded my/type
+b7b2c3 /package2/type-not-found my/type
+
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testListBindingsWithTypeNotEnabled()
+    {
+        $this->initDefaultBindings();
+
+        $args = self::$listCommand->parseArgs(new StringArgs('--type-not-enabled'));
+
+        $statusCode = $this->handler->handleList($args, $this->io);
+
+        $expected = <<<EOF
+vendor/root
+47491d /root/type-not-enabled my/type
+
+vendor/package1
+7d26ae /package1/type-not-enable my/type
+
+vendor/package2
+53e67c /package2/type-not-enabled my/type
 
 
 EOF;
@@ -644,7 +713,7 @@ EOF;
         $args = self::$addCommand->parseArgs(new StringArgs('path my/type'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBinding')
+            ->method('addRootBinding')
             ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
                 PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
                 PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
@@ -664,7 +733,7 @@ EOF;
         $args = self::$addCommand->parseArgs(new StringArgs('/path my/type'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBinding')
+            ->method('addRootBinding')
             ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
                 PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
                 PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
@@ -684,7 +753,7 @@ EOF;
         $args = self::$addCommand->parseArgs(new StringArgs('/path my/type --language lang'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBinding')
+            ->method('addRootBinding')
             ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
                 PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
                 PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
@@ -704,7 +773,7 @@ EOF;
         $args = self::$addCommand->parseArgs(new StringArgs('/path my/type --param key1=value --param key2=true'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBinding')
+            ->method('addRootBinding')
             ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
                 PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
                 PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
@@ -731,7 +800,7 @@ EOF;
         $args = self::$addCommand->parseArgs(new StringArgs('/path my/type --param key1'));
 
         $this->discoveryManager->expects($this->never())
-            ->method('addBinding');
+            ->method('addRootBinding');
 
         $this->handler->handleAdd($args, $this->io);
     }
@@ -741,7 +810,7 @@ EOF;
         $args = self::$addCommand->parseArgs(new StringArgs('--force path my/type'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addBinding')
+            ->method('addRootBinding')
             ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) {
                 PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
                 PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
@@ -770,7 +839,7 @@ EOF;
             ));
 
         $this->discoveryManager->expects($this->once())
-            ->method('removeBinding')
+            ->method('removeRootBinding')
             ->with($descriptor->getUuid());
 
         $statusCode = $this->handler->handleRemove($args, $this->io);
@@ -799,7 +868,7 @@ EOF;
             ));
 
         $this->discoveryManager->expects($this->never())
-            ->method('removeBinding');
+            ->method('removeRootBinding');
 
         $this->handler->handleRemove($args, $this->io);
     }
@@ -827,7 +896,7 @@ EOF;
             ));
 
         $this->discoveryManager->expects($this->never())
-            ->method('removeBinding');
+            ->method('removeRootBinding');
 
         $this->handler->handleRemove($args, $this->io);
     }
@@ -855,7 +924,7 @@ EOF;
             ));
 
         $this->discoveryManager->expects($this->never())
-            ->method('removeBinding');
+            ->method('removeRootBinding');
 
         $this->handler->handleRemove($args, $this->io);
     }
@@ -965,8 +1034,11 @@ EOF;
                 array($this->packageAndState('vendor/root', BindingState::UNDECIDED), array(
                     new BindingDescriptor('/root/undecided', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID4)),
                 )),
-                array($this->packageAndState('vendor/root', BindingState::TYPE_NOT_LOADED), array(
-                    new BindingDescriptor('/root/type-not-loaded', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID5)),
+                array($this->packageAndState('vendor/root', BindingState::TYPE_NOT_FOUND), array(
+                    new BindingDescriptor('/root/type-not-found', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID5)),
+                )),
+                array($this->packageAndState('vendor/root', BindingState::TYPE_NOT_ENABLED), array(
+                    new BindingDescriptor('/root/type-not-enabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID17)),
                 )),
                 array($this->packageAndState('vendor/root', BindingState::INVALID), array(
                     new BindingDescriptor('/root/invalid', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID6)),
@@ -980,8 +1052,11 @@ EOF;
                 array($this->packageAndState('vendor/package1', BindingState::UNDECIDED), array(
                     new BindingDescriptor('/package1/undecided', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID9)),
                 )),
-                array($this->packageAndState('vendor/package1', BindingState::TYPE_NOT_LOADED), array(
-                    new BindingDescriptor('/package1/type-not-loaded', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID10)),
+                array($this->packageAndState('vendor/package1', BindingState::TYPE_NOT_FOUND), array(
+                    new BindingDescriptor('/package1/type-not-found', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID10)),
+                )),
+                array($this->packageAndState('vendor/package1', BindingState::TYPE_NOT_ENABLED), array(
+                    new BindingDescriptor('/package1/type-not-enable', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID18)),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::INVALID), array(
                     new BindingDescriptor('/package1/invalid', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID11)),
@@ -995,8 +1070,11 @@ EOF;
                 array($this->packageAndState('vendor/package2', BindingState::UNDECIDED), array(
                     new BindingDescriptor('/package2/undecided', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID14)),
                 )),
-                array($this->packageAndState('vendor/package2', BindingState::TYPE_NOT_LOADED), array(
-                    new BindingDescriptor('/package2/type-not-loaded', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID15)),
+                array($this->packageAndState('vendor/package2', BindingState::TYPE_NOT_FOUND), array(
+                    new BindingDescriptor('/package2/type-not-found', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID15)),
+                )),
+                array($this->packageAndState('vendor/package2', BindingState::TYPE_NOT_ENABLED), array(
+                    new BindingDescriptor('/package2/type-not-enabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID19)),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::INVALID), array(
                     new BindingDescriptor('/package2/invalid', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID16)),

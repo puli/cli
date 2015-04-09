@@ -13,12 +13,15 @@ namespace Puli\Cli\Handler;
 
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Repository\PathConflict;
 use Puli\Manager\Api\Repository\PathMapping;
+use Puli\Manager\Api\Repository\PathMappingState;
 use Puli\Manager\Api\Repository\RepositoryManager;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
 use Webmozart\Console\UI\Style\TableStyle;
+use Webmozart\Expression\Expr;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -88,30 +91,73 @@ class PathCommandHandler
     public function handleList(Args $args, IO $io)
     {
         $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
-        $printRecommendation = true;
+        $states = $this->getPathMappingStates($args);
 
-        if (1 === count($packageNames)) {
-            $mappings = $this->repoManager->getPathMappings(reset($packageNames));
-            $this->printMappingTable($io, $mappings);
+        $printState = count($states) > 1;
+        $printPackageName = count($packageNames) > 1;
+        $printHeaders = $printState || $printPackageName;
+        $printAdvice = true;
 
-            return 0;
-        }
+        foreach ($states as $state) {
+            $statePrinted = !$printState;
 
-        foreach ($packageNames as $packageName) {
-            $mappings = $this->repoManager->getPathMappings($packageName);
+            if (PathMappingState::CONFLICT === $state) {
+                $expr = Expr::oneOf(PathMapping::CONTAINING_PACKAGE, $packageNames)
+                    ->andSame(PathMapping::STATE, $state);
 
-            if (!$mappings) {
+                $mappings = $this->repoManager->findPathMappings($expr);
+
+                if (!$mappings) {
+                    continue;
+                }
+
+                $printAdvice = false;
+
+                if ($printState) {
+                    $this->printPathMappingStateHeader($io, $state);
+                }
+
+                $this->printConflictTable($io, $mappings, $printState);
+
+                if ($printHeaders) {
+                    $io->writeLine('');
+                }
+
                 continue;
             }
 
-            $printRecommendation = false;
+            foreach ($packageNames as $packageName) {
+                $expr = Expr::same(PathMapping::CONTAINING_PACKAGE,
+                    $packageName)
+                    ->andSame(PathMapping::STATE, $state);
 
-            $io->writeLine("<b>$packageName</b>");
-            $this->printMappingTable($io, $mappings);
-            $io->writeLine('');
+                $mappings = $this->repoManager->findPathMappings($expr);
+
+                if (!$mappings) {
+                    continue;
+                }
+
+                $printAdvice = false;
+
+                if (!$statePrinted) {
+                    $this->printPathMappingStateHeader($io, $state);
+                    $statePrinted = true;
+                }
+
+                if ($printPackageName) {
+                    $prefix = $printState ? '    ' : '';
+                    $io->writeLine("<b>$prefix$packageName</b>");
+                }
+
+                $this->printMappingTable($io, $mappings, $printState, PathMappingState::ENABLED === $state);
+
+                if ($printHeaders) {
+                    $io->writeLine('');
+                }
+            }
         }
 
-        if ($printRecommendation) {
+        if ($printAdvice) {
             $io->writeLine('No path mappings. Use "puli path map <path> <file>" to map a Puli path to a file or directory.');
         }
 
@@ -131,17 +177,17 @@ class PathCommandHandler
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
         $pathReferences = $args->getArgument('file');
 
-        if ($this->repoManager->hasPathMapping($repositoryPath)) {
+        if ($this->repoManager->hasRootPathMapping($repositoryPath)) {
             $pathReferences = $this->applyMergeStatements(
-                $this->repoManager->getPathMapping($repositoryPath)->getPathReferences(),
+                $this->repoManager->getRootPathMapping($repositoryPath)->getPathReferences(),
                 $pathReferences
             );
         }
 
         if (count($pathReferences) > 0) {
-            $this->repoManager->addPathMapping(new PathMapping($repositoryPath, $pathReferences), $flags);
+            $this->repoManager->addRootPathMapping(new PathMapping($repositoryPath, $pathReferences), $flags);
         } else {
-            $this->repoManager->removePathMapping($repositoryPath);
+            $this->repoManager->removeRootPathMapping($repositoryPath);
         }
 
         return 0;
@@ -158,29 +204,97 @@ class PathCommandHandler
     {
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
 
-        $this->repoManager->removePathMapping($repositoryPath);
+        $this->repoManager->removeRootPathMapping($repositoryPath);
 
         return 0;
     }
 
     /**
-     * Prints path mappings in a table.
+     * Prints a list of path mappings.
      *
      * @param IO            $io       The I/O.
      * @param PathMapping[] $mappings The path mappings.
+     * @param bool          $indent   Whether to indent the output.
+     * @param bool          $enabled  Whether the path mappings are enabled. If
+     *                                not, the output is printed in red.
      */
-    private function printMappingTable(IO $io, array $mappings)
+    private function printMappingTable(IO $io, array $mappings, $indent = false, $enabled = true)
     {
         $table = new Table(TableStyle::borderless());
 
+        $pathTag = $enabled ? 'c1' : 'bad';
+
         foreach ($mappings as $mapping) {
+            if ($enabled) {
+                $pathReferences = array();
+
+                foreach ($mapping->getPathReferences() as $pathReference) {
+                    // Underline referenced packages
+                    $pathReference = preg_replace('~^@([^:]+):~', '@<u>$1</u>:', $pathReference);
+
+                    // Highlight path parts
+                    $pathReference = preg_replace('~^(@([^:]+):)?(.*)$~', '$1<c2>$3</c2>', $pathReference);
+
+                    $pathReferences[] = $pathReference;
+                }
+
+                $pathReferences = implode(', ', $pathReferences);
+            } else {
+                $pathReferences = '<bad>'.implode(', ', $mapping->getPathReferences()).'</bad>';
+            }
+
             $table->addRow(array(
-                '<c1>'.$mapping->getRepositoryPath().'</c1>',
-                implode(', ', $mapping->getPathReferences())
+                "<$pathTag>{$mapping->getRepositoryPath()}</$pathTag>",
+                $pathReferences
             ));
         }
 
-        $table->render($io);
+        $table->render($io, $indent ? 4 : 0);
+    }
+
+    /**
+     * Prints a list of conflicting path mappings.
+     *
+     * @param IO            $io       The I/O.
+     * @param PathMapping[] $mappings The path mappings.
+     * @param bool          $indent   Whether to indent the output.
+     */
+    private function printConflictTable(IO $io, array $mappings, $indent = false)
+    {
+        /** @var PathConflict[] $conflicts */
+        $conflicts = array();
+        $prefix = $indent ? '    ' : '';
+        $printNewline = false;
+
+        foreach ($mappings as $mapping) {
+            foreach ($mapping->getConflicts() as $conflict) {
+                $conflicts[spl_object_hash($conflict)] = $conflict;
+            }
+        }
+
+        foreach ($conflicts as $conflict) {
+            if ($printNewline) {
+                $io->writeLine('');
+            }
+
+            $io->writeLine("$prefix<b>Conflict:</b> {$conflict->getRepositoryPath()}");
+            $io->writeLine('');
+
+            $table = new Table(TableStyle::borderless());
+
+            foreach ($conflict->getMappings() as $mapping) {
+                $table->addRow(array(
+                    '<bad>'.$mapping->getContainingPackage()->getName().'</bad>',
+                    '<bad>'.$mapping->getRepositoryPath().'</bad>',
+                    '<bad>'.implode(', ', $mapping->getPathReferences()).'</bad>'
+                ));
+            }
+
+            $io->writeLine("{$prefix}Mapped by:");
+            $table->render($io, $indent ? 4 : 0);
+
+            $printNewline = true;
+        }
     }
 
     /**
@@ -224,5 +338,56 @@ class PathCommandHandler
         }
 
         return array_keys($pathReferences);
+    }
+
+    /**
+     * Returns the path mapping states selected in the console arguments.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int[] The selected {@link PathMappingState} constants.
+     */
+    private function getPathMappingStates(Args $args)
+    {
+        $states = array();
+
+        if ($args->isOptionSet('enabled')) {
+            $states[] = PathMappingState::ENABLED;
+        }
+
+        if ($args->isOptionSet('not-found')) {
+            $states[] = PathMappingState::NOT_FOUND;
+        }
+
+        if ($args->isOptionSet('conflict')) {
+            $states[] = PathMappingState::CONFLICT;
+        }
+
+        return $states ?: PathMappingState::all();
+    }
+
+    /**
+     * Prints the header for a path mapping state.
+     *
+     * @param IO  $io           The I/O.
+     * @param int $pathMappingState The {@link PathMappingState} constant.
+     */
+    private function printPathMappingStateHeader(IO $io, $pathMappingState)
+    {
+        switch ($pathMappingState) {
+            case PathMappingState::ENABLED:
+                $io->writeLine('The following path mappings are currently enabled:');
+                $io->writeLine('');
+                return;
+            case PathMappingState::NOT_FOUND:
+                $io->writeLine('The target paths of the following path mappings were not found:');
+                $io->writeLine('');
+                return;
+            case PathMappingState::CONFLICT:
+                $io->writeLine('The following path mappings have conflicting paths:');
+                $io->writeLine(' (add the package names to the "override-order" key in puli.json to resolve)');
+                $io->writeLine('');
+                return;
+        }
     }
 }

@@ -217,7 +217,7 @@ class PathCommandHandler
 
         $updatedMapping = new PathMapping($repositoryPath, array_keys($pathReferences));
 
-        if ($mappingToUpdate == $updatedMapping) {
+        if ($this->mappingsEqual($mappingToUpdate, $updatedMapping)) {
             throw new RuntimeException('Nothing to update.');
         }
 
@@ -422,5 +422,18 @@ class PathCommandHandler
                 $io->writeLine('');
                 return;
         }
+    }
+
+    private function mappingsEqual(PathMapping $mapping1, PathMapping $mapping2)
+    {
+        if ($mapping1->getRepositoryPath() !== $mapping2->getRepositoryPath()) {
+            return false;
+        }
+
+        if ($mapping1->getPathReferences() !== $mapping2->getPathReferences()) {
+            return false;
+        }
+
+        return true;
     }
 }

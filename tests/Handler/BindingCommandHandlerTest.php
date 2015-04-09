@@ -1294,12 +1294,6 @@ EOF;
             ->andSame(BindingDescriptor::STATE, $state);
     }
 
-    private function packageAndUuid($packageName, $uuid)
-    {
-        return Expr::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
-            ->andStartsWith(BindingDescriptor::UUID, $uuid);
-    }
-
     private function uuid($uuid)
     {
         return Expr::startsWith(BindingDescriptor::UUID, $uuid);

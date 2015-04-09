@@ -534,10 +534,13 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --add assets --add res'));
 
+        $mapping = new PathMapping('/path', array('previous'));
+        $mapping->load($this->packages->getRootPackage(), $this->packages);
+
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
             ->with('/path')
-            ->willReturn(new PathMapping('/path', array('previous')));
+            ->willReturn($mapping);
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
@@ -550,10 +553,13 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --remove assets'));
 
+        $mapping = new PathMapping('/path', array('assets', 'res'));
+        $mapping->load($this->packages->getRootPackage(), $this->packages);
+
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
             ->with('/path')
-            ->willReturn(new PathMapping('/path', array('assets', 'res')));
+            ->willReturn($mapping);
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
@@ -566,10 +572,13 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --remove assets --remove res'));
 
+        $mapping = new PathMapping('/path', array('assets', 'res'));
+        $mapping->load($this->packages->getRootPackage(), $this->packages);
+
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
             ->with('/path')
-            ->willReturn(new PathMapping('/path', array('assets', 'res')));
+            ->willReturn($mapping);
 
         $this->repoManager->expects($this->once())
             ->method('removeRootPathMapping')
@@ -582,10 +591,13 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('rel --add assets'));
 
+        $mapping = new PathMapping('/rel', array('previous'));
+        $mapping->load($this->packages->getRootPackage(), $this->packages);
+
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
             ->with('/rel')
-            ->willReturn(new PathMapping('/rel', array('previous')));
+            ->willReturn($mapping);
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
@@ -598,10 +610,13 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --add assets --force'));
 
+        $mapping = new PathMapping('/path', array('previous'));
+        $mapping->load($this->packages->getRootPackage(), $this->packages);
+
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
             ->with('/path')
-            ->willReturn(new PathMapping('/path', array('previous')));
+            ->willReturn($mapping);
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
@@ -617,10 +632,13 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('/path'));
 
+        $mapping = new PathMapping('/path', array('previous'));
+        $mapping->load($this->packages->getRootPackage(), $this->packages);
+
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
             ->with('/path')
-            ->willReturn(new PathMapping('/path', array('previous')));
+            ->willReturn($mapping);
 
         $this->repoManager->expects($this->never())
             ->method('addRootPathMapping');

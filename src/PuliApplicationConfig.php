@@ -298,6 +298,14 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleList')
                 ->end()
 
+                ->beginSubCommand('update')
+                    ->addArgument('path', Argument::REQUIRED)
+                    ->addOption('add', 'a', Option::REQUIRED_VALUE | Option::MULTI_VALUED | Option::PREFER_LONG_NAME, 'Add a file to the path mapping', null, 'file')
+                    ->addOption('remove', 'r', Option::REQUIRED_VALUE | Option::MULTI_VALUED | Option::PREFER_LONG_NAME, 'Remove a file from the path mapping', null, 'file')
+                    ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the target path does not exist')
+                    ->setHandlerMethod('handleUpdate')
+                ->end()
+
                 ->beginSubCommand('remove')
                     ->addArgument('path', Argument::REQUIRED)
                     ->addArgument('file', Argument::OPTIONAL)

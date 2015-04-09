@@ -240,7 +240,7 @@ class BindingCommandHandler
         );
 
         if ($bindingToUpdate == $updatedBinding) {
-            throw new RuntimeException('Nothing to update');
+            throw new RuntimeException('Nothing to update.');
         }
 
         $this->discoveryManager->addRootBinding($updatedBinding, $flags);

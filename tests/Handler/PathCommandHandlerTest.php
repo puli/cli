@@ -46,6 +46,11 @@ class PathCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
+    private static $updateCommand;
+
+    /**
+     * @var Command
+     */
     private static $removeCommand;
 
     /**
@@ -69,6 +74,7 @@ class PathCommandHandlerTest extends AbstractCommandHandlerTest
 
         self::$listCommand = self::$application->getCommand('path')->getSubCommand('list');
         self::$mapCommand = self::$application->getCommand('path')->getSubCommand('map');
+        self::$updateCommand = self::$application->getCommand('path')->getSubCommand('update');
         self::$removeCommand = self::$application->getCommand('path')->getSubCommand('remove');
     }
 
@@ -496,11 +502,6 @@ EOF;
         $args = self::$mapCommand->parseArgs(new StringArgs('path1 res assets'));
 
         $this->repoManager->expects($this->once())
-            ->method('hasRootPathMapping')
-            ->with('/path1')
-            ->willReturn(false);
-
-        $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
             ->with(new PathMapping('/path1', array('res', 'assets')));
 
@@ -510,11 +511,6 @@ EOF;
     public function testAddMappingWithAbsolutePath()
     {
         $args = self::$mapCommand->parseArgs(new StringArgs('/path1 res assets'));
-
-        $this->repoManager->expects($this->once())
-            ->method('hasRootPathMapping')
-            ->with('/path1')
-            ->willReturn(false);
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
@@ -528,25 +524,15 @@ EOF;
         $args = self::$mapCommand->parseArgs(new StringArgs('--force /path res'));
 
         $this->repoManager->expects($this->once())
-            ->method('hasRootPathMapping')
-            ->with('/path')
-            ->willReturn(false);
-
-        $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
             ->with(new PathMapping('/path', array('res')), RepositoryManager::OVERRIDE | RepositoryManager::IGNORE_FILE_NOT_FOUND);
 
         $this->assertSame(0, $this->handler->handleMap($args));
     }
 
-    public function testReplaceMapping()
+    public function testUpdateMappingAddPathReferences()
     {
-        $args = self::$mapCommand->parseArgs(new StringArgs('/path res assets'));
-
-        $this->repoManager->expects($this->once())
-            ->method('hasRootPathMapping')
-            ->with('/path')
-            ->willReturn(true);
+        $args = self::$updateCommand->parseArgs(new StringArgs('/path --add assets --add res'));
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -555,72 +541,91 @@ EOF;
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
-            ->with(new PathMapping('/path', array('res', 'assets')));
+            ->with(new PathMapping('/path', array('previous', 'assets', 'res')), RepositoryManager::OVERRIDE);
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleUpdate($args));
     }
 
-    public function testAddPathReference()
+    public function testUpdateMappingRemovePathReference()
     {
-        $args = self::$mapCommand->parseArgs(new StringArgs('/path +assets'));
-
-        $this->repoManager->expects($this->once())
-            ->method('hasRootPathMapping')
-            ->with('/path')
-            ->willReturn(true);
+        $args = self::$updateCommand->parseArgs(new StringArgs('/path --remove assets'));
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
             ->with('/path')
-            ->willReturn(new PathMapping('/path', array('res')));
+            ->willReturn(new PathMapping('/path', array('assets', 'res')));
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
-            ->with(new PathMapping('/path', array('res', 'assets')));
+            ->with(new PathMapping('/path', array('res')), RepositoryManager::OVERRIDE);
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleUpdate($args));
     }
 
-    public function testRemovePathReference()
+    public function testUpdateMappingRemoveAllPathReferences()
     {
-        $args = self::$mapCommand->parseArgs(new StringArgs('/path -- -assets'));
-
-        $this->repoManager->expects($this->once())
-            ->method('hasRootPathMapping')
-            ->with('/path')
-            ->willReturn(true);
+        $args = self::$updateCommand->parseArgs(new StringArgs('/path --remove assets --remove res'));
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
             ->with('/path')
-            ->willReturn(new PathMapping('/path', array('res', 'assets')));
-
-        $this->repoManager->expects($this->once())
-            ->method('addRootPathMapping')
-            ->with(new PathMapping('/path', array('res')));
-
-        $this->assertSame(0, $this->handler->handleMap($args));
-    }
-
-    public function testRemoveAllPathReferences()
-    {
-        $args = self::$mapCommand->parseArgs(new StringArgs('/path -- -res -assets'));
-
-        $this->repoManager->expects($this->once())
-            ->method('hasRootPathMapping')
-            ->with('/path')
-            ->willReturn(true);
-
-        $this->repoManager->expects($this->once())
-            ->method('getRootPathMapping')
-            ->with('/path')
-            ->willReturn(new PathMapping('/path', array('res', 'assets')));
+            ->willReturn(new PathMapping('/path', array('assets', 'res')));
 
         $this->repoManager->expects($this->once())
             ->method('removeRootPathMapping')
             ->with('/path');
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleUpdate($args));
+    }
+
+    public function testUpdateMappingRelativePath()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('rel --add assets'));
+
+        $this->repoManager->expects($this->once())
+            ->method('getRootPathMapping')
+            ->with('/rel')
+            ->willReturn(new PathMapping('/rel', array('previous')));
+
+        $this->repoManager->expects($this->once())
+            ->method('addRootPathMapping')
+            ->with(new PathMapping('/rel', array('previous', 'assets')), RepositoryManager::OVERRIDE);
+
+        $this->assertSame(0, $this->handler->handleUpdate($args));
+    }
+
+    public function testUpdateMappingForce()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('/path --add assets --force'));
+
+        $this->repoManager->expects($this->once())
+            ->method('getRootPathMapping')
+            ->with('/path')
+            ->willReturn(new PathMapping('/path', array('previous')));
+
+        $this->repoManager->expects($this->once())
+            ->method('addRootPathMapping')
+            ->with(new PathMapping('/path', array('previous', 'assets')), RepositoryManager::OVERRIDE | RepositoryManager::IGNORE_FILE_NOT_FOUND);
+
+        $this->assertSame(0, $this->handler->handleUpdate($args));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testUpdateMappingFailsIfNoChange()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('/path'));
+
+        $this->repoManager->expects($this->once())
+            ->method('getRootPathMapping')
+            ->with('/path')
+            ->willReturn(new PathMapping('/path', array('previous')));
+
+        $this->repoManager->expects($this->never())
+            ->method('addRootPathMapping');
+
+        $this->handler->handleUpdate($args);
     }
 
     public function testRemoveMappingWithRelativePath()

@@ -17,6 +17,7 @@ use Puli\Manager\Api\Repository\PathConflict;
 use Puli\Manager\Api\Repository\PathMapping;
 use Puli\Manager\Api\Repository\PathMappingState;
 use Puli\Manager\Api\Repository\RepositoryManager;
+use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
@@ -179,18 +180,48 @@ class PathCommandHandler
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
         $pathReferences = $args->getArgument('file');
 
-        if ($this->repoManager->hasRootPathMapping($repositoryPath)) {
-            $pathReferences = $this->applyMergeStatements(
-                $this->repoManager->getRootPathMapping($repositoryPath)->getPathReferences(),
-                $pathReferences
-            );
+        $this->repoManager->addRootPathMapping(new PathMapping($repositoryPath, $pathReferences), $flags);
+
+        return 0;
+    }
+
+    /**
+     * Handles the "path update" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
+    public function handleUpdate(Args $args)
+    {
+        $flags = $args->isOptionSet('force')
+            ? RepositoryManager::OVERRIDE | RepositoryManager::IGNORE_FILE_NOT_FOUND
+            : RepositoryManager::OVERRIDE;
+        $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
+        $mappingToUpdate = $this->repoManager->getRootPathMapping($repositoryPath);
+        $pathReferences = array_flip($mappingToUpdate->getPathReferences());
+
+        foreach ($args->getOption('add') as $pathReference) {
+            $pathReferences[$pathReference] = true;
         }
 
-        if (count($pathReferences) > 0) {
-            $this->repoManager->addRootPathMapping(new PathMapping($repositoryPath, $pathReferences), $flags);
-        } else {
-            $this->repoManager->removeRootPathMapping($repositoryPath);
+        foreach ($args->getOption('remove') as $pathReference) {
+            unset($pathReferences[$pathReference]);
         }
+
+        if (0 === count($pathReferences)) {
+            $this->repoManager->removeRootPathMapping($repositoryPath);
+
+            return 0;
+        }
+
+        $updatedMapping = new PathMapping($repositoryPath, array_keys($pathReferences));
+
+        if ($mappingToUpdate == $updatedMapping) {
+            throw new RuntimeException('Nothing to update.');
+        }
+
+        $this->repoManager->addRootPathMapping($updatedMapping, $flags);
 
         return 0;
     }

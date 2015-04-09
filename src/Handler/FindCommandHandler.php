@@ -67,6 +67,15 @@ class FindCommandHandler
             $criteria['language'] = $args->getOption('language');
         }
 
+        if ($args->isOptionSet('name')) {
+            if (isset($criteria['path'])) {
+                throw new RuntimeException('The options --name and --path cannot be combined.');
+            }
+
+            $criteria['path'] = '/**/'.$args->getOption('name');
+            $criteria['language'] = $args->getOption('language');
+        }
+
         if ($args->isOptionSet('class')) {
             $criteria['class'] = $args->getOption('class');
         }

@@ -153,6 +153,48 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
+    public function testFindByName()
+    {
+        $args = self::$findCommand->parseArgs(new StringArgs('--name *.ext'));
+
+        $this->repo->expects($this->once())
+            ->method('find')
+            ->with('/**/*.ext')
+            ->willReturn(new ArrayResourceCollection(array(
+                new FileResource(__FILE__, '/path/file'),
+                new GenericResource('/path/resource1'),
+                new GenericResource('/path/resource2'),
+            )));
+        $this->discovery->expects($this->never())
+            ->method('findByType');
+
+        $statusCode = $this->handler->handle($args, $this->io);
+
+        $expected = <<<EOF
+FileResource    /path/file
+GenericResource /path/resource1
+GenericResource /path/resource2
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testFindFailsIfPassingNameAndPath()
+    {
+        $args = self::$findCommand->parseArgs(new StringArgs('--name *.ext --path /**/*.ext'));
+
+        $this->repo->expects($this->never())
+            ->method('find');
+
+        $this->handler->handle($args, $this->io);
+    }
+
     public function testFindByClass()
     {
         $args = self::$findCommand->parseArgs(new StringArgs('--class GenericResource'));

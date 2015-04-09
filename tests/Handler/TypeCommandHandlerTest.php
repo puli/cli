@@ -433,7 +433,7 @@ EOF;
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type'), DiscoveryManager::NO_DUPLICATE_CHECK);
+            ->with(new BindingTypeDescriptor('my/type'), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleDefine($args));
     }

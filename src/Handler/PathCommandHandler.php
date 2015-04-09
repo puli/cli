@@ -173,7 +173,9 @@ class PathCommandHandler
      */
     public function handleMap(Args $args)
     {
-        $flags = $args->isOptionSet('force') ? RepositoryManager::NO_TARGET_PATH_CHECK : 0;
+        $flags = $args->isOptionSet('force')
+            ? RepositoryManager::OVERRIDE | RepositoryManager::IGNORE_FILE_NOT_FOUND
+            : 0;
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
         $pathReferences = $args->getArgument('file');
 

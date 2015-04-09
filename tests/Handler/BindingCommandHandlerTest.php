@@ -816,7 +816,7 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
                 PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
-                PHPUnit_Framework_Assert::assertSame(DiscoveryManager::NO_TYPE_CHECK, $flags);
+                PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE | DiscoveryManager::IGNORE_TYPE_NOT_FOUND | DiscoveryManager::IGNORE_TYPE_NOT_ENABLED, $flags);
             });
 
         $statusCode = $this->handler->handleAdd($args, $this->io);

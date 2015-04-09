@@ -120,7 +120,10 @@ class BindingCommandHandler
      */
     public function handleAdd(Args $args)
     {
-        $flags = $args->isOptionSet('force') ? DiscoveryManager::NO_TYPE_CHECK : 0;
+        $flags = $args->isOptionSet('force')
+            ? DiscoveryManager::OVERRIDE |DiscoveryManager::IGNORE_TYPE_NOT_FOUND
+                | DiscoveryManager::IGNORE_TYPE_NOT_ENABLED
+            : 0;
 
         $bindingParams = array();
 

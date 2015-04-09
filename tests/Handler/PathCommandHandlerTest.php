@@ -534,7 +534,7 @@ EOF;
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
-            ->with(new PathMapping('/path', array('res')), RepositoryManager::NO_TARGET_PATH_CHECK);
+            ->with(new PathMapping('/path', array('res')), RepositoryManager::OVERRIDE | RepositoryManager::IGNORE_FILE_NOT_FOUND);
 
         $this->assertSame(0, $this->handler->handleMap($args));
     }

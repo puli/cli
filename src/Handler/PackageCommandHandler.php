@@ -64,10 +64,10 @@ class PackageCommandHandler
         $printStates = count($states) > 1;
 
         foreach ($states as $state) {
-            $expr = Expr::same(Package::STATE, $state);
+            $expr = Expr::same($state, Package::STATE);
 
             if ($installer) {
-                $expr = $expr->andSame(Package::INSTALLER, $installer);
+                $expr = $expr->andSame($installer, Package::INSTALLER);
             }
 
             $packages = $this->packageManager->findPackages($expr);
@@ -147,7 +147,7 @@ class PackageCommandHandler
      */
     public function handleClean(Args $args, IO $io)
     {
-        $expr = Expr::same(Package::STATE, PackageState::NOT_FOUND);
+        $expr = Expr::same(PackageState::NOT_FOUND, Package::STATE);
 
         foreach ($this->packageManager->findPackages($expr) as $package) {
             $io->writeLine('Removing '.$package->getName());

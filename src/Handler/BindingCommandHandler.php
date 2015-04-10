@@ -82,8 +82,8 @@ class BindingCommandHandler
             $bindingStatePrinted = !$printBindingState;
 
             foreach ($packageNames as $packageName) {
-                $expr = Expr::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
-                    ->andSame(BindingDescriptor::STATE, $bindingState);
+                $expr = Expr::same($packageName, BindingDescriptor::CONTAINING_PACKAGE)
+                    ->andSame($bindingState, BindingDescriptor::STATE);
 
                 $bindings = $this->discoveryManager->findBindings($expr);
 
@@ -430,7 +430,7 @@ class BindingCommandHandler
      */
     private function getBindingByUuidPrefix($uuidPrefix)
     {
-        $expr = Expr::startsWith(BindingDescriptor::UUID, $uuidPrefix);
+        $expr = Expr::startsWith($uuidPrefix, BindingDescriptor::UUID);
         $bindings = $this->discoveryManager->findBindings($expr);
 
         if (0 === count($bindings)) {

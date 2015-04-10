@@ -393,13 +393,13 @@ EOF;
 
     private function state($state)
     {
-        return Expr::same(Package::STATE, $state);
+        return Expr::same($state, Package::STATE);
     }
 
     private function installerAndState($installer, $state)
     {
-        return Expr::same(Package::INSTALLER, $installer)
-            ->andSame(Package::STATE, $state);
+        return Expr::same($installer, Package::INSTALLER)
+            ->andSame($state, Package::STATE);
     }
 
     private function returnFromMap(array $map)
@@ -407,7 +407,7 @@ EOF;
         return function (Expression $expr) use ($map) {
             foreach ($map as $arguments) {
                 // Cannot use willReturnMap(), which uses ===
-                if ($expr->equals($arguments[0])) {
+                if ($expr->equivalentTo($arguments[0])) {
                     return $arguments[1];
                 }
             }

@@ -614,8 +614,8 @@ EOF;
 
     private function packageAndState($packageName, $state)
     {
-        return Expr::same(BindingTypeDescriptor::CONTAINING_PACKAGE, $packageName)
-            ->andSame(BindingTypeDescriptor::STATE, $state);
+        return Expr::same($packageName, BindingTypeDescriptor::CONTAINING_PACKAGE)
+            ->andSame($state, BindingTypeDescriptor::STATE);
     }
 
     private function returnFromMap(array $map)
@@ -623,7 +623,7 @@ EOF;
         return function (Expression $expr) use ($map) {
             foreach ($map as $arguments) {
                 // Cannot use willReturnMap(), which uses ===
-                if ($expr->equals($arguments[0])) {
+                if ($expr->equivalentTo($arguments[0])) {
                     return $arguments[1];
                 }
             }

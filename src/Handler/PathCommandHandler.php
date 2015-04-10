@@ -103,8 +103,8 @@ class PathCommandHandler
             $statePrinted = !$printState;
 
             if (PathMappingState::CONFLICT === $state) {
-                $expr = Expr::oneOf(PathMapping::CONTAINING_PACKAGE, $packageNames)
-                    ->andSame(PathMapping::STATE, $state);
+                $expr = Expr::in($packageNames, PathMapping::CONTAINING_PACKAGE)
+                    ->andSame($state, PathMapping::STATE);
 
                 $mappings = $this->repoManager->findPathMappings($expr);
 
@@ -128,9 +128,8 @@ class PathCommandHandler
             }
 
             foreach ($packageNames as $packageName) {
-                $expr = Expr::same(PathMapping::CONTAINING_PACKAGE,
-                    $packageName)
-                    ->andSame(PathMapping::STATE, $state);
+                $expr = Expr::same($packageName, PathMapping::CONTAINING_PACKAGE)
+                    ->andSame($state, PathMapping::STATE);
 
                 $mappings = $this->repoManager->findPathMappings($expr);
 

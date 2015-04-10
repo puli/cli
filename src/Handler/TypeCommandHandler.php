@@ -77,8 +77,8 @@ class TypeCommandHandler
             $statePrinted = !$printStates;
 
             foreach ($packageNames as $packageName) {
-                $expr = Expr::same(BindingTypeDescriptor::CONTAINING_PACKAGE, $packageName)
-                    ->andSame(BindingTypeDescriptor::STATE, $state);
+                $expr = Expr::same($packageName, BindingTypeDescriptor::CONTAINING_PACKAGE)
+                    ->andSame($state, BindingTypeDescriptor::STATE);
 
                 $bindingTypes = $this->discoveryManager->findBindingTypes($expr);
 

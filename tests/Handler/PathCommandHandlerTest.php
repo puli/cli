@@ -785,14 +785,14 @@ EOF;
 
     private function packageAndState($packageName, $state)
     {
-        return Expr::same(PathMapping::CONTAINING_PACKAGE, $packageName)
-            ->andSame(PathMapping::STATE, $state);
+        return Expr::same($packageName, PathMapping::CONTAINING_PACKAGE)
+            ->andSame($state, PathMapping::STATE);
     }
 
     private function packagesAndState(array $packageNames, $state)
     {
-        return Expr::oneOf(PathMapping::CONTAINING_PACKAGE, $packageNames)
-            ->andSame(PathMapping::STATE, $state);
+        return Expr::in($packageNames, PathMapping::CONTAINING_PACKAGE)
+            ->andSame($state, PathMapping::STATE);
     }
 
     private function returnFromMap(array $map)
@@ -800,7 +800,7 @@ EOF;
         return function (Expression $expr) use ($map) {
             foreach ($map as $arguments) {
                 // Cannot use willReturnMap(), which uses ===
-                if ($expr->equals($arguments[0])) {
+                if ($expr->equivalentTo($arguments[0])) {
                     return $arguments[1];
                 }
             }

@@ -1290,13 +1290,13 @@ EOF;
 
     private function packageAndState($packageName, $state)
     {
-        return Expr::same(BindingDescriptor::CONTAINING_PACKAGE, $packageName)
-            ->andSame(BindingDescriptor::STATE, $state);
+        return Expr::same($packageName, BindingDescriptor::CONTAINING_PACKAGE)
+            ->andSame($state, BindingDescriptor::STATE);
     }
 
     private function uuid($uuid)
     {
-        return Expr::startsWith(BindingDescriptor::UUID, $uuid);
+        return Expr::startsWith($uuid, BindingDescriptor::UUID);
     }
 
     private function returnForExpr(Expression $expr, $result)
@@ -1307,7 +1307,7 @@ EOF;
         // that object in between, PHPUnit fails since the state of the object
         // *after* the test does not match the first assertion anymore
         return function (Expression $actualExpr) use ($expr, $result) {
-            PHPUnit_Framework_Assert::assertTrue($actualExpr->equals($expr));
+            PHPUnit_Framework_Assert::assertTrue($actualExpr->equivalentTo($expr));
 
             return $result;
         };
@@ -1318,7 +1318,7 @@ EOF;
         return function (Expression $expr) use ($map) {
             foreach ($map as $arguments) {
                 // Cannot use willReturnMap(), which uses ===
-                if ($expr->equals($arguments[0])) {
+                if ($expr->equivalentTo($arguments[0])) {
                     return $arguments[1];
                 }
             }

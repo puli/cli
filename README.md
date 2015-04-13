@@ -18,21 +18,22 @@ favorite terminal. The following is a list of the currently supported commands:
 Command                              | Description
 ------------------------------------ | -------------
 **Resource Mappings**                |
-`puli map`                           | Display all resource mappings
-`puli map <path> <file>...`          | Map a repository path to one or several file paths
-`puli map -d <path>`                 | Delete the mapping for a repository path
+`puli path`                          | Display all path mappings
+`puli path map <path> <file>...`     | Map a repository path to one or several file paths
+`puli path update <path>`            | Update the mapping for a repository path
+`puli path remove <path>`            | Delete the mapping for a repository path
 **Resource Bindings**                |
 `puli type`                          | Display all binding types
 `puli type define <type>`            | Define a new binding type
 `puli type remove <type>`            | Remove a defined binding type
-`puli bind`                          | Display all resource bindings
-`puli bind <glob> <type>`            | Bind resources to a type
-`puli bind -d <uuid>`                | Delete a resource binding
-`puli bind --enable <uuid>`          | Enable a binding of an installed package
-`puli bind --disable <uuid>`         | Disable a binding of an installed package
+`puli binding`                       | Display all resource bindings
+`puli binding add <glob> <type>`     | Bind resources to a type
+`puli binding update <uuid>`         | Update a resource binding
+`puli binding remove <uuid>`         | Delete a resource binding
+`puli binding enable <uuid>`         | Enable a binding of an installed package
+`puli binding disable <uuid>`        | Disable a binding of an installed package
 **Building**                         |
 `puli build`                         | Build the repository and the discovery
-`puli build -f`                      | Rebuild the existing repository/discovery
 **Packages**                         |
 `puli package`                       | Display all installed packages
 `puli package install <name> <path>` | Install a custom package
@@ -47,8 +48,8 @@ Command                              | Description
 **Repository Access**                |
 `puli ls <path>`                     | List the child resources of a resource path
 `puli tree <path>`                   | Print a resource and its children as tree
-`puli find <glob>`                   | Find resources matching a glob
-`puli find -b <type>`                | Find resources bound to a binding type
+`puli find --name <glob>`            | Find resources matching a glob
+`puli find --type <type>`            | Find resources bound to a binding type
 **Plugin Management**                |
 `puli plugin`                        | List the currently installed plugins
 `puli plugin install <class>`        | Install a plugin class

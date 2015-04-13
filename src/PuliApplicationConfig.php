@@ -42,7 +42,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
     /**
      * The version of the Puli CLI.
      */
-    const VERSION = '@package_version@';
+    const VERSION = '1.0.0-beta4';
 
     /**
      * @var Puli

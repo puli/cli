@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\StringUtil;
 use Puli\Manager\Api\Package\RootPackageFileManager;
 use Webmozart\Console\Api\Args\Args;
@@ -51,10 +52,12 @@ class ConfigCommandHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $userValues = $this->manager->getConfigKeys();
-        $effectiveValues = $this->manager->getConfigKeys(true, true);
+        $raw = !$args->isOptionSet('parsed');
+        $userValues = $this->manager->getConfigKeys(false, false, $raw);
+        $effectiveValues = $this->manager->getConfigKeys(true, true, $raw);
 
-        $table = new Table(TableStyle::borderless());
+        $table = new Table(PuliTableStyle::borderless());
+        $table->setHeaderRow(array('Config Key', 'User Value', 'Effective Value'));
 
         foreach ($effectiveValues as $key => $value) {
             $table->addRow(array(
@@ -81,7 +84,8 @@ class ConfigCommandHandler
      */
     public function handleShow(Args $args, IO $io)
     {
-        $value = $this->manager->getConfigKey($args->getArgument('key'), null, true);
+        $raw = !$args->isOptionSet('parsed');
+        $value = $this->manager->getConfigKey($args->getArgument('key'), null, true, $raw);
 
         $io->writeLine(StringUtil::formatValue($value, false));
 

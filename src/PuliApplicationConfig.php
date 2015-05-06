@@ -228,12 +228,14 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginSubCommand('list')
                     ->markAnonymous()
+                    ->addOption('parsed', null, Option::NO_VALUE, 'Replace placeholders by their values in the output')
                     ->setHandlerMethod('handleList')
                 ->end()
 
                 ->beginSubCommand('show')
                     ->markAnonymous()
                     ->addArgument('key', Argument::REQUIRED, 'The configuration key to show. May contain wildcards ("*")')
+                    ->addOption('parsed', null, Option::NO_VALUE, 'Replace placeholders by their values in the output')
                     ->setHandlerMethod('handleShow')
                 ->end()
 

@@ -91,14 +91,14 @@ class ConfigCommandHandlerTest extends AbstractCommandHandlerTest
 
         $this->manager->expects($this->at(0))
             ->method('getConfigKeys')
-            ->with()
+            ->with(false, false, true)
             ->willReturn(array(
                 'longer-key' => true,
             ));
 
         $this->manager->expects($this->at(1))
             ->method('getConfigKeys')
-            ->with(true, true)
+            ->with(true, true, true)
             ->willReturn(array(
                 'key' => $nativeValue,
                 'longer-key' => true,
@@ -107,8 +107,40 @@ class ConfigCommandHandlerTest extends AbstractCommandHandlerTest
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-key             $stringValue
-longer-key true true
+Config Key  User Value  Effective Value
+key                     $stringValue
+longer-key  true        true
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testListParsed()
+    {
+        $args = self::$listCommand->parseArgs(new StringArgs('--parsed'));
+
+        $this->manager->expects($this->at(0))
+            ->method('getConfigKeys')
+            ->with(false, false, false)
+            ->willReturn(array(
+                'key' => 'value',
+            ));
+
+        $this->manager->expects($this->at(1))
+            ->method('getConfigKeys')
+            ->with(true, true, false)
+            ->willReturn(array(
+                'key' => 'value',
+            ));
+
+        $statusCode = $this->handler->handleList($args, $this->io);
+
+        $expected = <<<EOF
+Config Key  User Value  Effective Value
+key         value       value
 
 EOF;
 
@@ -126,13 +158,34 @@ EOF;
 
         $this->manager->expects($this->once())
             ->method('getConfigKey')
-            ->with('the-key', null, true)
+            ->with('the-key', null, true, true)
             ->willReturn($nativeValue);
 
         $statusCode = $this->handler->handleShow($args, $this->io);
 
         $expected = <<<EOF
 $stringValue
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testShowParsed()
+    {
+        $args = self::$showCommand->parseArgs(new StringArgs('the-key --parsed'));
+
+        $this->manager->expects($this->once())
+            ->method('getConfigKey')
+            ->with('the-key', null, true, false)
+            ->willReturn('value');
+
+        $statusCode = $this->handler->handleShow($args, $this->io);
+
+        $expected = <<<EOF
+value
 
 EOF;
 

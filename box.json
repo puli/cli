@@ -1,0 +1,34 @@
+{
+    "directories": [
+        "src"
+    ],
+    "files": [
+        "LICENSE"
+    ],
+    "finder": [
+        {
+            "name": "*.php",
+            "exclude": [
+                "Tester",
+                "Tests",
+                "tests"
+            ],
+            "in": "vendor"
+        },
+        {
+            "name": "*schema*.json",
+            "in": "vendor"
+        }
+    ],
+    "compactors": [
+        "Herrera\\Box\\Compactor\\Json",
+        "Herrera\\Box\\Compactor\\Php"
+    ],
+    "compression": "GZ",
+    "git-version": "@package_version@",
+    "main": "bin/puli",
+    "output": "puli.phar",
+    "chmod": "0755",
+    "stub": true,
+    "algorithm": "SHA256"
+}

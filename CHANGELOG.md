@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* 1.0.0-next (@release_date@)
+
+ * added support for building a PHAR with Box
+
 * 1.0.0-beta4 (2015-04-13)
 
  * removed `--all` option from `puli config`

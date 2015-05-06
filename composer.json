@@ -16,7 +16,8 @@
         "puli/factory": "~1.0",
         "puli/manager": "~1.0",
         "puli/composer-plugin": "~1.0",
-        "webmozart/console": "~1.0"
+        "webmozart/console": "~1.0",
+        "webmozart/path-util": "~1.2"
     },
     "require-dev": {
         "symfony/filesystem": "~2.3"

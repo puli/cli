@@ -4,6 +4,7 @@ Changelog
 * 1.0.0-next (@release_date@)
 
  * added support for building a PHAR with Box
+ * added `puli self-update` command
 
 * 1.0.0-beta4 (2015-04-13)
 

@@ -21,6 +21,7 @@ use Puli\Cli\Handler\LsCommandHandler;
 use Puli\Cli\Handler\PathCommandHandler;
 use Puli\Cli\Handler\PackageCommandHandler;
 use Puli\Cli\Handler\PluginCommandHandler;
+use Puli\Cli\Handler\SelfUpdateCommandHandler;
 use Puli\Cli\Handler\ServerCommandHandler;
 use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Cli\Handler\TypeCommandHandler;
@@ -31,7 +32,6 @@ use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
 use Webmozart\Console\Api\Formatter\Style;
 use Webmozart\Console\Config\DefaultApplicationConfig;
-use Webmozart\Console\Handler\Help\HelpHandler;
 
 /**
  * The configuration of the Puli CLI.
@@ -82,7 +82,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         parent::configure();
 
         $puli = $this->puli;
-        $rootDir = __DIR__.'/..';
 
         $this
             ->setName('puli')
@@ -95,7 +94,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->addStyle(Style::tag('good')->fgGreen())
             ->addStyle(Style::tag('bad')->fgRed())
+        ;
 
+        $this
             ->beginCommand('asset')
                 ->setDescription('Manage web assets')
                 ->setHandler(function () use ($puli) {
@@ -138,7 +139,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleInstall')
                 ->end()
             ->end()
+        ;
 
+        $this
             ->beginCommand('binding')
                 ->setDescription('Bind resources to binding types')
                 ->setHandler(function () use ($puli) {
@@ -200,7 +203,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleDisable')
                 ->end()
             ->end()
+        ;
 
+        $this
             ->beginCommand('build')
                 ->setDescription('Build the resource repository/discovery')
                 ->addArgument('target', Argument::OPTIONAL, 'The build target. One of "repository", "discovery", "factory" and "all"', 'all')
@@ -212,7 +217,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     );
                 })
             ->end()
+        ;
 
+        $this
             ->beginCommand('config')
                 ->setDescription('Display and modify configuration values')
                 ->setHandler(function () use ($puli) {
@@ -242,7 +249,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleReset')
                 ->end()
             ->end()
+        ;
 
+        $this
             ->beginCommand('find')
                 ->setDescription('Find resources by different criteria')
                 ->addOption('path', null, Option::REQUIRED_VALUE, 'The resource path. May contain the wildcard "*"')
@@ -257,7 +266,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     );
                 })
             ->end()
+        ;
 
+        $this
             ->beginCommand('installer')
                 ->setDescription('Manage the installers used to install web resources')
                 ->setHandler(function () use ($puli) {
@@ -283,7 +294,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleRemove')
                 ->end()
             ->end()
+        ;
 
+        $this
             ->beginCommand('ls')
                 ->setDescription('List the children of a resource in the repository')
                 ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
@@ -294,7 +307,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     );
                 })
             ->end()
+        ;
 
+        $this
             ->beginCommand('package')
                 ->setDescription('Display the installed packages')
                 ->setHandler(function () use ($puli) {
@@ -326,7 +341,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleClean')
                 ->end()
             ->end()
+        ;
 
+        $this
             ->beginCommand('path')
                 ->setDescription('Display and change path mappings')
                 ->setHandler(function () use ($puli) {
@@ -368,7 +385,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleRemove')
                 ->end()
             ->end()
+        ;
 
+        $this
             ->beginCommand('plugin')
                 ->setDescription('Manage the installed Puli plugins')
                 ->setHandler(function () use ($puli) {
@@ -390,7 +409,19 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleRemove')
                 ->end()
             ->end()
+        ;
 
+        $this
+            ->beginCommand('self-update')
+                ->setDescription('Update Puli to the latest version.')
+                ->setHandler(function () {
+                    return new SelfUpdateCommandHandler();
+                })
+                ->enableIf('phar://' === substr(__DIR__, 0, 7))
+            ->end()
+        ;
+
+        $this
             ->beginCommand('server')
                 ->setDescription('Manage your asset servers')
                 ->setHandler(function () use ($puli) {
@@ -435,7 +466,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleGetDefault')
                 ->end()
             ->end()
+        ;
 
+        $this
             ->beginCommand('tree')
                 ->setDescription('Print the contents of a resource as tree')
                 ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
@@ -443,7 +476,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     return new TreeCommandHandler($puli->getRepository());
                 })
             ->end()
+        ;
 
+        $this
             ->beginCommand('type')
                 ->setDescription('Display and change binding types')
                 ->setHandler(function () use ($puli) {

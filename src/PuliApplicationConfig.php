@@ -11,22 +11,24 @@
 
 namespace Puli\Cli;
 
+use Puli\Cli\Handler\AssetCommandHandler;
 use Puli\Cli\Handler\BindingCommandHandler;
 use Puli\Cli\Handler\BuildCommandHandler;
 use Puli\Cli\Handler\ConfigCommandHandler;
 use Puli\Cli\Handler\FindCommandHandler;
+use Puli\Cli\Handler\InstallerCommandHandler;
 use Puli\Cli\Handler\LsCommandHandler;
 use Puli\Cli\Handler\PathCommandHandler;
 use Puli\Cli\Handler\PackageCommandHandler;
 use Puli\Cli\Handler\PluginCommandHandler;
+use Puli\Cli\Handler\ServerCommandHandler;
 use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Cli\Handler\TypeCommandHandler;
 use Puli\Manager\Api\Package\InstallInfo;
 use Puli\Manager\Api\Puli;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Puli\Manager\Api\Server\Server;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
-use Webmozart\Console\Api\Event\ConsoleEvents;
 use Webmozart\Console\Api\Formatter\Style;
 use Webmozart\Console\Config\DefaultApplicationConfig;
 use Webmozart\Console\Handler\Help\HelpHandler;
@@ -93,6 +95,49 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->addStyle(Style::tag('good')->fgGreen())
             ->addStyle(Style::tag('bad')->fgRed())
+
+            ->beginCommand('asset')
+                ->setDescription('Manage web assets')
+                ->setHandler(function () use ($puli) {
+                    return new AssetCommandHandler(
+                        $puli->getAssetManager(),
+                        $puli->getInstallationManager(),
+                        $puli->getServerManager()
+                    );
+                })
+
+                ->beginSubCommand('map')
+                    ->addArgument('path', Argument::REQUIRED, 'The resource path')
+                    ->addArgument('public-path', Argument::OPTIONAL, 'The path in the document root', '/')
+                    ->addOption('server', 's', Option::REQUIRED_VALUE, 'The name of the target server', Server::DEFAULT_SERVER)
+                    ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the server does not exist')
+                    ->setHandlerMethod('handleMap')
+                ->end()
+
+                ->beginSubCommand('update')
+                    ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the mapping')
+                    ->addOption('path', null, Option::REQUIRED_VALUE, 'The resource path')
+                    ->addOption('public-path', null, Option::REQUIRED_VALUE, 'The path in the document root')
+                    ->addOption('server', 's', Option::REQUIRED_VALUE | Option::PREFER_LONG_NAME, 'The name of the target server', Server::DEFAULT_SERVER)
+                    ->addOption('force', 'f', Option::NO_VALUE, 'Update even if the server does not exist')
+                    ->setHandlerMethod('handleUpdate')
+                ->end()
+
+                ->beginSubCommand('remove')
+                    ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the mapping')
+                    ->setHandlerMethod('handleRemove')
+                ->end()
+
+                ->beginSubCommand('list')
+                    ->markDefault()
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginSubCommand('install')
+                    ->addArgument('server', Argument::OPTIONAL, 'The server to install. By default, all servers are installed')
+                    ->setHandlerMethod('handleInstall')
+                ->end()
+            ->end()
 
             ->beginCommand('binding')
                 ->setDescription('Bind resources to binding types')
@@ -228,6 +273,32 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 })
             ->end()
 
+            ->beginCommand('installer')
+                ->setDescription('Manage the installers used to install web resources')
+                ->setHandler(function () use ($puli) {
+                    return new InstallerCommandHandler($puli->getInstallerManager());
+                })
+
+                ->beginSubCommand('list')
+                    ->markDefault()
+                    ->addOption('long', 'l', Option::NO_VALUE, 'Print the fully-qualified class name')
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginSubCommand('add')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the installer')
+                    ->addArgument('class', Argument::REQUIRED, 'The fully-qualified class name of the installer')
+                    ->addOption('description', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'The description of the installer')
+                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Additional installer parameters')
+                    ->setHandlerMethod('handleAdd')
+                ->end()
+
+                ->beginSubCommand('remove')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the installer to remove')
+                    ->setHandlerMethod('handleRemove')
+                ->end()
+            ->end()
+
             ->beginCommand('ls')
                 ->setDescription('List the children of a resource in the repository')
                 ->addArgument('path', Argument::OPTIONAL, 'The path of a resource', '/')
@@ -332,6 +403,51 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->beginSubCommand('remove')
                     ->addArgument('class', Argument::REQUIRED, 'The fully-qualified plugin class name')
                     ->setHandlerMethod('handleRemove')
+                ->end()
+            ->end()
+
+            ->beginCommand('server')
+                ->setDescription('Manage your asset servers')
+                ->setHandler(function () use ($puli) {
+                    return new ServerCommandHandler($puli->getServerManager());
+                })
+
+                ->beginSubCommand('list')
+                    ->markDefault()
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginSubCommand('add')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the added server')
+                    ->addArgument('document-root', Argument::REQUIRED, 'The document root of the server')
+                    ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the used installer', 'symlink')
+                    ->addOption('url-format', null, Option::REQUIRED_VALUE, 'The format of the generated resource URLs', Server::DEFAULT_URL_FORMAT)
+                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Additional parameters required by the resource installer')
+                    ->setHandlerMethod('handleAdd')
+                ->end()
+
+                ->beginSubCommand('update')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the updated server')
+                    ->addOption('document-root', null, Option::REQUIRED_VALUE, 'The document root of the server')
+                    ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the used installer', 'symlink')
+                    ->addOption('url-format', null, Option::REQUIRED_VALUE, 'The format of the generated resource URLs', Server::DEFAULT_URL_FORMAT)
+                    ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Additional parameters required by the resource installer')
+                    ->addOption('unset-param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Parameters to remove from the server')
+                    ->setHandlerMethod('handleUpdate')
+                ->end()
+
+                ->beginSubCommand('remove')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the server to remove')
+                    ->setHandlerMethod('handleRemove')
+                ->end()
+
+                ->beginSubCommand('set-default')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the default server')
+                    ->setHandlerMethod('handleSetDefault')
+                ->end()
+
+                ->beginSubCommand('get-default')
+                    ->setHandlerMethod('handleGetDefault')
                 ->end()
             ->end()
 

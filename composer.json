@@ -30,7 +30,8 @@
     "autoload-dev": {
         "psr-4": {
             "Puli\\Cli\\Tests\\": "tests/",
-            "Puli\\Repository\\Tests\\": "vendor/puli/repository/tests/"
+            "Puli\\Repository\\Tests\\": "vendor/puli/repository/tests/",
+            "Puli\\Manager\\Tests\\": "vendor/puli/manager/tests/"
         }
     },
     "bin": ["bin/puli"],

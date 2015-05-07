@@ -97,6 +97,23 @@ class PackageCommandHandler
     }
 
     /**
+     * Handles the "package rename" command.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return int The status code.
+     */
+    public function handleRename(Args $args)
+    {
+        $packageName = $args->getArgument('name');
+        $newName = $args->getArgument('new-name');
+
+        $this->packageManager->renamePackage($packageName, $newName);
+
+        return 0;
+    }
+
+    /**
      * Handles the "package remove" command.
      *
      * @param Args $args The console arguments.

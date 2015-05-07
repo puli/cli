@@ -47,6 +47,11 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
+    private static $renameCommand;
+
+    /**
+     * @var Command
+     */
     private static $removeCommand;
 
     /**
@@ -85,6 +90,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
 
         self::$listCommand = self::$application->getCommand('package')->getSubCommand('list');
         self::$installCommand = self::$application->getCommand('package')->getSubCommand('install');
+        self::$renameCommand = self::$application->getCommand('package')->getSubCommand('rename');
         self::$removeCommand = self::$application->getCommand('package')->getSubCommand('remove');
         self::$cleanCommand = self::$application->getCommand('package')->getSubCommand('clean');
     }
@@ -358,6 +364,17 @@ EOF;
             ->with('/packages/package1', null, 'kirk');
 
         $this->assertSame(0, $this->handler->handleInstall($args));
+    }
+
+    public function testRenamePackage()
+    {
+        $args = self::$renameCommand->parseArgs(new StringArgs('vendor/package1 vendor/new'));
+
+        $this->packageManager->expects($this->once())
+            ->method('renamePackage')
+            ->with('vendor/package1', 'vendor/new');
+
+        $this->assertSame(0, $this->handler->handleRename($args));
     }
 
     public function testRemovePackage()

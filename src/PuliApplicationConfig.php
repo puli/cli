@@ -335,6 +335,12 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleList')
                 ->end()
 
+                ->beginSubCommand('rename')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the package')
+                    ->addArgument('new-name', Argument::REQUIRED, 'The new name of the package')
+                    ->setHandlerMethod('handleRename')
+                ->end()
+
                 ->beginSubCommand('remove')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the package')
                     ->setHandlerMethod('handleRemove')

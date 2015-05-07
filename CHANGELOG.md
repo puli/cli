@@ -5,7 +5,8 @@ Changelog
 
  * added support for building a PHAR with Box
  * added `puli self-update` command
- * added option `--parsed` to `puli config`
+ * added `--parsed` option to `puli config`
+ * added `--format` option to `puli package`
 
 * 1.0.0-beta4 (2015-04-13)
 

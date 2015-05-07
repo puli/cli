@@ -34,6 +34,15 @@ use Webmozart\PathUtil\Path;
 class PackageCommandHandler
 {
     /**
+     * @var array
+     */
+    private static $stateStrings = array(
+        PackageState::ENABLED => 'enabled',
+        PackageState::NOT_FOUND => 'not-found',
+        PackageState::NOT_LOADABLE => 'not-loadable',
+    );
+
+    /**
      * @var PackageManager
      */
     private $packageManager;
@@ -58,39 +67,12 @@ class PackageCommandHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $rootDir = $this->packageManager->getEnvironment()->getRootDirectory();
-        $states = $this->getPackageStates($args);
-        $installer = $args->getOption('installer');
-        $printStates = count($states) > 1;
+        $packages = $this->getSelectedPackages($args);
 
-        foreach ($states as $state) {
-            $expr = Expr::same($state, Package::STATE);
-
-            if ($installer) {
-                $expr = $expr->andSame($installer, Package::INSTALLER);
-            }
-
-            $packages = $this->packageManager->findPackages($expr);
-
-            if (0 === count($packages)) {
-                continue;
-            }
-
-            if ($printStates) {
-                $this->printPackageState($io, $state);
-            }
-
-            if (PackageState::NOT_LOADABLE === $state) {
-                $this->printNotLoadablePackages($io, $packages, $rootDir, $printStates);
-            } else {
-                $styleTag = PackageState::ENABLED === $state ? null : 'bad';
-
-                $this->printPackageTable($io, $packages, $styleTag, $printStates);
-            }
-
-            if ($printStates) {
-                $io->writeLine('');
-            }
+        if ($args->isOptionSet('format')) {
+            $this->printPackagesWithFormat($io, $packages, $args->getOption('format'));
+        } else {
+            $this->printPackagesByState($io, $packages, $this->getSelectedStates($args));
         }
 
         return 0;
@@ -165,7 +147,7 @@ class PackageCommandHandler
      *
      * @return int[] A list of {@link PackageState} constants.
      */
-    private function getPackageStates(Args $args)
+    private function getSelectedStates(Args $args)
     {
         $states = array();
 
@@ -182,6 +164,88 @@ class PackageCommandHandler
         }
 
         return $states ?: PackageState::all();
+    }
+
+    /**
+     * Returns the packages that should be displayed for the given console
+     * arguments.
+     *
+     * @param Args $args The console arguments.
+     *
+     * @return PackageCollection The packages.
+     */
+    private function getSelectedPackages(Args $args)
+    {
+        $states = $this->getSelectedStates($args);
+        $expr = Expr::valid();
+
+        if ($states != PackageState::all()) {
+            $expr = $expr->andIn($states, Package::STATE);
+        }
+
+        if ($args->isOptionSet('installer')) {
+            $expr = $expr->andSame($args->getOption('installer'), Package::INSTALLER);
+        }
+
+        return $this->packageManager->findPackages($expr);
+    }
+
+    /**
+     * Prints packages with intermediate headers for the package states.
+     *
+     * @param IO                $io       The I/O.
+     * @param PackageCollection $packages The packages to print.
+     * @param int[]             $states   The states to print.
+     */
+    private function printPackagesByState(IO $io, PackageCollection $packages, array $states)
+    {
+        $printStates = count($states) > 1;
+
+        foreach ($states as $state) {
+            $filteredPackages = array_filter($packages->toArray(), function (Package $package) use ($state) {
+                return $state === $package->getState();
+            });
+
+            if (0 === count($filteredPackages)) {
+                continue;
+            }
+
+            if ($printStates) {
+                $this->printPackageState($io, $state);
+            }
+
+            if (PackageState::NOT_LOADABLE === $state) {
+                $this->printNotLoadablePackages($io, $filteredPackages, $printStates);
+            } else {
+                $styleTag = PackageState::ENABLED === $state ? null : 'bad';
+                $this->printPackageTable($io, $filteredPackages, $styleTag, $printStates);
+            }
+
+            if ($printStates) {
+                $io->writeLine('');
+            }
+        }
+    }
+
+    /**
+     * Prints packages using the given format.
+     *
+     * @param IO                $io       The I/O.
+     * @param PackageCollection $packages The packages to print.
+     * @param string            $format   The format string.
+     */
+    private function printPackagesWithFormat(IO $io, PackageCollection $packages, $format)
+    {
+        foreach ($packages as $package) {
+            $installInfo = $package->getInstallInfo() ;
+
+            $io->writeLine(strtr($format, array(
+                '%name%' => $package->getName(),
+                '%installer%' => $installInfo ? $installInfo->getInstallerName() : '',
+                '%install_path%' => $package->getInstallPath(),
+                '%state%' => self::$stateStrings[$package->getState()],
+            )));
+        }
     }
 
     /**
@@ -212,20 +276,19 @@ class PackageCommandHandler
     /**
      * Prints a list of packages in a table.
      *
-     * @param IO                $io       The I/O.
-     * @param PackageCollection $packages The packages.
-     * @param string            $styleTag The tag used to style the output. If
-     *                                    `null`, the default colors are used.
-     * @param bool              $indent   Whether to indent the output.
+     * @param IO        $io       The I/O.
+     * @param Package[] $packages The packages.
+     * @param string    $styleTag The tag used to style the output. If `null`,
+     *                            the default colors are used.
+     * @param bool      $indent   Whether to indent the output.
      */
-    private function printPackageTable(IO $io, PackageCollection $packages, $styleTag = null, $indent = false)
+    private function printPackageTable(IO $io, array $packages, $styleTag = null, $indent = false)
     {
         $table = new Table(TableStyle::borderless());
 
         $rootTag = $styleTag ?: 'b';
         $installerTag = $styleTag ?: 'c1';
         $pathTag = $styleTag ?: 'c2';
-        $packages = $packages->toArray();
 
         ksort($packages);
 
@@ -254,16 +317,14 @@ class PackageCommandHandler
     /**
      * Prints not-loadable packages in a table.
      *
-     * @param IO                $io       The I/O.
-     * @param PackageCollection $packages The not-loadable packages.
-     * @param string            $rootDir  The root directory used to calculate
-     *                                    the relative package paths.
-     * @param bool              $indent   Whether to indent the output.
+     * @param IO        $io       The I/O.
+     * @param Package[] $packages The not-loadable packages.
+     * @param bool      $indent   Whether to indent the output.
      */
-    private function printNotLoadablePackages(IO $io, PackageCollection $packages, $rootDir, $indent = false)
+    private function printNotLoadablePackages(IO $io, array $packages, $indent = false)
     {
+        $rootDir = $this->packageManager->getEnvironment()->getRootDirectory();
         $table = new Table(TableStyle::borderless());
-        $packages = $packages->toArray();
 
         ksort($packages);
 

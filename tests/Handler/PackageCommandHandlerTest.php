@@ -101,7 +101,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
 
         $this->environment->expects($this->any())
             ->method('getRootDirectory')
-            ->willReturn('/root');
+            ->willReturn(__DIR__.'/Fixtures/root');
 
         $this->packageManager->expects($this->any())
             ->method('getEnvironment')
@@ -117,18 +117,21 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
         $installInfo3->setInstallerName('kirk');
         $installInfo4->setInstallerName('spock');
 
-        $rootPackage = new RootPackage(new RootPackageFile('vendor/root'), '/root');
-        $package1 = new Package(new PackageFile('vendor/package1'), '/package1', $installInfo1);
-        $package2 = new Package(new PackageFile('vendor/package2'), '/package2', $installInfo2);
-        $package3 = new Package(new PackageFile('vendor/package3'), '/package3', $installInfo3);
-        $package4 = new Package(null, '/package4', $installInfo4, array(new RuntimeException('Load error')));
+        $rootPackage = new RootPackage(new RootPackageFile('vendor/root'), __DIR__.'/Fixtures/root');
+        $package1 = new Package(new PackageFile('vendor/package1'), __DIR__.'/Fixtures/root/packages/package1', $installInfo1);
+        $package2 = new Package(new PackageFile('vendor/package2'), __DIR__.'/Fixtures/root/packages/package2', $installInfo2);
+        $package3 = new Package(new PackageFile('vendor/package3'), __DIR__.'/Fixtures/root/packages/package3', $installInfo3);
+        $package4 = new Package(null, __DIR__.'/Fixtures/root/packages/package4', $installInfo4, array(new RuntimeException('Load error')));
 
         $this->packageManager->expects($this->any())
             ->method('findPackages')
             ->willReturnCallback($this->returnFromMap(array(
+                array($this->all(), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4))),
+                array($this->installer('spock'), new PackageCollection(array($package1, $package2, $package4))),
                 array($this->state(PackageState::ENABLED), new PackageCollection(array($rootPackage, $package1, $package2))),
                 array($this->state(PackageState::NOT_FOUND), new PackageCollection(array($package3))),
                 array($this->state(PackageState::NOT_LOADABLE), new PackageCollection(array($package4))),
+                array($this->states(array(PackageState::ENABLED, PackageState::NOT_FOUND)), new PackageCollection(array($rootPackage, $package1, $package2, $package3))),
                 array($this->installerAndState('spock', PackageState::ENABLED), new PackageCollection(array($package1, $package2))),
                 array($this->installerAndState('spock', PackageState::NOT_FOUND), new PackageCollection(array())),
                 array($this->installerAndState('spock', PackageState::NOT_LOADABLE), new PackageCollection(array($package4))),
@@ -292,6 +295,27 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
+    public function testListPackagesWithFormat()
+    {
+        $args = self::$listCommand->parseArgs(new StringArgs('--format %name%:%installer%:%install_path%:%state%'));
+
+        $rootDir = $this->environment->getRootDirectory();
+        $statusCode = $this->handler->handleList($args, $this->io);
+
+        $expected = <<<EOF
+vendor/root::$rootDir:enabled
+vendor/package1:spock:$rootDir/packages/package1:enabled
+vendor/package2:spock:$rootDir/packages/package2:enabled
+vendor/package3:kirk:$rootDir/packages/package3:not-found
+vendor/package4:spock:$rootDir/packages/package4:not-loadable
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
     public function testInstallPackageWithRelativePath()
     {
         $args = self::$installCommand->parseArgs(new StringArgs('packages/package1'));
@@ -391,9 +415,24 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
+    private function all()
+    {
+        return Expr::valid();
+    }
+
     private function state($state)
     {
         return Expr::same($state, Package::STATE);
+    }
+
+    private function states(array $states)
+    {
+        return Expr::in($states, Package::STATE);
+    }
+
+    private function installer($installer)
+    {
+        return Expr::same($installer, Package::INSTALLER);
     }
 
     private function installerAndState($installer, $state)

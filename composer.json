@@ -15,9 +15,8 @@
         "puli/discovery": "~1.0",
         "puli/factory": "~1.0",
         "puli/manager": "~1.0",
-        "puli/composer-plugin": "~1.0",
         "webmozart/console": "~1.0",
-        "webmozart/path-util": "~1.2",
+        "webmozart/path-util": "~2.0",
         "symfony/filesystem": "~2.3",
         "herrera-io/phar-update": "~2.0"
     },

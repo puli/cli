@@ -9,6 +9,8 @@ Changelog
  * added `--format` option to `puli package`
  * added `puli package rename` command
  * added required argument `server` to `puli asset map`
+ * removed puli/composer-plugin dependency
+ * upgraded webmozart/path-util to 2.0
 
 * 1.0.0-beta4 (2015-04-13)
 

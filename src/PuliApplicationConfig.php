@@ -109,8 +109,8 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginSubCommand('map')
                     ->addArgument('path', Argument::REQUIRED, 'The resource path')
-                    ->addArgument('public-path', Argument::OPTIONAL, 'The path in the document root', '/')
-                    ->addOption('server', 's', Option::REQUIRED_VALUE, 'The name of the target server', Server::DEFAULT_SERVER)
+                    ->addArgument('server', Argument::REQUIRED, 'The resource path')
+                    ->addArgument('server-path', Argument::OPTIONAL, 'The path in the document root of the server', '/')
                     ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the server does not exist')
                     ->setHandlerMethod('handleMap')
                 ->end()
@@ -118,8 +118,8 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->beginSubCommand('update')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the mapping')
                     ->addOption('path', null, Option::REQUIRED_VALUE, 'The resource path')
-                    ->addOption('public-path', null, Option::REQUIRED_VALUE, 'The path in the document root')
-                    ->addOption('server', 's', Option::REQUIRED_VALUE | Option::PREFER_LONG_NAME, 'The name of the target server', Server::DEFAULT_SERVER)
+                    ->addOption('server', 's', Option::REQUIRED_VALUE | Option::PREFER_LONG_NAME, 'The name of the target server')
+                    ->addOption('server-path', null, Option::REQUIRED_VALUE, 'The path in the document root')
                     ->addOption('force', 'f', Option::NO_VALUE, 'Update even if the server does not exist')
                     ->setHandlerMethod('handleUpdate')
                 ->end()
@@ -464,15 +464,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->beginSubCommand('remove')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the server to remove')
                     ->setHandlerMethod('handleRemove')
-                ->end()
-
-                ->beginSubCommand('set-default')
-                    ->addArgument('name', Argument::REQUIRED, 'The name of the default server')
-                    ->setHandlerMethod('handleSetDefault')
-                ->end()
-
-                ->beginSubCommand('get-default')
-                    ->setHandlerMethod('handleGetDefault')
                 ->end()
             ->end()
         ;

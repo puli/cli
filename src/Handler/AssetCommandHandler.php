@@ -97,10 +97,6 @@ class AssetCommandHandler
             foreach ($servers as $serverName => $server) {
                 $serverTitle = 'Server <bu>'.$serverName.'</bu>';
 
-                if ($serverName === Server::DEFAULT_SERVER) {
-                    $serverTitle .= ' (alias of: <bu>'.$server->getName().'</bu>)';
-                }
-
                 $io->writeLine("    <b>$serverTitle</b>");
                 $io->writeLine("    Location:   <c2>{$server->getDocumentRoot()}</c2>");
                 $io->writeLine("    Installer:  {$server->getInstallerName()}");
@@ -143,8 +139,8 @@ class AssetCommandHandler
 
         $this->assetManager->addRootAssetMapping(new AssetMapping(
             $path,
-            $args->getOption('server'),
-            $args->getArgument('public-path')
+            $args->getArgument('server'),
+            $args->getArgument('server-path')
         ), $flags);
 
         return 0;
@@ -157,22 +153,22 @@ class AssetCommandHandler
             : AssetManager::OVERRIDE;
         $mappingToUpdate = $this->getMappingByUuidPrefix($args->getArgument('uuid'));
         $path = $mappingToUpdate->getGlob();
-        $publicPath = $mappingToUpdate->getPublicPath();
+        $serverPath = $mappingToUpdate->getServerPath();
         $serverName = $mappingToUpdate->getServerName();
 
         if ($args->isOptionSet('path')) {
             $path = Path::makeAbsolute($args->getOption('path'), $this->currentPath);
         }
 
-        if ($args->isOptionSet('public-path')) {
-            $publicPath = $args->getOption('public-path');
+        if ($args->isOptionSet('server-path')) {
+            $serverPath = $args->getOption('server-path');
         }
 
         if ($args->isOptionSet('server')) {
             $serverName = $args->getOption('server');
         }
 
-        $updatedMapping = new AssetMapping($path, $serverName, $publicPath, $mappingToUpdate->getUuid());
+        $updatedMapping = new AssetMapping($path, $serverName, $serverPath, $mappingToUpdate->getUuid());
 
         if ($this->mappingsEqual($mappingToUpdate, $updatedMapping)) {
             throw new RuntimeException('Nothing to update.');
@@ -217,12 +213,12 @@ class AssetCommandHandler
 
         foreach ($paramsToInstall as $params) {
             foreach ($params->getResources() as $resource) {
-                $publicPath = rtrim($params->getDocumentRoot(), '/').$params->getPublicPathForResource($resource);
+                $serverPath = rtrim($params->getDocumentRoot(), '/').$params->getServerPathForResource($resource);
 
                 $io->writeLine(sprintf(
                     'Installing <c1>%s</c1> into <c2>%s</c2> via <u>%s</u>...',
                     $resource->getRepositoryPath(),
-                    trim($publicPath, '/'),
+                    trim($serverPath, '/'),
                     $params->getInstallerDescriptor()->getName()
                 ));
 
@@ -248,7 +244,7 @@ class AssetCommandHandler
         foreach ($mappings as $mapping) {
             $uuid = substr($mapping->getUuid()->toString(), 0, 6);
             $glob = $mapping->getGlob();
-            $publicPath = $mapping->getPublicPath();
+            $serverPath = $mapping->getServerPath();
 
             if (!$enabled) {
                 $uuid = "<bad>$uuid</bad>";
@@ -257,7 +253,7 @@ class AssetCommandHandler
             $table->addRow(array(
                 $uuid,
                 "<$globTag>$glob</$globTag>",
-                "<$pathTag>$publicPath</$pathTag>",
+                "<$pathTag>$serverPath</$pathTag>",
             ));
         }
 
@@ -302,7 +298,7 @@ class AssetCommandHandler
             return false;
         }
 
-        if ($mapping1->getPublicPath() !== $mapping2->getPublicPath()) {
+        if ($mapping1->getServerPath() !== $mapping2->getServerPath()) {
             return false;
         }
 

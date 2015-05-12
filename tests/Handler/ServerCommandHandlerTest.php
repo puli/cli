@@ -46,16 +46,6 @@ class ServerCommandHandlerTest extends AbstractCommandHandlerTest
     private static $removeCommand;
 
     /**
-     * @var Command
-     */
-    private static $setDefaultCommand;
-
-    /**
-     * @var Command
-     */
-    private static $getDefaultCommand;
-
-    /**
      * @var PHPUnit_Framework_MockObject_MockObject|ServerManager
      */
     private $serverManager;
@@ -73,8 +63,6 @@ class ServerCommandHandlerTest extends AbstractCommandHandlerTest
         self::$addCommand = self::$application->getCommand('server')->getSubCommand('add');
         self::$updateCommand = self::$application->getCommand('server')->getSubCommand('update');
         self::$removeCommand = self::$application->getCommand('server')->getSubCommand('remove');
-        self::$setDefaultCommand = self::$application->getCommand('server')->getSubCommand('set-default');
-        self::$getDefaultCommand = self::$application->getCommand('server')->getSubCommand('get-default');
     }
 
     protected function setUp()
@@ -95,8 +83,6 @@ class ServerCommandHandlerTest extends AbstractCommandHandlerTest
             )),
         ));
 
-        $servers->setDefaultServer('example.com');
-
         $this->serverManager->expects($this->any())
             ->method('getServers')
             ->willReturn($servers);
@@ -104,10 +90,9 @@ class ServerCommandHandlerTest extends AbstractCommandHandlerTest
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
         $expected = <<<EOF
-  localhost   symlink public_html         /%s
-* example.com rsync   ssh://example.com   http://example.com/%s
-                      user="webmozart"
-                      password="password"
+Server Name  Installer  Location           URL Format
+localhost    symlink    public_html        /%s
+example.com  rsync      ssh://example.com  http://example.com/%s
 
 EOF;
 
@@ -318,31 +303,5 @@ EOF;
         $args = self::$removeCommand->parseArgs(new StringArgs('localhost'));
 
         $this->handler->handleRemove($args);
-    }
-
-    public function testSetDefaultServer()
-    {
-        $this->serverManager->expects($this->once())
-            ->method('setDefaultServer')
-            ->with('localhost');
-
-        $args = self::$setDefaultCommand->parseArgs(new StringArgs('localhost'));
-
-        $this->assertSame(0, $this->handler->handleSetDefault($args));
-    }
-
-    public function testGetDefaultServer()
-    {
-        $server = new Server('localhost', 'symlink', 'public_html');
-
-        $this->serverManager->expects($this->once())
-            ->method('getDefaultServer')
-            ->willReturn($server);
-
-        $args = self::$getDefaultCommand->parseArgs(new StringArgs(''));
-
-        $this->assertSame(0, $this->handler->handleGetDefault($args, $this->io));
-        $this->assertSame("localhost\n", $this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
     }
 }

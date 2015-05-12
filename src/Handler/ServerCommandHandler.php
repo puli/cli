@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\StringUtil;
 use Puli\Manager\Api\Server\NoSuchServerException;
 use Puli\Manager\Api\Server\Server;
@@ -19,7 +20,6 @@ use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
-use Webmozart\Console\UI\Style\TableStyle;
 
 /**
  * @since  1.0
@@ -39,7 +39,7 @@ class ServerCommandHandler
 
     public function handleList(Args $args, IO $io)
     {
-        $table = new Table(TableStyle::borderless());
+        $table = new Table(PuliTableStyle::borderless());
         $servers = $this->serverManager->getServers();
 
         if ($servers->isEmpty()) {
@@ -48,21 +48,19 @@ class ServerCommandHandler
             return 0;
         }
 
-        $defaultServer = $servers->getDefaultServer();
+        $table->setHeaderRow(array(
+            'Server Name',
+            'Installer',
+            'Location',
+            'URL Format',
+        ));
 
         foreach ($servers as $server) {
-            $parameters = '';
-
-            foreach ($server->getParameterValues() as $name => $value) {
-                $parameters .= "\n<c1>".$name.'='.StringUtil::formatValue($value).'</c1>';
-            }
-
             $table->addRow(array(
-                $defaultServer === $server ? '*' : '',
                 '<u>'.$server->getName().'</u>',
                 $server->getInstallerName(),
-                '<c2>'.$server->getDocumentRoot().'</c2>'.$parameters,
-                '<c1>'.$server->getUrlFormat().'</c1>'
+                '<c2>'.$server->getDocumentRoot().'</c2>',
+                '<c1>'.$server->getUrlFormat().'</c1>',
             ));
         }
 
@@ -138,20 +136,6 @@ class ServerCommandHandler
         }
 
         $this->serverManager->removeServer($serverName);
-
-        return 0;
-    }
-
-    public function handleSetDefault(Args $args)
-    {
-        $this->serverManager->setDefaultServer($args->getArgument('name'));
-
-        return 0;
-    }
-
-    public function handleGetDefault(Args $args, IO $io)
-    {
-        $io->writeLine($this->serverManager->getDefaultServer()->getName());
 
         return 0;
     }

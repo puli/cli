@@ -119,7 +119,6 @@ class AssetCommandHandlerTest extends AbstractCommandHandlerTest
             ->willReturnMap(array(
                 array('localhost', true),
                 array('example.com', true),
-                array(Server::DEFAULT_SERVER, true),
             ));
 
         $this->serverManager->expects($this->any())
@@ -127,7 +126,6 @@ class AssetCommandHandlerTest extends AbstractCommandHandlerTest
             ->willReturnMap(array(
                 array('localhost', $localServer),
                 array('example.com', $remoteServer),
-                array(Server::DEFAULT_SERVER, $remoteServer),
             ));
 
         $this->assetManager->expects($this->once())
@@ -136,7 +134,6 @@ class AssetCommandHandlerTest extends AbstractCommandHandlerTest
                 new AssetMapping('/app/public', 'localhost', '/', Uuid::fromString(self::UUID1)),
                 new AssetMapping('/acme/blog/public', 'example.com', '/blog', Uuid::fromString(self::UUID2)),
                 new AssetMapping('/acme/profiler/public', 'localhost', '/profiler', Uuid::fromString(self::UUID3)),
-                new AssetMapping('/acme/admin/public', Server::DEFAULT_SERVER, '/admin', Uuid::fromString(self::UUID4)),
             ));
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
@@ -159,13 +156,6 @@ The following web assets are currently enabled:
 
         33dbec /acme/blog/public /blog
 
-    Server default (alias of: example.com)
-    Location:   ssh://example.com
-    Installer:  rsync
-    URL Format: http://example.com/%s
-
-        8c64be /acme/admin/public /admin
-
 Use "puli asset install" to install the assets on your servers.
 
 EOF;
@@ -184,14 +174,12 @@ EOF;
             ->willReturnMap(array(
                 array('localhost', false),
                 array('example.com', true),
-                array(Server::DEFAULT_SERVER, true),
             ));
 
         $this->serverManager->expects($this->any())
             ->method('getServer')
             ->willReturnMap(array(
                 array('example.com', $Server),
-                array(Server::DEFAULT_SERVER, $Server),
             ));
 
         $this->assetManager->expects($this->once())
@@ -200,7 +188,6 @@ EOF;
                 new AssetMapping('/app/public', 'localhost', '/', Uuid::fromString(self::UUID1)),
                 new AssetMapping('/acme/blog/public', 'example.com', '/blog', Uuid::fromString(self::UUID2)),
                 new AssetMapping('/acme/profiler/public', 'localhost', '/profiler', Uuid::fromString(self::UUID3)),
-                new AssetMapping('/acme/admin/public', Server::DEFAULT_SERVER, '/admin', Uuid::fromString(self::UUID4)),
             ));
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
@@ -214,13 +201,6 @@ The following web assets are currently enabled:
     URL Format: http://example.com/%s
 
         33dbec /acme/blog/public /blog
-
-    Server default (alias of: example.com)
-    Location:   ssh://example.com
-    Installer:  rsync
-    URL Format: http://example.com/%s
-
-        8c64be /acme/admin/public /admin
 
 Use "puli asset install" to install the assets on your servers.
 
@@ -247,7 +227,6 @@ EOF;
             ->willReturnMap(array(
                 array('localhost', false),
                 array('example.com', false),
-                array(Server::DEFAULT_SERVER, false),
             ));
 
         $this->serverManager->expects($this->never())
@@ -259,7 +238,6 @@ EOF;
                 new AssetMapping('/app/public', 'localhost', '/', Uuid::fromString(self::UUID1)),
                 new AssetMapping('/acme/blog/public', 'example.com', '/blog', Uuid::fromString(self::UUID2)),
                 new AssetMapping('/acme/profiler/public', 'localhost', '/profiler', Uuid::fromString(self::UUID3)),
-                new AssetMapping('/acme/admin/public', Server::DEFAULT_SERVER, '/admin', Uuid::fromString(self::UUID4)),
             ));
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
@@ -275,10 +253,6 @@ The following web assets are disabled since their server does not exist.
     Server example.com
 
         33dbec /acme/blog/public /blog
-
-    Server default
-
-        8c64be /acme/admin/public /admin
 
 Use "puli server add <name> <document-root>" to add a server.
 
@@ -313,26 +287,26 @@ EOF;
             ->method('addRootAssetMapping')
             ->willReturnCallback(function (AssetMapping $mapping) {
                 PHPUnit_Framework_Assert::assertSame('/app/public', $mapping->getGlob());
-                PHPUnit_Framework_Assert::assertSame('/', $mapping->getPublicPath());
-                PHPUnit_Framework_Assert::assertSame(Server::DEFAULT_SERVER, $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('localhost', $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('/', $mapping->getServerPath());
             });
 
-        $args = self::$mapCommand->parseArgs(new StringArgs('/app/public /'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('/app/public localhost'));
 
         $this->assertSame(0, $this->handler->handleMap($args));
     }
 
-    public function testMapWithServer()
+    public function testMapWithServerPath()
     {
         $this->assetManager->expects($this->once())
             ->method('addRootAssetMapping')
             ->willReturnCallback(function (AssetMapping $mapping) {
                 PHPUnit_Framework_Assert::assertSame('/app/public', $mapping->getGlob());
-                PHPUnit_Framework_Assert::assertSame('/', $mapping->getPublicPath());
-                PHPUnit_Framework_Assert::assertSame('example.com', $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('localhost', $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('/blog', $mapping->getServerPath());
             });
 
-        $args = self::$mapCommand->parseArgs(new StringArgs('/app/public / --server example.com'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('/app/public localhost /blog'));
 
         $this->assertSame(0, $this->handler->handleMap($args));
     }
@@ -343,12 +317,12 @@ EOF;
             ->method('addRootAssetMapping')
             ->willReturnCallback(function (AssetMapping $mapping, $flags) {
                 PHPUnit_Framework_Assert::assertSame('/app/public', $mapping->getGlob());
-                PHPUnit_Framework_Assert::assertSame('/', $mapping->getPublicPath());
-                PHPUnit_Framework_Assert::assertSame(Server::DEFAULT_SERVER, $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('localhost', $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('/', $mapping->getServerPath());
                 PHPUnit_Framework_Assert::assertSame(AssetManager::IGNORE_SERVER_NOT_FOUND, $flags);
             });
 
-        $args = self::$mapCommand->parseArgs(new StringArgs('--force /app/public /'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('--force /app/public localhost'));
 
         $this->assertSame(0, $this->handler->handleMap($args));
     }
@@ -359,33 +333,33 @@ EOF;
             ->method('addRootAssetMapping')
             ->willReturnCallback(function (AssetMapping $mapping) {
                 PHPUnit_Framework_Assert::assertSame('/app/public', $mapping->getGlob());
-                PHPUnit_Framework_Assert::assertSame('/', $mapping->getPublicPath());
-                PHPUnit_Framework_Assert::assertSame(Server::DEFAULT_SERVER, $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('localhost', $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('/', $mapping->getServerPath());
             });
 
-        $args = self::$mapCommand->parseArgs(new StringArgs('app/public /'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('app/public localhost'));
 
         $this->assertSame(0, $this->handler->handleMap($args));
     }
 
-    public function testMapWithRelativeWebPath()
+    public function testMapWithRelativeServerPath()
     {
         $this->assetManager->expects($this->once())
             ->method('addRootAssetMapping')
             ->willReturnCallback(function (AssetMapping $mapping) {
                 PHPUnit_Framework_Assert::assertSame('/app/public', $mapping->getGlob());
-                PHPUnit_Framework_Assert::assertSame('/path', $mapping->getPublicPath());
-                PHPUnit_Framework_Assert::assertSame(Server::DEFAULT_SERVER, $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('localhost', $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('/path', $mapping->getServerPath());
             });
 
-        $args = self::$mapCommand->parseArgs(new StringArgs('/app/public path'));
+        $args = self::$mapCommand->parseArgs(new StringArgs('/app/public localhost path'));
 
         $this->assertSame(0, $this->handler->handleMap($args));
     }
 
     public function testUpdateMapping()
     {
-        $args = self::$updateCommand->parseArgs(new StringArgs('abcd --path /new --public-path /new-web --server new-server'));
+        $args = self::$updateCommand->parseArgs(new StringArgs('abcd --path /new --server new-server --server-path /new-server'));
 
         $mapping = new AssetMapping('/app/public', 'localhost', '/');
         $uuid = $mapping->getUuid();
@@ -399,8 +373,8 @@ EOF;
             ->method('addRootAssetMapping')
             ->willReturnCallback(function (AssetMapping $mapping, $flags) use ($uuid) {
                 PHPUnit_Framework_Assert::assertSame('/new', $mapping->getGlob());
-                PHPUnit_Framework_Assert::assertSame('/new-web', $mapping->getPublicPath());
                 PHPUnit_Framework_Assert::assertSame('new-server', $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('/new-server', $mapping->getServerPath());
                 PHPUnit_Framework_Assert::assertSame($uuid, $mapping->getUuid());
                 PHPUnit_Framework_Assert::assertSame(AssetManager::OVERRIDE, $flags);
             });
@@ -424,8 +398,8 @@ EOF;
             ->method('addRootAssetMapping')
             ->willReturnCallback(function (AssetMapping $mapping, $flags) use ($uuid) {
                 PHPUnit_Framework_Assert::assertSame('/new', $mapping->getGlob());
-                PHPUnit_Framework_Assert::assertSame('/', $mapping->getPublicPath());
                 PHPUnit_Framework_Assert::assertSame('localhost', $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('/', $mapping->getServerPath());
                 PHPUnit_Framework_Assert::assertSame($uuid, $mapping->getUuid());
                 PHPUnit_Framework_Assert::assertSame(AssetManager::OVERRIDE, $flags);
             });
@@ -435,7 +409,7 @@ EOF;
 
     public function testUpdateMappingRelativeWebPath()
     {
-        $args = self::$updateCommand->parseArgs(new StringArgs('abcd --public-path new'));
+        $args = self::$updateCommand->parseArgs(new StringArgs('abcd --server-path new'));
 
         $mapping = new AssetMapping('/app/public', 'localhost', '/');
         $uuid = $mapping->getUuid();
@@ -449,8 +423,8 @@ EOF;
             ->method('addRootAssetMapping')
             ->willReturnCallback(function (AssetMapping $mapping, $flags) use ($uuid) {
                 PHPUnit_Framework_Assert::assertSame('/app/public', $mapping->getGlob());
-                PHPUnit_Framework_Assert::assertSame('/new', $mapping->getPublicPath());
                 PHPUnit_Framework_Assert::assertSame('localhost', $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('/new', $mapping->getServerPath());
                 PHPUnit_Framework_Assert::assertSame($uuid, $mapping->getUuid());
                 PHPUnit_Framework_Assert::assertSame(AssetManager::OVERRIDE, $flags);
             });
@@ -474,8 +448,8 @@ EOF;
             ->method('addRootAssetMapping')
             ->willReturnCallback(function (AssetMapping $mapping, $flags) use ($uuid) {
                 PHPUnit_Framework_Assert::assertSame('/new', $mapping->getGlob());
-                PHPUnit_Framework_Assert::assertSame('/', $mapping->getPublicPath());
                 PHPUnit_Framework_Assert::assertSame('localhost', $mapping->getServerName());
+                PHPUnit_Framework_Assert::assertSame('/', $mapping->getServerPath());
                 PHPUnit_Framework_Assert::assertSame($uuid, $mapping->getUuid());
                 PHPUnit_Framework_Assert::assertSame(AssetManager::OVERRIDE | AssetManager::IGNORE_SERVER_NOT_FOUND, $flags);
             });

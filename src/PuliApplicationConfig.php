@@ -360,19 +360,19 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     return new PluginCommandHandler($puli->getRootPackageFileManager());
                 })
 
-                ->beginSubCommand('install')
+                ->beginOptionCommand('install', 'i')
                     ->addArgument('class', Argument::REQUIRED, 'The fully-qualified plugin class name')
                     ->setHandlerMethod('handleInstall')
                 ->end()
 
-                ->beginSubCommand('list')
+                ->beginOptionCommand('list')
                     ->markDefault()
                     ->setHandlerMethod('handleList')
                 ->end()
 
-                ->beginSubCommand('remove')
+                ->beginOptionCommand('delete', 'd')
                     ->addArgument('class', Argument::REQUIRED, 'The fully-qualified plugin class name')
-                    ->setHandlerMethod('handleRemove')
+                    ->setHandlerMethod('handleDelete')
                 ->end()
             ->end()
         ;

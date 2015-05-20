@@ -40,7 +40,7 @@ class PluginCommandHandler
     }
 
     /**
-     * Handles the "plugin list" command.
+     * Handles the "puli plugin --list" command.
      *
      * @param Args $args The console arguments.
      * @param IO   $io   The I/O.
@@ -52,7 +52,7 @@ class PluginCommandHandler
         $pluginClasses = $this->manager->getPluginClasses();
 
         if (!$pluginClasses) {
-            $io->writeLine('No plugin classes. Use "puli plugin install <class>" to install a plugin class.');
+            $io->writeLine('No plugin classes. Use "puli plugin --install <class>" to install a plugin class.');
 
             return 0;
         }
@@ -65,7 +65,7 @@ class PluginCommandHandler
     }
 
     /**
-     * Handles the "plugin install" command.
+     * Handles the "puli plugin --install" command.
      *
      * @param Args $args The console arguments.
      *
@@ -88,13 +88,13 @@ class PluginCommandHandler
     }
 
     /**
-     * Handles the "plugin remove" command.
+     * Handles the "puli plugin --remove" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleRemove(Args $args)
+    public function handleDelete(Args $args)
     {
         $pluginClass = $args->getArgument('class');
 

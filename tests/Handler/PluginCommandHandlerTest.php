@@ -36,7 +36,7 @@ class PluginCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $removeCommand;
+    private static $deleteCommand;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject|RootPackageFileManager
@@ -54,7 +54,7 @@ class PluginCommandHandlerTest extends AbstractCommandHandlerTest
 
         self::$listCommand = self::$application->getCommand('plugin')->getSubCommand('list');
         self::$installCommand = self::$application->getCommand('plugin')->getSubCommand('install');
-        self::$removeCommand = self::$application->getCommand('plugin')->getSubCommand('remove');
+        self::$deleteCommand = self::$application->getCommand('plugin')->getSubCommand('delete');
     }
 
     protected function setUp()
@@ -96,7 +96,7 @@ EOF;
             ->willReturn(array());
 
         $expected = <<<EOF
-No plugin classes. Use "puli plugin install <class>" to install a plugin class.
+No plugin classes. Use "puli plugin --install <class>" to install a plugin class.
 
 EOF;
 
@@ -139,9 +139,9 @@ EOF;
         $this->handler->handleInstall($args);
     }
 
-    public function testRemovePlugin()
+    public function testDeletePlugin()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('My\Plugin\Class'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('My\Plugin\Class'));
 
         $this->manager->expects($this->once())
             ->method('hasPluginClass')
@@ -152,15 +152,15 @@ EOF;
             ->method('removePluginClass')
             ->with('My\Plugin\Class');
 
-        $this->assertSame(0, $this->handler->handleRemove($args));
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testRemovePluginFailsIfNotInstalled()
+    public function testDeletePluginFailsIfNotInstalled()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('My\Plugin\Class'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('My\Plugin\Class'));
 
         $this->manager->expects($this->once())
             ->method('hasPluginClass')
@@ -170,6 +170,6 @@ EOF;
         $this->manager->expects($this->never())
             ->method('removePluginClass');
 
-        $this->handler->handleRemove($args);
+        $this->handler->handleDelete($args);
     }
 }

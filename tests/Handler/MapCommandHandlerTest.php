@@ -102,41 +102,57 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
         $expected = <<<EOF
 The following path mappings are currently enabled:
 
-    vendor/root
-    /root/enabled res, assets
+    Package: vendor/root
 
-    vendor/package1
-    /package1/enabled res, @vendor/package2:res
+        Puli Path      Real Path(s)
+        /root/enabled  res, assets
 
-    vendor/package2
-    /package2/enabled res
+    Package: vendor/package1
+
+        Puli Path          Real Path(s)
+        /package1/enabled  res, @vendor/package2:res
+
+    Package: vendor/package2
+
+        Puli Path          Real Path(s)
+        /package2/enabled  res
 
 The target paths of the following path mappings were not found:
 
-    vendor/root
-    /root/not-found res
+    Package: vendor/root
 
-    vendor/package1
-    /package1/not-found res
+        Puli Path        Real Path(s)
+        /root/not-found  res
 
-    vendor/package2
-    /package2/not-found res
+    Package: vendor/package1
 
-The following path mappings have conflicting paths:
+        Puli Path            Real Path(s)
+        /package1/not-found  res
+
+    Package: vendor/package2
+
+        Puli Path            Real Path(s)
+        /package2/not-found  res
+
+Some path mappings have conflicting paths:
  (add the package names to the "override-order" key in puli.json to resolve)
 
-    Conflict: /conflict1
+    Conflicting path: /conflict1
 
-    Mapped by:
-    vendor/root     /conflict1 res, assets
-    vendor/package1 /conflict1 res, @vendor/package2:res
-    vendor/package2 /conflict1 res
+        Mapped by the following mappings:
 
-    Conflict: /conflict2/sub/path
+        Package          Puli Path   Real Path(s)
+        vendor/root      /conflict1  res, assets
+        vendor/package1  /conflict1  res, @vendor/package2:res
+        vendor/package2  /conflict1  res
 
-    Mapped by:
-    vendor/package1 /conflict2 res
-    vendor/package2 /conflict2 res
+    Conflicting path: /conflict2/sub/path
+
+        Mapped by the following mappings:
+
+        Package          Puli Path   Real Path(s)
+        vendor/package1  /conflict2  res
+        vendor/package2  /conflict2  res
 
 
 EOF;
@@ -157,21 +173,25 @@ EOF;
         $expected = <<<EOF
 The following path mappings are currently enabled:
 
-    /root/enabled res, assets
+    Puli Path      Real Path(s)
+    /root/enabled  res, assets
 
 The target paths of the following path mappings were not found:
 
-    /root/not-found res
+    Puli Path        Real Path(s)
+    /root/not-found  res
 
-The following path mappings have conflicting paths:
+Some path mappings have conflicting paths:
  (add the package names to the "override-order" key in puli.json to resolve)
 
-    Conflict: /conflict1
+    Conflicting path: /conflict1
 
-    Mapped by:
-    vendor/root     /conflict1 res, assets
-    vendor/package1 /conflict1 res, @vendor/package2:res
-    vendor/package2 /conflict1 res
+        Mapped by the following mappings:
+
+        Package          Puli Path   Real Path(s)
+        vendor/root      /conflict1  res, assets
+        vendor/package1  /conflict1  res, @vendor/package2:res
+        vendor/package2  /conflict1  res
 
 
 EOF;
@@ -192,27 +212,33 @@ EOF;
         $expected = <<<EOF
 The following path mappings are currently enabled:
 
-    /package1/enabled res, @vendor/package2:res
+    Puli Path          Real Path(s)
+    /package1/enabled  res, @vendor/package2:res
 
 The target paths of the following path mappings were not found:
 
-    /package1/not-found res
+    Puli Path            Real Path(s)
+    /package1/not-found  res
 
-The following path mappings have conflicting paths:
+Some path mappings have conflicting paths:
  (add the package names to the "override-order" key in puli.json to resolve)
 
-    Conflict: /conflict1
+    Conflicting path: /conflict1
 
-    Mapped by:
-    vendor/root     /conflict1 res, assets
-    vendor/package1 /conflict1 res, @vendor/package2:res
-    vendor/package2 /conflict1 res
+        Mapped by the following mappings:
 
-    Conflict: /conflict2/sub/path
+        Package          Puli Path   Real Path(s)
+        vendor/root      /conflict1  res, assets
+        vendor/package1  /conflict1  res, @vendor/package2:res
+        vendor/package2  /conflict1  res
 
-    Mapped by:
-    vendor/package1 /conflict2 res
-    vendor/package2 /conflict2 res
+    Conflicting path: /conflict2/sub/path
+
+        Mapped by the following mappings:
+
+        Package          Puli Path   Real Path(s)
+        vendor/package1  /conflict2  res
+        vendor/package2  /conflict2  res
 
 
 EOF;
@@ -233,35 +259,47 @@ EOF;
         $expected = <<<EOF
 The following path mappings are currently enabled:
 
-    vendor/root
-    /root/enabled res, assets
+    Package: vendor/root
 
-    vendor/package1
-    /package1/enabled res, @vendor/package2:res
+        Puli Path      Real Path(s)
+        /root/enabled  res, assets
+
+    Package: vendor/package1
+
+        Puli Path          Real Path(s)
+        /package1/enabled  res, @vendor/package2:res
 
 The target paths of the following path mappings were not found:
 
-    vendor/root
-    /root/not-found res
+    Package: vendor/root
 
-    vendor/package1
-    /package1/not-found res
+        Puli Path        Real Path(s)
+        /root/not-found  res
 
-The following path mappings have conflicting paths:
+    Package: vendor/package1
+
+        Puli Path            Real Path(s)
+        /package1/not-found  res
+
+Some path mappings have conflicting paths:
  (add the package names to the "override-order" key in puli.json to resolve)
 
-    Conflict: /conflict1
+    Conflicting path: /conflict1
 
-    Mapped by:
-    vendor/root     /conflict1 res, assets
-    vendor/package1 /conflict1 res, @vendor/package2:res
-    vendor/package2 /conflict1 res
+        Mapped by the following mappings:
 
-    Conflict: /conflict2/sub/path
+        Package          Puli Path   Real Path(s)
+        vendor/root      /conflict1  res, assets
+        vendor/package1  /conflict1  res, @vendor/package2:res
+        vendor/package2  /conflict1  res
 
-    Mapped by:
-    vendor/package1 /conflict2 res
-    vendor/package2 /conflict2 res
+    Conflicting path: /conflict2/sub/path
+
+        Mapped by the following mappings:
+
+        Package          Puli Path   Real Path(s)
+        vendor/package1  /conflict2  res
+        vendor/package2  /conflict2  res
 
 
 EOF;
@@ -282,35 +320,47 @@ EOF;
         $expected = <<<EOF
 The following path mappings are currently enabled:
 
-    vendor/package1
-    /package1/enabled res, @vendor/package2:res
+    Package: vendor/package1
 
-    vendor/package2
-    /package2/enabled res
+        Puli Path          Real Path(s)
+        /package1/enabled  res, @vendor/package2:res
+
+    Package: vendor/package2
+
+        Puli Path          Real Path(s)
+        /package2/enabled  res
 
 The target paths of the following path mappings were not found:
 
-    vendor/package1
-    /package1/not-found res
+    Package: vendor/package1
 
-    vendor/package2
-    /package2/not-found res
+        Puli Path            Real Path(s)
+        /package1/not-found  res
 
-The following path mappings have conflicting paths:
+    Package: vendor/package2
+
+        Puli Path            Real Path(s)
+        /package2/not-found  res
+
+Some path mappings have conflicting paths:
  (add the package names to the "override-order" key in puli.json to resolve)
 
-    Conflict: /conflict1
+    Conflicting path: /conflict1
 
-    Mapped by:
-    vendor/root     /conflict1 res, assets
-    vendor/package1 /conflict1 res, @vendor/package2:res
-    vendor/package2 /conflict1 res
+        Mapped by the following mappings:
 
-    Conflict: /conflict2/sub/path
+        Package          Puli Path   Real Path(s)
+        vendor/root      /conflict1  res, assets
+        vendor/package1  /conflict1  res, @vendor/package2:res
+        vendor/package2  /conflict1  res
 
-    Mapped by:
-    vendor/package1 /conflict2 res
-    vendor/package2 /conflict2 res
+    Conflicting path: /conflict2/sub/path
+
+        Mapped by the following mappings:
+
+        Package          Puli Path   Real Path(s)
+        vendor/package1  /conflict2  res
+        vendor/package2  /conflict2  res
 
 
 EOF;
@@ -329,14 +379,20 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/root
-/root/enabled res, assets
+Package: vendor/root
 
-vendor/package1
-/package1/enabled res, @vendor/package2:res
+    Puli Path      Real Path(s)
+    /root/enabled  res, assets
 
-vendor/package2
-/package2/enabled res
+Package: vendor/package1
+
+    Puli Path          Real Path(s)
+    /package1/enabled  res, @vendor/package2:res
+
+Package: vendor/package2
+
+    Puli Path          Real Path(s)
+    /package2/enabled  res
 
 
 EOF;
@@ -355,14 +411,20 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/root
-/root/not-found res
+Package: vendor/root
 
-vendor/package1
-/package1/not-found res
+    Puli Path        Real Path(s)
+    /root/not-found  res
 
-vendor/package2
-/package2/not-found res
+Package: vendor/package1
+
+    Puli Path            Real Path(s)
+    /package1/not-found  res
+
+Package: vendor/package2
+
+    Puli Path            Real Path(s)
+    /package2/not-found  res
 
 
 EOF;
@@ -381,18 +443,22 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Conflict: /conflict1
+Conflicting path: /conflict1
 
-Mapped by:
-vendor/root     /conflict1 res, assets
-vendor/package1 /conflict1 res, @vendor/package2:res
-vendor/package2 /conflict1 res
+    Mapped by the following mappings:
 
-Conflict: /conflict2/sub/path
+    Package          Puli Path   Real Path(s)
+    vendor/root      /conflict1  res, assets
+    vendor/package1  /conflict1  res, @vendor/package2:res
+    vendor/package2  /conflict1  res
 
-Mapped by:
-vendor/package1 /conflict2 res
-vendor/package2 /conflict2 res
+Conflicting path: /conflict2/sub/path
+
+    Mapped by the following mappings:
+
+    Package          Puli Path   Real Path(s)
+    vendor/package1  /conflict2  res
+    vendor/package2  /conflict2  res
 
 
 EOF;
@@ -413,25 +479,37 @@ EOF;
         $expected = <<<EOF
 The following path mappings are currently enabled:
 
-    vendor/root
-    /root/enabled res, assets
+    Package: vendor/root
 
-    vendor/package1
-    /package1/enabled res, @vendor/package2:res
+        Puli Path      Real Path(s)
+        /root/enabled  res, assets
 
-    vendor/package2
-    /package2/enabled res
+    Package: vendor/package1
+
+        Puli Path          Real Path(s)
+        /package1/enabled  res, @vendor/package2:res
+
+    Package: vendor/package2
+
+        Puli Path          Real Path(s)
+        /package2/enabled  res
 
 The target paths of the following path mappings were not found:
 
-    vendor/root
-    /root/not-found res
+    Package: vendor/root
 
-    vendor/package1
-    /package1/not-found res
+        Puli Path        Real Path(s)
+        /root/not-found  res
 
-    vendor/package2
-    /package2/not-found res
+    Package: vendor/package1
+
+        Puli Path            Real Path(s)
+        /package1/not-found  res
+
+    Package: vendor/package2
+
+        Puli Path            Real Path(s)
+        /package2/not-found  res
 
 
 EOF;
@@ -450,7 +528,8 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-/root/enabled res, assets
+Puli Path      Real Path(s)
+/root/enabled  res, assets
 
 EOF;
 
@@ -468,7 +547,8 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-/package1/enabled res, @vendor/package2:res
+Puli Path          Real Path(s)
+/package1/enabled  res, @vendor/package2:res
 
 EOF;
 

@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Manager\Api\Package\PackageCollection;
 use Puli\Manager\Api\Repository\PathConflict;
@@ -21,7 +22,6 @@ use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
-use Webmozart\Console\UI\Style\TableStyle;
 use Webmozart\Expression\Expr;
 use Webmozart\PathUtil\Path;
 
@@ -98,6 +98,8 @@ class MapCommandHandler
         $printPackageName = count($packageNames) > 1;
         $printHeaders = $printState || $printPackageName;
         $printAdvice = true;
+        $indentation = ($printState && $printPackageName) ? 8
+            : ($printState || $printPackageName ? 4 : 0);
 
         foreach ($states as $state) {
             $statePrinted = !$printState;
@@ -118,7 +120,7 @@ class MapCommandHandler
                     $this->printPathMappingStateHeader($io, $state);
                 }
 
-                $this->printConflictTable($io, $mappings, $printState);
+                $this->printConflictTable($io, $mappings, $printState ? 4 : 0);
 
                 if ($printHeaders) {
                     $io->writeLine('');
@@ -146,10 +148,11 @@ class MapCommandHandler
 
                 if ($printPackageName) {
                     $prefix = $printState ? '    ' : '';
-                    $io->writeLine("<b>$prefix$packageName</b>");
+                    $io->writeLine("<b>{$prefix}Package: $packageName</b>");
+                    $io->writeLine('');
                 }
 
-                $this->printMappingTable($io, $mappings, $printState, PathMappingState::ENABLED === $state);
+                $this->printMappingTable($io, $mappings, $indentation, PathMappingState::ENABLED === $state);
 
                 if ($printHeaders) {
                     $io->writeLine('');
@@ -252,15 +255,18 @@ class MapCommandHandler
     /**
      * Prints a list of path mappings.
      *
-     * @param IO            $io       The I/O.
-     * @param PathMapping[] $mappings The path mappings.
-     * @param bool          $indent   Whether to indent the output.
-     * @param bool          $enabled  Whether the path mappings are enabled. If
-     *                                not, the output is printed in red.
+     * @param IO            $io           The I/O.
+     * @param PathMapping[] $mappings     The path mappings.
+     * @param int           $indentation  The number of spaces to indent the
+     *                                    output.
+     * @param bool          $enabled      Whether the path mappings are enabled.
+     *                                    If not, the output is printed in red.
      */
-    private function printMappingTable(IO $io, array $mappings, $indent = false, $enabled = true)
+    private function printMappingTable(IO $io, array $mappings, $indentation = 0, $enabled = true)
     {
-        $table = new Table(TableStyle::borderless());
+        $table = new Table(PuliTableStyle::borderless());
+
+        $table->setHeaderRow(array('Puli Path', 'Real Path(s)'));
 
         $pathTag = $enabled ? 'c1' : 'bad';
 
@@ -289,21 +295,23 @@ class MapCommandHandler
             ));
         }
 
-        $table->render($io, $indent ? 4 : 0);
+        $table->render($io, $indentation);
     }
 
     /**
      * Prints a list of conflicting path mappings.
      *
-     * @param IO            $io       The I/O.
-     * @param PathMapping[] $mappings The path mappings.
-     * @param bool          $indent   Whether to indent the output.
+     * @param IO            $io          The I/O.
+     * @param PathMapping[] $mappings    The path mappings.
+     * @param int           $indentation The number of spaces to indent the
+     *                                   output.
      */
-    private function printConflictTable(IO $io, array $mappings, $indent = false)
+    private function printConflictTable(IO $io, array $mappings, $indentation = 0)
     {
         /** @var PathConflict[] $conflicts */
         $conflicts = array();
-        $prefix = $indent ? '    ' : '';
+        $shortPrefix = str_repeat(' ', $indentation);
+        $prefix = str_repeat(' ', $indentation + 4);
         $printNewline = false;
 
         foreach ($mappings as $mapping) {
@@ -317,10 +325,12 @@ class MapCommandHandler
                 $io->writeLine('');
             }
 
-            $io->writeLine("$prefix<b>Conflict:</b> {$conflict->getRepositoryPath()}");
+            $io->writeLine("$shortPrefix<b>Conflicting path:</b> {$conflict->getRepositoryPath()}");
             $io->writeLine('');
 
-            $table = new Table(TableStyle::borderless());
+            $table = new Table(PuliTableStyle::borderless());
+
+            $table->setHeaderRow(array('Package', 'Puli Path', 'Real Path(s)'));
 
             foreach ($conflict->getMappings() as $mapping) {
                 $table->addRow(array(
@@ -330,8 +340,10 @@ class MapCommandHandler
                 ));
             }
 
-            $io->writeLine("{$prefix}Mapped by:");
-            $table->render($io, $indent ? 4 : 0);
+            $io->writeLine("{$prefix}Mapped by the following mappings:");
+            $io->writeLine('');
+
+            $table->render($io, $indentation + 4);
 
             $printNewline = true;
         }
@@ -424,7 +436,7 @@ class MapCommandHandler
                 $io->writeLine('');
                 return;
             case PathMappingState::CONFLICT:
-                $io->writeLine('The following path mappings have conflicting paths:');
+                $io->writeLine('Some path mappings have conflicting paths:');
                 $io->writeLine(' (add the package names to the "override-order" key in puli.json to resolve)');
                 $io->writeLine('');
                 return;

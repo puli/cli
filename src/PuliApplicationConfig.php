@@ -274,14 +274,14 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     return new PackageCommandHandler($puli->getPackageManager());
                 })
 
-                ->beginSubCommand('install')
+                ->beginOptionCommand('add', 'a')
                     ->addArgument('path', Argument::REQUIRED, 'The path to the package')
                     ->addArgument('name', Argument::OPTIONAL, 'The name of the package. Taken from puli.json if not passed.')
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the installer', InstallInfo::DEFAULT_INSTALLER_NAME)
-                    ->setHandlerMethod('handleInstall')
+                    ->setHandlerMethod('handleAdd')
                 ->end()
 
-                ->beginSubCommand('list')
+                ->beginOptionCommand('list')
                     ->markDefault()
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'Show packages installed by a specific installer')
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled packages')
@@ -291,18 +291,18 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleList')
                 ->end()
 
-                ->beginSubCommand('rename')
+                ->beginOptionCommand('rename')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the package')
                     ->addArgument('new-name', Argument::REQUIRED, 'The new name of the package')
                     ->setHandlerMethod('handleRename')
                 ->end()
 
-                ->beginSubCommand('remove')
+                ->beginOptionCommand('delete', 'd')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the package')
-                    ->setHandlerMethod('handleRemove')
+                    ->setHandlerMethod('handleDelete')
                 ->end()
 
-                ->beginSubCommand('clean')
+                ->beginOptionCommand('clean')
                     ->setHandlerMethod('handleClean')
                 ->end()
             ->end()

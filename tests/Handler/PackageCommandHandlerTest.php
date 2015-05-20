@@ -42,7 +42,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $installCommand;
+    private static $addCommand;
 
     /**
      * @var Command
@@ -52,7 +52,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $removeCommand;
+    private static $deleteCommand;
 
     /**
      * @var Command
@@ -89,9 +89,9 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUpBeforeClass();
 
         self::$listCommand = self::$application->getCommand('package')->getSubCommand('list');
-        self::$installCommand = self::$application->getCommand('package')->getSubCommand('install');
+        self::$addCommand = self::$application->getCommand('package')->getSubCommand('add');
         self::$renameCommand = self::$application->getCommand('package')->getSubCommand('rename');
-        self::$removeCommand = self::$application->getCommand('package')->getSubCommand('remove');
+        self::$deleteCommand = self::$application->getCommand('package')->getSubCommand('delete');
         self::$cleanCommand = self::$application->getCommand('package')->getSubCommand('clean');
     }
 
@@ -168,7 +168,7 @@ Enabled packages:
     vendor/root
 
 The following packages could not be found:
- (use "puli package clean" to remove)
+ (use "puli package --clean" to remove)
 
     vendor/package3 kirk packages/package3
 
@@ -272,7 +272,7 @@ Enabled packages:
     vendor/root
 
 The following packages could not be found:
- (use "puli package clean" to remove)
+ (use "puli package --clean" to remove)
 
     vendor/package3 kirk packages/package3
 
@@ -322,48 +322,48 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testInstallPackageWithRelativePath()
+    public function testAddPackageWithRelativePath()
     {
-        $args = self::$installCommand->parseArgs(new StringArgs('packages/package1'));
+        $args = self::$addCommand->parseArgs(new StringArgs('packages/package1'));
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
             ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME);
 
-        $this->assertSame(0, $this->handler->handleInstall($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testInstallPackageWithAbsolutePath()
+    public function testAddPackageWithAbsolutePath()
     {
-        $args = self::$installCommand->parseArgs(new StringArgs('/packages/package1'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/packages/package1'));
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
             ->with('/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME);
 
-        $this->assertSame(0, $this->handler->handleInstall($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testInstallPackageWithCustomName()
+    public function testAddPackageWithCustomName()
     {
-        $args = self::$installCommand->parseArgs(new StringArgs('/packages/package1 custom/package1'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/packages/package1 custom/package1'));
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
             ->with('/packages/package1', 'custom/package1', InstallInfo::DEFAULT_INSTALLER_NAME);
 
-        $this->assertSame(0, $this->handler->handleInstall($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testInstallPackageWithCustomInstaller()
+    public function testAddPackageWithCustomInstaller()
     {
-        $args = self::$installCommand->parseArgs(new StringArgs('--installer kirk /packages/package1'));
+        $args = self::$addCommand->parseArgs(new StringArgs('--installer kirk /packages/package1'));
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
             ->with('/packages/package1', null, 'kirk');
 
-        $this->assertSame(0, $this->handler->handleInstall($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
     public function testRenamePackage()
@@ -377,9 +377,9 @@ EOF;
         $this->assertSame(0, $this->handler->handleRename($args));
     }
 
-    public function testRemovePackage()
+    public function testDeletePackage()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('vendor/package1'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('vendor/package1'));
 
         $this->packageManager->expects($this->once())
             ->method('hasPackage')
@@ -390,16 +390,16 @@ EOF;
             ->method('removePackage')
             ->with('vendor/package1');
 
-        $this->assertSame(0, $this->handler->handleRemove($args));
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The package "vendor/package1" is not installed.
      */
-    public function testRemovePackageFailsIfNotFound()
+    public function testDeletePackageFailsIfNotFound()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('vendor/package1'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('vendor/package1'));
 
         $this->packageManager->expects($this->once())
             ->method('hasPackage')
@@ -410,7 +410,7 @@ EOF;
             ->method('removePackage')
             ->with('vendor/package1');
 
-        $this->handler->handleRemove($args);
+        $this->handler->handleDelete($args);
     }
 
     public function testCleanPackages()

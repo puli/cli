@@ -58,7 +58,7 @@ class PackageCommandHandler
     }
 
     /**
-     * Handles the "package list" command.
+     * Handles the "package --list" command.
      *
      * @param Args $args The console arguments.
      * @param IO   $io   The I/O.
@@ -79,13 +79,13 @@ class PackageCommandHandler
     }
 
     /**
-     * Handles the "package install" command.
+     * Handles the "package --add" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleInstall(Args $args)
+    public function handleAdd(Args $args)
     {
         $packageName = $args->getArgument('name');
         $installPath = Path::makeAbsolute($args->getArgument('path'), getcwd());
@@ -97,7 +97,7 @@ class PackageCommandHandler
     }
 
     /**
-     * Handles the "package rename" command.
+     * Handles the "package --rename" command.
      *
      * @param Args $args The console arguments.
      *
@@ -114,13 +114,13 @@ class PackageCommandHandler
     }
 
     /**
-     * Handles the "package remove" command.
+     * Handles the "package --delete" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleRemove(Args $args)
+    public function handleDelete(Args $args)
     {
         $packageName = $args->getArgument('name');
 
@@ -137,7 +137,7 @@ class PackageCommandHandler
     }
 
     /**
-     * Handles the "package clean" command.
+     * Handles the "package --clean" command.
      *
      * @param Args $args The console arguments.
      * @param IO   $io   The I/O.
@@ -280,7 +280,7 @@ class PackageCommandHandler
                 return;
             case PackageState::NOT_FOUND:
                 $io->writeLine('The following packages could not be found:');
-                $io->writeLine(' (use "puli package clean" to remove)');
+                $io->writeLine(' (use "puli package --clean" to remove)');
                 $io->writeLine('');
                 return;
             case PackageState::NOT_LOADABLE:

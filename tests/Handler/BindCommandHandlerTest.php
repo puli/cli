@@ -132,77 +132,113 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Enabled bindings:
+The following bindings are currently enabled in your application:
 
-    vendor/root
-    bb5a07 /root/enabled my/type
-    cc9f22 /overridden   my/type
+    Package: vendor/root
 
-    vendor/package1
-    970aba /package1/enabled my/type
+        UUID    Glob           Type
+        bb5a07  /root/enabled  my/type
+        cc9f22  /overridden    my/type
 
-    vendor/package2
-    ddb655 /package2/enabled my/type
+    Package: vendor/package1
 
-Disabled bindings:
+        UUID    Glob               Type
+        970aba  /package1/enabled  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob               Type
+        ddb655  /package2/enabled  my/type
+
+The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    vendor/root
-    9ac78a /root/disabled my/type
+    Package: vendor/root
 
-    vendor/package1
-    a0b6c7 /package1/disabled my/type
+        UUID    Glob            Type
+        9ac78a  /root/disabled  my/type
 
-    vendor/package2
-    424d68 /package2/disabled my/type
+    Package: vendor/package1
+
+        UUID    Glob                Type
+        a0b6c7  /package1/disabled  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob                Type
+        424d68  /package2/disabled  my/type
 
 Bindings that are neither enabled nor disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    vendor/root
-    3cf757 /root/undecided my/type
+    Package: vendor/root
 
-    vendor/package1
-    e33d03 /package1/undecided my/type
+        UUID    Glob             Type
+        3cf757  /root/undecided  my/type
 
-    vendor/package2
-    516159 /package2/undecided my/type
+    Package: vendor/package1
+
+        UUID    Glob                 Type
+        e33d03  /package1/undecided  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob                 Type
+        516159  /package2/undecided  my/type
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
-    vendor/root
-    d0e980 /root/type-not-found my/type
+    Package: vendor/root
 
-    vendor/package1
-    19b069 /package1/type-not-found my/type
+        UUID    Glob                  Type
+        d0e980  /root/type-not-found  my/type
 
-    vendor/package2
-    b7b2c3 /package2/type-not-found my/type
+    Package: vendor/package1
+
+        UUID    Glob                      Type
+        19b069  /package1/type-not-found  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob                      Type
+        b7b2c3  /package2/type-not-found  my/type
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
-    vendor/root
-    47491d /root/type-not-enabled my/type
+    Package: vendor/root
 
-    vendor/package1
-    7d26ae /package1/type-not-enable my/type
+        UUID    Glob                    Type
+        47491d  /root/type-not-enabled  my/type
 
-    vendor/package2
-    53e67c /package2/type-not-enabled my/type
+    Package: vendor/package1
+
+        UUID    Glob                       Type
+        7d26ae  /package1/type-not-enable  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob                        Type
+        53e67c  /package2/type-not-enabled  my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    vendor/root
-    d06707 /root/invalid my/type
+    Package: vendor/root
 
-    vendor/package1
-    dd7458 /package1/invalid my/type
+        UUID    Glob           Type
+        d06707  /root/invalid  my/type
 
-    vendor/package2
-    24213c /package2/invalid my/type
+    Package: vendor/package1
+
+        UUID    Glob               Type
+        dd7458  /package1/invalid  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob               Type
+        24213c  /package2/invalid  my/type
 
 
 EOF;
@@ -221,35 +257,41 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Enabled bindings:
+The following bindings are currently enabled in your application:
 
-    bb5a07 /root/enabled my/type
-    cc9f22 /overridden   my/type
+    UUID    Glob           Type
+    bb5a07  /root/enabled  my/type
+    cc9f22  /overridden    my/type
 
-Disabled bindings:
+The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    9ac78a /root/disabled my/type
+    UUID    Glob            Type
+    9ac78a  /root/disabled  my/type
 
 Bindings that are neither enabled nor disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    3cf757 /root/undecided my/type
+    UUID    Glob             Type
+    3cf757  /root/undecided  my/type
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
-    d0e980 /root/type-not-found my/type
+    UUID    Glob                  Type
+    d0e980  /root/type-not-found  my/type
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
-    47491d /root/type-not-enabled my/type
+    UUID    Glob                    Type
+    47491d  /root/type-not-enabled  my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    d06707 /root/invalid my/type
+    UUID    Glob           Type
+    d06707  /root/invalid  my/type
 
 
 EOF;
@@ -268,34 +310,40 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Enabled bindings:
+The following bindings are currently enabled in your application:
 
-    970aba /package1/enabled my/type
+    UUID    Glob               Type
+    970aba  /package1/enabled  my/type
 
-Disabled bindings:
+The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    a0b6c7 /package1/disabled my/type
+    UUID    Glob                Type
+    a0b6c7  /package1/disabled  my/type
 
 Bindings that are neither enabled nor disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    e33d03 /package1/undecided my/type
+    UUID    Glob                 Type
+    e33d03  /package1/undecided  my/type
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
-    19b069 /package1/type-not-found my/type
+    UUID    Glob                      Type
+    19b069  /package1/type-not-found  my/type
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
-    7d26ae /package1/type-not-enable my/type
+    UUID    Glob                       Type
+    7d26ae  /package1/type-not-enable  my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    dd7458 /package1/invalid my/type
+    UUID    Glob               Type
+    dd7458  /package1/invalid  my/type
 
 
 EOF;
@@ -314,59 +362,83 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Enabled bindings:
+The following bindings are currently enabled in your application:
 
-    vendor/root
-    bb5a07 /root/enabled my/type
-    cc9f22 /overridden   my/type
+    Package: vendor/root
 
-    vendor/package1
-    970aba /package1/enabled my/type
+        UUID    Glob           Type
+        bb5a07  /root/enabled  my/type
+        cc9f22  /overridden    my/type
 
-Disabled bindings:
+    Package: vendor/package1
+
+        UUID    Glob               Type
+        970aba  /package1/enabled  my/type
+
+The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    vendor/root
-    9ac78a /root/disabled my/type
+    Package: vendor/root
 
-    vendor/package1
-    a0b6c7 /package1/disabled my/type
+        UUID    Glob            Type
+        9ac78a  /root/disabled  my/type
+
+    Package: vendor/package1
+
+        UUID    Glob                Type
+        a0b6c7  /package1/disabled  my/type
 
 Bindings that are neither enabled nor disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    vendor/root
-    3cf757 /root/undecided my/type
+    Package: vendor/root
 
-    vendor/package1
-    e33d03 /package1/undecided my/type
+        UUID    Glob             Type
+        3cf757  /root/undecided  my/type
+
+    Package: vendor/package1
+
+        UUID    Glob                 Type
+        e33d03  /package1/undecided  my/type
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
-    vendor/root
-    d0e980 /root/type-not-found my/type
+    Package: vendor/root
 
-    vendor/package1
-    19b069 /package1/type-not-found my/type
+        UUID    Glob                  Type
+        d0e980  /root/type-not-found  my/type
+
+    Package: vendor/package1
+
+        UUID    Glob                      Type
+        19b069  /package1/type-not-found  my/type
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
-    vendor/root
-    47491d /root/type-not-enabled my/type
+    Package: vendor/root
 
-    vendor/package1
-    7d26ae /package1/type-not-enable my/type
+        UUID    Glob                    Type
+        47491d  /root/type-not-enabled  my/type
+
+    Package: vendor/package1
+
+        UUID    Glob                       Type
+        7d26ae  /package1/type-not-enable  my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    vendor/root
-    d06707 /root/invalid my/type
+    Package: vendor/root
 
-    vendor/package1
-    dd7458 /package1/invalid my/type
+        UUID    Glob           Type
+        d06707  /root/invalid  my/type
+
+    Package: vendor/package1
+
+        UUID    Glob               Type
+        dd7458  /package1/invalid  my/type
 
 
 EOF;
@@ -385,58 +457,82 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Enabled bindings:
+The following bindings are currently enabled in your application:
 
-    vendor/package1
-    970aba /package1/enabled my/type
+    Package: vendor/package1
 
-    vendor/package2
-    ddb655 /package2/enabled my/type
+        UUID    Glob               Type
+        970aba  /package1/enabled  my/type
 
-Disabled bindings:
+    Package: vendor/package2
+
+        UUID    Glob               Type
+        ddb655  /package2/enabled  my/type
+
+The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    vendor/package1
-    a0b6c7 /package1/disabled my/type
+    Package: vendor/package1
 
-    vendor/package2
-    424d68 /package2/disabled my/type
+        UUID    Glob                Type
+        a0b6c7  /package1/disabled  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob                Type
+        424d68  /package2/disabled  my/type
 
 Bindings that are neither enabled nor disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    vendor/package1
-    e33d03 /package1/undecided my/type
+    Package: vendor/package1
 
-    vendor/package2
-    516159 /package2/undecided my/type
+        UUID    Glob                 Type
+        e33d03  /package1/undecided  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob                 Type
+        516159  /package2/undecided  my/type
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
-    vendor/package1
-    19b069 /package1/type-not-found my/type
+    Package: vendor/package1
 
-    vendor/package2
-    b7b2c3 /package2/type-not-found my/type
+        UUID    Glob                      Type
+        19b069  /package1/type-not-found  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob                      Type
+        b7b2c3  /package2/type-not-found  my/type
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
-    vendor/package1
-    7d26ae /package1/type-not-enable my/type
+    Package: vendor/package1
 
-    vendor/package2
-    53e67c /package2/type-not-enabled my/type
+        UUID    Glob                       Type
+        7d26ae  /package1/type-not-enable  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob                        Type
+        53e67c  /package2/type-not-enabled  my/type
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    vendor/package1
-    dd7458 /package1/invalid my/type
+    Package: vendor/package1
 
-    vendor/package2
-    24213c /package2/invalid my/type
+        UUID    Glob               Type
+        dd7458  /package1/invalid  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob               Type
+        24213c  /package2/invalid  my/type
 
 
 EOF;
@@ -455,15 +551,21 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/root
-bb5a07 /root/enabled my/type
-cc9f22 /overridden   my/type
+Package: vendor/root
 
-vendor/package1
-970aba /package1/enabled my/type
+    UUID    Glob           Type
+    bb5a07  /root/enabled  my/type
+    cc9f22  /overridden    my/type
 
-vendor/package2
-ddb655 /package2/enabled my/type
+Package: vendor/package1
+
+    UUID    Glob               Type
+    970aba  /package1/enabled  my/type
+
+Package: vendor/package2
+
+    UUID    Glob               Type
+    ddb655  /package2/enabled  my/type
 
 
 EOF;
@@ -482,14 +584,20 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/root
-9ac78a /root/disabled my/type
+Package: vendor/root
 
-vendor/package1
-a0b6c7 /package1/disabled my/type
+    UUID    Glob            Type
+    9ac78a  /root/disabled  my/type
 
-vendor/package2
-424d68 /package2/disabled my/type
+Package: vendor/package1
+
+    UUID    Glob                Type
+    a0b6c7  /package1/disabled  my/type
+
+Package: vendor/package2
+
+    UUID    Glob                Type
+    424d68  /package2/disabled  my/type
 
 
 EOF;
@@ -508,14 +616,20 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/root
-3cf757 /root/undecided my/type
+Package: vendor/root
 
-vendor/package1
-e33d03 /package1/undecided my/type
+    UUID    Glob             Type
+    3cf757  /root/undecided  my/type
 
-vendor/package2
-516159 /package2/undecided my/type
+Package: vendor/package1
+
+    UUID    Glob                 Type
+    e33d03  /package1/undecided  my/type
+
+Package: vendor/package2
+
+    UUID    Glob                 Type
+    516159  /package2/undecided  my/type
 
 
 EOF;
@@ -534,14 +648,20 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/root
-d0e980 /root/type-not-found my/type
+Package: vendor/root
 
-vendor/package1
-19b069 /package1/type-not-found my/type
+    UUID    Glob                  Type
+    d0e980  /root/type-not-found  my/type
 
-vendor/package2
-b7b2c3 /package2/type-not-found my/type
+Package: vendor/package1
+
+    UUID    Glob                      Type
+    19b069  /package1/type-not-found  my/type
+
+Package: vendor/package2
+
+    UUID    Glob                      Type
+    b7b2c3  /package2/type-not-found  my/type
 
 
 EOF;
@@ -560,14 +680,20 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/root
-47491d /root/type-not-enabled my/type
+Package: vendor/root
 
-vendor/package1
-7d26ae /package1/type-not-enable my/type
+    UUID    Glob                    Type
+    47491d  /root/type-not-enabled  my/type
 
-vendor/package2
-53e67c /package2/type-not-enabled my/type
+Package: vendor/package1
+
+    UUID    Glob                       Type
+    7d26ae  /package1/type-not-enable  my/type
+
+Package: vendor/package2
+
+    UUID    Glob                        Type
+    53e67c  /package2/type-not-enabled  my/type
 
 
 EOF;
@@ -586,14 +712,20 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/root
-d06707 /root/invalid my/type
+Package: vendor/root
 
-vendor/package1
-dd7458 /package1/invalid my/type
+    UUID    Glob           Type
+    d06707  /root/invalid  my/type
 
-vendor/package2
-24213c /package2/invalid my/type
+Package: vendor/package1
+
+    UUID    Glob               Type
+    dd7458  /package1/invalid  my/type
+
+Package: vendor/package2
+
+    UUID    Glob               Type
+    24213c  /package2/invalid  my/type
 
 
 EOF;
@@ -613,29 +745,41 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Enabled bindings:
+The following bindings are currently enabled in your application:
 
-    vendor/root
-    bb5a07 /root/enabled my/type
-    cc9f22 /overridden   my/type
+    Package: vendor/root
 
-    vendor/package1
-    970aba /package1/enabled my/type
+        UUID    Glob           Type
+        bb5a07  /root/enabled  my/type
+        cc9f22  /overridden    my/type
 
-    vendor/package2
-    ddb655 /package2/enabled my/type
+    Package: vendor/package1
 
-Disabled bindings:
+        UUID    Glob               Type
+        970aba  /package1/enabled  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob               Type
+        ddb655  /package2/enabled  my/type
+
+The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    vendor/root
-    9ac78a /root/disabled my/type
+    Package: vendor/root
 
-    vendor/package1
-    a0b6c7 /package1/disabled my/type
+        UUID    Glob            Type
+        9ac78a  /root/disabled  my/type
 
-    vendor/package2
-    424d68 /package2/disabled my/type
+    Package: vendor/package1
+
+        UUID    Glob                Type
+        a0b6c7  /package1/disabled  my/type
+
+    Package: vendor/package2
+
+        UUID    Glob                Type
+        424d68  /package2/disabled  my/type
 
 
 EOF;
@@ -654,8 +798,9 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-bb5a07 /root/enabled my/type
-cc9f22 /overridden   my/type
+UUID    Glob           Type
+bb5a07  /root/enabled  my/type
+cc9f22  /overridden    my/type
 
 EOF;
 
@@ -673,7 +818,8 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-ddb655 /package2/enabled my/type
+UUID    Glob               Type
+ddb655  /package2/enabled  my/type
 
 EOF;
 
@@ -701,10 +847,12 @@ EOF;
 
         $nbsp = "\xc2\xa0";
         $expected = <<<EOF
-Enabled bindings:
+The following bindings are currently enabled in your application:
 
-    vendor/root
-    bb5a07 /path my/type (param1="value1",{$nbsp}param2="value2")
+    Package: vendor/root
+
+        UUID    Glob   Type
+        bb5a07  /path  my/type (param1="value1",{$nbsp}param2="value2")
 
 
 EOF;

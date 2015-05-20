@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
@@ -22,7 +23,6 @@ use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
-use Webmozart\Console\UI\Style\TableStyle;
 use Webmozart\Expression\Expr;
 use Webmozart\PathUtil\Path;
 
@@ -77,6 +77,8 @@ class BindCommandHandler
         $printBindingState = count($bindingStates) > 1;
         $printPackageName = count($packageNames) > 1;
         $printHeaders = $printBindingState || $printPackageName;
+        $indentation = $printBindingState && $printPackageName ? 8
+            : ($printBindingState || $printPackageName ? 4 : 0);
 
         foreach ($bindingStates as $bindingState) {
             $bindingStatePrinted = !$printBindingState;
@@ -98,10 +100,11 @@ class BindCommandHandler
 
                 if ($printPackageName) {
                     $prefix = $printBindingState ? '    ' : '';
-                    $io->writeLine("<b>$prefix$packageName</b>");
+                    $io->writeLine("<b>{$prefix}Package: $packageName</b>");
+                    $io->writeLine('');
                 }
 
-                $this->printBindingTable($io, $bindings, $printBindingState, BindingState::ENABLED === $bindingState);
+                $this->printBindingTable($io, $bindings, $indentation, BindingState::ENABLED === $bindingState);
 
                 if ($printHeaders) {
                     $io->writeLine('');
@@ -313,14 +316,16 @@ class BindCommandHandler
      *
      * @param IO                  $io          The I/O.
      * @param BindingDescriptor[] $descriptors The binding descriptors.
-     * @param bool                $indent      Whether to indent the output.
+     * @param int                 $indentation The number of spaces to indent.
      * @param bool                $enabled     Whether the binding descriptors
      *                                         are enabled. If not, the output
      *                                         is printed in red.
      */
-    private function printBindingTable(IO $io, array $descriptors, $indent = false, $enabled = true)
+    private function printBindingTable(IO $io, array $descriptors, $indentation = 0, $enabled = true)
     {
-        $table = new Table(TableStyle::borderless());
+        $table = new Table(PuliTableStyle::borderless());
+
+        $table->setHeaderRow(array('UUID', 'Glob', 'Type'));
 
         $paramTag = $enabled ? 'c1' : 'bad';
         $queryTag = $enabled ? 'c1' : 'bad';
@@ -347,12 +352,13 @@ class BindCommandHandler
             }
 
             $table->addRow(array(
-                "$uuid <$queryTag>{$descriptor->getQuery()}</$queryTag>",
+                $uuid,
+                "<$queryTag>{$descriptor->getQuery()}</$queryTag>",
                 "<$typeTag>{$descriptor->getTypeName()}</$typeTag>".$paramString
             ));
         }
 
-        $table->render($io, $indent ? 4 : 0);
+        $table->render($io, $indentation);
     }
 
     /**
@@ -365,11 +371,11 @@ class BindCommandHandler
     {
         switch ($bindingState) {
             case BindingState::ENABLED:
-                $io->writeLine('Enabled bindings:');
+                $io->writeLine('The following bindings are currently enabled in your application:');
                 $io->writeLine('');
                 return;
             case BindingState::DISABLED:
-                $io->writeLine('Disabled bindings:');
+                $io->writeLine('The following bindings are disabled:');
                 $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
                 $io->writeLine('');
                 return;

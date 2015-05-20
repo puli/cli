@@ -51,7 +51,7 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $removeCommand;
+    private static $deleteCommand;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject|DiscoveryManager
@@ -75,7 +75,7 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
         self::$listCommand = self::$application->getCommand('type')->getSubCommand('list');
         self::$defineCommand = self::$application->getCommand('type')->getSubCommand('define');
         self::$updateCommand = self::$application->getCommand('type')->getSubCommand('update');
-        self::$removeCommand = self::$application->getCommand('type')->getSubCommand('remove');
+        self::$deleteCommand = self::$application->getCommand('type')->getSubCommand('delete');
     }
 
     protected function setUp()
@@ -577,9 +577,9 @@ EOF;
         $this->handler->handleUpdate($args);
     }
 
-    public function testRemoveType()
+    public function testDeleteType()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('my/type'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('my/type'));
 
         $this->discoveryManager->expects($this->once())
             ->method('hasRootBindingType')
@@ -597,9 +597,9 @@ EOF;
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The type "my/type" does not exist in the package "vendor/root".
      */
-    public function testRemoveTypeFailsIfNotFound()
+    public function testDeleteTypeFailsIfNotFound()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('my/type'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('my/type'));
 
         $this->discoveryManager->expects($this->once())
             ->method('hasRootBindingType')

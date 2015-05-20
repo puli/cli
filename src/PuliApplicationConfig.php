@@ -491,7 +491,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     );
                 })
 
-                ->beginSubCommand('define')
+                ->beginOptionCommand('define')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
                     ->addOption('description', null, Option::REQUIRED_VALUE, 'A human-readable description of the type')
                     ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <key> or <key>=<value>', null, 'key=value')
@@ -510,7 +510,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleList')
                 ->end()
 
-                ->beginSubCommand('update')
+                ->beginOptionCommand('update')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
                     ->addOption('description', null, Option::REQUIRED_VALUE, 'A human-readable description of the type')
                     ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <key> or <key>=<value>', null, 'key=value')
@@ -519,9 +519,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleUpdate')
                 ->end()
 
-                ->beginSubCommand('remove')
+                ->beginOptionCommand('delete', 'd')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
-                    ->setHandlerMethod('handleRemove')
+                    ->setHandlerMethod('handleDelete')
                 ->end()
             ->end()
         ;

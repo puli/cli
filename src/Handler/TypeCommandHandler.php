@@ -26,7 +26,7 @@ use Webmozart\Console\UI\Style\TableStyle;
 use Webmozart\Expression\Expr;
 
 /**
- * Handles the "type" command.
+ * Handles the "puli type" command.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -56,7 +56,7 @@ class TypeCommandHandler
     }
 
     /**
-     * Handles the "type list" command.
+     * Handles the "puli type --list" command.
      *
      * @param Args $args The console arguments.
      * @param IO   $io   The I/O.
@@ -117,7 +117,7 @@ class TypeCommandHandler
     }
 
     /**
-     * Handles the "type define" command.
+     * Handles the "puli type --define" command.
      *
      * @param Args $args The console arguments.
      *
@@ -142,7 +142,7 @@ class TypeCommandHandler
     }
 
     /**
-     * Handles the "type update" command.
+     * Handles the "puli type --update" command.
      *
      * @param Args $args The console arguments.
      *
@@ -182,7 +182,7 @@ class TypeCommandHandler
     }
 
     /**
-     * Handles the "type remove" command.
+     * Handles the "puli type --delete" command.
      *
      * @param Args $args The console arguments.
      *

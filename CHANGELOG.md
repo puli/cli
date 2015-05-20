@@ -11,6 +11,7 @@ Changelog
  * added required argument `server` to `puli asset map`
  * removed puli/composer-plugin dependency
  * upgraded webmozart/path-util to 2.0
+ * renamed `puli asset` to `puli publish`
 
 * 1.0.0-beta4 (2015-04-13)
 

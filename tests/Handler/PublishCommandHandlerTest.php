@@ -13,7 +13,7 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_MockObject_MockObject;
-use Puli\Cli\Handler\AssetCommandHandler;
+use Puli\Cli\Handler\PublishCommandHandler;
 use Puli\Manager\Api\Asset\AssetManager;
 use Puli\Manager\Api\Asset\AssetMapping;
 use Puli\Manager\Api\Installation\InstallationManager;
@@ -33,7 +33,7 @@ use Webmozart\Expression\Expr;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class AssetCommandHandlerTest extends AbstractCommandHandlerTest
+class PublishCommandHandlerTest extends AbstractCommandHandlerTest
 {
     const UUID1 = 'e81b32f4-5851-4955-bea7-c90382112cba';
 
@@ -61,7 +61,7 @@ class AssetCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $removeCommand;
+    private static $deleteCommand;
 
     /**
      * @var Command
@@ -84,7 +84,7 @@ class AssetCommandHandlerTest extends AbstractCommandHandlerTest
     private $serverManager;
 
     /**
-     * @var AssetCommandHandler
+     * @var PublishCommandHandler
      */
     private $handler;
 
@@ -92,11 +92,11 @@ class AssetCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUpBeforeClass();
 
-        self::$listCommand = self::$application->getCommand('asset')->getSubCommand('list');
-        self::$mapCommand = self::$application->getCommand('asset')->getSubCommand('map');
-        self::$updateCommand = self::$application->getCommand('asset')->getSubCommand('update');
-        self::$removeCommand = self::$application->getCommand('asset')->getSubCommand('remove');
-        self::$installCommand = self::$application->getCommand('asset')->getSubCommand('install');
+        self::$listCommand = self::$application->getCommand('publish')->getSubCommand('list');
+        self::$mapCommand = self::$application->getCommand('publish')->getSubCommand('map');
+        self::$updateCommand = self::$application->getCommand('publish')->getSubCommand('update');
+        self::$deleteCommand = self::$application->getCommand('publish')->getSubCommand('delete');
+        self::$installCommand = self::$application->getCommand('publish')->getSubCommand('install');
     }
 
     protected function setUp()
@@ -106,7 +106,7 @@ class AssetCommandHandlerTest extends AbstractCommandHandlerTest
         $this->assetManager = $this->getMock('Puli\Manager\Api\Asset\AssetManager');
         $this->installationManager = $this->getMock('Puli\Manager\Api\Installation\InstallationManager');
         $this->serverManager = $this->getMock('Puli\Manager\Api\Server\ServerManager');
-        $this->handler = new AssetCommandHandler($this->assetManager, $this->installationManager, $this->serverManager);
+        $this->handler = new PublishCommandHandler($this->assetManager, $this->installationManager, $this->serverManager);
     }
 
     public function testListMappings()
@@ -478,7 +478,7 @@ EOF;
         $this->assertSame(0, $this->handler->handleUpdate($args));
     }
 
-    public function testRemoveMapping()
+    public function testDeleteMapping()
     {
         $this->assetManager->expects($this->once())
             ->method('findAssetMappings')
@@ -491,16 +491,16 @@ EOF;
             ->method('removeRootAssetMapping')
             ->with($mapping->getUuid());
 
-        $args = self::$removeCommand->parseArgs(new StringArgs('abcd'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('abcd'));
 
-        $this->assertSame(0, $this->handler->handleRemove($args));
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The mapping with the UUID prefix "abcd" does not exist.
      */
-    public function testRemoveMappingFailsIfNotFound()
+    public function testDeleteMappingFailsIfNotFound()
     {
         $this->assetManager->expects($this->once())
             ->method('findAssetMappings')
@@ -510,16 +510,16 @@ EOF;
         $this->assetManager->expects($this->never())
             ->method('removeRootAssetMapping');
 
-        $args = self::$removeCommand->parseArgs(new StringArgs('abcd'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('abcd'));
 
-        $this->handler->handleRemove($args);
+        $this->handler->handleDelete($args);
     }
 
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage More than one mapping matches the UUID prefix "abcd".
      */
-    public function testRemoveMappingFailsIfAmbiguous()
+    public function testDeleteMappingFailsIfAmbiguous()
     {
         $this->assetManager->expects($this->once())
             ->method('findAssetMappings')
@@ -532,9 +532,9 @@ EOF;
         $this->assetManager->expects($this->never())
             ->method('removeRootAssetMapping');
 
-        $args = self::$removeCommand->parseArgs(new StringArgs('abcd'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('abcd'));
 
-        $this->handler->handleRemove($args);
+        $this->handler->handleDelete($args);
     }
 
     public function testInstall()

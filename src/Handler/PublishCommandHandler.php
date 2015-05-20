@@ -29,7 +29,7 @@ use Webmozart\PathUtil\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class AssetCommandHandler
+class PublishCommandHandler
 {
     /**
      * @var AssetManager
@@ -179,7 +179,7 @@ class AssetCommandHandler
         return 0;
     }
 
-    public function handleRemove(Args $args)
+    public function handleDelete(Args $args)
     {
         $mapping = $this->getMappingByUuidPrefix($args->getArgument('uuid'));
 

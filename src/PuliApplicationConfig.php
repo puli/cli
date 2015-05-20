@@ -11,7 +11,7 @@
 
 namespace Puli\Cli;
 
-use Puli\Cli\Handler\AssetCommandHandler;
+use Puli\Cli\Handler\PublishCommandHandler;
 use Puli\Cli\Handler\BindingCommandHandler;
 use Puli\Cli\Handler\BuildCommandHandler;
 use Puli\Cli\Handler\ConfigCommandHandler;
@@ -94,51 +94,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->addStyle(Style::tag('good')->fgGreen())
             ->addStyle(Style::tag('bad')->fgRed())
-        ;
-
-        $this
-            ->beginCommand('asset')
-                ->setDescription('Manage web assets')
-                ->setHandler(function () use ($puli) {
-                    return new AssetCommandHandler(
-                        $puli->getAssetManager(),
-                        $puli->getInstallationManager(),
-                        $puli->getServerManager()
-                    );
-                })
-
-                ->beginSubCommand('map')
-                    ->addArgument('path', Argument::REQUIRED, 'The resource path')
-                    ->addArgument('server', Argument::REQUIRED, 'The resource path')
-                    ->addArgument('server-path', Argument::OPTIONAL, 'The path in the document root of the server', '/')
-                    ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the server does not exist')
-                    ->setHandlerMethod('handleMap')
-                ->end()
-
-                ->beginSubCommand('update')
-                    ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the mapping')
-                    ->addOption('path', null, Option::REQUIRED_VALUE, 'The resource path')
-                    ->addOption('server', 's', Option::REQUIRED_VALUE | Option::PREFER_LONG_NAME, 'The name of the target server')
-                    ->addOption('server-path', null, Option::REQUIRED_VALUE, 'The path in the document root')
-                    ->addOption('force', 'f', Option::NO_VALUE, 'Update even if the server does not exist')
-                    ->setHandlerMethod('handleUpdate')
-                ->end()
-
-                ->beginSubCommand('remove')
-                    ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the mapping')
-                    ->setHandlerMethod('handleRemove')
-                ->end()
-
-                ->beginSubCommand('list')
-                    ->markDefault()
-                    ->setHandlerMethod('handleList')
-                ->end()
-
-                ->beginSubCommand('install')
-                    ->addArgument('server', Argument::OPTIONAL, 'The server to install. By default, all servers are installed')
-                    ->setHandlerMethod('handleInstall')
-                ->end()
-            ->end()
         ;
 
         $this
@@ -416,6 +371,52 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->beginSubCommand('remove')
                     ->addArgument('class', Argument::REQUIRED, 'The fully-qualified plugin class name')
                     ->setHandlerMethod('handleRemove')
+                ->end()
+            ->end()
+        ;
+
+        $this
+            ->beginCommand('publish')
+                ->setDescription('Manage public resources')
+                ->setHandler(function () use ($puli) {
+                    return new PublishCommandHandler(
+                        $puli->getAssetManager(),
+                        $puli->getInstallationManager(),
+                        $puli->getServerManager()
+                    );
+                })
+
+                ->beginOptionCommand('map')
+                    ->markAnonymous()
+                    ->addArgument('path', Argument::REQUIRED, 'The resource path')
+                    ->addArgument('server', Argument::REQUIRED, 'The resource path')
+                    ->addArgument('server-path', Argument::OPTIONAL, 'The path in the document root of the server', '/')
+                    ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the server does not exist')
+                    ->setHandlerMethod('handleMap')
+                ->end()
+
+                ->beginOptionCommand('update', 'u')
+                    ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the mapping')
+                    ->addOption('path', null, Option::REQUIRED_VALUE, 'The resource path')
+                    ->addOption('server', 's', Option::REQUIRED_VALUE | Option::PREFER_LONG_NAME, 'The name of the target server')
+                    ->addOption('server-path', null, Option::REQUIRED_VALUE, 'The path in the document root')
+                    ->addOption('force', 'f', Option::NO_VALUE, 'Update even if the server does not exist')
+                    ->setHandlerMethod('handleUpdate')
+                ->end()
+
+                ->beginOptionCommand('delete', 'd')
+                    ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the mapping')
+                    ->setHandlerMethod('handleDelete')
+                ->end()
+
+                ->beginOptionCommand('list', 'l')
+                    ->markDefault()
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginOptionCommand('install')
+                    ->addArgument('server', Argument::OPTIONAL, 'The server to install. By default, all servers are installed')
+                    ->setHandlerMethod('handleInstall')
                 ->end()
             ->end()
         ;

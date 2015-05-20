@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\StringUtil;
 use Puli\Manager\Api\Installer\InstallerDescriptor;
 use Puli\Manager\Api\Installer\InstallerManager;
@@ -19,7 +20,6 @@ use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
-use Webmozart\Console\UI\Style\TableStyle;
 
 /**
  * @since  1.0
@@ -39,7 +39,9 @@ class InstallerCommandHandler
 
     public function handleList(Args $args, IO $io)
     {
-        $table = new Table(TableStyle::borderless());
+        $table = new Table(PuliTableStyle::borderless());
+
+        $table->setHeaderRow(array('Name', 'Class', 'Description'));
 
         foreach ($this->installerManager->getInstallerDescriptors() as $descriptor) {
             $className = $descriptor->getClassName();

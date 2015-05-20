@@ -75,11 +75,12 @@ class InstallerCommandHandlerTest extends AbstractCommandHandlerTest
 
         $nbsp = "\xc2\xa0";
         $expected = <<<EOF
-symlink SymlinkInstaller Symlink description
-copy    CopyInstaller    The copy description is significantly longer than all
-                         the other descriptions, although it doesn't bear any
-                         more information.
-rsync   RsyncInstaller   Just a short description (required,{$nbsp}optional=42)
+Name     Class             Description
+symlink  SymlinkInstaller  Symlink description
+copy     CopyInstaller     The copy description is significantly longer than all
+                           the other descriptions, although it doesn't bear any
+                           more information.
+rsync    RsyncInstaller    Just a short description (required,{$nbsp}optional=42)
 
 EOF;
 
@@ -96,13 +97,14 @@ EOF;
 
         $nbsp = "\xc2\xa0";
         $expected = <<<EOF
-symlink Puli\Installer\SymlinkInstaller Symlink description
-copy    Puli\Installer\CopyInstaller    The copy description is significantly
-                                        longer than all the other descriptions,
-                                        although it doesn't bear any more
-                                        information.
-rsync   Puli\Installer\RsyncInstaller   Just a short description
-                                        (required,{$nbsp}optional=42)
+Name     Class                            Description
+symlink  Puli\Installer\SymlinkInstaller  Symlink description
+copy     Puli\Installer\CopyInstaller     The copy description is significantly
+                                          longer than all the other
+                                          descriptions, although it doesn't bear
+                                          any more information.
+rsync    Puli\Installer\RsyncInstaller    Just a short description
+                                          (required,{$nbsp}optional=42)
 
 EOF;
 

@@ -92,7 +92,7 @@ EOF;
     {
         $this->initDefaultInstallers();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('-L'));
+        $args = self::$listCommand->parseArgs(new StringArgs('-l'));
 
         $nbsp = "\xc2\xa0";
         $expected = <<<EOF

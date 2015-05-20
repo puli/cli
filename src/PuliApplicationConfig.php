@@ -116,7 +116,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleAdd')
                 ->end()
 
-                ->beginOptionCommand('list', 'l')
+                ->beginOptionCommand('list')
                     ->markDefault()
                     ->addOption('root', null, Option::NO_VALUE, 'Show bindings of the root package')
                     ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show bindings of a package', null, 'package')
@@ -183,7 +183,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 })
 
                 ->beginSubCommand('list')
-                    ->markAnonymous()
+                    ->markDefault()
                     ->addOption('parsed', null, Option::NO_VALUE, 'Replace placeholders by their values in the output')
                     ->setHandlerMethod('handleList')
                 ->end()
@@ -233,9 +233,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     return new InstallerCommandHandler($puli->getInstallerManager());
                 })
 
-                ->beginOptionCommand('list', 'l')
+                ->beginOptionCommand('list')
                     ->markDefault()
-                    ->addOption('long', 'L', Option::NO_VALUE, 'Print the fully-qualified class name')
+                    ->addOption('long', 'l', Option::NO_VALUE, 'Print the fully-qualified class name')
                     ->setHandlerMethod('handleList')
                 ->end()
 

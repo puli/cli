@@ -18,7 +18,7 @@ use Puli\Cli\Handler\ConfigCommandHandler;
 use Puli\Cli\Handler\FindCommandHandler;
 use Puli\Cli\Handler\InstallerCommandHandler;
 use Puli\Cli\Handler\LsCommandHandler;
-use Puli\Cli\Handler\PathCommandHandler;
+use Puli\Cli\Handler\MapCommandHandler;
 use Puli\Cli\Handler\PackageCommandHandler;
 use Puli\Cli\Handler\PluginCommandHandler;
 use Puli\Cli\Handler\SelfUpdateCommandHandler;
@@ -268,6 +268,51 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         ;
 
         $this
+            ->beginCommand('map')
+                ->setDescription('Display and change path mappings')
+                ->setHandler(function () use ($puli) {
+                    return new MapCommandHandler(
+                        $puli->getRepositoryManager(),
+                        $puli->getPackageManager()->getPackages()
+                    );
+                })
+
+                ->beginOptionCommand('add')
+                    ->markAnonymous()
+                    ->addArgument('path', Argument::REQUIRED)
+                    ->addArgument('file', Argument::REQUIRED | Argument::MULTI_VALUED)
+                    ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the target path does not exist')
+                    ->setHandlerMethod('handleAdd')
+                ->end()
+
+                ->beginOptionCommand('list')
+                    ->markDefault()
+                    ->addOption('root', null, Option::NO_VALUE, 'Show mappings of the root package')
+                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show mappings of a package', null, 'package')
+                    ->addOption('all', 'a', Option::NO_VALUE, 'Show mappings of all packages')
+                    ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled mappings')
+                    ->addOption('not-found', null, Option::NO_VALUE, 'Show mappings whose referenced paths do not exist')
+                    ->addOption('conflict', null, Option::NO_VALUE, 'Show conflicting mappings')
+                    ->setHandlerMethod('handleList')
+                ->end()
+
+                ->beginOptionCommand('update', 'u')
+                    ->addArgument('path', Argument::REQUIRED)
+                    ->addOption('add', 'a', Option::REQUIRED_VALUE | Option::MULTI_VALUED | Option::PREFER_LONG_NAME, 'Add a file to the path mapping', null, 'file')
+                    ->addOption('remove', 'r', Option::REQUIRED_VALUE | Option::MULTI_VALUED | Option::PREFER_LONG_NAME, 'Remove a file from the path mapping', null, 'file')
+                    ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the target path does not exist')
+                    ->setHandlerMethod('handleUpdate')
+                ->end()
+
+                ->beginOptionCommand('delete', 'd')
+                    ->addArgument('path', Argument::REQUIRED)
+                    ->addArgument('file', Argument::OPTIONAL)
+                    ->setHandlerMethod('handleDelete')
+                ->end()
+            ->end()
+        ;
+
+        $this
             ->beginCommand('package')
                 ->setDescription('Display the installed packages')
                 ->setHandler(function () use ($puli) {
@@ -304,50 +349,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginOptionCommand('clean')
                     ->setHandlerMethod('handleClean')
-                ->end()
-            ->end()
-        ;
-
-        $this
-            ->beginCommand('path')
-                ->setDescription('Display and change path mappings')
-                ->setHandler(function () use ($puli) {
-                    return new PathCommandHandler(
-                        $puli->getRepositoryManager(),
-                        $puli->getPackageManager()->getPackages()
-                    );
-                })
-
-                ->beginSubCommand('map')
-                    ->addArgument('path', Argument::REQUIRED)
-                    ->addArgument('file', Argument::REQUIRED | Argument::MULTI_VALUED)
-                    ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the target path does not exist')
-                    ->setHandlerMethod('handleMap')
-                ->end()
-
-                ->beginSubCommand('list')
-                    ->markDefault()
-                    ->addOption('root', null, Option::NO_VALUE, 'Show mappings of the root package')
-                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show mappings of a package', null, 'package')
-                    ->addOption('all', 'a', Option::NO_VALUE, 'Show mappings of all packages')
-                    ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled mappings')
-                    ->addOption('not-found', null, Option::NO_VALUE, 'Show mappings whose referenced paths do not exist')
-                    ->addOption('conflict', null, Option::NO_VALUE, 'Show conflicting mappings')
-                    ->setHandlerMethod('handleList')
-                ->end()
-
-                ->beginSubCommand('update')
-                    ->addArgument('path', Argument::REQUIRED)
-                    ->addOption('add', 'a', Option::REQUIRED_VALUE | Option::MULTI_VALUED | Option::PREFER_LONG_NAME, 'Add a file to the path mapping', null, 'file')
-                    ->addOption('remove', 'r', Option::REQUIRED_VALUE | Option::MULTI_VALUED | Option::PREFER_LONG_NAME, 'Remove a file from the path mapping', null, 'file')
-                    ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the target path does not exist')
-                    ->setHandlerMethod('handleUpdate')
-                ->end()
-
-                ->beginSubCommand('remove')
-                    ->addArgument('path', Argument::REQUIRED)
-                    ->addArgument('file', Argument::OPTIONAL)
-                    ->setHandlerMethod('handleRemove')
                 ->end()
             ->end()
         ;

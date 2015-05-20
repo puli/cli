@@ -12,7 +12,7 @@
 namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
-use Puli\Cli\Handler\PathCommandHandler;
+use Puli\Cli\Handler\MapCommandHandler;
 use Puli\Manager\Api\Package\Package;
 use Puli\Manager\Api\Package\PackageCollection;
 use Puli\Manager\Api\Package\PackageFile;
@@ -31,7 +31,7 @@ use Webmozart\Expression\Expression;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PathCommandHandlerTest extends AbstractCommandHandlerTest
+class MapCommandHandlerTest extends AbstractCommandHandlerTest
 {
     /**
      * @var Command
@@ -41,7 +41,7 @@ class PathCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $mapCommand;
+    private static $addCommand;
 
     /**
      * @var Command
@@ -51,7 +51,7 @@ class PathCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $removeCommand;
+    private static $deleteCommand;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject|RepositoryManager
@@ -64,7 +64,7 @@ class PathCommandHandlerTest extends AbstractCommandHandlerTest
     private $packages;
 
     /**
-     * @var PathCommandHandler
+     * @var MapCommandHandler
      */
     private $handler;
 
@@ -72,10 +72,10 @@ class PathCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUpBeforeClass();
 
-        self::$listCommand = self::$application->getCommand('path')->getSubCommand('list');
-        self::$mapCommand = self::$application->getCommand('path')->getSubCommand('map');
-        self::$updateCommand = self::$application->getCommand('path')->getSubCommand('update');
-        self::$removeCommand = self::$application->getCommand('path')->getSubCommand('remove');
+        self::$listCommand = self::$application->getCommand('map')->getSubCommand('list');
+        self::$addCommand = self::$application->getCommand('map')->getSubCommand('add');
+        self::$updateCommand = self::$application->getCommand('map')->getSubCommand('update');
+        self::$deleteCommand = self::$application->getCommand('map')->getSubCommand('delete');
     }
 
     protected function setUp()
@@ -88,7 +88,7 @@ class PathCommandHandlerTest extends AbstractCommandHandlerTest
             new Package(new PackageFile('vendor/package1'), '/package1'),
             new Package(new PackageFile('vendor/package2'), '/package2'),
         ));
-        $this->handler = new PathCommandHandler($this->repoManager, $this->packages);
+        $this->handler = new MapCommandHandler($this->repoManager, $this->packages);
     }
 
     public function testListAllMappings()
@@ -488,7 +488,7 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-No path mappings. Use "puli path map <path> <file>" to map a Puli path to a file or directory.
+No path mappings. Use "puli map <path> <file>" to map a Puli path to a file or directory.
 
 EOF;
 
@@ -499,35 +499,35 @@ EOF;
 
     public function testAddMappingWithRelativePath()
     {
-        $args = self::$mapCommand->parseArgs(new StringArgs('path1 res assets'));
+        $args = self::$addCommand->parseArgs(new StringArgs('path1 res assets'));
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
             ->with(new PathMapping('/path1', array('res', 'assets')));
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
     public function testAddMappingWithAbsolutePath()
     {
-        $args = self::$mapCommand->parseArgs(new StringArgs('/path1 res assets'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path1 res assets'));
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
             ->with(new PathMapping('/path1', array('res', 'assets')));
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
     public function testAddMappingForce()
     {
-        $args = self::$mapCommand->parseArgs(new StringArgs('--force /path res'));
+        $args = self::$addCommand->parseArgs(new StringArgs('--force /path res'));
 
         $this->repoManager->expects($this->once())
             ->method('addRootPathMapping')
             ->with(new PathMapping('/path', array('res')), RepositoryManager::OVERRIDE | RepositoryManager::IGNORE_FILE_NOT_FOUND);
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
     public function testUpdateMappingAddPathReferences()
@@ -646,9 +646,9 @@ EOF;
         $this->handler->handleUpdate($args);
     }
 
-    public function testRemoveMappingWithRelativePath()
+    public function testDeleteMappingWithRelativePath()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('path1'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('path1'));
 
         $this->repoManager->expects($this->once())
             ->method('hasRootPathMapping')
@@ -659,12 +659,12 @@ EOF;
             ->method('removeRootPathMapping')
             ->with('/path1');
 
-        $this->assertSame(0, $this->handler->handleRemove($args));
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
-    public function testRemoveMappingWithAbsolutePath()
+    public function testDeleteMappingWithAbsolutePath()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('/path1'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('/path1'));
 
         $this->repoManager->expects($this->once())
             ->method('hasRootPathMapping')
@@ -675,16 +675,16 @@ EOF;
             ->method('removeRootPathMapping')
             ->with('/path1');
 
-        $this->assertSame(0, $this->handler->handleRemove($args));
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The path "/path1" is not mapped in the package "vendor/root".
      */
-    public function testRemoveMappingFailsIfNotFound()
+    public function testDeleteMappingFailsIfNotFound()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('/path1'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('/path1'));
 
         $this->repoManager->expects($this->once())
             ->method('hasRootPathMapping')
@@ -695,7 +695,7 @@ EOF;
             ->method('removeRootPathMapping')
             ->with('/path1');
 
-        $this->assertSame(0, $this->handler->handleRemove($args));
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     private function initDefaultManager()

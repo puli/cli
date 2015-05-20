@@ -15,6 +15,7 @@ Changelog
    `puli installer --add`
  * renamed `puli asset` to `puli publish`
  * renamed `puli binding` to `puli bind`
+ * renamed `puli path` to `puli map`
 
 * 1.0.0-beta4 (2015-04-13)
 

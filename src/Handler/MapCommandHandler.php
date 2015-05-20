@@ -26,12 +26,12 @@ use Webmozart\Expression\Expr;
 use Webmozart\PathUtil\Path;
 
 /**
- * Handles the "path" command.
+ * Handles the "puli map" command.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PathCommandHandler
+class MapCommandHandler
 {
     /**
      * Mode: Replace existing path references.
@@ -82,7 +82,7 @@ class PathCommandHandler
     }
 
     /**
-     * Handles the "path list" command.
+     * Handles the "puli map --list" command.
      *
      * @param Args $args The console arguments.
      * @param IO   $io   The I/O.
@@ -158,20 +158,20 @@ class PathCommandHandler
         }
 
         if ($printAdvice) {
-            $io->writeLine('No path mappings. Use "puli path map <path> <file>" to map a Puli path to a file or directory.');
+            $io->writeLine('No path mappings. Use "puli map <path> <file>" to map a Puli path to a file or directory.');
         }
 
         return 0;
     }
 
     /**
-     * Handles the "path map" command.
+     * Handles the "puli map" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleMap(Args $args)
+    public function handleAdd(Args $args)
     {
         $flags = $args->isOptionSet('force')
             ? RepositoryManager::OVERRIDE | RepositoryManager::IGNORE_FILE_NOT_FOUND
@@ -185,7 +185,7 @@ class PathCommandHandler
     }
 
     /**
-     * Handles the "path update" command.
+     * Handles the "puli map --update" command.
      *
      * @param Args $args The console arguments.
      *
@@ -226,13 +226,13 @@ class PathCommandHandler
     }
 
     /**
-     * Handles the "path remove" command.
+     * Handles the "puli map --delete" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleRemove(Args $args)
+    public function handleDelete(Args $args)
     {
         $repositoryPath = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);
 

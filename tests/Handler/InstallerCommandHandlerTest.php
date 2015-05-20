@@ -38,7 +38,7 @@ class InstallerCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $removeCommand;
+    private static $deleteCommand;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject|InstallerManager
@@ -56,7 +56,7 @@ class InstallerCommandHandlerTest extends AbstractCommandHandlerTest
 
         self::$listCommand = self::$application->getCommand('installer')->getSubCommand('list');
         self::$addCommand = self::$application->getCommand('installer')->getSubCommand('add');
-        self::$removeCommand = self::$application->getCommand('installer')->getSubCommand('remove');
+        self::$deleteCommand = self::$application->getCommand('installer')->getSubCommand('delete');
     }
 
     protected function setUp()
@@ -92,7 +92,7 @@ EOF;
     {
         $this->initDefaultInstallers();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('-l'));
+        $args = self::$listCommand->parseArgs(new StringArgs('-L'));
 
         $nbsp = "\xc2\xa0";
         $expected = <<<EOF
@@ -153,9 +153,9 @@ EOF;
         $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testRemoveInstaller()
+    public function testDeleteInstaller()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('symlink'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('symlink'));
 
         $this->installerManager->expects($this->once())
             ->method('hasInstallerDescriptor')
@@ -166,15 +166,15 @@ EOF;
             ->method('removeRootInstallerDescriptor')
             ->with('symlink');
 
-        $this->assertSame(0, $this->handler->handleRemove($args));
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testRemoveInstallerFailsIfNotFound()
+    public function testDeleteInstallerFailsIfNotFound()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('symlink'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('symlink'));
 
         $this->installerManager->expects($this->once())
             ->method('hasInstallerDescriptor')
@@ -184,7 +184,7 @@ EOF;
         $this->installerManager->expects($this->never())
             ->method('removeRootInstallerDescriptor');
 
-        $this->handler->handleRemove($args);
+        $this->handler->handleDelete($args);
     }
 
     private function initDefaultInstallers()

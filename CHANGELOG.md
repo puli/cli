@@ -11,6 +11,8 @@ Changelog
  * added required argument `server` to `puli asset map`
  * removed puli/composer-plugin dependency
  * upgraded webmozart/path-util to 2.0
+ * turned sub-commands into option commands, e.g. `puli installer add` to
+   `puli installer --add`
  * renamed `puli asset` to `puli publish`
  * renamed `puli binding` to `puli bind`
 

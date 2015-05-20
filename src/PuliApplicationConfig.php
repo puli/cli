@@ -233,13 +233,13 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     return new InstallerCommandHandler($puli->getInstallerManager());
                 })
 
-                ->beginSubCommand('list')
+                ->beginOptionCommand('list', 'l')
                     ->markDefault()
-                    ->addOption('long', 'l', Option::NO_VALUE, 'Print the fully-qualified class name')
+                    ->addOption('long', 'L', Option::NO_VALUE, 'Print the fully-qualified class name')
                     ->setHandlerMethod('handleList')
                 ->end()
 
-                ->beginSubCommand('add')
+                ->beginOptionCommand('add', 'a')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the installer')
                     ->addArgument('class', Argument::REQUIRED, 'The fully-qualified class name of the installer')
                     ->addOption('description', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'The description of the installer')
@@ -247,9 +247,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleAdd')
                 ->end()
 
-                ->beginSubCommand('remove')
+                ->beginOptionCommand('delete', 'd')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the installer to remove')
-                    ->setHandlerMethod('handleRemove')
+                    ->setHandlerMethod('handleDelete')
                 ->end()
             ->end()
         ;

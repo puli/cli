@@ -120,7 +120,7 @@ class InstallerCommandHandler
         return 0;
     }
 
-    public function handleRemove(Args $args)
+    public function handleDelete(Args $args)
     {
         $installerName = $args->getArgument('name');
 

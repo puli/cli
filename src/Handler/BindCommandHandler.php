@@ -370,12 +370,12 @@ class BindCommandHandler
                 return;
             case BindingState::DISABLED:
                 $io->writeLine('Disabled bindings:');
-                $io->writeLine(' (use "puli binding enable <uuid>" to enable)');
+                $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
                 $io->writeLine('');
                 return;
             case BindingState::UNDECIDED:
                 $io->writeLine('Bindings that are neither enabled nor disabled:');
-                $io->writeLine(' (use "puli binding enable <uuid>" to enable)');
+                $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
                 $io->writeLine('');
                 return;
             case BindingState::TYPE_NOT_FOUND:

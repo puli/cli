@@ -388,13 +388,13 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     );
                 })
 
-                ->beginOptionCommand('map')
+                ->beginOptionCommand('add')
                     ->markAnonymous()
                     ->addArgument('path', Argument::REQUIRED, 'The resource path')
                     ->addArgument('server', Argument::REQUIRED, 'The resource path')
                     ->addArgument('server-path', Argument::OPTIONAL, 'The path in the document root of the server', '/')
                     ->addOption('force', 'f', Option::NO_VALUE, 'Map even if the server does not exist')
-                    ->setHandlerMethod('handleMap')
+                    ->setHandlerMethod('handleAdd')
                 ->end()
 
                 ->beginOptionCommand('update', 'u')

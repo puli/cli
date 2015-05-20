@@ -51,7 +51,7 @@ class PublishCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $mapCommand;
+    private static $addCommand;
 
     /**
      * @var Command
@@ -93,7 +93,7 @@ class PublishCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUpBeforeClass();
 
         self::$listCommand = self::$application->getCommand('publish')->getSubCommand('list');
-        self::$mapCommand = self::$application->getCommand('publish')->getSubCommand('map');
+        self::$addCommand = self::$application->getCommand('publish')->getSubCommand('add');
         self::$updateCommand = self::$application->getCommand('publish')->getSubCommand('update');
         self::$deleteCommand = self::$application->getCommand('publish')->getSubCommand('delete');
         self::$installCommand = self::$application->getCommand('publish')->getSubCommand('install');
@@ -281,7 +281,7 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testMap()
+    public function testAdd()
     {
         $this->assetManager->expects($this->once())
             ->method('addRootAssetMapping')
@@ -291,12 +291,12 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame('/', $mapping->getServerPath());
             });
 
-        $args = self::$mapCommand->parseArgs(new StringArgs('/app/public localhost'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/app/public localhost'));
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testMapWithServerPath()
+    public function testAddWithServerPath()
     {
         $this->assetManager->expects($this->once())
             ->method('addRootAssetMapping')
@@ -306,12 +306,12 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame('/blog', $mapping->getServerPath());
             });
 
-        $args = self::$mapCommand->parseArgs(new StringArgs('/app/public localhost /blog'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/app/public localhost /blog'));
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testMapForce()
+    public function testAddForce()
     {
         $this->assetManager->expects($this->once())
             ->method('addRootAssetMapping')
@@ -322,12 +322,12 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame(AssetManager::IGNORE_SERVER_NOT_FOUND, $flags);
             });
 
-        $args = self::$mapCommand->parseArgs(new StringArgs('--force /app/public localhost'));
+        $args = self::$addCommand->parseArgs(new StringArgs('--force /app/public localhost'));
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testMapWithRelativeRepositoryPath()
+    public function testAddWithRelativeRepositoryPath()
     {
         $this->assetManager->expects($this->once())
             ->method('addRootAssetMapping')
@@ -337,12 +337,12 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame('/', $mapping->getServerPath());
             });
 
-        $args = self::$mapCommand->parseArgs(new StringArgs('app/public localhost'));
+        $args = self::$addCommand->parseArgs(new StringArgs('app/public localhost'));
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testMapWithRelativeServerPath()
+    public function testAddWithRelativeServerPath()
     {
         $this->assetManager->expects($this->once())
             ->method('addRootAssetMapping')
@@ -352,9 +352,9 @@ EOF;
                 PHPUnit_Framework_Assert::assertSame('/path', $mapping->getServerPath());
             });
 
-        $args = self::$mapCommand->parseArgs(new StringArgs('/app/public localhost path'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/app/public localhost path'));
 
-        $this->assertSame(0, $this->handler->handleMap($args));
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
     public function testUpdateMapping()

@@ -132,7 +132,7 @@ class PublishCommandHandler
         return 0;
     }
 
-    public function handleMap(Args $args)
+    public function handleAdd(Args $args)
     {
         $flags = $args->isOptionSet('force') ? AssetManager::IGNORE_SERVER_NOT_FOUND : 0;
         $path = Path::makeAbsolute($args->getArgument('path'), $this->currentPath);

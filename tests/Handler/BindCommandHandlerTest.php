@@ -13,7 +13,7 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_MockObject_MockObject;
-use Puli\Cli\Handler\BindingCommandHandler;
+use Puli\Cli\Handler\BindCommandHandler;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
@@ -32,7 +32,7 @@ use Webmozart\Expression\Expression;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class BindingCommandHandlerTest extends AbstractCommandHandlerTest
+class BindCommandHandlerTest extends AbstractCommandHandlerTest
 {
     const BINDING_UUID1 = 'bb5a07d6-e979-4c35-9883-4d8c1165e3d5';
     const BINDING_UUID2 = 'cc9f2259-8587-4d4e-9dda-f0ff87b4e871';
@@ -71,7 +71,7 @@ class BindingCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $removeCommand;
+    private static $deleteCommand;
 
     /**
      * @var Command
@@ -94,7 +94,7 @@ class BindingCommandHandlerTest extends AbstractCommandHandlerTest
     private $packages;
 
     /**
-     * @var BindingCommandHandler
+     * @var BindCommandHandler
      */
     private $handler;
 
@@ -102,12 +102,12 @@ class BindingCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUpBeforeClass();
 
-        self::$listCommand = self::$application->getCommand('binding')->getSubCommand('list');
-        self::$addCommand = self::$application->getCommand('binding')->getSubCommand('add');
-        self::$updateCommand = self::$application->getCommand('binding')->getSubCommand('update');
-        self::$removeCommand = self::$application->getCommand('binding')->getSubCommand('remove');
-        self::$enableCommand = self::$application->getCommand('binding')->getSubCommand('enable');
-        self::$disableCommand = self::$application->getCommand('binding')->getSubCommand('disable');
+        self::$listCommand = self::$application->getCommand('bind')->getSubCommand('list');
+        self::$addCommand = self::$application->getCommand('bind')->getSubCommand('add');
+        self::$updateCommand = self::$application->getCommand('bind')->getSubCommand('update');
+        self::$deleteCommand = self::$application->getCommand('bind')->getSubCommand('delete');
+        self::$enableCommand = self::$application->getCommand('bind')->getSubCommand('enable');
+        self::$disableCommand = self::$application->getCommand('bind')->getSubCommand('disable');
     }
 
     protected function setUp()
@@ -120,7 +120,7 @@ class BindingCommandHandlerTest extends AbstractCommandHandlerTest
             new Package(new PackageFile('vendor/package1'), '/package1'),
             new Package(new PackageFile('vendor/package2'), '/package2'),
         ));
-        $this->handler = new BindingCommandHandler($this->discoveryManager, $this->packages);
+        $this->handler = new BindCommandHandler($this->discoveryManager, $this->packages);
     }
 
     public function testListAllBindings()
@@ -1009,9 +1009,9 @@ EOF;
         $this->handler->handleUpdate($args, $this->io);
     }
 
-    public function testRemoveBinding()
+    public function testDeleteBinding()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('ab12'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
         $descriptor->load($this->packages->getRootPackage());
 
@@ -1026,7 +1026,7 @@ EOF;
             ->method('removeRootBinding')
             ->with($descriptor->getUuid());
 
-        $statusCode = $this->handler->handleRemove($args, $this->io);
+        $statusCode = $this->handler->handleDelete($args, $this->io);
 
         $this->assertSame(0, $statusCode);
         $this->assertEmpty($this->io->fetchOutput());
@@ -1037,9 +1037,9 @@ EOF;
      * @expectedException \RuntimeException
      * @expectedExceptionMessage More than one binding
      */
-    public function testRemoveBindingFailsIfAmbiguous()
+    public function testDeleteBindingFailsIfAmbiguous()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('ab12'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
@@ -1054,16 +1054,16 @@ EOF;
         $this->discoveryManager->expects($this->never())
             ->method('removeRootBinding');
 
-        $this->handler->handleRemove($args, $this->io);
+        $this->handler->handleDelete($args, $this->io);
     }
 
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The binding "ab12" does not exist
      */
-    public function testRemoveBindingFailsIfNotFound()
+    public function testDeleteBindingFailsIfNotFound()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('ab12'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindings')
@@ -1075,16 +1075,16 @@ EOF;
         $this->discoveryManager->expects($this->never())
             ->method('removeRootBinding');
 
-        $this->handler->handleRemove($args, $this->io);
+        $this->handler->handleDelete($args, $this->io);
     }
 
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage Can only delete bindings from the package "vendor/root".
      */
-    public function testRemoveBindingFailsIfNoRootBinding()
+    public function testDeleteBindingFailsIfNoRootBinding()
     {
-        $args = self::$removeCommand->parseArgs(new StringArgs('ab12'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
         $descriptor->load($this->packages->get('vendor/package1'));
 
@@ -1098,7 +1098,7 @@ EOF;
         $this->discoveryManager->expects($this->never())
             ->method('removeRootBinding');
 
-        $this->handler->handleRemove($args, $this->io);
+        $this->handler->handleDelete($args, $this->io);
     }
 
     public function testEnableBinding()

@@ -12,7 +12,7 @@
 namespace Puli\Cli;
 
 use Puli\Cli\Handler\PublishCommandHandler;
-use Puli\Cli\Handler\BindingCommandHandler;
+use Puli\Cli\Handler\BindCommandHandler;
 use Puli\Cli\Handler\BuildCommandHandler;
 use Puli\Cli\Handler\ConfigCommandHandler;
 use Puli\Cli\Handler\FindCommandHandler;
@@ -97,16 +97,17 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         ;
 
         $this
-            ->beginCommand('binding')
+            ->beginCommand('bind')
                 ->setDescription('Bind resources to binding types')
                 ->setHandler(function () use ($puli) {
-                    return new BindingCommandHandler(
+                    return new BindCommandHandler(
                         $puli->getDiscoveryManager(),
                         $puli->getPackageManager()->getPackages()
                     );
                 })
 
-                ->beginSubCommand('add')
+                ->beginOptionCommand('add')
+                    ->markAnonymous()
                     ->addArgument('query', Argument::REQUIRED, 'A query for resources')
                     ->addArgument('type', Argument::REQUIRED, 'The name of the binding type')
                     ->addOption('language', null, Option::REQUIRED_VALUE, 'The language of the resource query', 'glob', 'language')
@@ -115,7 +116,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleAdd')
                 ->end()
 
-                ->beginSubCommand('list')
+                ->beginOptionCommand('list', 'l')
                     ->markDefault()
                     ->addOption('root', null, Option::NO_VALUE, 'Show bindings of the root package')
                     ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show bindings of a package', null, 'package')
@@ -132,7 +133,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleList')
                 ->end()
 
-                ->beginSubCommand('update')
+                ->beginOptionCommand('update', 'u')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the updated binding')
                     ->addOption('query', null, Option::REQUIRED_VALUE, 'A query for resources')
                     ->addOption('type', null, Option::REQUIRED_VALUE, 'The name of the binding type')
@@ -143,17 +144,17 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleUpdate')
                 ->end()
 
-                ->beginSubCommand('remove')
+                ->beginOptionCommand('delete', 'd')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the removed binding')
-                    ->setHandlerMethod('handleRemove')
+                    ->setHandlerMethod('handleDelete')
                 ->end()
 
-                ->beginSubCommand('enable')
+                ->beginOptionCommand('enable')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the enabled binding')
                     ->setHandlerMethod('handleEnable')
                 ->end()
 
-                ->beginSubCommand('disable')
+                ->beginOptionCommand('disable')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the disabled binding')
                     ->setHandlerMethod('handleDisable')
                 ->end()

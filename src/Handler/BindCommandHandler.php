@@ -27,12 +27,12 @@ use Webmozart\Expression\Expr;
 use Webmozart\PathUtil\Path;
 
 /**
- * Handles the "binding" command.
+ * Handles the "bind" command.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class BindingCommandHandler
+class BindCommandHandler
 {
     /**
      * @var DiscoveryManager
@@ -62,7 +62,7 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "binding list" command.
+     * Handles the "bind --list" command.
      *
      * @param Args $args The console arguments.
      * @param IO   $io   The I/O.
@@ -113,7 +113,7 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "binding add <query> <type>" command.
+     * Handles the "bind <query> <type>" command.
      *
      * @param Args $args The console arguments.
      *
@@ -141,7 +141,7 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "binding update <uuid>" command.
+     * Handles the "bind --update <uuid>" command.
      *
      * @param Args $args The console arguments.
      *
@@ -201,13 +201,13 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "bind remove" command.
+     * Handles the "bind --delete" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleRemove(Args $args)
+    public function handleDelete(Args $args)
     {
         $bindingToRemove = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
@@ -224,7 +224,7 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "bind enable" command.
+     * Handles the "bind --enable" command.
      *
      * @param Args $args The console arguments.
      *
@@ -247,7 +247,7 @@ class BindingCommandHandler
     }
 
     /**
-     * Handles the "bind disable" command.
+     * Handles the "bind --disable" command.
      *
      * @param Args $args The console arguments.
      *

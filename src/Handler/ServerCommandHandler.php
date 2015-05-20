@@ -43,7 +43,7 @@ class ServerCommandHandler
         $servers = $this->serverManager->getServers();
 
         if ($servers->isEmpty()) {
-            $io->writeLine('No servers. Use "puli server add <name> <document-root>" to add a server.');
+            $io->writeLine('No servers. Use "puli server --add <name> <document-root>" to add a server.');
 
             return 0;
         }
@@ -127,7 +127,7 @@ class ServerCommandHandler
         return 0;
     }
 
-    public function handleRemove(Args $args)
+    public function handleDelete(Args $args)
     {
         $serverName = $args->getArgument('name');
 

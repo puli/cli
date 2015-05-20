@@ -440,12 +440,12 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     return new ServerCommandHandler($puli->getServerManager());
                 })
 
-                ->beginSubCommand('list')
+                ->beginOptionCommand('list')
                     ->markDefault()
                     ->setHandlerMethod('handleList')
                 ->end()
 
-                ->beginSubCommand('add')
+                ->beginOptionCommand('add', 'a')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the added server')
                     ->addArgument('document-root', Argument::REQUIRED, 'The document root of the server')
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the used installer', 'symlink')
@@ -454,7 +454,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleAdd')
                 ->end()
 
-                ->beginSubCommand('update')
+                ->beginOptionCommand('update', 'u')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the updated server')
                     ->addOption('document-root', null, Option::REQUIRED_VALUE, 'The document root of the server')
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the used installer', 'symlink')
@@ -464,9 +464,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleUpdate')
                 ->end()
 
-                ->beginSubCommand('remove')
+                ->beginOptionCommand('delete', 'd')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the server to remove')
-                    ->setHandlerMethod('handleRemove')
+                    ->setHandlerMethod('handleDelete')
                 ->end()
             ->end()
         ;

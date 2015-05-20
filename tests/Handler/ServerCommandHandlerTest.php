@@ -43,7 +43,7 @@ class ServerCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $removeCommand;
+    private static $deleteCommand;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject|ServerManager
@@ -62,7 +62,7 @@ class ServerCommandHandlerTest extends AbstractCommandHandlerTest
         self::$listCommand = self::$application->getCommand('server')->getSubCommand('list');
         self::$addCommand = self::$application->getCommand('server')->getSubCommand('add');
         self::$updateCommand = self::$application->getCommand('server')->getSubCommand('update');
-        self::$removeCommand = self::$application->getCommand('server')->getSubCommand('remove');
+        self::$deleteCommand = self::$application->getCommand('server')->getSubCommand('delete');
     }
 
     protected function setUp()
@@ -112,7 +112,7 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
         $expected = <<<EOF
-No servers. Use "puli server add <name> <document-root>" to add a server.
+No servers. Use "puli server --add <name> <document-root>" to add a server.
 
 EOF;
 
@@ -271,7 +271,7 @@ EOF;
         $this->handler->handleUpdate($args);
     }
 
-    public function testRemoveServer()
+    public function testDeleteServer()
     {
         $this->serverManager->expects($this->once())
             ->method('hasServer')
@@ -282,15 +282,15 @@ EOF;
             ->method('removeServer')
             ->with('localhost');
 
-        $args = self::$removeCommand->parseArgs(new StringArgs('localhost'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('localhost'));
 
-        $this->assertSame(0, $this->handler->handleRemove($args));
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     /**
      * @expectedException \Puli\Manager\Api\Server\NoSuchServerException
      */
-    public function testRemoveServerFailsIfNotFound()
+    public function testDeleteServerFailsIfNotFound()
     {
         $this->serverManager->expects($this->once())
             ->method('hasServer')
@@ -300,8 +300,8 @@ EOF;
         $this->serverManager->expects($this->never())
             ->method('removeServer');
 
-        $args = self::$removeCommand->parseArgs(new StringArgs('localhost'));
+        $args = self::$deleteCommand->parseArgs(new StringArgs('localhost'));
 
-        $this->handler->handleRemove($args);
+        $this->handler->handleDelete($args);
     }
 }

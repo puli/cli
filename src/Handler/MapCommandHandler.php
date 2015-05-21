@@ -148,7 +148,7 @@ class MapCommandHandler
 
                 if ($printPackageName) {
                     $prefix = $printState ? '    ' : '';
-                    $io->writeLine("<b>{$prefix}Package: $packageName</b>");
+                    $io->writeLine("{$prefix}Package: $packageName");
                     $io->writeLine('');
                 }
 
@@ -325,7 +325,7 @@ class MapCommandHandler
                 $io->writeLine('');
             }
 
-            $io->writeLine("$shortPrefix<b>Conflicting path:</b> {$conflict->getRepositoryPath()}");
+            $io->writeLine("{$shortPrefix}Conflicting path: {$conflict->getRepositoryPath()}");
             $io->writeLine('');
 
             $table = new Table(PuliTableStyle::borderless());

@@ -100,7 +100,7 @@ class BindCommandHandler
 
                 if ($printPackageName) {
                     $prefix = $printBindingState ? '    ' : '';
-                    $io->writeLine("<b>{$prefix}Package: $packageName</b>");
+                    $io->writeLine("{$prefix}Package: $packageName");
                     $io->writeLine('');
                 }
 

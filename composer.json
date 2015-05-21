@@ -18,7 +18,7 @@
         "webmozart/console": "~1.0",
         "webmozart/path-util": "~2.0",
         "symfony/filesystem": "~2.3",
-        "herrera-io/phar-update": "~2.0"
+        "padraic/phar-updater": "~1.0@dev"
     },
     "minimum-stability": "dev",
     "autoload": {

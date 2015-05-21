@@ -194,7 +194,7 @@ class PackageCommandHandler
     private function getSelectedPackages(Args $args)
     {
         $states = $this->getSelectedStates($args);
-        $expr = Expr::valid();
+        $expr = Expr::true();
 
         if ($states != PackageState::all()) {
             $expr = $expr->andIn($states, Package::STATE);

@@ -434,7 +434,7 @@ EOF;
 
     private function all()
     {
-        return Expr::valid();
+        return Expr::true();
     }
 
     private function state($state)

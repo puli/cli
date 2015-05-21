@@ -146,7 +146,7 @@ The following types have duplicate definitions and are disabled:
     vendor/package2
     package2/duplicate
 
-Use "puli binding add <resource> <type>" to bind a resource to a type.
+Use "puli bind <resource> <type>" to bind a resource to a type.
 
 EOF;
 
@@ -169,7 +169,7 @@ The following types have duplicate definitions and are disabled:
 
     root/duplicate
 
-Use "puli binding add <resource> <type>" to bind a resource to a type.
+Use "puli bind <resource> <type>" to bind a resource to a type.
 
 EOF;
 
@@ -191,7 +191,7 @@ The following types have duplicate definitions and are disabled:
 
     package1/duplicate
 
-Use "puli binding add <resource> <type>" to bind a resource to a type.
+Use "puli bind <resource> <type>" to bind a resource to a type.
 
 EOF;
 
@@ -222,7 +222,7 @@ The following types have duplicate definitions and are disabled:
     vendor/package1
     package1/duplicate
 
-Use "puli binding add <resource> <type>" to bind a resource to a type.
+Use "puli bind <resource> <type>" to bind a resource to a type.
 
 EOF;
 
@@ -252,7 +252,7 @@ The following types have duplicate definitions and are disabled:
     vendor/package2
     package2/duplicate
 
-Use "puli binding add <resource> <type>" to bind a resource to a type.
+Use "puli bind <resource> <type>" to bind a resource to a type.
 
 EOF;
 
@@ -334,7 +334,7 @@ The following types have duplicate definitions and are disabled:
     vendor/package2
     package2/duplicate
 
-Use "puli binding add <resource> <type>" to bind a resource to a type.
+Use "puli bind <resource> <type>" to bind a resource to a type.
 
 EOF;
 

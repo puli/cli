@@ -85,13 +85,13 @@ class PublishCommandHandler
         }
 
         if (!$mappingsByServer) {
-            $io->writeLine('No assets are mapped. Use "puli asset map <path> <public-path>" to map assets.');
+            $io->writeLine('No public resources. Use "puli publish <path> <server>" to publish resources.');
 
             return 0;
         }
 
         if (count($servers) > 0) {
-            $io->writeLine('The following web assets are currently enabled:');
+            $io->writeLine('The following resources are published:');
             $io->writeLine('');
 
             foreach ($servers as $serverName => $server) {
@@ -107,7 +107,7 @@ class PublishCommandHandler
                 $io->writeLine('');
             }
 
-            $io->writeLine('Use "puli asset install" to install the assets on your servers.');
+            $io->writeLine('Use "puli publish --install" to install the resources on your servers.');
         }
 
         if (count($servers) > 0 && count($nonExistingServers) > 0) {
@@ -115,7 +115,7 @@ class PublishCommandHandler
         }
 
         if (count($nonExistingServers) > 0) {
-            $io->writeLine('The following web assets are disabled since their server does not exist.');
+            $io->writeLine('The following public resources are disabled since their server does not exist:');
             $io->writeLine('');
 
             foreach ($nonExistingServers as $serverName => $_) {

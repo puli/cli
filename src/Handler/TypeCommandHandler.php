@@ -110,7 +110,7 @@ class TypeCommandHandler
         }
 
         if ($printAdvice) {
-            $io->writeLine('Use "puli binding add <resource> <type>" to bind a resource to a type.');
+            $io->writeLine('Use "puli bind <resource> <type>" to bind a resource to a type.');
         }
 
         return 0;

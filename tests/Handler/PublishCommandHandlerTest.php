@@ -139,7 +139,7 @@ class PublishCommandHandlerTest extends AbstractCommandHandlerTest
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
         $expected = <<<EOF
-The following web assets are currently enabled:
+The following resources are published:
 
     Server localhost
     Location:   web
@@ -156,7 +156,7 @@ The following web assets are currently enabled:
 
         33dbec /acme/blog/public /blog
 
-Use "puli asset install" to install the assets on your servers.
+Use "puli publish --install" to install the resources on your servers.
 
 EOF;
 
@@ -193,7 +193,7 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
         $expected = <<<EOF
-The following web assets are currently enabled:
+The following resources are published:
 
     Server example.com
     Location:   ssh://example.com
@@ -202,9 +202,9 @@ The following web assets are currently enabled:
 
         33dbec /acme/blog/public /blog
 
-Use "puli asset install" to install the assets on your servers.
+Use "puli publish --install" to install the resources on your servers.
 
-The following web assets are disabled since their server does not exist.
+The following public resources are disabled since their server does not exist:
 
     Server localhost
 
@@ -243,7 +243,7 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
         $expected = <<<EOF
-The following web assets are disabled since their server does not exist.
+The following public resources are disabled since their server does not exist:
 
     Server localhost
 
@@ -272,7 +272,7 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
         $expected = <<<EOF
-No assets are mapped. Use "puli asset map <path> <public-path>" to map assets.
+No public resources. Use "puli publish <path> <server>" to publish resources.
 
 EOF;
 

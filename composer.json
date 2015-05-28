@@ -17,7 +17,7 @@
         "webmozart/console": "~1.0",
         "webmozart/path-util": "~2.0",
         "symfony/filesystem": "~2.3",
-        "padraic/phar-updater": "~1.0"
+        "padraic/phar-updater": "1.0.x-dev"
     },
     "minimum-stability": "dev",
     "autoload": {

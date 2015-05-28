@@ -426,6 +426,8 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         $this
             ->beginCommand('self-update')
                 ->setDescription('Update Puli to the latest version.')
+                ->addOption('stable', null, Option::NO_VALUE, 'Update to the latest stable version')
+                ->addOption('unstable', null, Option::NO_VALUE, 'Update to the latest unstable version')
                 ->setHandler(function () {
                     return new SelfUpdateCommandHandler();
                 })

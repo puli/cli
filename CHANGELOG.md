@@ -16,6 +16,7 @@ Changelog
  * renamed `puli asset` to `puli publish`
  * renamed `puli binding` to `puli bind`
  * renamed `puli path` to `puli map`
+ * added `--stable` and `--unstable` options to `puli self-update` command
 
 * 1.0.0-beta4 (2015-04-13)
 

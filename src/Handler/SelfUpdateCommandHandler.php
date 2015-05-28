@@ -26,11 +26,6 @@ use Webmozart\Console\Api\IO\IO;
 class SelfUpdateCommandHandler
 {
     /**
-     * The URL for downloading the manifest.json file.
-     */
-    const MANIFEST_URL = 'http://puli.io/downloads/manifest.json';
-
-    /**
      * Handles the "self-update" command.
      *
      * @param Args $args The console arguments.
@@ -40,18 +35,9 @@ class SelfUpdateCommandHandler
      */
     public function handle(Args $args, IO $io)
     {
-        $stable = true;
-
-        foreach (array('-dev', '-alpha', '-beta') as $stability) {
-            if (false !== strpos(PuliApplicationConfig::VERSION, $stability)) {
-                $stable = false;
-                break;
-            }
-        }
-
         $updateStrategy = new GithubStrategy();
         $updateStrategy->setPackageName('puli/cli');
-        $updateStrategy->setStability($stable ? GithubStrategy::STABLE : GithubStrategy::UNSTABLE);
+        $updateStrategy->setStability($this->getStability($args));
         $updateStrategy->setPharName('puli.phar');
         $updateStrategy->setCurrentLocalVersion(PuliApplicationConfig::VERSION);
 
@@ -72,5 +58,24 @@ class SelfUpdateCommandHandler
         }
 
         return 0;
+    }
+
+    private function getStability(Args $args)
+    {
+        if ($args->isOptionSet('stable')) {
+            return GithubStrategy::STABLE;
+        }
+
+        if ($args->isOptionSet('unstable')) {
+            return GithubStrategy::UNSTABLE;
+        }
+
+        foreach (array('-dev', '-alpha', '-beta') as $stability) {
+            if (false !== strpos(PuliApplicationConfig::VERSION, $stability)) {
+                return GithubStrategy::UNSTABLE;
+            }
+        }
+
+        return GithubStrategy::STABLE;
     }
 }

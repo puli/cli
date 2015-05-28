@@ -371,7 +371,7 @@ class BindCommandHandler
     {
         switch ($bindingState) {
             case BindingState::ENABLED:
-                $io->writeLine('The following bindings are currently enabled in your application:');
+                $io->writeLine('The following bindings are currently enabled:');
                 $io->writeLine('');
                 return;
             case BindingState::DISABLED:

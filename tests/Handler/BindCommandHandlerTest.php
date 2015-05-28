@@ -132,7 +132,7 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-The following bindings are currently enabled in your application:
+The following bindings are currently enabled:
 
     Package: vendor/root
 
@@ -257,7 +257,7 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-The following bindings are currently enabled in your application:
+The following bindings are currently enabled:
 
     UUID    Glob           Type
     bb5a07  /root/enabled  my/type
@@ -310,7 +310,7 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-The following bindings are currently enabled in your application:
+The following bindings are currently enabled:
 
     UUID    Glob               Type
     970aba  /package1/enabled  my/type
@@ -362,7 +362,7 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-The following bindings are currently enabled in your application:
+The following bindings are currently enabled:
 
     Package: vendor/root
 
@@ -457,7 +457,7 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-The following bindings are currently enabled in your application:
+The following bindings are currently enabled:
 
     Package: vendor/package1
 
@@ -745,7 +745,7 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-The following bindings are currently enabled in your application:
+The following bindings are currently enabled:
 
     Package: vendor/root
 
@@ -847,7 +847,7 @@ EOF;
 
         $nbsp = "\xc2\xa0";
         $expected = <<<EOF
-The following bindings are currently enabled in your application:
+The following bindings are currently enabled:
 
     Package: vendor/root
 

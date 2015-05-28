@@ -123,28 +123,42 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
         $expected = <<<EOF
-Enabled binding types:
+The following binding types are currently enabled:
 
-    vendor/root
-    root/enabled1 Description of root/enabled1 (req-param, opt-param="default")
-    root/enabled2 Description of root/enabled2
+    Package: vendor/root
 
-    vendor/package1
-    package1/enabled
+        Type           Description     Parameters
+        root/enabled1  Description of  req-param
+                       root/enabled1   opt-param="default"
+        root/enabled2  Description of
+                       root/enabled2
 
-    vendor/package2
-    package2/enabled
+    Package: vendor/package1
+
+        Type              Description  Parameters
+        package1/enabled
+
+    Package: vendor/package2
+
+        Type              Description  Parameters
+        package2/enabled
 
 The following types have duplicate definitions and are disabled:
 
-    vendor/root
-    root/duplicate
+    Package: vendor/root
 
-    vendor/package1
-    package1/duplicate
+        Type            Description  Parameters
+        root/duplicate
 
-    vendor/package2
-    package2/duplicate
+    Package: vendor/package1
+
+        Type                Description  Parameters
+        package1/duplicate
+
+    Package: vendor/package2
+
+        Type                Description  Parameters
+        package2/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
@@ -160,13 +174,16 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--root'));
 
         $expected = <<<EOF
-Enabled binding types:
+The following binding types are currently enabled:
 
-    root/enabled1 Description of root/enabled1 (req-param, opt-param="default")
-    root/enabled2 Description of root/enabled2
+    Type           Description                   Parameters
+    root/enabled1  Description of root/enabled1  req-param
+                                                 opt-param="default"
+    root/enabled2  Description of root/enabled2
 
 The following types have duplicate definitions and are disabled:
 
+    Type            Description  Parameters
     root/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
@@ -183,12 +200,14 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--package vendor/package1'));
 
         $expected = <<<EOF
-Enabled binding types:
+The following binding types are currently enabled:
 
+    Type              Description  Parameters
     package1/enabled
 
 The following types have duplicate definitions and are disabled:
 
+    Type                Description  Parameters
     package1/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
@@ -205,22 +224,32 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--root --package vendor/package1'));
 
         $expected = <<<EOF
-Enabled binding types:
+The following binding types are currently enabled:
 
-    vendor/root
-    root/enabled1 Description of root/enabled1 (req-param, opt-param="default")
-    root/enabled2 Description of root/enabled2
+    Package: vendor/root
 
-    vendor/package1
-    package1/enabled
+        Type           Description     Parameters
+        root/enabled1  Description of  req-param
+                       root/enabled1   opt-param="default"
+        root/enabled2  Description of
+                       root/enabled2
+
+    Package: vendor/package1
+
+        Type              Description  Parameters
+        package1/enabled
 
 The following types have duplicate definitions and are disabled:
 
-    vendor/root
-    root/duplicate
+    Package: vendor/root
 
-    vendor/package1
-    package1/duplicate
+        Type            Description  Parameters
+        root/duplicate
+
+    Package: vendor/package1
+
+        Type                Description  Parameters
+        package1/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
@@ -236,21 +265,29 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--package vendor/package1 --package vendor/package2'));
 
         $expected = <<<EOF
-Enabled binding types:
+The following binding types are currently enabled:
 
-    vendor/package1
-    package1/enabled
+    Package: vendor/package1
 
-    vendor/package2
-    package2/enabled
+        Type              Description  Parameters
+        package1/enabled
+
+    Package: vendor/package2
+
+        Type              Description  Parameters
+        package2/enabled
 
 The following types have duplicate definitions and are disabled:
 
-    vendor/package1
-    package1/duplicate
+    Package: vendor/package1
 
-    vendor/package2
-    package2/duplicate
+        Type                Description  Parameters
+        package1/duplicate
+
+    Package: vendor/package2
+
+        Type                Description  Parameters
+        package2/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
@@ -266,15 +303,22 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled'));
 
         $expected = <<<EOF
-vendor/root
-root/enabled1 Description of root/enabled1 (req-param, opt-param="default")
-root/enabled2 Description of root/enabled2
+Package: vendor/root
 
-vendor/package1
-package1/enabled
+    Type           Description                   Parameters
+    root/enabled1  Description of root/enabled1  req-param
+                                                 opt-param="default"
+    root/enabled2  Description of root/enabled2
 
-vendor/package2
-package2/enabled
+Package: vendor/package1
+
+    Type              Description  Parameters
+    package1/enabled
+
+Package: vendor/package2
+
+    Type              Description  Parameters
+    package2/enabled
 
 
 EOF;
@@ -289,14 +333,20 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--duplicate'));
 
         $expected = <<<EOF
-vendor/root
-root/duplicate
+Package: vendor/root
 
-vendor/package1
-package1/duplicate
+    Type            Description  Parameters
+    root/duplicate
 
-vendor/package2
-package2/duplicate
+Package: vendor/package1
+
+    Type                Description  Parameters
+    package1/duplicate
+
+Package: vendor/package2
+
+    Type                Description  Parameters
+    package2/duplicate
 
 
 EOF;
@@ -311,28 +361,42 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --duplicate'));
 
         $expected = <<<EOF
-Enabled binding types:
+The following binding types are currently enabled:
 
-    vendor/root
-    root/enabled1 Description of root/enabled1 (req-param, opt-param="default")
-    root/enabled2 Description of root/enabled2
+    Package: vendor/root
 
-    vendor/package1
-    package1/enabled
+        Type           Description     Parameters
+        root/enabled1  Description of  req-param
+                       root/enabled1   opt-param="default"
+        root/enabled2  Description of
+                       root/enabled2
 
-    vendor/package2
-    package2/enabled
+    Package: vendor/package1
+
+        Type              Description  Parameters
+        package1/enabled
+
+    Package: vendor/package2
+
+        Type              Description  Parameters
+        package2/enabled
 
 The following types have duplicate definitions and are disabled:
 
-    vendor/root
-    root/duplicate
+    Package: vendor/root
 
-    vendor/package1
-    package1/duplicate
+        Type            Description  Parameters
+        root/duplicate
 
-    vendor/package2
-    package2/duplicate
+    Package: vendor/package1
+
+        Type                Description  Parameters
+        package1/duplicate
+
+    Package: vendor/package2
+
+        Type                Description  Parameters
+        package2/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
@@ -348,8 +412,10 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --root'));
 
         $expected = <<<EOF
-root/enabled1 Description of root/enabled1 (req-param, opt-param="default")
-root/enabled2 Description of root/enabled2
+Type           Description                   Parameters
+root/enabled1  Description of root/enabled1  req-param
+                                             opt-param="default"
+root/enabled2  Description of root/enabled2
 
 EOF;
 
@@ -363,6 +429,7 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --package vendor/package1'));
 
         $expected = <<<EOF
+Type              Description  Parameters
 package1/enabled
 
 EOF;

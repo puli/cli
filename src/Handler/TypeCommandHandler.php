@@ -11,6 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
 use Puli\Manager\Api\Discovery\BindingParameterDescriptor;
@@ -22,7 +23,6 @@ use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
-use Webmozart\Console\UI\Style\TableStyle;
 use Webmozart\Expression\Expr;
 
 /**
@@ -72,6 +72,8 @@ class TypeCommandHandler
         $printPackageName = count($packageNames) > 1;
         $printHeaders = $printStates || $printPackageName;
         $printAdvice = false;
+        $indentation = $printStates && $printPackageName ? 8
+            : ($printStates || $printPackageName ? 4 : 0);
 
         foreach ($states as $state) {
             $statePrinted = !$printStates;
@@ -96,12 +98,13 @@ class TypeCommandHandler
 
                 if ($printPackageName) {
                     $prefix = $printStates ? '    ' : '';
-                    $io->writeLine("$prefix<b>$packageName</b>");
+                    $io->writeLine("{$prefix}Package: $packageName");
+                    $io->writeLine('');
                 }
 
                 $styleTag = BindingTypeState::ENABLED === $state ? null : 'bad';
 
-                $this->printTypeTable($io, $bindingTypes, $styleTag, $printStates);
+                $this->printTypeTable($io, $bindingTypes, $styleTag, $indentation);
 
                 if ($printHeaders) {
                     $io->writeLine('');
@@ -230,14 +233,16 @@ class TypeCommandHandler
     /**
      * Prints the binding types in a table.
      *
-     * @param IO                      $io       The I/O.
-     * @param BindingTypeDescriptor[] $types    The binding types to print.
-     * @param string                  $styleTag The tag used to style the output
-     * @param bool                    $indent   Whether to indent the output.
+     * @param IO                      $io          The I/O.
+     * @param BindingTypeDescriptor[] $types       The binding types to print.
+     * @param string                  $styleTag    The tag used to style the output
+     * @param int                     $indentation The number of spaces to indent.
      */
-    private function printTypeTable(IO $io, array $types, $styleTag = null, $indent = false)
+    private function printTypeTable(IO $io, array $types, $styleTag = null, $indentation = 0)
     {
-        $table = new Table(TableStyle::borderless());
+        $table = new Table(PuliTableStyle::borderless());
+
+        $table->setHeaderRow(array('Type', 'Description', 'Parameters'));
 
         $paramTag = $styleTag ?: 'c1';
         $typeTag = $styleTag ?: 'u';
@@ -246,17 +251,14 @@ class TypeCommandHandler
             $parameters = array();
 
             foreach ($type->getParameters() as $parameter) {
-                $parameters[] = $parameter->isRequired()
+                $paramString = $parameter->isRequired()
                     ? $parameter->getName()
                     : $parameter->getName().'='.StringUtil::formatValue($parameter->getDefaultValue());
+
+                $parameters[] = "<$paramTag>$paramString</$paramTag>";
             }
 
-            $paramString = $parameters ? "<$paramTag>(".implode(', ', $parameters).")</$paramTag>" : '';
             $description = $type->getDescription();
-
-            if ($description && $paramString) {
-                $paramString = ' '.$paramString;
-            }
 
             if ($styleTag) {
                 $description = "<$styleTag>$description</$styleTag>";
@@ -264,11 +266,12 @@ class TypeCommandHandler
 
             $table->addRow(array(
                 "<$typeTag>".$type->getName()."</$typeTag>",
-                ltrim($description.$paramString)
+                $description,
+                implode("\n", $parameters),
             ));
         }
 
-        $table->render($io, $indent ? 4 : 0);
+        $table->render($io, $indentation);
     }
 
     /**
@@ -281,7 +284,7 @@ class TypeCommandHandler
     {
         switch ($typeState) {
             case BindingTypeState::ENABLED:
-                $io->writeLine('Enabled binding types:');
+                $io->writeLine('The following binding types are currently enabled:');
                 $io->writeLine('');
                 return;
             case BindingTypeState::DUPLICATE:

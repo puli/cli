@@ -1,4 +1,4 @@
-PULI_VERSION = "@package_version@"
+PULI_VERSION = "1.0.0-beta5"
 
 BUILD_HTML_DIR = html
 BUILD_MAN_DIR = man

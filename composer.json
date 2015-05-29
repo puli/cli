@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=5.3.9",
-        "puli/repository": "1.0.*",
+        "puli/repository": "~1.0",
         "puli/discovery": "~1.0",
         "puli/manager": "~1.0",
         "webmozart/console": "~1.0",
@@ -19,7 +19,7 @@
         "symfony/filesystem": "~2.3",
         "padraic/phar-updater": "^1.0.1"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "beta",
     "autoload": {
         "psr-4": {
             "Puli\\Cli\\": "src/"

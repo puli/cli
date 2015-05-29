@@ -5,4 +5,5 @@
 /docs/*.xml
 composer.lock
 puli.json
+box.json
 .puli

@@ -11,7 +11,6 @@
 
 namespace Puli\Cli\Tests\Handler;
 
-use DateTime;
 use Puli\Cli\Handler\CatCommandHandler;
 use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Tests\Resource\TestDirectory;

@@ -34,27 +34,6 @@ use Webmozart\PathUtil\Path;
 class MapCommandHandler
 {
     /**
-     * Mode: Replace existing path references.
-     *
-     * @internal
-     */
-    const MODE_REPLACE = 1;
-
-    /**
-     * Mode: Add path references to the existing path references.
-     *
-     * @internal
-     */
-    const MODE_ADD = 2;
-
-    /**
-     * Mode: Remove path references from the existing path references.
-     *
-     * @internal
-     */
-    const MODE_REMOVE = 3;
-
-    /**
      * @var RepositoryManager
      */
     private $repoManager;
@@ -347,49 +326,6 @@ class MapCommandHandler
 
             $printNewline = true;
         }
-    }
-
-    /**
-     * Applies merge statements of the form "+path" or "-path" to a set of path
-     * references.
-     *
-     * @param string[] $pathReferences  The path references.
-     * @param string[] $mergeStatements The merge statements.
-     *
-     * @return string[] The resulting path references.
-     */
-    private function applyMergeStatements(array $pathReferences, array $mergeStatements)
-    {
-        $mode = self::MODE_REPLACE;
-        $pathReferences = array_flip($pathReferences);
-        $cleared = false;
-
-        foreach ($mergeStatements as $statement) {
-            $statement = trim($statement, '/');
-
-            if ('+' === $statement[0]) {
-                $pathReference = substr($statement, 1);
-                $mode = self::MODE_ADD;
-            } elseif ('-' === $statement[0]) {
-                $pathReference = substr($statement, 1);
-                $mode = self::MODE_REMOVE;
-            } else {
-                $pathReference = $statement;
-            }
-
-            if (!$cleared && self::MODE_REPLACE === $mode) {
-                $pathReferences = array();
-                $cleared = true;
-            }
-
-            if (self::MODE_REMOVE === $mode) {
-                unset($pathReferences[$pathReference]);
-            } else {
-                $pathReferences[$pathReference] = true;
-            }
-        }
-
-        return array_keys($pathReferences);
     }
 
     /**

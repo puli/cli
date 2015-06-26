@@ -14,6 +14,7 @@ namespace Puli\Cli;
 use Puli\Cli\Handler\PublishCommandHandler;
 use Puli\Cli\Handler\BindCommandHandler;
 use Puli\Cli\Handler\BuildCommandHandler;
+use Puli\Cli\Handler\CatCommandHandler;
 use Puli\Cli\Handler\ConfigCommandHandler;
 use Puli\Cli\Handler\FindCommandHandler;
 use Puli\Cli\Handler\InstallerCommandHandler;
@@ -38,6 +39,7 @@ use Webmozart\Console\Config\DefaultApplicationConfig;
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
+ * @author Stephan Wentz <swentz@brainbits.net>
  */
 class PuliApplicationConfig extends DefaultApplicationConfig
 {
@@ -527,5 +529,18 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->end()
             ->end()
         ;
+
+        $this
+            ->beginCommand('cat')
+            ->setDescription('Concatenate a file resource in the repository')
+            ->addArgument('path', Argument::REQUIRED, 'The path of a resource')
+            ->setHandler(function () use ($puli) {
+                return new CatCommandHandler(
+                    $puli->getRepository()
+                );
+            })
+            ->end()
+        ;
+
     }
 }

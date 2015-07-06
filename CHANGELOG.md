@@ -1,6 +1,8 @@
 Changelog
 =========
 
+ * added `puli cat` command
+
 * 1.0.0-beta5 (2015-05-29)
 
  * added support for building a PHAR with Box

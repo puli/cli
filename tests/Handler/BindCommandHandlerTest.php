@@ -30,6 +30,7 @@ use Webmozart\Expression\Expression;
 
 /**
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class BindCommandHandlerTest extends AbstractCommandHandlerTest
@@ -734,7 +735,6 @@ EOF;
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
-
 
     public function testListEnabledAndDisabledBindings()
     {

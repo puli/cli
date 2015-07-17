@@ -19,6 +19,7 @@ use Webmozart\Console\UI\Style\TableStyle;
  * Contains the default table styles of Puli.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class PuliTableStyle extends TableStyle

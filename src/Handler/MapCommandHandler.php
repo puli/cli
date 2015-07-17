@@ -29,6 +29,7 @@ use Webmozart\PathUtil\Path;
  * Handles the "puli map" command.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class MapCommandHandler
@@ -234,12 +235,12 @@ class MapCommandHandler
     /**
      * Prints a list of path mappings.
      *
-     * @param IO            $io           The I/O.
-     * @param PathMapping[] $mappings     The path mappings.
-     * @param int           $indentation  The number of spaces to indent the
-     *                                    output.
-     * @param bool          $enabled      Whether the path mappings are enabled.
-     *                                    If not, the output is printed in red.
+     * @param IO            $io          The I/O.
+     * @param PathMapping[] $mappings    The path mappings.
+     * @param int           $indentation The number of spaces to indent the
+     *                                   output.
+     * @param bool          $enabled     Whether the path mappings are enabled.
+     *                                   If not, the output is printed in red.
      */
     private function printMappingTable(IO $io, array $mappings, $indentation = 0, $enabled = true)
     {
@@ -270,7 +271,7 @@ class MapCommandHandler
 
             $table->addRow(array(
                 "<$pathTag>{$mapping->getRepositoryPath()}</$pathTag>",
-                $pathReferences
+                $pathReferences,
             ));
         }
 
@@ -315,7 +316,7 @@ class MapCommandHandler
                 $table->addRow(array(
                     '<bad>'.$mapping->getContainingPackage()->getName().'</bad>',
                     '<bad>'.$mapping->getRepositoryPath().'</bad>',
-                    '<bad>'.implode(', ', $mapping->getPathReferences()).'</bad>'
+                    '<bad>'.implode(', ', $mapping->getPathReferences()).'</bad>',
                 ));
             }
 
@@ -357,7 +358,7 @@ class MapCommandHandler
     /**
      * Prints the header for a path mapping state.
      *
-     * @param IO  $io           The I/O.
+     * @param IO  $io               The I/O.
      * @param int $pathMappingState The {@link PathMappingState} constant.
      */
     private function printPathMappingStateHeader(IO $io, $pathMappingState)
@@ -366,15 +367,18 @@ class MapCommandHandler
             case PathMappingState::ENABLED:
                 $io->writeLine('The following path mappings are currently enabled:');
                 $io->writeLine('');
+
                 return;
             case PathMappingState::NOT_FOUND:
                 $io->writeLine('The target paths of the following path mappings were not found:');
                 $io->writeLine('');
+
                 return;
             case PathMappingState::CONFLICT:
                 $io->writeLine('Some path mappings have conflicting paths:');
                 $io->writeLine(' (add the package names to the "override-order" key in puli.json to resolve)');
                 $io->writeLine('');
+
                 return;
         }
     }

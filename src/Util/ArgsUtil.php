@@ -18,6 +18,7 @@ use Webmozart\Console\Api\Args\Args;
  * Utilities for inspecting {@link Args} instances.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ArgsUtil
@@ -74,5 +75,7 @@ class ArgsUtil
         return $packageNames ?: $packages->getInstalledPackageNames();
     }
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 }

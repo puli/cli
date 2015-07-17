@@ -20,6 +20,7 @@ use Webmozart\Console\Api\IO\IO;
  * Handles the "plugin" command.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class PluginCommandHandler

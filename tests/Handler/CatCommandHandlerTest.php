@@ -20,6 +20,7 @@ use Webmozart\Console\Args\StringArgs;
 
 /**
  * @since  1.0
+ *
  * @author Stephan Wentz <swentz@brainbits.net>
  */
 class CatCommandHandlerTest extends AbstractCommandHandlerTest

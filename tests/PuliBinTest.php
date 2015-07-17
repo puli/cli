@@ -16,6 +16,7 @@ use Symfony\Component\Process\Process;
 
 /**
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class PuliBinTest extends PHPUnit_Framework_TestCase

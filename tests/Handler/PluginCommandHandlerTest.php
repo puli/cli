@@ -19,6 +19,7 @@ use Webmozart\Console\Args\StringArgs;
 
 /**
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class PluginCommandHandlerTest extends AbstractCommandHandlerTest

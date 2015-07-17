@@ -23,6 +23,7 @@ use Webmozart\Console\UI\Component\Table;
 
 /**
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class InstallerCommandHandler
@@ -70,7 +71,7 @@ class InstallerCommandHandler
             $table->addRow(array(
                 '<u>'.$descriptor->getName().'</u>',
                 '<c1>'.$className.'</c1>',
-                $description
+                $description,
             ));
         }
 

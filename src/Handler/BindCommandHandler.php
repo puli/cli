@@ -30,6 +30,7 @@ use Webmozart\PathUtil\Path;
  * Handles the "bind" command.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class BindCommandHandler
@@ -125,7 +126,7 @@ class BindCommandHandler
     public function handleAdd(Args $args)
     {
         $flags = $args->isOptionSet('force')
-            ? DiscoveryManager::OVERRIDE |DiscoveryManager::IGNORE_TYPE_NOT_FOUND
+            ? DiscoveryManager::OVERRIDE | DiscoveryManager::IGNORE_TYPE_NOT_FOUND
                 | DiscoveryManager::IGNORE_TYPE_NOT_ENABLED
             : 0;
 
@@ -269,7 +270,6 @@ class BindCommandHandler
 
         $this->discoveryManager->disableBinding($bindingToDisable->getUuid());
 
-
         return 0;
     }
 
@@ -354,7 +354,7 @@ class BindCommandHandler
             $table->addRow(array(
                 $uuid,
                 "<$queryTag>{$descriptor->getQuery()}</$queryTag>",
-                "<$typeTag>{$descriptor->getTypeName()}</$typeTag>".$paramString
+                "<$typeTag>{$descriptor->getTypeName()}</$typeTag>".$paramString,
             ));
         }
 
@@ -373,31 +373,37 @@ class BindCommandHandler
             case BindingState::ENABLED:
                 $io->writeLine('The following bindings are currently enabled:');
                 $io->writeLine('');
+
                 return;
             case BindingState::DISABLED:
                 $io->writeLine('The following bindings are disabled:');
                 $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
                 $io->writeLine('');
+
                 return;
             case BindingState::UNDECIDED:
                 $io->writeLine('Bindings that are neither enabled nor disabled:');
                 $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
                 $io->writeLine('');
+
                 return;
             case BindingState::TYPE_NOT_FOUND:
                 $io->writeLine('The types of the following bindings could not be found:');
                 $io->writeLine(' (install or create their type definitions to enable)');
                 $io->writeLine('');
+
                 return;
             case BindingState::TYPE_NOT_ENABLED:
                 $io->writeLine('The types of the following bindings are not enabled:');
                 $io->writeLine(' (remove the duplicate type definitions to enable)');
                 $io->writeLine('');
+
                 return;
             case BindingState::INVALID:
                 $io->writeLine('The following bindings have invalid parameters:');
                 $io->writeLine(' (remove the binding and add again with correct parameters)');
                 $io->writeLine('');
+
                 return;
         }
     }

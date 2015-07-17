@@ -11,7 +11,6 @@
 
 namespace Puli\Cli;
 
-use Puli\Cli\Handler\PublishCommandHandler;
 use Puli\Cli\Handler\BindCommandHandler;
 use Puli\Cli\Handler\BuildCommandHandler;
 use Puli\Cli\Handler\CatCommandHandler;
@@ -22,6 +21,7 @@ use Puli\Cli\Handler\LsCommandHandler;
 use Puli\Cli\Handler\MapCommandHandler;
 use Puli\Cli\Handler\PackageCommandHandler;
 use Puli\Cli\Handler\PluginCommandHandler;
+use Puli\Cli\Handler\PublishCommandHandler;
 use Puli\Cli\Handler\SelfUpdateCommandHandler;
 use Puli\Cli\Handler\ServerCommandHandler;
 use Puli\Cli\Handler\TreeCommandHandler;
@@ -38,6 +38,7 @@ use Webmozart\Console\Config\DefaultApplicationConfig;
  * The configuration of the Puli CLI.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Stephan Wentz <swentz@brainbits.net>
  */
@@ -541,6 +542,5 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             })
             ->end()
         ;
-
     }
 }

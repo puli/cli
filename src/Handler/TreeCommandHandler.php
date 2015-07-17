@@ -21,6 +21,7 @@ use Webmozart\PathUtil\Path;
  * Handles the "tree" command.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class TreeCommandHandler
@@ -132,5 +133,4 @@ class TreeCommandHandler
             ++$total;
         }
     }
-
 }

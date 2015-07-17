@@ -30,6 +30,7 @@ use Webmozart\PathUtil\Path;
  * Handles the "ls" command.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class LsCommandHandler
@@ -140,7 +141,7 @@ class LsCommandHandler
                 $modifiedAt->format('M'),
                 $modifiedAt->format('j'),
                 $year < $currentYear ? $year : $modifiedAt->format('H:i'),
-                $this->formatName($resource)
+                $this->formatName($resource),
             ));
         }
 

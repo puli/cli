@@ -21,6 +21,7 @@ use Webmozart\PathUtil\Path;
  * Handles the "cat" command.
  *
  * @since  1.0
+ *
  * @author Stephan Wentz <swentz@brainbits.net>
  */
 class CatCommandHandler

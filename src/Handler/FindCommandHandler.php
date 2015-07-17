@@ -24,6 +24,7 @@ use Webmozart\Console\UI\Style\TableStyle;
  * Handles the "find" command.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FindCommandHandler

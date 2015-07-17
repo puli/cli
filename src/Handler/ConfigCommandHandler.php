@@ -17,12 +17,12 @@ use Puli\Manager\Api\Package\RootPackageFileManager;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
-use Webmozart\Console\UI\Style\TableStyle;
 
 /**
  * Handles the "config" command.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ConfigCommandHandler
@@ -65,7 +65,7 @@ class ConfigCommandHandler
                 array_key_exists($key, $userValues)
                     ? StringUtil::formatValue($userValues[$key], false)
                     : '',
-                StringUtil::formatValue($value, false)
+                StringUtil::formatValue($value, false),
             ));
         }
 

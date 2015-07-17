@@ -29,6 +29,7 @@ use Webmozart\Expression\Expr;
  * Handles the "puli type" command.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class TypeCommandHandler
@@ -286,10 +287,12 @@ class TypeCommandHandler
             case BindingTypeState::ENABLED:
                 $io->writeLine('The following binding types are currently enabled:');
                 $io->writeLine('');
+
                 return;
             case BindingTypeState::DUPLICATE:
                 $io->writeLine('The following types have duplicate definitions and are disabled:');
                 $io->writeLine('');
+
                 return;
         }
     }
@@ -382,7 +385,7 @@ class TypeCommandHandler
             return false;
         }
 
-        if ($type1->getParameters() != $type2->getParameters()) {
+        if ($type1->getParameters() !== $type2->getParameters()) {
             return false;
         }
 

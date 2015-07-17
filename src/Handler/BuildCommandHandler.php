@@ -21,6 +21,7 @@ use Webmozart\Console\Api\Args\Args;
  * Handles the "build" command.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class BuildCommandHandler

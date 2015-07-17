@@ -13,6 +13,7 @@ namespace Puli\Cli\Util;
 
 /**
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class StringUtil
@@ -88,5 +89,7 @@ class StringUtil
         return (string) $value;
     }
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 }

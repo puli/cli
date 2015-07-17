@@ -29,6 +29,7 @@ use Webmozart\PathUtil\Path;
  * Handles the "package" command.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class PackageCommandHandler
@@ -196,7 +197,7 @@ class PackageCommandHandler
         $states = $this->getSelectedStates($args);
         $expr = Expr::true();
 
-        if ($states != PackageState::all()) {
+        if ($states !== PackageState::all()) {
             $expr = $expr->andIn($states, Package::STATE);
         }
 
@@ -254,7 +255,7 @@ class PackageCommandHandler
     private function printPackagesWithFormat(IO $io, PackageCollection $packages, $format)
     {
         foreach ($packages as $package) {
-            $installInfo = $package->getInstallInfo() ;
+            $installInfo = $package->getInstallInfo();
 
             $io->writeLine(strtr($format, array(
                 '%name%' => $package->getName(),
@@ -277,15 +278,18 @@ class PackageCommandHandler
             case PackageState::ENABLED:
                 $io->writeLine('Enabled packages:');
                 $io->writeLine('');
+
                 return;
             case PackageState::NOT_FOUND:
                 $io->writeLine('The following packages could not be found:');
                 $io->writeLine(' (use "puli package --clean" to remove)');
                 $io->writeLine('');
+
                 return;
             case PackageState::NOT_LOADABLE:
                 $io->writeLine('The following packages could not be loaded:');
                 $io->writeLine('');
+
                 return;
         }
     }

@@ -23,6 +23,7 @@ use Webmozart\Console\UI\Component\Table;
 
 /**
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ServerCommandHandler

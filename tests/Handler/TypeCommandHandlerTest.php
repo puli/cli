@@ -29,6 +29,7 @@ use Webmozart\Expression\Expression;
 
 /**
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class TypeCommandHandlerTest extends AbstractCommandHandlerTest
@@ -494,7 +495,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
             ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The parameter description')
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The parameter description'),
             )));
 
         $this->assertSame(0, $this->handler->handleDefine($args));
@@ -535,7 +536,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param param'));
 
         $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
-            new BindingParameterDescriptor('param', BindingParameterDescriptor::OPTIONAL, 'default', 'The description')
+            new BindingParameterDescriptor('param', BindingParameterDescriptor::OPTIONAL, 'default', 'The description'),
         ));
         $typeDescriptor->load($this->packages->getRootPackage());
 
@@ -547,7 +548,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
             ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The description')
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The description'),
             )), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleUpdate($args));
@@ -558,7 +559,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param param=foobar'));
 
         $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
-            new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The description')
+            new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The description'),
         ));
         $typeDescriptor->load($this->packages->getRootPackage());
 
@@ -570,7 +571,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
             ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::OPTIONAL, 'foobar', 'The description')
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::OPTIONAL, 'foobar', 'The description'),
             )), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleUpdate($args));
@@ -581,7 +582,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param-description param="New description"'));
 
         $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
-            new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'Old description')
+            new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'Old description'),
         ));
         $typeDescriptor->load($this->packages->getRootPackage());
 
@@ -593,7 +594,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingType')
             ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'New description')
+                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'New description'),
             )), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleUpdate($args));

@@ -126,7 +126,6 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addOption('all', 'a', Option::NO_VALUE, 'Show bindings of all packages')
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled bindings')
                     ->addOption('disabled', null, Option::NO_VALUE, 'Show disabled bindings')
-                    ->addOption('undecided', null, Option::NO_VALUE, 'Show bindings that are neither enabled nor disabled')
                     ->addOption('type-not-found', null, Option::NO_VALUE, 'Show bindings whose type is not found')
                     ->addOption('type-not-enabled', null, Option::NO_VALUE, 'Show bindings whose type is not enabled')
                     ->addOption('ignored', null, Option::NO_VALUE, 'Show bindings whose type is disabled')

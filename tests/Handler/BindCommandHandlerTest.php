@@ -169,24 +169,6 @@ The following bindings are disabled:
         UUID    Glob                Type
         424d68  /package2/disabled  my/type
 
-Bindings that are neither enabled nor disabled:
- (use "puli bind --enable <uuid>" to enable)
-
-    Package: vendor/root
-
-        UUID    Glob             Type
-        3cf757  /root/undecided  my/type
-
-    Package: vendor/package1
-
-        UUID    Glob                 Type
-        e33d03  /package1/undecided  my/type
-
-    Package: vendor/package2
-
-        UUID    Glob                 Type
-        516159  /package2/undecided  my/type
-
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
@@ -270,12 +252,6 @@ The following bindings are disabled:
     UUID    Glob            Type
     9ac78a  /root/disabled  my/type
 
-Bindings that are neither enabled nor disabled:
- (use "puli bind --enable <uuid>" to enable)
-
-    UUID    Glob             Type
-    3cf757  /root/undecided  my/type
-
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
@@ -321,12 +297,6 @@ The following bindings are disabled:
 
     UUID    Glob                Type
     a0b6c7  /package1/disabled  my/type
-
-Bindings that are neither enabled nor disabled:
- (use "puli bind --enable <uuid>" to enable)
-
-    UUID    Glob                 Type
-    e33d03  /package1/undecided  my/type
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
@@ -388,19 +358,6 @@ The following bindings are disabled:
 
         UUID    Glob                Type
         a0b6c7  /package1/disabled  my/type
-
-Bindings that are neither enabled nor disabled:
- (use "puli bind --enable <uuid>" to enable)
-
-    Package: vendor/root
-
-        UUID    Glob             Type
-        3cf757  /root/undecided  my/type
-
-    Package: vendor/package1
-
-        UUID    Glob                 Type
-        e33d03  /package1/undecided  my/type
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
@@ -482,19 +439,6 @@ The following bindings are disabled:
 
         UUID    Glob                Type
         424d68  /package2/disabled  my/type
-
-Bindings that are neither enabled nor disabled:
- (use "puli bind --enable <uuid>" to enable)
-
-    Package: vendor/package1
-
-        UUID    Glob                 Type
-        e33d03  /package1/undecided  my/type
-
-    Package: vendor/package2
-
-        UUID    Glob                 Type
-        516159  /package2/undecided  my/type
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
@@ -599,38 +543,6 @@ Package: vendor/package2
 
     UUID    Glob                Type
     424d68  /package2/disabled  my/type
-
-
-EOF;
-
-        $this->assertSame(0, $statusCode);
-        $this->assertSame($expected, $this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
-    }
-
-    public function testListUndecidedBindings()
-    {
-        $this->initDefaultBindings();
-
-        $args = self::$listCommand->parseArgs(new StringArgs('--undecided'));
-
-        $statusCode = $this->handler->handleList($args, $this->io);
-
-        $expected = <<<EOF
-Package: vendor/root
-
-    UUID    Glob             Type
-    3cf757  /root/undecided  my/type
-
-Package: vendor/package1
-
-    UUID    Glob                 Type
-    e33d03  /package1/undecided  my/type
-
-Package: vendor/package2
-
-    UUID    Glob                 Type
-    516159  /package2/undecided  my/type
 
 
 EOF;
@@ -1385,9 +1297,6 @@ EOF;
                 array($this->packageAndState('vendor/root', BindingState::DISABLED), array(
                     new BindingDescriptor('/root/disabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID3)),
                 )),
-                array($this->packageAndState('vendor/root', BindingState::UNDECIDED), array(
-                    new BindingDescriptor('/root/undecided', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID4)),
-                )),
                 array($this->packageAndState('vendor/root', BindingState::TYPE_NOT_FOUND), array(
                     new BindingDescriptor('/root/type-not-found', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID5)),
                 )),
@@ -1403,9 +1312,6 @@ EOF;
                 array($this->packageAndState('vendor/package1', BindingState::DISABLED), array(
                     new BindingDescriptor('/package1/disabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID8)),
                 )),
-                array($this->packageAndState('vendor/package1', BindingState::UNDECIDED), array(
-                    new BindingDescriptor('/package1/undecided', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID9)),
-                )),
                 array($this->packageAndState('vendor/package1', BindingState::TYPE_NOT_FOUND), array(
                     new BindingDescriptor('/package1/type-not-found', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID10)),
                 )),
@@ -1420,9 +1326,6 @@ EOF;
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::DISABLED), array(
                     new BindingDescriptor('/package2/disabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID13)),
-                )),
-                array($this->packageAndState('vendor/package2', BindingState::UNDECIDED), array(
-                    new BindingDescriptor('/package2/undecided', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID14)),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::TYPE_NOT_FOUND), array(
                     new BindingDescriptor('/package2/type-not-found', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID15)),

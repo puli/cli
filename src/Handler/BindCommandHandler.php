@@ -292,10 +292,6 @@ class BindCommandHandler
             $states[] = BindingState::DISABLED;
         }
 
-        if ($args->isOptionSet('undecided')) {
-            $states[] = BindingState::UNDECIDED;
-        }
-
         if ($args->isOptionSet('type-not-found')) {
             $states[] = BindingState::TYPE_NOT_FOUND;
         }
@@ -377,12 +373,6 @@ class BindCommandHandler
                 return;
             case BindingState::DISABLED:
                 $io->writeLine('The following bindings are disabled:');
-                $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
-                $io->writeLine('');
-
-                return;
-            case BindingState::UNDECIDED:
-                $io->writeLine('Bindings that are neither enabled nor disabled:');
                 $io->writeLine(' (use "puli bind --enable <uuid>" to enable)');
                 $io->writeLine('');
 

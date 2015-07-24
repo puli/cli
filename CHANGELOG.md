@@ -1,7 +1,10 @@
 Changelog
 =========
 
+* 1.0.0-next (@release_date@)
+
  * added `puli cat` command
+ * added `puli url` command
 
 * 1.0.0-beta5 (2015-05-29)
 

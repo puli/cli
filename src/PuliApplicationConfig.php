@@ -26,6 +26,7 @@ use Puli\Cli\Handler\SelfUpdateCommandHandler;
 use Puli\Cli\Handler\ServerCommandHandler;
 use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Cli\Handler\TypeCommandHandler;
+use Puli\Cli\Handler\UrlCommandHandler;
 use Puli\Manager\Api\Package\InstallInfo;
 use Puli\Manager\Api\Puli;
 use Puli\Manager\Api\Server\Server;
@@ -172,6 +173,18 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                         $puli->getRepositoryManager(),
                         $puli->getDiscoveryManager(),
                         $puli->getFactoryManager()
+                    );
+                })
+            ->end()
+        ;
+
+        $this
+            ->beginCommand('cat')
+                ->setDescription('Concatenate a file resource in the repository')
+                ->addArgument('path', Argument::REQUIRED, 'The path of a resource')
+                ->setHandler(function () use ($puli) {
+                    return new CatCommandHandler(
+                        $puli->getRepository()
                     );
                 })
             ->end()
@@ -531,14 +544,15 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         ;
 
         $this
-            ->beginCommand('cat')
-            ->setDescription('Concatenate a file resource in the repository')
-            ->addArgument('path', Argument::REQUIRED, 'The path of a resource')
-            ->setHandler(function () use ($puli) {
-                return new CatCommandHandler(
-                    $puli->getRepository()
-                );
-            })
+            ->beginCommand('url')
+                ->setDescription('Generate the URL of a public resource')
+                ->addArgument('path', Argument::REQUIRED | Argument::MULTI_VALUED, 'The path of a resource')
+                ->setHandler(function () use ($puli) {
+                    return new UrlCommandHandler(
+                        $puli->getUrlGenerator(),
+                        $puli->getRepository()
+                    );
+                })
             ->end()
         ;
     }

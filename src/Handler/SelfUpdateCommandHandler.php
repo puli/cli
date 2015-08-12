@@ -42,7 +42,9 @@ class SelfUpdateCommandHandler
         $updateStrategy->setPharName('puli.phar');
         $updateStrategy->setCurrentLocalVersion(PuliApplicationConfig::VERSION);
 
-        $updater = new Updater();
+        // false: disable signed releases, otherwise the updater will look for
+        // a *.pubkey file for the PHAR
+        $updater = new Updater(null, false);
         $updater->setStrategyObject($updateStrategy);
 
         if ($updater->update()) {

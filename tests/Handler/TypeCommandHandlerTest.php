@@ -658,7 +658,7 @@ EOF;
             ->method('removeRootBindingType')
             ->with('my/type');
 
-        $this->assertSame(0, $this->handler->handleRemove($args));
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     /**
@@ -677,7 +677,7 @@ EOF;
         $this->discoveryManager->expects($this->never())
             ->method('removeRootBindingType');
 
-        $this->assertSame(0, $this->handler->handleRemove($args));
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     private function packageAndState($packageName, $state)

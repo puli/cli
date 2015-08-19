@@ -192,7 +192,7 @@ class TypeCommandHandler
      *
      * @return int The status code.
      */
-    public function handleRemove(Args $args)
+    public function handleDelete(Args $args)
     {
         $typeName = $args->getArgument('name');
 

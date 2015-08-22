@@ -20,6 +20,9 @@
         "symfony/filesystem": "^2.3",
         "padraic/phar-updater": "^1.0.1"
     },
+    "require-dev": {
+        "webmozart/glob": "^3.1"
+    },
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {

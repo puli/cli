@@ -14,12 +14,12 @@ namespace Puli\Cli\Tests\Handler;
 use PHPUnit_Framework_TestCase;
 use Puli\Cli\PuliApplicationConfig;
 use Puli\Manager\Api\Puli;
-use Puli\Repository\Tests\TestUtil;
 use Webmozart\Console\Api\Application\Application;
 use Webmozart\Console\Api\Formatter\Formatter;
 use Webmozart\Console\ConsoleApplication;
 use Webmozart\Console\Formatter\PlainFormatter;
 use Webmozart\Console\IO\BufferedIO;
+use Webmozart\Glob\Test\TestUtil;
 
 /**
  * @since  1.0

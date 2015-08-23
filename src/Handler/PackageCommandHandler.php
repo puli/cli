@@ -11,17 +11,16 @@
 
 namespace Puli\Cli\Handler;
 
+use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\StringUtil;
 use Puli\Manager\Api\Package\Package;
 use Puli\Manager\Api\Package\PackageCollection;
 use Puli\Manager\Api\Package\PackageManager;
 use Puli\Manager\Api\Package\PackageState;
-use Puli\Manager\Api\Package\RootPackage;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
-use Webmozart\Console\UI\Style\TableStyle;
 use Webmozart\Expression\Expr;
 use Webmozart\PathUtil\Path;
 
@@ -263,6 +262,7 @@ class PackageCommandHandler
                 '%installer%' => $installInfo ? $installInfo->getInstallerName() : '',
                 '%install_path%' => $package->getInstallPath(),
                 '%state%' => self::$stateStrings[$package->getState()],
+                '%dev%' => $installInfo && $installInfo->isDev() ? 'true' : 'false',
             )));
         }
     }
@@ -277,7 +277,7 @@ class PackageCommandHandler
     {
         switch ($packageState) {
             case PackageState::ENABLED:
-                $io->writeLine('Enabled packages:');
+                $io->writeLine('The following packages are currently enabled:');
                 $io->writeLine('');
 
                 return;
@@ -306,9 +306,9 @@ class PackageCommandHandler
      */
     private function printPackageTable(IO $io, array $packages, $styleTag = null, $indent = false)
     {
-        $table = new Table(TableStyle::borderless());
+        $table = new Table(PuliTableStyle::borderless());
+        $table->setHeaderRow(array('Package Name', 'Installer', 'Dev', 'Install Path'));
 
-        $rootTag = $styleTag ?: 'b';
         $installerTag = $styleTag ?: 'c1';
         $pathTag = $styleTag ?: 'c2';
 
@@ -317,20 +317,16 @@ class PackageCommandHandler
         foreach ($packages as $package) {
             $packageName = $package->getName();
             $installInfo = $package->getInstallInfo();
-            $installPath = $installInfo ? $installInfo->getInstallPath() : '';
+            $installPath = $installInfo ? $installInfo->getInstallPath() : '.';
             $installer = $installInfo ? $installInfo->getInstallerName() : '';
-            $row = array();
+            $dev = $installInfo ? ($installInfo->isDev() ? 'yes' : 'no') : '';
 
-            if ($package instanceof RootPackage) {
-                $row[] = "<$rootTag>$packageName</$rootTag>";
-            } else {
-                $row[] = $styleTag ? "<$styleTag>$packageName</$styleTag>" : $packageName;
-            }
-
-            $row[] = $installer ? "<$installerTag>$installer</$installerTag>" : '';
-            $row[] = $installPath ? "<$pathTag>$installPath</$pathTag>" : '';
-
-            $table->addRow($row);
+            $table->addRow(array(
+                $styleTag ? "<$styleTag>$packageName</$styleTag>" : $packageName,
+                $installer ? "<$installerTag>$installer</$installerTag>" : '',
+                $dev,
+                $installPath ? "<$pathTag>$installPath</$pathTag>" : '',
+            ));
         }
 
         $table->render($io, $indent ? 4 : 0);
@@ -346,7 +342,8 @@ class PackageCommandHandler
     private function printNotLoadablePackages(IO $io, array $packages, $indent = false)
     {
         $rootDir = $this->packageManager->getEnvironment()->getRootDirectory();
-        $table = new Table(TableStyle::borderless());
+        $table = new Table(PuliTableStyle::borderless());
+        $table->setHeaderRow(array('Package Name', 'Error'));
 
         ksort($packages);
 
@@ -368,7 +365,7 @@ class PackageCommandHandler
             // Remove root directory
             $errorMessage = str_replace($rootDir.'/', '', $errorMessage);
 
-            $table->addRow(array("<bad>$packageName</bad>:", "<bad>$errorMessage</bad>"));
+            $table->addRow(array("<bad>$packageName</bad>", "<bad>$errorMessage</bad>"));
         }
 
         $table->render($io, $indent ? 4 : 0);

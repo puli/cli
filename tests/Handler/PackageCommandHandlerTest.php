@@ -118,28 +118,32 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
         $installInfo2 = new InstallInfo('vendor/package2', 'packages/package2');
         $installInfo3 = new InstallInfo('vendor/package3', 'packages/package3');
         $installInfo4 = new InstallInfo('vendor/package4', 'packages/package4');
+        $installInfo5 = new InstallInfo('vendor/package5', 'packages/package5');
 
         $installInfo1->setInstallerName('spock');
         $installInfo2->setInstallerName('spock');
         $installInfo3->setInstallerName('kirk');
         $installInfo4->setInstallerName('spock');
+        $installInfo5->setInstallerName('spock');
+        $installInfo5->setDev(true);
 
         $rootPackage = new RootPackage(new RootPackageFile('vendor/root'), __DIR__.'/Fixtures/root');
         $package1 = new Package(new PackageFile('vendor/package1'), __DIR__.'/Fixtures/root/packages/package1', $installInfo1);
         $package2 = new Package(new PackageFile('vendor/package2'), __DIR__.'/Fixtures/root/packages/package2', $installInfo2);
         $package3 = new Package(new PackageFile('vendor/package3'), __DIR__.'/Fixtures/root/packages/package3', $installInfo3);
         $package4 = new Package(null, __DIR__.'/Fixtures/root/packages/package4', $installInfo4, array(new RuntimeException('Load error')));
+        $package5 = new Package(new PackageFile('vendor/package5'), __DIR__.'/Fixtures/root/packages/package5', $installInfo5);
 
         $this->packageManager->expects($this->any())
             ->method('findPackages')
             ->willReturnCallback($this->returnFromMap(array(
-                array($this->all(), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4))),
-                array($this->installer('spock'), new PackageCollection(array($package1, $package2, $package4))),
-                array($this->state(PackageState::ENABLED), new PackageCollection(array($rootPackage, $package1, $package2))),
+                array($this->all(), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4, $package5))),
+                array($this->installer('spock'), new PackageCollection(array($package1, $package2, $package4, $package5))),
+                array($this->state(PackageState::ENABLED), new PackageCollection(array($rootPackage, $package1, $package2, $package5))),
                 array($this->state(PackageState::NOT_FOUND), new PackageCollection(array($package3))),
                 array($this->state(PackageState::NOT_LOADABLE), new PackageCollection(array($package4))),
-                array($this->states(array(PackageState::ENABLED, PackageState::NOT_FOUND)), new PackageCollection(array($rootPackage, $package1, $package2, $package3))),
-                array($this->installerAndState('spock', PackageState::ENABLED), new PackageCollection(array($package1, $package2))),
+                array($this->states(array(PackageState::ENABLED, PackageState::NOT_FOUND)), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package5))),
+                array($this->installerAndState('spock', PackageState::ENABLED), new PackageCollection(array($package1, $package2, $package5))),
                 array($this->installerAndState('spock', PackageState::NOT_FOUND), new PackageCollection(array())),
                 array($this->installerAndState('spock', PackageState::NOT_LOADABLE), new PackageCollection(array($package4))),
             )));
@@ -162,20 +166,24 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Enabled packages:
+The following packages are currently enabled:
 
-    vendor/package1 spock packages/package1
-    vendor/package2 spock packages/package2
-    vendor/root
+    Package Name     Installer  Dev  Install Path
+    vendor/package1  spock      no   packages/package1
+    vendor/package2  spock      no   packages/package2
+    vendor/package5  spock      yes  packages/package5
+    vendor/root                      .
 
 The following packages could not be found:
  (use "puli package --clean" to remove)
 
-    vendor/package3 kirk packages/package3
+    Package Name     Installer  Dev  Install Path
+    vendor/package3  kirk       no   packages/package3
 
 The following packages could not be loaded:
 
-    vendor/package4: RuntimeException: Load error
+    Package Name     Error
+    vendor/package4  RuntimeException: Load error
 
 
 EOF;
@@ -192,14 +200,17 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Enabled packages:
+The following packages are currently enabled:
 
-    vendor/package1 spock packages/package1
-    vendor/package2 spock packages/package2
+    Package Name     Installer  Dev  Install Path
+    vendor/package1  spock      no   packages/package1
+    vendor/package2  spock      no   packages/package2
+    vendor/package5  spock      yes  packages/package5
 
 The following packages could not be loaded:
 
-    vendor/package4: RuntimeException: Load error
+    Package Name     Error
+    vendor/package4  RuntimeException: Load error
 
 
 EOF;
@@ -216,9 +227,11 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/package1 spock packages/package1
-vendor/package2 spock packages/package2
-vendor/root
+Package Name     Installer  Dev  Install Path
+vendor/package1  spock      no   packages/package1
+vendor/package2  spock      no   packages/package2
+vendor/package5  spock      yes  packages/package5
+vendor/root                      .
 
 EOF;
 
@@ -234,7 +247,8 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/package3 kirk packages/package3
+Package Name     Installer  Dev  Install Path
+vendor/package3  kirk       no   packages/package3
 
 EOF;
 
@@ -250,7 +264,8 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/package4: RuntimeException: Load error
+Package Name     Error
+vendor/package4  RuntimeException: Load error
 
 EOF;
 
@@ -266,16 +281,19 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Enabled packages:
+The following packages are currently enabled:
 
-    vendor/package1 spock packages/package1
-    vendor/package2 spock packages/package2
-    vendor/root
+    Package Name     Installer  Dev  Install Path
+    vendor/package1  spock      no   packages/package1
+    vendor/package2  spock      no   packages/package2
+    vendor/package5  spock      yes  packages/package5
+    vendor/root                      .
 
 The following packages could not be found:
  (use "puli package --clean" to remove)
 
-    vendor/package3 kirk packages/package3
+    Package Name     Installer  Dev  Install Path
+    vendor/package3  kirk       no   packages/package3
 
 
 EOF;
@@ -292,8 +310,10 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/package1 spock packages/package1
-vendor/package2 spock packages/package2
+Package Name     Installer  Dev  Install Path
+vendor/package1  spock      no   packages/package1
+vendor/package2  spock      no   packages/package2
+vendor/package5  spock      yes  packages/package5
 
 EOF;
 
@@ -304,17 +324,18 @@ EOF;
 
     public function testListPackagesWithFormat()
     {
-        $args = self::$listCommand->parseArgs(new StringArgs('--format %name%:%installer%:%install_path%:%state%'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--format %name%:%installer%:%install_path%:%state%:%dev%'));
 
         $rootDir = $this->environment->getRootDirectory();
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/root::$rootDir:enabled
-vendor/package1:spock:$rootDir/packages/package1:enabled
-vendor/package2:spock:$rootDir/packages/package2:enabled
-vendor/package3:kirk:$rootDir/packages/package3:not-found
-vendor/package4:spock:$rootDir/packages/package4:not-loadable
+vendor/root::$rootDir:enabled:false
+vendor/package1:spock:$rootDir/packages/package1:enabled:false
+vendor/package2:spock:$rootDir/packages/package2:enabled:false
+vendor/package3:kirk:$rootDir/packages/package3:not-found:false
+vendor/package4:spock:$rootDir/packages/package4:not-loadable:false
+vendor/package5:spock:$rootDir/packages/package5:enabled:true
 
 EOF;
 

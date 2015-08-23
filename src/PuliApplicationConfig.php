@@ -338,7 +338,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addArgument('path', Argument::REQUIRED, 'The path to the package')
                     ->addArgument('name', Argument::OPTIONAL, 'The name of the package. Taken from puli.json if not passed.')
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the installer', InstallInfo::DEFAULT_INSTALLER_NAME)
-                    ->addOption('dev', null, Option::NO_VALUE, 'Set this option to install as development package')
+                    ->addOption('dev', null, Option::NO_VALUE, 'Install the package in the development environment')
                     ->setHandlerMethod('handleInstall')
                 ->end()
 
@@ -348,6 +348,8 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled packages')
                     ->addOption('not-found', null, Option::NO_VALUE, 'Show packages that could not be found')
                     ->addOption('not-loadable', null, Option::NO_VALUE, 'Show packages that could not be loaded')
+                    ->addOption('dev', null, Option::NO_VALUE, 'Show packages of the development environment')
+                    ->addOption('no-dev', null, Option::NO_VALUE, 'Show packages of the production environment')
                     ->addOption('format', null, Option::REQUIRED_VALUE, 'The format of the output. You can use the variables %name%, %install_path%, %installer% and %state% in the format string', null, 'format')
                     ->setHandlerMethod('handleList')
                 ->end()

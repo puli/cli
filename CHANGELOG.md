@@ -5,7 +5,8 @@ Changelog
 
  * renamed `puli package --add` to `puli package --install`
  * added `--dev` option to `puli package --install` command
- * added `%dev%` variable to `--format` option of `puli package` command
+ * added `%dev%` variable to `--format` option of `puli package --list`
+ * added `--dev` and `--no-dev` options to `puli package --list`
 
 * 1.0.0-beta6 (2015-08-12)
 

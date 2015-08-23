@@ -138,6 +138,9 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
             ->method('findPackages')
             ->willReturnCallback($this->returnFromMap(array(
                 array($this->all(), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4, $package5))),
+                array($this->dev(array(true)), new PackageCollection(array($package5))),
+                array($this->dev(array(false)), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4))),
+                array($this->dev(array(true, false)), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4, $package5))),
                 array($this->installer('spock'), new PackageCollection(array($package1, $package2, $package4, $package5))),
                 array($this->state(PackageState::ENABLED), new PackageCollection(array($rootPackage, $package1, $package2, $package5))),
                 array($this->state(PackageState::NOT_FOUND), new PackageCollection(array($package3))),
@@ -322,6 +325,96 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
+    public function testListDevPackages()
+    {
+        $args = self::$listCommand->parseArgs(new StringArgs('--dev'));
+
+        $statusCode = $this->handler->handleList($args, $this->io);
+
+        $expected = <<<EOF
+The following packages are currently enabled:
+
+    Package Name     Installer  Dev  Install Path
+    vendor/package5  spock      yes  packages/package5
+
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testListNoDevPackages()
+    {
+        $args = self::$listCommand->parseArgs(new StringArgs('--no-dev'));
+
+        $statusCode = $this->handler->handleList($args, $this->io);
+
+        $expected = <<<EOF
+The following packages are currently enabled:
+
+    Package Name     Installer  Dev  Install Path
+    vendor/package1  spock      no   packages/package1
+    vendor/package2  spock      no   packages/package2
+    vendor/root                      .
+
+The following packages could not be found:
+ (use "puli package --clean" to remove)
+
+    Package Name     Installer  Dev  Install Path
+    vendor/package3  kirk       no   packages/package3
+
+The following packages could not be loaded:
+
+    Package Name     Error
+    vendor/package4  RuntimeException: Load error
+
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
+    public function testListDevAndNoDevPackages()
+    {
+        // Same as if passing none of the too
+        // Does not make much sense but could occur if building the
+        // "package list" command dynamically
+        $args = self::$listCommand->parseArgs(new StringArgs('--dev --no-dev'));
+
+        $statusCode = $this->handler->handleList($args, $this->io);
+
+        $expected = <<<EOF
+The following packages are currently enabled:
+
+    Package Name     Installer  Dev  Install Path
+    vendor/package1  spock      no   packages/package1
+    vendor/package2  spock      no   packages/package2
+    vendor/package5  spock      yes  packages/package5
+    vendor/root                      .
+
+The following packages could not be found:
+ (use "puli package --clean" to remove)
+
+    Package Name     Installer  Dev  Install Path
+    vendor/package3  kirk       no   packages/package3
+
+The following packages could not be loaded:
+
+    Package Name     Error
+    vendor/package4  RuntimeException: Load error
+
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
     public function testListPackagesWithFormat()
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--format %name%:%installer%:%install_path%:%state%:%dev%'));
@@ -468,6 +561,11 @@ EOF;
     private function all()
     {
         return Expr::true();
+    }
+
+    private function dev(array $dev)
+    {
+        return Expr::in($dev, Package::DEV);
     }
 
     private function state($state)

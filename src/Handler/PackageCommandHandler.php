@@ -196,6 +196,7 @@ class PackageCommandHandler
     {
         $states = $this->getSelectedStates($args);
         $expr = Expr::true();
+        $dev = array();
 
         if ($states !== PackageState::all()) {
             $expr = $expr->andIn($states, Package::STATE);
@@ -203,6 +204,18 @@ class PackageCommandHandler
 
         if ($args->isOptionSet('installer')) {
             $expr = $expr->andSame($args->getOption('installer'), Package::INSTALLER);
+        }
+
+        if ($args->isOptionSet('dev')) {
+            $dev[] = true;
+        }
+
+        if ($args->isOptionSet('no-dev')) {
+            $dev[] = false;
+        }
+
+        if (count($dev) > 0) {
+            $expr = $expr->andIn($dev, Package::DEV);
         }
 
         return $this->packageManager->findPackages($expr);

@@ -329,7 +329,7 @@ EOF;
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
-            ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME);
+            ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, false);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
@@ -340,7 +340,7 @@ EOF;
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
-            ->with('/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME);
+            ->with('/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, false);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
@@ -351,7 +351,7 @@ EOF;
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
-            ->with('/packages/package1', 'custom/package1', InstallInfo::DEFAULT_INSTALLER_NAME);
+            ->with('/packages/package1', 'custom/package1', InstallInfo::DEFAULT_INSTALLER_NAME, false);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
@@ -362,7 +362,18 @@ EOF;
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
-            ->with('/packages/package1', null, 'kirk');
+            ->with('/packages/package1', null, 'kirk', false);
+
+        $this->assertSame(0, $this->handler->handleInstall($args));
+    }
+
+    public function testInstallDevPackage()
+    {
+        $args = self::$installCommand->parseArgs(new StringArgs('--dev packages/package1'));
+
+        $this->packageManager->expects($this->once())
+            ->method('installPackage')
+            ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, true);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }

@@ -338,6 +338,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addArgument('path', Argument::REQUIRED, 'The path to the package')
                     ->addArgument('name', Argument::OPTIONAL, 'The name of the package. Taken from puli.json if not passed.')
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the installer', InstallInfo::DEFAULT_INSTALLER_NAME)
+                    ->addOption('dev', null, Option::NO_VALUE, 'Set this option to install as development package')
                     ->setHandlerMethod('handleInstall')
                 ->end()
 

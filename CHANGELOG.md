@@ -4,6 +4,7 @@ Changelog
 * 1.0.0-beta7 (@release_date@)
 
  * renamed `puli package --add` to `puli package --install`
+ * added `--dev` option to `puli package --install` command
 
 * 1.0.0-beta6 (2015-08-12)
 

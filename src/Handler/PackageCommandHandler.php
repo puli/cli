@@ -91,8 +91,9 @@ class PackageCommandHandler
         $packageName = $args->getArgument('name');
         $installPath = Path::makeAbsolute($args->getArgument('path'), getcwd());
         $installer = $args->getOption('installer');
+        $dev = $args->isOptionSet('dev');
 
-        $this->packageManager->installPackage($installPath, $packageName, $installer);
+        $this->packageManager->installPackage($installPath, $packageName, $installer, $dev);
 
         return 0;
     }

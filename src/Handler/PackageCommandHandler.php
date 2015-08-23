@@ -80,13 +80,13 @@ class PackageCommandHandler
     }
 
     /**
-     * Handles the "package --add" command.
+     * Handles the "package --install" command.
      *
      * @param Args $args The console arguments.
      *
      * @return int The status code.
      */
-    public function handleAdd(Args $args)
+    public function handleInstall(Args $args)
     {
         $packageName = $args->getArgument('name');
         $installPath = Path::makeAbsolute($args->getArgument('path'), getcwd());

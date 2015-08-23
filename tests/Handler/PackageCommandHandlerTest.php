@@ -43,7 +43,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var Command
      */
-    private static $addCommand;
+    private static $installCommand;
 
     /**
      * @var Command
@@ -90,7 +90,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUpBeforeClass();
 
         self::$listCommand = self::$application->getCommand('package')->getSubCommand('list');
-        self::$addCommand = self::$application->getCommand('package')->getSubCommand('add');
+        self::$installCommand = self::$application->getCommand('package')->getSubCommand('install');
         self::$renameCommand = self::$application->getCommand('package')->getSubCommand('rename');
         self::$deleteCommand = self::$application->getCommand('package')->getSubCommand('delete');
         self::$cleanCommand = self::$application->getCommand('package')->getSubCommand('clean');
@@ -323,48 +323,48 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testAddPackageWithRelativePath()
+    public function testInstallPackageWithRelativePath()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('packages/package1'));
+        $args = self::$installCommand->parseArgs(new StringArgs('packages/package1'));
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
             ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME);
 
-        $this->assertSame(0, $this->handler->handleAdd($args));
+        $this->assertSame(0, $this->handler->handleInstall($args));
     }
 
-    public function testAddPackageWithAbsolutePath()
+    public function testInstallPackageWithAbsolutePath()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('/packages/package1'));
+        $args = self::$installCommand->parseArgs(new StringArgs('/packages/package1'));
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
             ->with('/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME);
 
-        $this->assertSame(0, $this->handler->handleAdd($args));
+        $this->assertSame(0, $this->handler->handleInstall($args));
     }
 
-    public function testAddPackageWithCustomName()
+    public function testInstallPackageWithCustomName()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('/packages/package1 custom/package1'));
+        $args = self::$installCommand->parseArgs(new StringArgs('/packages/package1 custom/package1'));
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
             ->with('/packages/package1', 'custom/package1', InstallInfo::DEFAULT_INSTALLER_NAME);
 
-        $this->assertSame(0, $this->handler->handleAdd($args));
+        $this->assertSame(0, $this->handler->handleInstall($args));
     }
 
-    public function testAddPackageWithCustomInstaller()
+    public function testInstallPackageWithCustomInstaller()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('--installer kirk /packages/package1'));
+        $args = self::$installCommand->parseArgs(new StringArgs('--installer kirk /packages/package1'));
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
             ->with('/packages/package1', null, 'kirk');
 
-        $this->assertSame(0, $this->handler->handleAdd($args));
+        $this->assertSame(0, $this->handler->handleInstall($args));
     }
 
     public function testRenamePackage()

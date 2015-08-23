@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* 1.0.0-beta7 (@release_date@)
+
+ * renamed `puli package --add` to `puli package --install`
+
 * 1.0.0-beta6 (2015-08-12)
 
  * added `puli cat` command

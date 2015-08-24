@@ -12,7 +12,9 @@
 namespace Puli\Cli\Tests;
 
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
+use Webmozart\PathUtil\Path;
 
 /**
  * @since  1.0
@@ -23,8 +25,14 @@ class PuliBinTest extends PHPUnit_Framework_TestCase
 {
     public function testRunHelp()
     {
-        $rootDir = realpath(__DIR__.'/..');
-        $process = new Process($rootDir.'/bin/puli');
+        $phpFinder = new PhpExecutableFinder();
+
+        if (!($php = $phpFinder->find())) {
+            $this->markTestSkipped('The "php" command could not be found.');
+        }
+
+        $rootDir = Path::normalize(realpath(__DIR__.'/..'));
+        $process = new Process($php.' '.$rootDir.'/bin/puli');
 
         $status = $process->run();
         $output = $process->getOutput();

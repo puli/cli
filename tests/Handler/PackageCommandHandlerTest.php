@@ -28,6 +28,7 @@ use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 use Webmozart\Expression\Expr;
 use Webmozart\Expression\Expression;
+use Webmozart\PathUtil\Path;
 
 /**
  * @since  1.0
@@ -153,7 +154,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
             )));
 
         $this->previousWd = getcwd();
-        $this->wd = __DIR__;
+        $this->wd = Path::normalize(__DIR__);
 
         chdir($this->wd);
     }

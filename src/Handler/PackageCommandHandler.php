@@ -13,6 +13,7 @@ namespace Puli\Cli\Handler;
 
 use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\StringUtil;
+use Puli\Manager\Api\Environment;
 use Puli\Manager\Api\Package\Package;
 use Puli\Manager\Api\Package\PackageCollection;
 use Puli\Manager\Api\Package\PackageManager;
@@ -196,7 +197,7 @@ class PackageCommandHandler
     {
         $states = $this->getSelectedStates($args);
         $expr = Expr::true();
-        $dev = array();
+        $envs = array();
 
         if ($states !== PackageState::all()) {
             $expr = $expr->andIn($states, Package::STATE);
@@ -206,16 +207,16 @@ class PackageCommandHandler
             $expr = $expr->andSame($args->getOption('installer'), Package::INSTALLER);
         }
 
+        if ($args->isOptionSet('prod')) {
+            $envs[] = Environment::PROD;
+        }
+
         if ($args->isOptionSet('dev')) {
-            $dev[] = true;
+            $envs[] = Environment::DEV;
         }
 
-        if ($args->isOptionSet('no-dev')) {
-            $dev[] = false;
-        }
-
-        if (count($dev) > 0) {
-            $expr = $expr->andIn($dev, Package::DEV);
+        if (count($envs) > 0) {
+            $expr = $expr->andIn($envs, Package::ENVIRONMENT);
         }
 
         return $this->packageManager->findPackages($expr);
@@ -275,7 +276,7 @@ class PackageCommandHandler
                 '%installer%' => $installInfo ? $installInfo->getInstallerName() : '',
                 '%install_path%' => $package->getInstallPath(),
                 '%state%' => self::$stateStrings[$package->getState()],
-                '%dev%' => $installInfo && $installInfo->isDev() ? 'true' : 'false',
+                '%env%' => $installInfo ? $installInfo->getEnvironment() : Environment::PROD,
             )));
         }
     }
@@ -320,9 +321,10 @@ class PackageCommandHandler
     private function printPackageTable(IO $io, array $packages, $styleTag = null, $indent = false)
     {
         $table = new Table(PuliTableStyle::borderless());
-        $table->setHeaderRow(array('Package Name', 'Installer', 'Dev', 'Install Path'));
+        $table->setHeaderRow(array('Package Name', 'Installer', 'Env', 'Install Path'));
 
         $installerTag = $styleTag ?: 'c1';
+        $envTag = $styleTag ?: 'c1';
         $pathTag = $styleTag ?: 'c2';
 
         ksort($packages);
@@ -332,13 +334,13 @@ class PackageCommandHandler
             $installInfo = $package->getInstallInfo();
             $installPath = $installInfo ? $installInfo->getInstallPath() : '.';
             $installer = $installInfo ? $installInfo->getInstallerName() : '';
-            $dev = $installInfo ? ($installInfo->isDev() ? 'yes' : 'no') : '';
+            $env = $installInfo ? $installInfo->getEnvironment() : Environment::PROD;
 
             $table->addRow(array(
                 $styleTag ? "<$styleTag>$packageName</$styleTag>" : $packageName,
                 $installer ? "<$installerTag>$installer</$installerTag>" : '',
-                $dev,
-                $installPath ? "<$pathTag>$installPath</$pathTag>" : '',
+                "<$envTag>$env</$envTag>",
+                "<$pathTag>$installPath</$pathTag>",
             ));
         }
 
@@ -354,7 +356,7 @@ class PackageCommandHandler
      */
     private function printNotLoadablePackages(IO $io, array $packages, $indent = false)
     {
-        $rootDir = $this->packageManager->getEnvironment()->getRootDirectory();
+        $rootDir = $this->packageManager->getContext()->getRootDirectory();
         $table = new Table(PuliTableStyle::borderless());
         $table->setHeaderRow(array('Package Name', 'Error'));
 

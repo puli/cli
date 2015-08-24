@@ -13,7 +13,8 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\PackageCommandHandler;
-use Puli\Manager\Api\Environment\ProjectEnvironment;
+use Puli\Manager\Api\Context\ProjectContext;
+use Puli\Manager\Api\Environment;
 use Puli\Manager\Api\Package\InstallInfo;
 use Puli\Manager\Api\Package\Package;
 use Puli\Manager\Api\Package\PackageCollection;
@@ -61,9 +62,9 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
     private static $cleanCommand;
 
     /**
-     * @var PHPUnit_Framework_MockObject_MockObject|ProjectEnvironment
+     * @var PHPUnit_Framework_MockObject_MockObject|ProjectContext
      */
-    private $environment;
+    private $context;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject|PackageManager
@@ -100,19 +101,19 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUp();
 
-        $this->environment = $this->getMockBuilder('Puli\Manager\Api\Environment\ProjectEnvironment')
+        $this->context = $this->getMockBuilder('Puli\Manager\Api\Context\ProjectContext')
             ->disableOriginalConstructor()
             ->getMock();
         $this->packageManager = $this->getMock('Puli\Manager\Api\Package\PackageManager');
         $this->handler = new PackageCommandHandler($this->packageManager);
 
-        $this->environment->expects($this->any())
+        $this->context->expects($this->any())
             ->method('getRootDirectory')
             ->willReturn(__DIR__.'/Fixtures/root');
 
         $this->packageManager->expects($this->any())
-            ->method('getEnvironment')
-            ->willReturn($this->environment);
+            ->method('getContext')
+            ->willReturn($this->context);
 
         $installInfo1 = new InstallInfo('vendor/package1', 'packages/package1');
         $installInfo2 = new InstallInfo('vendor/package2', 'packages/package2');
@@ -125,7 +126,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
         $installInfo3->setInstallerName('kirk');
         $installInfo4->setInstallerName('spock');
         $installInfo5->setInstallerName('spock');
-        $installInfo5->setDev(true);
+        $installInfo5->setEnvironment(Environment::DEV);
 
         $rootPackage = new RootPackage(new RootPackageFile('vendor/root'), __DIR__.'/Fixtures/root');
         $package1 = new Package(new PackageFile('vendor/package1'), __DIR__.'/Fixtures/root/packages/package1', $installInfo1);
@@ -138,9 +139,9 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
             ->method('findPackages')
             ->willReturnCallback($this->returnFromMap(array(
                 array($this->all(), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4, $package5))),
-                array($this->dev(array(true)), new PackageCollection(array($package5))),
-                array($this->dev(array(false)), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4))),
-                array($this->dev(array(true, false)), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4, $package5))),
+                array($this->env(array(Environment::PROD, Environment::DEV)), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4, $package5))),
+                array($this->env(array(Environment::PROD)), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4))),
+                array($this->env(array(Environment::DEV)), new PackageCollection(array($package5))),
                 array($this->installer('spock'), new PackageCollection(array($package1, $package2, $package4, $package5))),
                 array($this->state(PackageState::ENABLED), new PackageCollection(array($rootPackage, $package1, $package2, $package5))),
                 array($this->state(PackageState::NOT_FOUND), new PackageCollection(array($package3))),
@@ -171,17 +172,17 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
         $expected = <<<EOF
 The following packages are currently enabled:
 
-    Package Name     Installer  Dev  Install Path
-    vendor/package1  spock      no   packages/package1
-    vendor/package2  spock      no   packages/package2
-    vendor/package5  spock      yes  packages/package5
-    vendor/root                      .
+    Package Name     Installer  Env   Install Path
+    vendor/package1  spock      prod  packages/package1
+    vendor/package2  spock      prod  packages/package2
+    vendor/package5  spock      dev   packages/package5
+    vendor/root                 prod  .
 
 The following packages could not be found:
  (use "puli package --clean" to remove)
 
-    Package Name     Installer  Dev  Install Path
-    vendor/package3  kirk       no   packages/package3
+    Package Name     Installer  Env   Install Path
+    vendor/package3  kirk       prod  packages/package3
 
 The following packages could not be loaded:
 
@@ -205,10 +206,10 @@ EOF;
         $expected = <<<EOF
 The following packages are currently enabled:
 
-    Package Name     Installer  Dev  Install Path
-    vendor/package1  spock      no   packages/package1
-    vendor/package2  spock      no   packages/package2
-    vendor/package5  spock      yes  packages/package5
+    Package Name     Installer  Env   Install Path
+    vendor/package1  spock      prod  packages/package1
+    vendor/package2  spock      prod  packages/package2
+    vendor/package5  spock      dev   packages/package5
 
 The following packages could not be loaded:
 
@@ -230,11 +231,11 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Package Name     Installer  Dev  Install Path
-vendor/package1  spock      no   packages/package1
-vendor/package2  spock      no   packages/package2
-vendor/package5  spock      yes  packages/package5
-vendor/root                      .
+Package Name     Installer  Env   Install Path
+vendor/package1  spock      prod  packages/package1
+vendor/package2  spock      prod  packages/package2
+vendor/package5  spock      dev   packages/package5
+vendor/root                 prod  .
 
 EOF;
 
@@ -250,8 +251,8 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Package Name     Installer  Dev  Install Path
-vendor/package3  kirk       no   packages/package3
+Package Name     Installer  Env   Install Path
+vendor/package3  kirk       prod  packages/package3
 
 EOF;
 
@@ -286,17 +287,17 @@ EOF;
         $expected = <<<EOF
 The following packages are currently enabled:
 
-    Package Name     Installer  Dev  Install Path
-    vendor/package1  spock      no   packages/package1
-    vendor/package2  spock      no   packages/package2
-    vendor/package5  spock      yes  packages/package5
-    vendor/root                      .
+    Package Name     Installer  Env   Install Path
+    vendor/package1  spock      prod  packages/package1
+    vendor/package2  spock      prod  packages/package2
+    vendor/package5  spock      dev   packages/package5
+    vendor/root                 prod  .
 
 The following packages could not be found:
  (use "puli package --clean" to remove)
 
-    Package Name     Installer  Dev  Install Path
-    vendor/package3  kirk       no   packages/package3
+    Package Name     Installer  Env   Install Path
+    vendor/package3  kirk       prod  packages/package3
 
 
 EOF;
@@ -313,10 +314,10 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-Package Name     Installer  Dev  Install Path
-vendor/package1  spock      no   packages/package1
-vendor/package2  spock      no   packages/package2
-vendor/package5  spock      yes  packages/package5
+Package Name     Installer  Env   Install Path
+vendor/package1  spock      prod  packages/package1
+vendor/package2  spock      prod  packages/package2
+vendor/package5  spock      dev   packages/package5
 
 EOF;
 
@@ -334,8 +335,8 @@ EOF;
         $expected = <<<EOF
 The following packages are currently enabled:
 
-    Package Name     Installer  Dev  Install Path
-    vendor/package5  spock      yes  packages/package5
+    Package Name     Installer  Env  Install Path
+    vendor/package5  spock      dev  packages/package5
 
 
 EOF;
@@ -347,23 +348,23 @@ EOF;
 
     public function testListNoDevPackages()
     {
-        $args = self::$listCommand->parseArgs(new StringArgs('--no-dev'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--prod'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 The following packages are currently enabled:
 
-    Package Name     Installer  Dev  Install Path
-    vendor/package1  spock      no   packages/package1
-    vendor/package2  spock      no   packages/package2
-    vendor/root                      .
+    Package Name     Installer  Env   Install Path
+    vendor/package1  spock      prod  packages/package1
+    vendor/package2  spock      prod  packages/package2
+    vendor/root                 prod  .
 
 The following packages could not be found:
  (use "puli package --clean" to remove)
 
-    Package Name     Installer  Dev  Install Path
-    vendor/package3  kirk       no   packages/package3
+    Package Name     Installer  Env   Install Path
+    vendor/package3  kirk       prod  packages/package3
 
 The following packages could not be loaded:
 
@@ -383,24 +384,24 @@ EOF;
         // Same as if passing none of the too
         // Does not make much sense but could occur if building the
         // "package list" command dynamically
-        $args = self::$listCommand->parseArgs(new StringArgs('--dev --no-dev'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--dev --prod'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
 The following packages are currently enabled:
 
-    Package Name     Installer  Dev  Install Path
-    vendor/package1  spock      no   packages/package1
-    vendor/package2  spock      no   packages/package2
-    vendor/package5  spock      yes  packages/package5
-    vendor/root                      .
+    Package Name     Installer  Env   Install Path
+    vendor/package1  spock      prod  packages/package1
+    vendor/package2  spock      prod  packages/package2
+    vendor/package5  spock      dev   packages/package5
+    vendor/root                 prod  .
 
 The following packages could not be found:
  (use "puli package --clean" to remove)
 
-    Package Name     Installer  Dev  Install Path
-    vendor/package3  kirk       no   packages/package3
+    Package Name     Installer  Env   Install Path
+    vendor/package3  kirk       prod  packages/package3
 
 The following packages could not be loaded:
 
@@ -417,18 +418,18 @@ EOF;
 
     public function testListPackagesWithFormat()
     {
-        $args = self::$listCommand->parseArgs(new StringArgs('--format %name%:%installer%:%install_path%:%state%:%dev%'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--format %name%:%installer%:%install_path%:%state%:%env%'));
 
-        $rootDir = $this->environment->getRootDirectory();
+        $rootDir = $this->context->getRootDirectory();
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-vendor/root::$rootDir:enabled:false
-vendor/package1:spock:$rootDir/packages/package1:enabled:false
-vendor/package2:spock:$rootDir/packages/package2:enabled:false
-vendor/package3:kirk:$rootDir/packages/package3:not-found:false
-vendor/package4:spock:$rootDir/packages/package4:not-loadable:false
-vendor/package5:spock:$rootDir/packages/package5:enabled:true
+vendor/root::$rootDir:enabled:prod
+vendor/package1:spock:$rootDir/packages/package1:enabled:prod
+vendor/package2:spock:$rootDir/packages/package2:enabled:prod
+vendor/package3:kirk:$rootDir/packages/package3:not-found:prod
+vendor/package4:spock:$rootDir/packages/package4:not-loadable:prod
+vendor/package5:spock:$rootDir/packages/package5:enabled:dev
 
 EOF;
 
@@ -563,9 +564,9 @@ EOF;
         return Expr::true();
     }
 
-    private function dev(array $dev)
+    private function env(array $envs)
     {
-        return Expr::in($dev, Package::DEV);
+        return Expr::in($envs, Package::ENVIRONMENT);
     }
 
     private function state($state)

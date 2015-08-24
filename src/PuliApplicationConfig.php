@@ -349,7 +349,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addOption('not-found', null, Option::NO_VALUE, 'Show packages that could not be found')
                     ->addOption('not-loadable', null, Option::NO_VALUE, 'Show packages that could not be loaded')
                     ->addOption('dev', null, Option::NO_VALUE, 'Show packages of the development environment')
-                    ->addOption('no-dev', null, Option::NO_VALUE, 'Show packages of the production environment')
+                    ->addOption('prod', null, Option::NO_VALUE, 'Show packages of the production environment')
                     ->addOption('format', null, Option::REQUIRED_VALUE, 'The format of the output. You can use the variables %name%, %install_path%, %installer% and %state% in the format string', null, 'format')
                     ->setHandlerMethod('handleList')
                 ->end()

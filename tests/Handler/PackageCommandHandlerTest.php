@@ -444,7 +444,7 @@ EOF;
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
-            ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, false);
+            ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, Environment::PROD);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
@@ -455,7 +455,7 @@ EOF;
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
-            ->with('/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, false);
+            ->with('/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, Environment::PROD);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
@@ -466,7 +466,7 @@ EOF;
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
-            ->with('/packages/package1', 'custom/package1', InstallInfo::DEFAULT_INSTALLER_NAME, false);
+            ->with('/packages/package1', 'custom/package1', InstallInfo::DEFAULT_INSTALLER_NAME, Environment::PROD);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
@@ -477,7 +477,7 @@ EOF;
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
-            ->with('/packages/package1', null, 'kirk', false);
+            ->with('/packages/package1', null, 'kirk', Environment::PROD);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
@@ -488,7 +488,7 @@ EOF;
 
         $this->packageManager->expects($this->once())
             ->method('installPackage')
-            ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, true);
+            ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, Environment::DEV);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }

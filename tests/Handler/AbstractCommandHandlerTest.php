@@ -13,12 +13,12 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_TestCase;
 use Puli\Cli\PuliApplicationConfig;
+use Puli\Cli\Tests\Handler\Util\NormalizedLineEndingsIO;
 use Puli\Manager\Api\Puli;
 use Webmozart\Console\Api\Application\Application;
 use Webmozart\Console\Api\Formatter\Formatter;
 use Webmozart\Console\ConsoleApplication;
 use Webmozart\Console\Formatter\PlainFormatter;
-use Webmozart\Console\IO\BufferedIO;
 use Webmozart\Glob\Test\TestUtil;
 
 /**
@@ -44,7 +44,7 @@ abstract class AbstractCommandHandlerTest extends PHPUnit_Framework_TestCase
     protected static $formatter;
 
     /**
-     * @var BufferedIO
+     * @var NormalizedLineEndingsIO
      */
     protected $io;
 
@@ -57,6 +57,6 @@ abstract class AbstractCommandHandlerTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->io = new BufferedIO('', self::$formatter);
+        $this->io = new NormalizedLineEndingsIO('', self::$formatter);
     }
 }

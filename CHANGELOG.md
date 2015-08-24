@@ -1,12 +1,15 @@
 Changelog
 =========
 
-* 1.0.0-beta7 (@release_date@)
+* 1.0.0-beta7 (2015-08-24)
 
  * renamed `puli package --add` to `puli package --install`
  * added `--dev` option to `puli package --install` command
  * added `%env%` variable to `--format` option of `puli package --list`
  * added `--dev` and `--prod` options to `puli package --list`
+ * upgraded to webmozart/glob 3.1
+ * fixed minimum package versions in composer.json
+ * improved Windows compatibility
 
 * 1.0.0-beta6 (2015-08-12)
 

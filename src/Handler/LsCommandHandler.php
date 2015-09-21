@@ -78,9 +78,11 @@ class LsCommandHandler
 
         if ($args->isOptionSet('long')) {
             $this->listLong($io, $resource->listChildren());
-        } else {
-            $this->listShort($io, $resource->listChildren());
+
+            return 0;
         }
+
+        $this->listShort($io, $resource->listChildren());
 
         return 0;
     }

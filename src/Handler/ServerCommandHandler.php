@@ -188,10 +188,6 @@ class ServerCommandHandler
         ksort($parameters1);
         ksort($parameters2);
 
-        if ($parameters1 !== $parameters2) {
-            return false;
-        }
-
-        return true;
+        return $parameters1 === $parameters2;
     }
 }

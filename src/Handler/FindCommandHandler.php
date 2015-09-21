@@ -141,10 +141,7 @@ class FindCommandHandler
     private function findByPath($query, $language = 'glob')
     {
         $matches = array();
-
-        if ('/' !== $query[0]) {
-            $query = '/'.$query;
-        }
+        $query = '/'.ltrim($query, '/');
 
         foreach ($this->repo->find($query, $language) as $resource) {
             $matches[$resource->getPath()] = StringUtil::getShortClassName(get_class($resource));

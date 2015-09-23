@@ -65,12 +65,14 @@ class UrlCommandHandler
     public function handle(Args $args, IO $io)
     {
         foreach ($args->getArgument('path') as $path) {
-            if (Glob::isDynamic($path)) {
-                foreach ($this->repo->find($path) as $resource) {
-                    $this->printUrl($resource->getPath(), $io);
-                }
-            } else {
+            if (!Glob::isDynamic($path)) {
                 $this->printUrl($path, $io);
+
+                continue;
+            }
+
+            foreach ($this->repo->find($path) as $resource) {
+                $this->printUrl($resource->getPath(), $io);
             }
         }
 

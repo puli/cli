@@ -282,29 +282,19 @@ class BindCommandHandler
      */
     private function getBindingStates(Args $args)
     {
-        $states = array();
+        $states = array(
+            BindingState::ENABLED => 'enabled',
+            BindingState::DISABLED => 'disabled',
+            BindingState::TYPE_NOT_FOUND => 'type-not-found',
+            BindingState::TYPE_NOT_ENABLED => 'type-not-enabled',
+            BindingState::INVALID => 'invalid',
+        );
 
-        if ($args->isOptionSet('enabled')) {
-            $states[] = BindingState::ENABLED;
-        }
+        $states = array_filter($states, function ($option) use ($args) {
+            return $args->isOptionSet($option);
+        });
 
-        if ($args->isOptionSet('disabled')) {
-            $states[] = BindingState::DISABLED;
-        }
-
-        if ($args->isOptionSet('type-not-found')) {
-            $states[] = BindingState::TYPE_NOT_FOUND;
-        }
-
-        if ($args->isOptionSet('type-not-enabled')) {
-            $states[] = BindingState::TYPE_NOT_ENABLED;
-        }
-
-        if ($args->isOptionSet('invalid')) {
-            $states[] = BindingState::INVALID;
-        }
-
-        return $states ?: BindingState::all();
+        return array_keys($states) ?: BindingState::all();
     }
 
     /**
@@ -340,11 +330,10 @@ class BindCommandHandler
                 $uuid = "<bad>$uuid</bad>";
             }
 
+            $paramString = '';
             if ($parameters) {
                 // \xc2\xa0 is a non-breaking space
                 $paramString = " <$paramTag>(".implode(",\xc2\xa0", $parameters).")</$paramTag>";
-            } else {
-                $paramString = '';
             }
 
             $table->addRow(array(
@@ -451,26 +440,10 @@ class BindCommandHandler
 
     private function bindingsEqual(BindingDescriptor $binding1, BindingDescriptor $binding2)
     {
-        if ($binding1->getUuid() !== $binding2->getUuid()) {
-            return false;
-        }
-
-        if ($binding1->getTypeName() !== $binding2->getTypeName()) {
-            return false;
-        }
-
-        if ($binding1->getQuery() !== $binding2->getQuery()) {
-            return false;
-        }
-
-        if ($binding1->getLanguage() !== $binding2->getLanguage()) {
-            return false;
-        }
-
-        if ($binding1->getParameterValues() !== $binding2->getParameterValues()) {
-            return false;
-        }
-
-        return true;
+        return $binding1->getUuid() === $binding2->getUuid() &&
+            $binding1->getTypeName() === $binding2->getTypeName() &&
+            $binding1->getQuery() === $binding2->getQuery() &&
+            $binding1->getLanguage() === $binding2->getLanguage() &&
+            $binding1->getParameterValues() === $binding2->getParameterValues();
     }
 }

@@ -2,8 +2,8 @@ The Puli Command Line Interface
 ===============================
 
 [![Build Status](https://travis-ci.org/puli/cli.svg?branch=master)](https://travis-ci.org/puli/cli)
+[![Build status](https://ci.appveyor.com/api/projects/status/n06gckamgc2lr8vl/branch/master?svg=true)](https://ci.appveyor.com/project/webmozart/cli/branch/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/cli/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/cli/?branch=master)
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/96bbb04c-f5c3-47c2-8e43-1f92d26f7c3a/mini.png)](https://insight.sensiolabs.com/projects/96bbb04c-f5c3-47c2-8e43-1f92d26f7c3a)
 [![Latest Stable Version](https://poser.pugx.org/puli/cli/v/stable.svg)](https://packagist.org/packages/puli/cli)
 [![Total Downloads](https://poser.pugx.org/puli/cli/downloads.svg)](https://packagist.org/packages/puli/cli)
 [![Dependency Status](https://www.versioneye.com/php/puli:cli/1.0.0/badge.svg)](https://www.versioneye.com/php/puli:cli/1.0.0)

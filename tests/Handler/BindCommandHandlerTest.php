@@ -14,6 +14,10 @@ namespace Puli\Cli\Tests\Handler;
 use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\BindCommandHandler;
+use Puli\Discovery\Binding\ClassBinding;
+use Puli\Discovery\Binding\ResourceBinding;
+use Puli\Discovery\Tests\Fixtures\Bar;
+use Puli\Discovery\Tests\Fixtures\Foo;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
@@ -54,6 +58,7 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
     const BINDING_UUID17 = '47491d2e-8d20-4a61-947a-6448533146d2';
     const BINDING_UUID18 = '7d26ae02-a3bb-4399-8829-95cccd20ceb7';
     const BINDING_UUID19 = '53e67ca0-df93-4022-a9c8-1be4e012139b';
+
     /**
      * @var Command
      */
@@ -130,26 +135,25 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 The following bindings are currently enabled:
 
     Package: vendor/root
 
-        UUID    Glob           Type
-        bb5a07  /root/enabled  my/type
-        cc9f22  /overridden    my/type
+        UUID    Glob                    Type
+        bb5a07  /root/enabled           Foo
+        cc9f22  /overridden             Foo
+        47491d  BindCommandHandlerTest  Bar
 
     Package: vendor/package1
 
         UUID    Glob               Type
-        970aba  /package1/enabled  my/type
+        970aba  /package1/enabled  Foo
 
     Package: vendor/package2
 
         UUID    Glob               Type
-        ddb655  /package2/enabled  my/type
+        ddb655  /package2/enabled  Foo
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
@@ -157,17 +161,17 @@ The following bindings are disabled:
     Package: vendor/root
 
         UUID    Glob            Type
-        9ac78a  /root/disabled  my/type
+        9ac78a  /root/disabled  Foo
 
     Package: vendor/package1
 
         UUID    Glob                Type
-        a0b6c7  /package1/disabled  my/type
+        a0b6c7  /package1/disabled  Foo
 
     Package: vendor/package2
 
         UUID    Glob                Type
-        424d68  /package2/disabled  my/type
+        424d68  /package2/disabled  Foo
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
@@ -175,17 +179,17 @@ The types of the following bindings could not be found:
     Package: vendor/root
 
         UUID    Glob                  Type
-        d0e980  /root/type-not-found  my/type
+        d0e980  /root/type-not-found  Foo
 
     Package: vendor/package1
 
         UUID    Glob                      Type
-        19b069  /package1/type-not-found  my/type
+        19b069  /package1/type-not-found  Foo
 
     Package: vendor/package2
 
         UUID    Glob                      Type
-        b7b2c3  /package2/type-not-found  my/type
+        b7b2c3  /package2/type-not-found  Foo
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
@@ -193,17 +197,17 @@ The types of the following bindings are not enabled:
     Package: vendor/root
 
         UUID    Glob                    Type
-        47491d  /root/type-not-enabled  my/type
+        47491d  /root/type-not-enabled  Foo
 
     Package: vendor/package1
 
         UUID    Glob                       Type
-        7d26ae  /package1/type-not-enable  my/type
+        7d26ae  /package1/type-not-enable  Foo
 
     Package: vendor/package2
 
         UUID    Glob                        Type
-        53e67c  /package2/type-not-enabled  my/type
+        53e67c  /package2/type-not-enabled  Foo
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
@@ -211,22 +215,22 @@ The following bindings have invalid parameters:
     Package: vendor/root
 
         UUID    Glob           Type
-        d06707  /root/invalid  my/type
+        d06707  /root/invalid  Foo
 
     Package: vendor/package1
 
         UUID    Glob               Type
-        dd7458  /package1/invalid  my/type
+        dd7458  /package1/invalid  Foo
 
     Package: vendor/package2
 
         UUID    Glob               Type
-        24213c  /package2/invalid  my/type
+        24213c  /package2/invalid  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -237,43 +241,42 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--root'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 The following bindings are currently enabled:
 
-    UUID    Glob           Type
-    bb5a07  /root/enabled  my/type
-    cc9f22  /overridden    my/type
+    UUID    Glob                    Type
+    bb5a07  /root/enabled           Foo
+    cc9f22  /overridden             Foo
+    47491d  BindCommandHandlerTest  Bar
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
     UUID    Glob            Type
-    9ac78a  /root/disabled  my/type
+    9ac78a  /root/disabled  Foo
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
     UUID    Glob                  Type
-    d0e980  /root/type-not-found  my/type
+    d0e980  /root/type-not-found  Foo
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
     UUID    Glob                    Type
-    47491d  /root/type-not-enabled  my/type
+    47491d  /root/type-not-enabled  Foo
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
     UUID    Glob           Type
-    d06707  /root/invalid  my/type
+    d06707  /root/invalid  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -284,42 +287,40 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--package=vendor/package1'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 The following bindings are currently enabled:
 
     UUID    Glob               Type
-    970aba  /package1/enabled  my/type
+    970aba  /package1/enabled  Foo
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
     UUID    Glob                Type
-    a0b6c7  /package1/disabled  my/type
+    a0b6c7  /package1/disabled  Foo
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
     UUID    Glob                      Type
-    19b069  /package1/type-not-found  my/type
+    19b069  /package1/type-not-found  Foo
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
     UUID    Glob                       Type
-    7d26ae  /package1/type-not-enable  my/type
+    7d26ae  /package1/type-not-enable  Foo
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
     UUID    Glob               Type
-    dd7458  /package1/invalid  my/type
+    dd7458  /package1/invalid  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -330,21 +331,20 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--root --package=vendor/package1'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 The following bindings are currently enabled:
 
     Package: vendor/root
 
-        UUID    Glob           Type
-        bb5a07  /root/enabled  my/type
-        cc9f22  /overridden    my/type
+        UUID    Glob                    Type
+        bb5a07  /root/enabled           Foo
+        cc9f22  /overridden             Foo
+        47491d  BindCommandHandlerTest  Bar
 
     Package: vendor/package1
 
         UUID    Glob               Type
-        970aba  /package1/enabled  my/type
+        970aba  /package1/enabled  Foo
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
@@ -352,12 +352,12 @@ The following bindings are disabled:
     Package: vendor/root
 
         UUID    Glob            Type
-        9ac78a  /root/disabled  my/type
+        9ac78a  /root/disabled  Foo
 
     Package: vendor/package1
 
         UUID    Glob                Type
-        a0b6c7  /package1/disabled  my/type
+        a0b6c7  /package1/disabled  Foo
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
@@ -365,12 +365,12 @@ The types of the following bindings could not be found:
     Package: vendor/root
 
         UUID    Glob                  Type
-        d0e980  /root/type-not-found  my/type
+        d0e980  /root/type-not-found  Foo
 
     Package: vendor/package1
 
         UUID    Glob                      Type
-        19b069  /package1/type-not-found  my/type
+        19b069  /package1/type-not-found  Foo
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
@@ -378,12 +378,12 @@ The types of the following bindings are not enabled:
     Package: vendor/root
 
         UUID    Glob                    Type
-        47491d  /root/type-not-enabled  my/type
+        47491d  /root/type-not-enabled  Foo
 
     Package: vendor/package1
 
         UUID    Glob                       Type
-        7d26ae  /package1/type-not-enable  my/type
+        7d26ae  /package1/type-not-enable  Foo
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
@@ -391,17 +391,17 @@ The following bindings have invalid parameters:
     Package: vendor/root
 
         UUID    Glob           Type
-        d06707  /root/invalid  my/type
+        d06707  /root/invalid  Foo
 
     Package: vendor/package1
 
         UUID    Glob               Type
-        dd7458  /package1/invalid  my/type
+        dd7458  /package1/invalid  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -412,20 +412,18 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--package=vendor/package1 --package=vendor/package2'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 The following bindings are currently enabled:
 
     Package: vendor/package1
 
         UUID    Glob               Type
-        970aba  /package1/enabled  my/type
+        970aba  /package1/enabled  Foo
 
     Package: vendor/package2
 
         UUID    Glob               Type
-        ddb655  /package2/enabled  my/type
+        ddb655  /package2/enabled  Foo
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
@@ -433,12 +431,12 @@ The following bindings are disabled:
     Package: vendor/package1
 
         UUID    Glob                Type
-        a0b6c7  /package1/disabled  my/type
+        a0b6c7  /package1/disabled  Foo
 
     Package: vendor/package2
 
         UUID    Glob                Type
-        424d68  /package2/disabled  my/type
+        424d68  /package2/disabled  Foo
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
@@ -446,12 +444,12 @@ The types of the following bindings could not be found:
     Package: vendor/package1
 
         UUID    Glob                      Type
-        19b069  /package1/type-not-found  my/type
+        19b069  /package1/type-not-found  Foo
 
     Package: vendor/package2
 
         UUID    Glob                      Type
-        b7b2c3  /package2/type-not-found  my/type
+        b7b2c3  /package2/type-not-found  Foo
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
@@ -459,12 +457,12 @@ The types of the following bindings are not enabled:
     Package: vendor/package1
 
         UUID    Glob                       Type
-        7d26ae  /package1/type-not-enable  my/type
+        7d26ae  /package1/type-not-enable  Foo
 
     Package: vendor/package2
 
         UUID    Glob                        Type
-        53e67c  /package2/type-not-enabled  my/type
+        53e67c  /package2/type-not-enabled  Foo
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
@@ -472,17 +470,17 @@ The following bindings have invalid parameters:
     Package: vendor/package1
 
         UUID    Glob               Type
-        dd7458  /package1/invalid  my/type
+        dd7458  /package1/invalid  Foo
 
     Package: vendor/package2
 
         UUID    Glob               Type
-        24213c  /package2/invalid  my/type
+        24213c  /package2/invalid  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -493,29 +491,28 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 Package: vendor/root
 
-    UUID    Glob           Type
-    bb5a07  /root/enabled  my/type
-    cc9f22  /overridden    my/type
+    UUID    Glob                    Type
+    bb5a07  /root/enabled           Foo
+    cc9f22  /overridden             Foo
+    47491d  BindCommandHandlerTest  Bar
 
 Package: vendor/package1
 
     UUID    Glob               Type
-    970aba  /package1/enabled  my/type
+    970aba  /package1/enabled  Foo
 
 Package: vendor/package2
 
     UUID    Glob               Type
-    ddb655  /package2/enabled  my/type
+    ddb655  /package2/enabled  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -526,28 +523,26 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--disabled'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 Package: vendor/root
 
     UUID    Glob            Type
-    9ac78a  /root/disabled  my/type
+    9ac78a  /root/disabled  Foo
 
 Package: vendor/package1
 
     UUID    Glob                Type
-    a0b6c7  /package1/disabled  my/type
+    a0b6c7  /package1/disabled  Foo
 
 Package: vendor/package2
 
     UUID    Glob                Type
-    424d68  /package2/disabled  my/type
+    424d68  /package2/disabled  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -558,28 +553,26 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--type-not-found'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 Package: vendor/root
 
     UUID    Glob                  Type
-    d0e980  /root/type-not-found  my/type
+    d0e980  /root/type-not-found  Foo
 
 Package: vendor/package1
 
     UUID    Glob                      Type
-    19b069  /package1/type-not-found  my/type
+    19b069  /package1/type-not-found  Foo
 
 Package: vendor/package2
 
     UUID    Glob                      Type
-    b7b2c3  /package2/type-not-found  my/type
+    b7b2c3  /package2/type-not-found  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -590,28 +583,26 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--type-not-enabled'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 Package: vendor/root
 
     UUID    Glob                    Type
-    47491d  /root/type-not-enabled  my/type
+    47491d  /root/type-not-enabled  Foo
 
 Package: vendor/package1
 
     UUID    Glob                       Type
-    7d26ae  /package1/type-not-enable  my/type
+    7d26ae  /package1/type-not-enable  Foo
 
 Package: vendor/package2
 
     UUID    Glob                        Type
-    53e67c  /package2/type-not-enabled  my/type
+    53e67c  /package2/type-not-enabled  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -622,28 +613,26 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--invalid'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 Package: vendor/root
 
     UUID    Glob           Type
-    d06707  /root/invalid  my/type
+    d06707  /root/invalid  Foo
 
 Package: vendor/package1
 
     UUID    Glob               Type
-    dd7458  /package1/invalid  my/type
+    dd7458  /package1/invalid  Foo
 
 Package: vendor/package2
 
     UUID    Glob               Type
-    24213c  /package2/invalid  my/type
+    24213c  /package2/invalid  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -654,26 +643,25 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --disabled'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 The following bindings are currently enabled:
 
     Package: vendor/root
 
-        UUID    Glob           Type
-        bb5a07  /root/enabled  my/type
-        cc9f22  /overridden    my/type
+        UUID    Glob                    Type
+        bb5a07  /root/enabled           Foo
+        cc9f22  /overridden             Foo
+        47491d  BindCommandHandlerTest  Bar
 
     Package: vendor/package1
 
         UUID    Glob               Type
-        970aba  /package1/enabled  my/type
+        970aba  /package1/enabled  Foo
 
     Package: vendor/package2
 
         UUID    Glob               Type
-        ddb655  /package2/enabled  my/type
+        ddb655  /package2/enabled  Foo
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
@@ -681,22 +669,22 @@ The following bindings are disabled:
     Package: vendor/root
 
         UUID    Glob            Type
-        9ac78a  /root/disabled  my/type
+        9ac78a  /root/disabled  Foo
 
     Package: vendor/package1
 
         UUID    Glob                Type
-        a0b6c7  /package1/disabled  my/type
+        a0b6c7  /package1/disabled  Foo
 
     Package: vendor/package2
 
         UUID    Glob                Type
-        424d68  /package2/disabled  my/type
+        424d68  /package2/disabled  Foo
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -707,16 +695,15 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --root'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
-UUID    Glob           Type
-bb5a07  /root/enabled  my/type
-cc9f22  /overridden    my/type
+UUID    Glob                    Type
+bb5a07  /root/enabled           Foo
+cc9f22  /overridden             Foo
+47491d  BindCommandHandlerTest  Bar
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -727,15 +714,13 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --package=vendor/package2'));
 
-        $statusCode = $this->handler->handleList($args, $this->io);
-
         $expected = <<<EOF
 UUID    Glob               Type
-ddb655  /package2/enabled  my/type
+ddb655  /package2/enabled  Foo
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
@@ -743,19 +728,17 @@ EOF;
     public function testListBindingsWithParameters()
     {
         $this->discoveryManager->expects($this->any())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnFromMap(array(
                 array($this->packageAndState('vendor/root', BindingState::ENABLED), array(
-                    new BindingDescriptor('/path', 'my/type', array(
+                    new BindingDescriptor(new ResourceBinding('/path', Foo::clazz, array(
                         'param1' => 'value1',
                         'param2' => 'value2',
-                    ), 'glob', Uuid::fromString(self::BINDING_UUID1)),
+                    ), 'glob', Uuid::fromString(self::BINDING_UUID1))),
                 )),
             )));
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
-
-        $statusCode = $this->handler->handleList($args, $this->io);
 
         $nbsp = "\xc2\xa0";
         $expected = <<<EOF
@@ -764,97 +747,96 @@ The following bindings are currently enabled:
     Package: vendor/root
 
         UUID    Glob   Type
-        bb5a07  /path  my/type (param1="value1",{$nbsp}param2="value2")
+        bb5a07  /path  Foo (param1="value1",{$nbsp}param2="value2")
 
 
 EOF;
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $this->handler->handleList($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testAddBindingWithRelativePath()
+    public function testAddResourceBindingWithRelativePath()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('path my/type'));
+        $args = self::$addCommand->parseArgs(new StringArgs('path Puli\Discovery\Tests\Fixtures\Foo'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBinding')
-            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
-                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
-                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
-                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
-                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
+                PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getBinding()->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $descriptor->getBinding()->getLanguage());
             });
 
-        $statusCode = $this->handler->handleAdd($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testAddBindingWithAbsolutePath()
+    public function testAddResourceBindingWithAbsolutePath()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('/path my/type'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Discovery\Tests\Fixtures\Foo'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBinding')
-            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
-                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
-                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
-                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
-                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
+                PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $descriptor->getBinding()->getLanguage());
             });
 
-        $statusCode = $this->handler->handleAdd($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testAddBindingWithLanguage()
+    public function testAddResourceBindingWithLanguage()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('/path my/type --language lang'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Discovery\Tests\Fixtures\Foo --language lang'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBinding')
-            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
-                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
-                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
-                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
-                PHPUnit_Framework_Assert::assertSame('lang', $bindingDescriptor->getLanguage());
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
+                PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('lang', $descriptor->getBinding()->getLanguage());
             });
 
-        $statusCode = $this->handler->handleAdd($args, $this->io);
+        $this->assertSame(0, $this->handler->handleAdd($args));
+    }
 
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+    public function testAddClassBinding()
+    {
+        $args = self::$addCommand->parseArgs(new StringArgs('Puli\Cli\Tests\Handler\BindCommandHandlerTest Puli\Discovery\Tests\Fixtures\Foo'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertSame('Puli\Cli\Tests\Handler\BindCommandHandlerTest', $descriptor->getBinding()->getClassName());
+                PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getBinding()->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
+            });
+
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
     public function testAddBindingWithParameters()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('/path my/type --param key1=value --param key2=true'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Discovery\Tests\Fixtures\Foo --param key1=value --param key2=true'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBinding')
-            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor) {
-                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
-                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
+                PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(
                     'key1' => 'value',
                     'key2' => true,
-                ), $bindingDescriptor->getParameterValues());
-                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+                ), $descriptor->getBinding()->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $descriptor->getBinding()->getLanguage());
             });
 
-        $statusCode = $this->handler->handleAdd($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
     /**
@@ -863,164 +845,180 @@ EOF;
      */
     public function testAddFailsIfInvalidParameter()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('/path my/type --param key1'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Discovery\Tests\Fixtures\Foo --param key1'));
 
         $this->discoveryManager->expects($this->never())
-            ->method('addRootBinding');
+            ->method('addRootBindingDescriptor');
 
-        $this->handler->handleAdd($args, $this->io);
+        $this->handler->handleAdd($args);
     }
 
     public function testAddBindingForce()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('--force path my/type'));
+        $args = self::$addCommand->parseArgs(new StringArgs('--force path Puli\Discovery\Tests\Fixtures\Foo'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBinding')
-            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) {
-                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
-                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
-                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
-                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) {
+                PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
+                PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $descriptor->getBinding()->getLanguage());
                 PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE | DiscoveryManager::IGNORE_TYPE_NOT_FOUND | DiscoveryManager::IGNORE_TYPE_NOT_ENABLED, $flags);
             });
 
-        $statusCode = $this->handler->handleAdd($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+        $this->assertSame(0, $this->handler->handleAdd($args));
     }
 
-    public function testUpdateBinding()
+    public function testUpdateResourceBinding()
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new --language xpath --type my/other --param param2=new2'));
-        $descriptor = new BindingDescriptor('/old', 'my/type', array(
+        $binding = new ResourceBinding('/old', Foo::clazz, array(
             'param1' => 'value1',
             'param2' => 'value2',
         ), 'glob');
+        $descriptor = new BindingDescriptor($binding);
         $descriptor->load($this->packages->getRootPackage());
         $uuid = $descriptor->getUuid();
 
         $this->discoveryManager->expects($this->at(0))
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array($descriptor)
             ));
 
         $this->discoveryManager->expects($this->at(1))
-            ->method('addRootBinding')
-            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) use ($uuid) {
-                PHPUnit_Framework_Assert::assertSame($uuid, $bindingDescriptor->getUuid());
-                PHPUnit_Framework_Assert::assertSame('/new', $bindingDescriptor->getQuery());
-                PHPUnit_Framework_Assert::assertSame('my/other', $bindingDescriptor->getTypeName());
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) use ($uuid) {
+                PHPUnit_Framework_Assert::assertSame($uuid, $descriptor->getUuid());
+                PHPUnit_Framework_Assert::assertSame('/new', $descriptor->getBinding()->getQuery());
+                PHPUnit_Framework_Assert::assertSame('my/other', $descriptor->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(
                     'param1' => 'value1',
                     'param2' => 'new2',
-                ), $bindingDescriptor->getParameterValues());
-                PHPUnit_Framework_Assert::assertSame('xpath', $bindingDescriptor->getLanguage());
+                ), $descriptor->getBinding()->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('xpath', $descriptor->getBinding()->getLanguage());
                 PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE, $flags);
             });
 
-        $statusCode = $this->handler->handleUpdate($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+        $this->assertSame(0, $this->handler->handleUpdate($args));
     }
 
-    public function testUpdateBindingWithRelativePath()
+    public function testUpdateResourceBindingWithRelativePath()
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query new'));
-        $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
         $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->at(0))
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array($descriptor)
             ));
 
         $this->discoveryManager->expects($this->at(1))
-            ->method('addRootBinding')
-            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) {
-                PHPUnit_Framework_Assert::assertSame('/new', $bindingDescriptor->getQuery());
-                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
-                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
-                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) {
+                PHPUnit_Framework_Assert::assertSame('/new', $descriptor->getBinding()->getQuery());
+                PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $descriptor->getBinding()->getLanguage());
                 PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE, $flags);
             });
 
-        $statusCode = $this->handler->handleUpdate($args, $this->io);
+        $this->assertSame(0, $this->handler->handleUpdate($args));
+    }
 
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+    public function testUpdateClassBinding()
+    {
+        $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --class Puli\Cli\Tests\Handler\FindCommandHandlerTest --type my/other --param param2=new2'));
+        $binding = new ClassBinding(__CLASS__, Foo::clazz, array(
+            'param1' => 'value1',
+            'param2' => 'value2',
+        ));
+        $descriptor = new BindingDescriptor($binding);
+        $descriptor->load($this->packages->getRootPackage());
+        $uuid = $descriptor->getUuid();
+
+        $this->discoveryManager->expects($this->at(0))
+            ->method('findBindingDescriptors')
+            ->willReturnCallback($this->returnForExpr(
+                $this->uuid('ab12'),
+                array($descriptor)
+            ));
+
+        $this->discoveryManager->expects($this->at(1))
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) use ($uuid) {
+                PHPUnit_Framework_Assert::assertSame($uuid, $descriptor->getUuid());
+                PHPUnit_Framework_Assert::assertSame('Puli\Cli\Tests\Handler\FindCommandHandlerTest', $descriptor->getBinding()->getClassName());
+                PHPUnit_Framework_Assert::assertSame('my/other', $descriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(
+                    'param1' => 'value1',
+                    'param2' => 'new2',
+                ), $descriptor->getBinding()->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE, $flags);
+            });
+
+        $this->assertSame(0, $this->handler->handleUpdate($args));
     }
 
     public function testUpdateBindingWithUnsetParameter()
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --unset-param param2'));
-        $descriptor = new BindingDescriptor('/path', 'my/type', array(
+        $binding = new ResourceBinding('/path', Foo::clazz, array(
             'param1' => 'value1',
             'param2' => 'value2',
         ), 'glob');
+        $descriptor = new BindingDescriptor($binding);
         $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->at(0))
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array($descriptor)
             ));
 
         $this->discoveryManager->expects($this->at(1))
-            ->method('addRootBinding')
-            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) {
-                PHPUnit_Framework_Assert::assertSame('/path', $bindingDescriptor->getQuery());
-                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
-                PHPUnit_Framework_Assert::assertSame(array('param1' => 'value1'), $bindingDescriptor->getParameterValues());
-                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) {
+                PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
+                PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array('param1' => 'value1'), $descriptor->getBinding()->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $descriptor->getBinding()->getLanguage());
                 PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE, $flags);
             });
 
-        $statusCode = $this->handler->handleUpdate($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+        $this->assertSame(0, $this->handler->handleUpdate($args));
     }
 
     public function testUpdateBindingForce()
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new --force'));
-        $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
         $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->at(0))
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array($descriptor)
             ));
 
         $this->discoveryManager->expects($this->at(1))
-            ->method('addRootBinding')
-            ->willReturnCallback(function (BindingDescriptor $bindingDescriptor, $flags) {
-                PHPUnit_Framework_Assert::assertSame('/new', $bindingDescriptor->getQuery());
-                PHPUnit_Framework_Assert::assertSame('my/type', $bindingDescriptor->getTypeName());
-                PHPUnit_Framework_Assert::assertSame(array(), $bindingDescriptor->getParameterValues());
-                PHPUnit_Framework_Assert::assertSame('glob', $bindingDescriptor->getLanguage());
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) {
+                PHPUnit_Framework_Assert::assertSame('/new', $descriptor->getBinding()->getQuery());
+                PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
+                PHPUnit_Framework_Assert::assertSame('glob', $descriptor->getBinding()->getLanguage());
                 PHPUnit_Framework_Assert::assertSame(DiscoveryManager::OVERRIDE | DiscoveryManager::IGNORE_TYPE_NOT_FOUND | DiscoveryManager::IGNORE_TYPE_NOT_ENABLED, $flags);
             });
 
-        $statusCode = $this->handler->handleUpdate($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+        $this->assertSame(0, $this->handler->handleUpdate($args));
     }
 
     /**
@@ -1030,20 +1028,20 @@ EOF;
     public function testUpdateBindingFailsIfNoUpdateProvided()
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12'));
-        $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
         $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array($descriptor)
             ));
 
         $this->discoveryManager->expects($this->never())
-            ->method('addRootBinding');
+            ->method('addRootBindingDescriptor');
 
-        $this->handler->handleUpdate($args, $this->io);
+        $this->handler->handleUpdate($args);
     }
 
     /**
@@ -1053,44 +1051,40 @@ EOF;
     public function testUpdateBindingFailsIfNoRootBinding()
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new'));
-        $descriptor = new BindingDescriptor('/old', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
         $descriptor->load($this->packages->get('vendor/package1'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array($descriptor)
             ));
 
         $this->discoveryManager->expects($this->never())
-            ->method('addRootBinding');
+            ->method('addRootBindingDescriptor');
 
-        $this->handler->handleUpdate($args, $this->io);
+        $this->handler->handleUpdate($args);
     }
 
     public function testDeleteBinding()
     {
         $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
-        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
         $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array($descriptor)
             ));
 
         $this->discoveryManager->expects($this->once())
-            ->method('removeRootBinding')
+            ->method('removeRootBindingDescriptor')
             ->with($descriptor->getUuid());
 
-        $statusCode = $this->handler->handleDelete($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+        $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     /**
@@ -1102,19 +1096,19 @@ EOF;
         $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array(
-                    new BindingDescriptor('/path1', 'my/type', array(), 'glob'),
-                    new BindingDescriptor('/path2', 'my/type', array(), 'glob'),
+                    new BindingDescriptor(new ResourceBinding('/path1', Foo::clazz)),
+                    new BindingDescriptor(new ResourceBinding('/path2', Foo::clazz)),
                 )
             ));
 
         $this->discoveryManager->expects($this->never())
-            ->method('removeRootBinding');
+            ->method('removeRootBindingDescriptor');
 
-        $this->handler->handleDelete($args, $this->io);
+        $this->handler->handleDelete($args);
     }
 
     /**
@@ -1126,16 +1120,16 @@ EOF;
         $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array()
             ));
 
         $this->discoveryManager->expects($this->never())
-            ->method('removeRootBinding');
+            ->method('removeRootBindingDescriptor');
 
-        $this->handler->handleDelete($args, $this->io);
+        $this->handler->handleDelete($args);
     }
 
     /**
@@ -1145,42 +1139,38 @@ EOF;
     public function testDeleteBindingFailsIfNoRootBinding()
     {
         $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
-        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
         $descriptor->load($this->packages->get('vendor/package1'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnForExpr(
                 $this->uuid('ab12'),
                 array($descriptor)
             ));
 
         $this->discoveryManager->expects($this->never())
-            ->method('removeRootBinding');
+            ->method('removeRootBindingDescriptor');
 
-        $this->handler->handleDelete($args, $this->io);
+        $this->handler->handleDelete($args);
     }
 
     public function testEnableBinding()
     {
         $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
-        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
         $descriptor->load($this->packages->get('vendor/package1'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->with($this->uuid('ab12'))
             ->willReturn(array($descriptor));
 
         $this->discoveryManager->expects($this->once())
-            ->method('enableBinding')
+            ->method('enableBindingDescriptor')
             ->with($descriptor->getUuid());
 
-        $statusCode = $this->handler->handleEnable($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+        $this->assertSame(0, $this->handler->handleEnable($args));
     }
 
     /**
@@ -1192,14 +1182,14 @@ EOF;
         $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->with($this->uuid('ab12'))
             ->willReturn(array());
 
         $this->discoveryManager->expects($this->never())
-            ->method('enableBinding');
+            ->method('enableBindingDescriptor');
 
-        $this->handler->handleEnable($args, $this->io);
+        $this->handler->handleEnable($args);
     }
 
     /**
@@ -1209,40 +1199,36 @@ EOF;
     public function testEnableBindingFailsIfRoot()
     {
         $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
-        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
         $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->with($this->uuid('ab12'))
             ->willReturn(array($descriptor));
 
         $this->discoveryManager->expects($this->never())
-            ->method('enableBinding');
+            ->method('enableBindingDescriptor');
 
-        $this->handler->handleEnable($args, $this->io);
+        $this->handler->handleEnable($args);
     }
 
     public function testDisableBinding()
     {
         $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
-        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
         $descriptor->load($this->packages->get('vendor/package1'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->with($this->uuid('ab12'))
             ->willReturn(array($descriptor));
 
         $this->discoveryManager->expects($this->once())
-            ->method('disableBinding')
+            ->method('disableBindingDescriptor')
             ->with($descriptor->getUuid());
 
-        $statusCode = $this->handler->handleDisable($args, $this->io);
-
-        $this->assertSame(0, $statusCode);
-        $this->assertEmpty($this->io->fetchOutput());
-        $this->assertEmpty($this->io->fetchErrors());
+        $this->assertSame(0, $this->handler->handleDisable($args));
     }
 
     /**
@@ -1254,14 +1240,14 @@ EOF;
         $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->with($this->uuid('ab12'))
             ->willReturn(array());
 
         $this->discoveryManager->expects($this->never())
-            ->method('disableBinding');
+            ->method('disableBindingDescriptor');
 
-        $this->handler->handleDisable($args, $this->io);
+        $this->handler->handleDisable($args);
     }
 
     /**
@@ -1271,83 +1257,84 @@ EOF;
     public function testDisableBindingFailsIfRoot()
     {
         $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
-        $descriptor = new BindingDescriptor('/path', 'my/type', array(), 'glob');
+        $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
         $descriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->with($this->uuid('ab12'))
             ->willReturn(array($descriptor));
 
         $this->discoveryManager->expects($this->never())
-            ->method('disableBinding');
+            ->method('disableBindingDescriptor');
 
-        $this->handler->handleDisable($args, $this->io);
+        $this->handler->handleDisable($args);
     }
 
     private function initDefaultBindings()
     {
         $this->discoveryManager->expects($this->any())
-            ->method('findBindings')
+            ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnFromMap(array(
                 array($this->packageAndState('vendor/root', BindingState::ENABLED), array(
-                    new BindingDescriptor('/root/enabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID1)),
-                    new BindingDescriptor('/overridden', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID2)),
+                    new BindingDescriptor(new ResourceBinding('/root/enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID1))),
+                    new BindingDescriptor(new ResourceBinding('/overridden', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID2))),
+                    new BindingDescriptor(new ClassBinding(__CLASS__, Bar::clazz, array(), Uuid::fromString(self::BINDING_UUID17))),
                 )),
                 array($this->packageAndState('vendor/root', BindingState::DISABLED), array(
-                    new BindingDescriptor('/root/disabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID3)),
+                    new BindingDescriptor(new ResourceBinding('/root/disabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID3))),
                 )),
                 array($this->packageAndState('vendor/root', BindingState::TYPE_NOT_FOUND), array(
-                    new BindingDescriptor('/root/type-not-found', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID5)),
+                    new BindingDescriptor(new ResourceBinding('/root/type-not-found', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID5))),
                 )),
                 array($this->packageAndState('vendor/root', BindingState::TYPE_NOT_ENABLED), array(
-                    new BindingDescriptor('/root/type-not-enabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID17)),
+                    new BindingDescriptor(new ResourceBinding('/root/type-not-enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID17))),
                 )),
                 array($this->packageAndState('vendor/root', BindingState::INVALID), array(
-                    new BindingDescriptor('/root/invalid', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID6)),
+                    new BindingDescriptor(new ResourceBinding('/root/invalid', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID6))),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::ENABLED), array(
-                    new BindingDescriptor('/package1/enabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID7)),
+                    new BindingDescriptor(new ResourceBinding('/package1/enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID7))),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::DISABLED), array(
-                    new BindingDescriptor('/package1/disabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID8)),
+                    new BindingDescriptor(new ResourceBinding('/package1/disabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID8))),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::TYPE_NOT_FOUND), array(
-                    new BindingDescriptor('/package1/type-not-found', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID10)),
+                    new BindingDescriptor(new ResourceBinding('/package1/type-not-found', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID10))),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::TYPE_NOT_ENABLED), array(
-                    new BindingDescriptor('/package1/type-not-enable', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID18)),
+                    new BindingDescriptor(new ResourceBinding('/package1/type-not-enable', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID18))),
                 )),
                 array($this->packageAndState('vendor/package1', BindingState::INVALID), array(
-                    new BindingDescriptor('/package1/invalid', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID11)),
+                    new BindingDescriptor(new ResourceBinding('/package1/invalid', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID11))),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::ENABLED), array(
-                    new BindingDescriptor('/package2/enabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID12)),
+                    new BindingDescriptor(new ResourceBinding('/package2/enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID12))),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::DISABLED), array(
-                    new BindingDescriptor('/package2/disabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID13)),
+                    new BindingDescriptor(new ResourceBinding('/package2/disabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID13))),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::TYPE_NOT_FOUND), array(
-                    new BindingDescriptor('/package2/type-not-found', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID15)),
+                    new BindingDescriptor(new ResourceBinding('/package2/type-not-found', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID15))),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::TYPE_NOT_ENABLED), array(
-                    new BindingDescriptor('/package2/type-not-enabled', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID19)),
+                    new BindingDescriptor(new ResourceBinding('/package2/type-not-enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID19))),
                 )),
                 array($this->packageAndState('vendor/package2', BindingState::INVALID), array(
-                    new BindingDescriptor('/package2/invalid', 'my/type', array(), 'glob', Uuid::fromString(self::BINDING_UUID16)),
+                    new BindingDescriptor(new ResourceBinding('/package2/invalid', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID16))),
                 )),
             )));
     }
 
     private function packageAndState($packageName, $state)
     {
-        return Expr::same($packageName, BindingDescriptor::CONTAINING_PACKAGE)
-            ->andSame($state, BindingDescriptor::STATE);
+        return Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+            ->andMethod('getState', Expr::same($state));
     }
 
     private function uuid($uuid)
     {
-        return Expr::startsWith($uuid, BindingDescriptor::UUID);
+        return Expr::method('getUuid', Expr::startsWith($uuid));
     }
 
     private function returnForExpr(Expression $expr, $result)

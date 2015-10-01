@@ -13,7 +13,8 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\TypeCommandHandler;
-use Puli\Manager\Api\Discovery\BindingParameterDescriptor;
+use Puli\Discovery\Api\Type\BindingParameter;
+use Puli\Discovery\Api\Type\BindingType;
 use Puli\Manager\Api\Discovery\BindingTypeDescriptor;
 use Puli\Manager\Api\Discovery\BindingTypeState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
@@ -92,29 +93,36 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
         $this->handler = new TypeCommandHandler($this->discoveryManager, $this->packages);
 
         $this->discoveryManager->expects($this->any())
-            ->method('findBindingTypes')
+            ->method('findTypeDescriptors')
             ->willReturnCallback($this->returnFromMap(array(
                 array($this->packageAndState('vendor/root', BindingTypeState::ENABLED), array(
-                    new BindingTypeDescriptor('root/enabled1', 'Description of root/enabled1', array(
-                        new BindingParameterDescriptor('req-param', BindingParameterDescriptor::REQUIRED, null, 'Description of req-param'),
-                        new BindingParameterDescriptor('opt-param', BindingParameterDescriptor::OPTIONAL, 'default', 'Description of opt-param'),
-                    )),
-                    new BindingTypeDescriptor('root/enabled2', 'Description of root/enabled2'),
+                    new BindingTypeDescriptor(
+                        new BindingType('root/enabled1', array(
+                            new BindingParameter('req-param', BindingParameter::REQUIRED),
+                            new BindingParameter('opt-param', BindingParameter::OPTIONAL, 'default'),
+                        )),
+                        'Description of root/enabled1',
+                        array(
+                            'req-param' => 'Description of req-param',
+                            'opt-param' => 'Description of opt-param',
+                        )
+                    ),
+                    new BindingTypeDescriptor(new BindingType('root/enabled2'), 'Description of root/enabled2'),
                 )),
                 array($this->packageAndState('vendor/root', BindingTypeState::DUPLICATE), array(
-                    new BindingTypeDescriptor('root/duplicate'),
+                    new BindingTypeDescriptor(new BindingType('root/duplicate')),
                 )),
                 array($this->packageAndState('vendor/package1', BindingTypeState::ENABLED), array(
-                    new BindingTypeDescriptor('package1/enabled'),
+                    new BindingTypeDescriptor(new BindingType('package1/enabled')),
                 )),
                 array($this->packageAndState('vendor/package1', BindingTypeState::DUPLICATE), array(
-                    new BindingTypeDescriptor('package1/duplicate'),
+                    new BindingTypeDescriptor(new BindingType('package1/duplicate')),
                 )),
                 array($this->packageAndState('vendor/package2', BindingTypeState::ENABLED), array(
-                    new BindingTypeDescriptor('package2/enabled'),
+                    new BindingTypeDescriptor(new BindingType('package2/enabled')),
                 )),
                 array($this->packageAndState('vendor/package2', BindingTypeState::DUPLICATE), array(
-                    new BindingTypeDescriptor('package2/duplicate'),
+                    new BindingTypeDescriptor(new BindingType('package2/duplicate')),
                 )),
             )));
     }
@@ -129,8 +137,8 @@ The following binding types are currently enabled:
     Package: vendor/root
 
         Type           Description     Parameters
-        root/enabled1  Description of  req-param
-                       root/enabled1   opt-param="default"
+        root/enabled1  Description of  opt-param="default"
+                       root/enabled1   req-param
         root/enabled2  Description of
                        root/enabled2
 
@@ -178,8 +186,8 @@ EOF;
 The following binding types are currently enabled:
 
     Type           Description                   Parameters
-    root/enabled1  Description of root/enabled1  req-param
-                                                 opt-param="default"
+    root/enabled1  Description of root/enabled1  opt-param="default"
+                                                 req-param
     root/enabled2  Description of root/enabled2
 
 The following types have duplicate definitions and are disabled:
@@ -230,8 +238,8 @@ The following binding types are currently enabled:
     Package: vendor/root
 
         Type           Description     Parameters
-        root/enabled1  Description of  req-param
-                       root/enabled1   opt-param="default"
+        root/enabled1  Description of  opt-param="default"
+                       root/enabled1   req-param
         root/enabled2  Description of
                        root/enabled2
 
@@ -307,8 +315,8 @@ EOF;
 Package: vendor/root
 
     Type           Description                   Parameters
-    root/enabled1  Description of root/enabled1  req-param
-                                                 opt-param="default"
+    root/enabled1  Description of root/enabled1  opt-param="default"
+                                                 req-param
     root/enabled2  Description of root/enabled2
 
 Package: vendor/package1
@@ -367,8 +375,8 @@ The following binding types are currently enabled:
     Package: vendor/root
 
         Type           Description     Parameters
-        root/enabled1  Description of  req-param
-                       root/enabled1   opt-param="default"
+        root/enabled1  Description of  opt-param="default"
+                       root/enabled1   req-param
         root/enabled2  Description of
                        root/enabled2
 
@@ -414,8 +422,8 @@ EOF;
 
         $expected = <<<EOF
 Type           Description                   Parameters
-root/enabled1  Description of root/enabled1  req-param
-                                             opt-param="default"
+root/enabled1  Description of root/enabled1  opt-param="default"
+                                             req-param
 root/enabled2  Description of root/enabled2
 
 EOF;
@@ -445,8 +453,8 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type'));
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(new BindingType('my/type')));
 
         $this->assertSame(0, $this->handler->handleDefine($args));
     }
@@ -456,8 +464,8 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type --description "The description"'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type', 'The description'));
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(new BindingType('my/type'), 'The description'));
 
         $this->assertSame(0, $this->handler->handleDefine($args));
     }
@@ -467,10 +475,10 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type --param required'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('required', BindingParameterDescriptor::REQUIRED),
-            )));
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(new BindingType('my/type', array(
+                new BindingParameter('required', BindingParameter::REQUIRED),
+            ))));
 
         $this->assertSame(0, $this->handler->handleDefine($args));
     }
@@ -480,10 +488,10 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type --param optional=true'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('optional', BindingParameterDescriptor::OPTIONAL, true),
-            )));
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(new BindingType('my/type', array(
+                new BindingParameter('optional', BindingParameter::OPTIONAL, true),
+            ))));
 
         $this->assertSame(0, $this->handler->handleDefine($args));
     }
@@ -493,10 +501,16 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type --param param --param-description param="The parameter description"'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The parameter description'),
-            )));
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(
+                new BindingType('my/type', array(
+                    new BindingParameter('param', BindingParameter::REQUIRED),
+                )),
+                null,
+                array(
+                    'param' => 'The parameter description',
+                )
+            ));
 
         $this->assertSame(0, $this->handler->handleDefine($args));
     }
@@ -506,8 +520,8 @@ EOF;
         $args = self::$defineCommand->parseArgs(new StringArgs('--force my/type'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type'), DiscoveryManager::OVERRIDE);
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(new BindingType('my/type')), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleDefine($args));
     }
@@ -516,17 +530,17 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --description "New description"'));
 
-        $typeDescriptor = new BindingTypeDescriptor('my/type', 'Old description');
+        $typeDescriptor = new BindingTypeDescriptor(new BindingType('my/type'), 'Old description');
         $typeDescriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
-            ->method('getRootBindingType')
+            ->method('getRootTypeDescriptor')
             ->with('my/type')
             ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type', 'New description'), DiscoveryManager::OVERRIDE);
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(new BindingType('my/type'), 'New description'), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleUpdate($args));
     }
@@ -535,21 +549,29 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param param'));
 
-        $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
-            new BindingParameterDescriptor('param', BindingParameterDescriptor::OPTIONAL, 'default', 'The description'),
-        ));
+        $typeDescriptor = new BindingTypeDescriptor(
+            new BindingType('my/type', array(
+                new BindingParameter('param', BindingParameter::OPTIONAL, 'default'),
+            )),
+            null,
+            array('param' => 'The description')
+        );
         $typeDescriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
-            ->method('getRootBindingType')
+            ->method('getRootTypeDescriptor')
             ->with('my/type')
             ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The description'),
-            )), DiscoveryManager::OVERRIDE);
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(
+                new BindingType('my/type', array(
+                    new BindingParameter('param', BindingParameter::REQUIRED),
+                )),
+                null,
+                array('param' => 'The description')
+            ), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleUpdate($args));
     }
@@ -558,21 +580,29 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param param=foobar'));
 
-        $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
-            new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'The description'),
-        ));
+        $typeDescriptor = new BindingTypeDescriptor(
+            new BindingType('my/type', array(
+                new BindingParameter('param', BindingParameter::REQUIRED),
+            )),
+            null,
+            array('param' => 'The description')
+        );
         $typeDescriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
-            ->method('getRootBindingType')
+            ->method('getRootTypeDescriptor')
             ->with('my/type')
             ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::OPTIONAL, 'foobar', 'The description'),
-            )), DiscoveryManager::OVERRIDE);
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(
+                new BindingType('my/type', array(
+                    new BindingParameter('param', BindingParameter::OPTIONAL, 'foobar'),
+                )),
+                null,
+                array('param' => 'The description')
+            ), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleUpdate($args));
     }
@@ -581,21 +611,29 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --param-description param="New description"'));
 
-        $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
-            new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'Old description'),
-        ));
+        $typeDescriptor = new BindingTypeDescriptor(
+            new BindingType('my/type', array(
+                new BindingParameter('param', BindingParameter::REQUIRED),
+            )),
+            null,
+            array('param' => 'Old description')
+        );
         $typeDescriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
-            ->method('getRootBindingType')
+            ->method('getRootTypeDescriptor')
             ->with('my/type')
             ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param', BindingParameterDescriptor::REQUIRED, null, 'New description'),
-            )), DiscoveryManager::OVERRIDE);
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(
+                new BindingType('my/type', array(
+                    new BindingParameter('param', BindingParameter::REQUIRED),
+                )),
+                null,
+                array('param' => 'New description')
+            ), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleUpdate($args));
     }
@@ -604,22 +642,26 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --unset-param param2'));
 
-        $typeDescriptor = new BindingTypeDescriptor('my/type', null, array(
-            new BindingParameterDescriptor('param1', BindingParameterDescriptor::REQUIRED),
-            new BindingParameterDescriptor('param2', BindingParameterDescriptor::OPTIONAL),
-        ));
+        $typeDescriptor = new BindingTypeDescriptor(
+            new BindingType('my/type', array(
+                new BindingParameter('param1', BindingParameter::REQUIRED),
+                new BindingParameter('param2', BindingParameter::OPTIONAL),
+            ))
+        );
         $typeDescriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
-            ->method('getRootBindingType')
+            ->method('getRootTypeDescriptor')
             ->with('my/type')
             ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->once())
-            ->method('addRootBindingType')
-            ->with(new BindingTypeDescriptor('my/type', null, array(
-                new BindingParameterDescriptor('param1', BindingParameterDescriptor::REQUIRED),
-            )), DiscoveryManager::OVERRIDE);
+            ->method('addRootTypeDescriptor')
+            ->with(new BindingTypeDescriptor(
+                new BindingType('my/type', array(
+                    new BindingParameter('param1', BindingParameter::REQUIRED),
+                ))
+            ), DiscoveryManager::OVERRIDE);
 
         $this->assertSame(0, $this->handler->handleUpdate($args));
     }
@@ -631,16 +673,16 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type'));
 
-        $typeDescriptor = new BindingTypeDescriptor('my/type');
+        $typeDescriptor = new BindingTypeDescriptor(new BindingType('my/type'));
         $typeDescriptor->load($this->packages->getRootPackage());
 
         $this->discoveryManager->expects($this->once())
-            ->method('getRootBindingType')
+            ->method('getRootTypeDescriptor')
             ->with('my/type')
             ->willReturn($typeDescriptor);
 
         $this->discoveryManager->expects($this->never())
-            ->method('addRootBindingType');
+            ->method('addRootTypeDescriptor');
 
         $this->handler->handleUpdate($args);
     }
@@ -650,12 +692,12 @@ EOF;
         $args = self::$deleteCommand->parseArgs(new StringArgs('my/type'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('hasRootBindingType')
+            ->method('hasRootTypeDescriptor')
             ->with('my/type')
             ->willReturn(true);
 
         $this->discoveryManager->expects($this->once())
-            ->method('removeRootBindingType')
+            ->method('removeRootTypeDescriptor')
             ->with('my/type');
 
         $this->assertSame(0, $this->handler->handleDelete($args));
@@ -670,20 +712,20 @@ EOF;
         $args = self::$deleteCommand->parseArgs(new StringArgs('my/type'));
 
         $this->discoveryManager->expects($this->once())
-            ->method('hasRootBindingType')
+            ->method('hasRootTypeDescriptor')
             ->with('my/type')
             ->willReturn(false);
 
         $this->discoveryManager->expects($this->never())
-            ->method('removeRootBindingType');
+            ->method('removeRootTypeDescriptor');
 
         $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
     private function packageAndState($packageName, $state)
     {
-        return Expr::same($packageName, BindingTypeDescriptor::CONTAINING_PACKAGE)
-            ->andSame($state, BindingTypeDescriptor::STATE);
+        return Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+            ->andMethod('getState', Expr::same($state));
     }
 
     private function returnFromMap(array $map)

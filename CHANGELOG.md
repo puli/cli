@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* 1.0.0-beta8 (@release_date@)
+
+ * added `--class` option to `puli bind --update` command
+ 
 * 1.0.0-beta7 (2015-08-24)
 
  * renamed `puli package --add` to `puli package --install`

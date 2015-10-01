@@ -148,7 +148,7 @@ class PackageCommandHandler
      */
     public function handleClean(Args $args, IO $io)
     {
-        $expr = Expr::same(PackageState::NOT_FOUND, Package::STATE);
+        $expr = Expr::method('getState', Expr::same(PackageState::NOT_FOUND));
 
         foreach ($this->packageManager->findPackages($expr) as $package) {
             $io->writeLine('Removing '.$package->getName());
@@ -200,11 +200,11 @@ class PackageCommandHandler
         $envs = array();
 
         if ($states !== PackageState::all()) {
-            $expr = $expr->andIn($states, Package::STATE);
+            $expr = $expr->andMethod('getState', Expr::in($states));
         }
 
         if ($args->isOptionSet('installer')) {
-            $expr = $expr->andSame($args->getOption('installer'), Package::INSTALLER);
+            $expr = $expr->andMethod('getInstallInfo', Expr::method('getInstallerName', Expr::same($args->getOption('installer'))));
         }
 
         if ($args->isOptionSet('prod')) {
@@ -216,7 +216,7 @@ class PackageCommandHandler
         }
 
         if (count($envs) > 0) {
-            $expr = $expr->andIn($envs, Package::ENVIRONMENT);
+            $expr = $expr->andMethod('getInstallInfo', Expr::method('getEnvironment', Expr::in($envs)));
         }
 
         return $this->packageManager->findPackages($expr);

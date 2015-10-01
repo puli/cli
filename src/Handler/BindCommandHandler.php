@@ -14,6 +14,8 @@ namespace Puli\Cli\Handler;
 use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
+use Puli\Discovery\Binding\ClassBinding;
+use Puli\Discovery\Binding\ResourceBinding;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
@@ -85,12 +87,12 @@ class BindCommandHandler
             $bindingStatePrinted = !$printBindingState;
 
             foreach ($packageNames as $packageName) {
-                $expr = Expr::same($packageName, BindingDescriptor::CONTAINING_PACKAGE)
-                    ->andSame($bindingState, BindingDescriptor::STATE);
+                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+                    ->andMethod('getState', Expr::same($bindingState));
 
-                $bindings = $this->discoveryManager->findBindings($expr);
+                $descriptors = $this->discoveryManager->findBindingDescriptors($expr);
 
-                if (!$bindings) {
+                if (empty($descriptors)) {
                     continue;
                 }
 
@@ -105,7 +107,7 @@ class BindCommandHandler
                     $io->writeLine('');
                 }
 
-                $this->printBindingTable($io, $bindings, $indentation, BindingState::ENABLED === $bindingState);
+                $this->printBindingTable($io, $descriptors, $indentation, BindingState::ENABLED === $bindingState);
 
                 if ($printHeaders) {
                     $io->writeLine('');
@@ -131,15 +133,26 @@ class BindCommandHandler
             : 0;
 
         $bindingParams = array();
+        $artifact = $args->getArgument('artifact');
 
         $this->parseParams($args, $bindingParams);
 
-        $this->discoveryManager->addRootBinding(new BindingDescriptor(
-            Path::makeAbsolute($args->getArgument('query'), $this->currentPath),
-            $args->getArgument('type'),
-            $bindingParams,
-            $args->getOption('language')
-        ), $flags);
+        if (false !== strpos($artifact, '\\')) {
+            $binding = new ClassBinding(
+                $artifact,
+                $args->getArgument('type'),
+                $bindingParams
+            );
+        } else {
+            $binding = new ResourceBinding(
+                Path::makeAbsolute($artifact, $this->currentPath),
+                $args->getArgument('type'),
+                $bindingParams,
+                $args->getOption('language')
+            );
+        }
+
+        $this->discoveryManager->addRootBindingDescriptor(new BindingDescriptor($binding), $flags);
 
         return 0;
     }
@@ -158,48 +171,34 @@ class BindCommandHandler
                 | DiscoveryManager::IGNORE_TYPE_NOT_ENABLED
             : DiscoveryManager::OVERRIDE;
 
-        $bindingToUpdate = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
+        $descriptorToUpdate = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
+        $bindingToUpdate = $descriptorToUpdate->getBinding();
 
-        if (!$bindingToUpdate->getContainingPackage() instanceof RootPackage) {
+        if (!$descriptorToUpdate->getContainingPackage() instanceof RootPackage) {
             throw new RuntimeException(sprintf(
                 'Can only update bindings in the package "%s".',
                 $this->packages->getRootPackageName()
             ));
         }
 
-        $query = $bindingToUpdate->getQuery();
-        $typeName = $bindingToUpdate->getTypeName();
-        $language = $bindingToUpdate->getLanguage();
-        $bindingParams = $bindingToUpdate->getParameterValues();
-
-        if ($args->isOptionSet('query')) {
-            $query = $args->getOption('query');
+        if ($bindingToUpdate instanceof ResourceBinding) {
+            $updatedBinding = $this->getUpdatedResourceBinding($args, $bindingToUpdate);
+        } elseif ($bindingToUpdate instanceof ClassBinding) {
+            $updatedBinding = $this->getUpdatedClassBinding($args, $bindingToUpdate);
+        } else {
+            throw new RuntimeException(sprintf(
+                'Cannot update bindings of type %s.',
+                get_class($bindingToUpdate)
+            ));
         }
 
-        if ($args->isOptionSet('type')) {
-            $typeName = $args->getOption('type');
-        }
+        $updatedDescriptor = new BindingDescriptor($updatedBinding);
 
-        if ($args->isOptionSet('language')) {
-            $language = $args->getOption('language');
-        }
-
-        $this->parseParams($args, $bindingParams);
-        $this->unsetParams($args, $bindingParams);
-
-        $updatedBinding = new BindingDescriptor(
-            Path::makeAbsolute($query, $this->currentPath),
-            $typeName,
-            $bindingParams,
-            $language,
-            $bindingToUpdate->getUuid()
-        );
-
-        if ($this->bindingsEqual($bindingToUpdate, $updatedBinding)) {
+        if ($this->bindingsEqual($descriptorToUpdate, $updatedDescriptor)) {
             throw new RuntimeException('Nothing to update.');
         }
 
-        $this->discoveryManager->addRootBinding($updatedBinding, $flags);
+        $this->discoveryManager->addRootBindingDescriptor($updatedDescriptor, $flags);
 
         return 0;
     }
@@ -222,7 +221,7 @@ class BindCommandHandler
             ));
         }
 
-        $this->discoveryManager->removeRootBinding($bindingToRemove->getUuid());
+        $this->discoveryManager->removeRootBindingDescriptor($bindingToRemove->getUuid());
 
         return 0;
     }
@@ -245,7 +244,7 @@ class BindCommandHandler
             ));
         }
 
-        $this->discoveryManager->enableBinding($bindingToEnable->getUuid());
+        $this->discoveryManager->enableBindingDescriptor($bindingToEnable->getUuid());
 
         return 0;
     }
@@ -268,7 +267,7 @@ class BindCommandHandler
             ));
         }
 
-        $this->discoveryManager->disableBinding($bindingToDisable->getUuid());
+        $this->discoveryManager->disableBindingDescriptor($bindingToDisable->getUuid());
 
         return 0;
     }
@@ -314,14 +313,15 @@ class BindCommandHandler
         $table->setHeaderRow(array('UUID', 'Glob', 'Type'));
 
         $paramTag = $enabled ? 'c1' : 'bad';
-        $queryTag = $enabled ? 'c1' : 'bad';
+        $artifactTag = $enabled ? 'c1' : 'bad';
         $typeTag = $enabled ? 'u' : 'bad';
 
         foreach ($descriptors as $descriptor) {
             $parameters = array();
+            $binding = $descriptor->getBinding();
 
-            foreach ($descriptor->getParameterValues() as $parameterName => $value) {
-                $parameters[] = $parameterName.'='.StringUtil::formatValue($value);
+            foreach ($binding->getParameterValues() as $parameterName => $parameterValue) {
+                $parameters[] = $parameterName.'='.StringUtil::formatValue($parameterValue);
             }
 
             $uuid = substr($descriptor->getUuid(), 0, 6);
@@ -331,15 +331,26 @@ class BindCommandHandler
             }
 
             $paramString = '';
-            if ($parameters) {
+
+            if (!empty($parameters)) {
                 // \xc2\xa0 is a non-breaking space
                 $paramString = " <$paramTag>(".implode(",\xc2\xa0", $parameters).")</$paramTag>";
             }
 
+            if ($binding instanceof ResourceBinding) {
+                $artifact = $binding->getQuery();
+            } elseif ($binding instanceof ClassBinding) {
+                $artifact = StringUtil::getShortClassName($binding->getClassName());
+            } else {
+                continue;
+            }
+
+            $typeString = StringUtil::getShortClassName($binding->getTypeName());
+
             $table->addRow(array(
                 $uuid,
-                "<$queryTag>{$descriptor->getQuery()}</$queryTag>",
-                "<$typeTag>{$descriptor->getTypeName()}</$typeTag>".$paramString,
+                "<$artifactTag>$artifact</$artifactTag>",
+                "<$typeTag>$typeString</$typeTag>".$paramString,
             ));
         }
 
@@ -421,29 +432,93 @@ class BindCommandHandler
      */
     private function getBindingByUuidPrefix($uuidPrefix)
     {
-        $expr = Expr::startsWith($uuidPrefix, BindingDescriptor::UUID);
-        $bindings = $this->discoveryManager->findBindings($expr);
+        $expr = Expr::method('getUuid', Expr::startsWith($uuidPrefix));
+        $descriptors = $this->discoveryManager->findBindingDescriptors($expr);
 
-        if (0 === count($bindings)) {
+        if (0 === count($descriptors)) {
             throw new RuntimeException(sprintf('The binding "%s" does not exist.', $uuidPrefix));
         }
 
-        if (count($bindings) > 1) {
+        if (count($descriptors) > 1) {
             throw new RuntimeException(sprintf(
                 'More than one binding matches the UUID prefix "%s".',
                 $uuidPrefix
             ));
         }
 
-        return reset($bindings);
+        return reset($descriptors);
     }
 
-    private function bindingsEqual(BindingDescriptor $binding1, BindingDescriptor $binding2)
+    private function bindingsEqual(BindingDescriptor $descriptor1, BindingDescriptor $descriptor2)
     {
-        return $binding1->getUuid() === $binding2->getUuid() &&
-            $binding1->getTypeName() === $binding2->getTypeName() &&
-            $binding1->getQuery() === $binding2->getQuery() &&
-            $binding1->getLanguage() === $binding2->getLanguage() &&
-            $binding1->getParameterValues() === $binding2->getParameterValues();
+        return $descriptor1->getBinding() == $descriptor2->getBinding();
+    }
+
+    /**
+     * @param Args            $args
+     * @param ResourceBinding $bindingToUpdate
+     *
+     * @return ResourceBinding
+     */
+    private function getUpdatedResourceBinding(Args $args, ResourceBinding $bindingToUpdate)
+    {
+        $query = $bindingToUpdate->getQuery();
+        $typeName = $bindingToUpdate->getTypeName();
+        $language = $bindingToUpdate->getLanguage();
+        $bindingParams = $bindingToUpdate->getParameterValues();
+
+        if ($args->isOptionSet('query')) {
+            $query = $args->getOption('query');
+        }
+
+        if ($args->isOptionSet('type')) {
+            $typeName = $args->getOption('type');
+        }
+
+        if ($args->isOptionSet('language')) {
+            $language = $args->getOption('language');
+        }
+
+        $this->parseParams($args, $bindingParams);
+        $this->unsetParams($args, $bindingParams);
+
+        return new ResourceBinding(
+            Path::makeAbsolute($query, $this->currentPath),
+            $typeName,
+            $bindingParams,
+            $language,
+            $bindingToUpdate->getUuid()
+        );
+    }
+
+    /**
+     * @param Args         $args
+     * @param ClassBinding $bindingToUpdate
+     *
+     * @return ClassBinding
+     */
+    private function getUpdatedClassBinding(Args $args, ClassBinding $bindingToUpdate)
+    {
+        $className = $bindingToUpdate->getClassName();
+        $typeName = $bindingToUpdate->getTypeName();
+        $bindingParams = $bindingToUpdate->getParameterValues();
+
+        if ($args->isOptionSet('class')) {
+            $className = $args->getOption('class');
+        }
+
+        if ($args->isOptionSet('type')) {
+            $typeName = $args->getOption('type');
+        }
+
+        $this->parseParams($args, $bindingParams);
+        $this->unsetParams($args, $bindingParams);
+
+        return new ClassBinding(
+            $className,
+            $typeName,
+            $bindingParams,
+            $bindingToUpdate->getUuid()
+        );
     }
 }

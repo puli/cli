@@ -112,7 +112,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginOptionCommand('add')
                     ->markAnonymous()
-                    ->addArgument('query', Argument::REQUIRED, 'A query for resources')
+                    ->addArgument('artifact', Argument::REQUIRED, 'A class name or a query for resources')
                     ->addArgument('type', Argument::REQUIRED, 'The name of the binding type')
                     ->addOption('language', null, Option::REQUIRED_VALUE, 'The language of the resource query', 'glob', 'language')
                     ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A binding parameter in the form <key>=<value>', null, 'key=value')
@@ -139,6 +139,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->beginOptionCommand('update', 'u')
                     ->addArgument('uuid', Argument::REQUIRED, 'The UUID (prefix) of the updated binding')
                     ->addOption('query', null, Option::REQUIRED_VALUE, 'A query for resources')
+                    ->addOption('class', null, Option::REQUIRED_VALUE, 'A class name')
                     ->addOption('type', null, Option::REQUIRED_VALUE, 'The name of the binding type')
                     ->addOption('language', null, Option::REQUIRED_VALUE, 'The language of the resource query', null, 'language')
                     ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A binding parameter in the form <key>=<value>', null, 'key=value')

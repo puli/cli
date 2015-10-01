@@ -13,9 +13,9 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\FindCommandHandler;
-use Puli\Discovery\Api\Binding\BindingType;
-use Puli\Discovery\Api\ResourceDiscovery;
-use Puli\Discovery\Binding\EagerBinding;
+use Puli\Discovery\Api\Discovery;
+use Puli\Discovery\Api\Type\BindingType;
+use Puli\Discovery\Binding\ResourceBinding;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
@@ -23,6 +23,7 @@ use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
+use Webmozart\Expression\Expr;
 
 /**
  * @since  1.0
@@ -42,7 +43,7 @@ class FindCommandHandlerTest extends AbstractCommandHandlerTest
     private $repo;
 
     /**
-     * @var PHPUnit_Framework_MockObject_MockObject|ResourceDiscovery
+     * @var PHPUnit_Framework_MockObject_MockObject|Discovery
      */
     private $discovery;
 
@@ -63,7 +64,7 @@ class FindCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUp();
 
         $this->repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
-        $this->discovery = $this->getMock('Puli\Discovery\Api\ResourceDiscovery');
+        $this->discovery = $this->getMock('Puli\Discovery\Api\Discovery');
         $this->handler = new FindCommandHandler($this->repo, $this->discovery);
     }
 
@@ -227,30 +228,37 @@ EOF;
     public function testFindByBindingType()
     {
         $args = self::$findCommand->parseArgs(new StringArgs('--type vendor/type'));
-        $type = new BindingType('vendor/type');
 
-        $this->repo->expects($this->never())
-            ->method('find');
+        $binding1 = new ResourceBinding('/path1', 'vendor/type');
+        $binding2 = new ResourceBinding('/path2', 'vendor/type');
+        $binding1->setRepository($this->repo);
+        $binding2->setRepository($this->repo);
+
+        $this->repo->expects($this->at(0))
+            ->method('find')
+            ->with('/path1')
+            ->willReturn(new ArrayResourceCollection(array(
+                new GenericResource('/path1/resource1'),
+                new FileResource(__FILE__, '/path1/file'),
+            )));
+        $this->repo->expects($this->at(1))
+            ->method('find')
+            ->with('/path2')
+            ->willReturn(new ArrayResourceCollection(array(
+                new GenericResource('/path2/resource2'),
+            )));
         $this->discovery->expects($this->once())
-            ->method('findByType')
-            ->with('vendor/type')
-            ->willReturn(array(
-                new EagerBinding('/path', new ArrayResourceCollection(array(
-                    new GenericResource('/path/resource1'),
-                    new FileResource(__FILE__, '/path/file'),
-                )), $type),
-                new EagerBinding('/path', new ArrayResourceCollection(array(
-                    new GenericResource('/path/resource2'),
-                )), $type),
-            ));
+            ->method('findBindings')
+            ->with('vendor/type', Expr::isInstanceOf('Puli\Discovery\Binding\ResourceBinding'))
+            ->willReturn(array($binding1, $binding2));
 
         $statusCode = $this->handler->handle($args, $this->io);
 
         // Result is sorted by path
         $expected = <<<EOF
-FileResource    /path/file
-GenericResource /path/resource1
-GenericResource /path/resource2
+FileResource    /path1/file
+GenericResource /path1/resource1
+GenericResource /path2/resource2
 
 EOF;
 
@@ -290,29 +298,36 @@ EOF;
     public function testFindByBindingTypeAndClass()
     {
         $args = self::$findCommand->parseArgs(new StringArgs('--type vendor/type --class GenericResource'));
-        $type = new BindingType('vendor/type');
 
-        $this->repo->expects($this->never())
-            ->method('find');
+        $binding1 = new ResourceBinding('/path1', 'vendor/type');
+        $binding2 = new ResourceBinding('/path2', 'vendor/type');
+        $binding1->setRepository($this->repo);
+        $binding2->setRepository($this->repo);
+
+        $this->repo->expects($this->at(0))
+            ->method('find')
+            ->with('/path1')
+            ->willReturn(new ArrayResourceCollection(array(
+                new GenericResource('/path1/resource1'),
+                new FileResource(__FILE__, '/path1/file'),
+            )));
+        $this->repo->expects($this->at(1))
+            ->method('find')
+            ->with('/path2')
+            ->willReturn(new ArrayResourceCollection(array(
+                new GenericResource('/path2/resource2'),
+            )));
         $this->discovery->expects($this->once())
-            ->method('findByType')
-            ->with('vendor/type')
-            ->willReturn(array(
-                new EagerBinding('/path', new ArrayResourceCollection(array(
-                    new GenericResource('/path/resource1'),
-                    new FileResource(__FILE__, '/path/file'),
-                )), $type),
-                new EagerBinding('/path', new ArrayResourceCollection(array(
-                    new GenericResource('/path/resource2'),
-                )), $type),
-            ));
+            ->method('findBindings')
+            ->with('vendor/type', Expr::isInstanceOf('Puli\Discovery\Binding\ResourceBinding'))
+            ->willReturn(array($binding1, $binding2));
 
         $statusCode = $this->handler->handle($args, $this->io);
 
         // Result is sorted by path
         $expected = <<<EOF
-GenericResource /path/resource1
-GenericResource /path/resource2
+GenericResource /path1/resource1
+GenericResource /path2/resource2
 
 EOF;
 
@@ -326,7 +341,12 @@ EOF;
         $args = self::$findCommand->parseArgs(new StringArgs('--path *pattern* --language xpath --type vendor/type'));
         $type = new BindingType('vendor/type');
 
-        $this->repo->expects($this->once())
+        $binding1 = new ResourceBinding('/path1', 'vendor/type');
+        $binding2 = new ResourceBinding('/path2', 'vendor/type');
+        $binding1->setRepository($this->repo);
+        $binding2->setRepository($this->repo);
+
+        $this->repo->expects($this->at(0))
             ->method('find')
             ->with('/*pattern*', 'xpath')
             ->willReturn(new ArrayResourceCollection(array(
@@ -336,20 +356,26 @@ EOF;
                 new GenericResource('/path/resource2'),
                 new GenericResource('/path/resource3'),
             )));
+        $this->repo->expects($this->at(1))
+            ->method('find')
+            ->with('/path1')
+            ->willReturn(new ArrayResourceCollection(array(
+                new GenericResource('/path/resource1'),
+                new GenericResource('/path/resource4'),
+                new FileResource(__FILE__, '/path/file'),
+            )));
+        $this->repo->expects($this->at(2))
+            ->method('find')
+            ->with('/path2')
+            ->willReturn(new ArrayResourceCollection(array(
+                new GenericResource('/path/resource2'),
+                new GenericResource('/path/resource5'),
+            )));
+
         $this->discovery->expects($this->once())
-            ->method('findByType')
-            ->with('vendor/type')
-            ->willReturn(array(
-                new EagerBinding('/path', new ArrayResourceCollection(array(
-                    new GenericResource('/path/resource1'),
-                    new GenericResource('/path/resource4'),
-                    new FileResource(__FILE__, '/path/file'),
-                )), $type),
-                new EagerBinding('/path', new ArrayResourceCollection(array(
-                    new GenericResource('/path/resource2'),
-                    new GenericResource('/path/resource5'),
-                )), $type),
-            ));
+            ->method('findBindings')
+            ->with('vendor/type', Expr::isInstanceOf('Puli\Discovery\Binding\ResourceBinding'))
+            ->willReturn(array($binding1, $binding2));
 
         $statusCode = $this->handler->handle($args, $this->io);
 

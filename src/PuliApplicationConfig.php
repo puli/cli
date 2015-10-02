@@ -28,7 +28,6 @@ use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Cli\Handler\TypeCommandHandler;
 use Puli\Cli\Handler\UpgradeCommandHandler;
 use Puli\Cli\Handler\UrlCommandHandler;
-use Puli\Manager\Api\Event\PuliEvents;
 use Puli\Manager\Api\Package\InstallInfo;
 use Puli\Manager\Api\Package\PackageFile;
 use Puli\Manager\Api\Puli;

@@ -81,7 +81,6 @@ Migrated your puli.json from version 0.5 to version $defaultVersion.
 
 EOF;
 
-
         $this->assertSame(0, $this->handler->handle($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
@@ -102,7 +101,6 @@ Migrated your puli.json from version 0.5 to version 0.8.
 
 EOF;
 
-
         $this->assertSame(0, $this->handler->handle($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());
         $this->assertEmpty($this->io->fetchErrors());
@@ -121,7 +119,6 @@ EOF;
 Your puli.json is already at version 0.5.
 
 EOF;
-
 
         $this->assertSame(0, $this->handler->handle($args, $this->io));
         $this->assertSame($expected, $this->io->fetchOutput());

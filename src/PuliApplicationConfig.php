@@ -28,6 +28,7 @@ use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Cli\Handler\TypeCommandHandler;
 use Puli\Cli\Handler\UpgradeCommandHandler;
 use Puli\Cli\Handler\UrlCommandHandler;
+use Puli\Manager\Api\Context\ProjectContext;
 use Puli\Manager\Api\Package\InstallInfo;
 use Puli\Manager\Api\Package\PackageFile;
 use Puli\Manager\Api\Puli;
@@ -90,6 +91,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         parent::configure();
 
         $puli = $this->puli;
+        $context = $this->puli->getContext();
 
         $this
             ->setName('puli')
@@ -102,28 +104,34 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->addStyle(Style::tag('good')->fgGreen())
             ->addStyle(Style::tag('bad')->fgRed())
-
-            ->addEventListener(ConsoleEvents::PRE_HANDLE, function (PreHandleEvent $event) use ($puli) {
-                $io = $event->getIO();
-                $packageFile = $puli->getContext()->getRootPackageFile();
-
-                // Don't show warning for "upgrade" command
-                if ('upgrade' === $event->getCommand()->getName()) {
-                    return;
-                }
-
-                if (version_compare($packageFile->getVersion(), PackageFile::DEFAULT_VERSION, '<')) {
-                    $io->errorLine(sprintf(
-                        '<warn>Warning: Your puli.json file has version %s, '.
-                        'but the latest version is %s. Run "puli upgrade" to '.
-                        'upgrade to %s.</warn>',
-                        $packageFile->getVersion(),
-                        PackageFile::DEFAULT_VERSION,
-                        PackageFile::DEFAULT_VERSION
-                    ));
-                }
-            })
         ;
+
+        if ($context instanceof ProjectContext) {
+            // Don't do a version check in the global context (if not in a project)
+            $this->addEventListener(
+                ConsoleEvents::PRE_HANDLE,
+                function (PreHandleEvent $event) use ($context) {
+                    $io = $event->getIO();
+                    $packageFile = $context->getRootPackageFile();
+
+                    // Don't show warning for "upgrade" command
+                    if ('upgrade' === $event->getCommand()->getName()) {
+                        return;
+                    }
+
+                    if (version_compare($packageFile->getVersion(), PackageFile::DEFAULT_VERSION, '<')) {
+                        $io->errorLine(sprintf(
+                            '<warn>Warning: Your puli.json file has version %s, '.
+                            'but the latest version is %s. Run "puli upgrade" to '.
+                            'upgrade to %s.</warn>',
+                            $packageFile->getVersion(),
+                            PackageFile::DEFAULT_VERSION,
+                            PackageFile::DEFAULT_VERSION
+                        ));
+                    }
+                }
+            );
+        }
 
         $this
             ->beginCommand('bind')

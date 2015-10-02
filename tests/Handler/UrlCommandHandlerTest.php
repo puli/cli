@@ -17,6 +17,7 @@ use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\GenericResource;
 use Puli\UrlGenerator\Api\UrlGenerator;
+use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 
 /**

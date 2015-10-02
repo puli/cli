@@ -26,12 +26,17 @@ use Puli\Cli\Handler\SelfUpdateCommandHandler;
 use Puli\Cli\Handler\ServerCommandHandler;
 use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Cli\Handler\TypeCommandHandler;
+use Puli\Cli\Handler\UpgradeCommandHandler;
 use Puli\Cli\Handler\UrlCommandHandler;
+use Puli\Manager\Api\Context\ProjectContext;
 use Puli\Manager\Api\Package\InstallInfo;
+use Puli\Manager\Api\Package\PackageFile;
 use Puli\Manager\Api\Puli;
 use Puli\Manager\Api\Server\Server;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
+use Webmozart\Console\Api\Event\ConsoleEvents;
+use Webmozart\Console\Api\Event\PreHandleEvent;
 use Webmozart\Console\Api\Formatter\Style;
 use Webmozart\Console\Config\DefaultApplicationConfig;
 
@@ -86,6 +91,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         parent::configure();
 
         $puli = $this->puli;
+        $context = $this->puli->getContext();
 
         $this
             ->setName('puli')
@@ -99,6 +105,33 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->addStyle(Style::tag('good')->fgGreen())
             ->addStyle(Style::tag('bad')->fgRed())
         ;
+
+        if ($context instanceof ProjectContext) {
+            // Don't do a version check in the global context (if not in a project)
+            $this->addEventListener(
+                ConsoleEvents::PRE_HANDLE,
+                function (PreHandleEvent $event) use ($context) {
+                    $io = $event->getIO();
+                    $packageFile = $context->getRootPackageFile();
+
+                    // Don't show warning for "upgrade" command
+                    if ('upgrade' === $event->getCommand()->getName()) {
+                        return;
+                    }
+
+                    if (version_compare($packageFile->getVersion(), PackageFile::DEFAULT_VERSION, '<')) {
+                        $io->errorLine(sprintf(
+                            '<warn>Warning: Your puli.json file has version %s, '.
+                            'but the latest version is %s. Run "puli upgrade" to '.
+                            'upgrade to %s.</warn>',
+                            $packageFile->getVersion(),
+                            PackageFile::DEFAULT_VERSION,
+                            PackageFile::DEFAULT_VERSION
+                        ));
+                    }
+                }
+            );
+        }
 
         $this
             ->beginCommand('bind')
@@ -544,6 +577,16 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
                     ->setHandlerMethod('handleDelete')
                 ->end()
+            ->end()
+        ;
+
+        $this
+            ->beginCommand('upgrade')
+                ->setDescription('Upgrades puli.json to the newest version')
+                ->addArgument('version', Argument::OPTIONAL, 'The version to upgrade/downgrade to', PackageFile::DEFAULT_VERSION)
+                ->setHandler(function () use ($puli) {
+                    return new UpgradeCommandHandler($puli->getRootPackageFileManager());
+                })
             ->end()
         ;
 

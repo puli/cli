@@ -28,12 +28,15 @@ use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Cli\Handler\TypeCommandHandler;
 use Puli\Cli\Handler\UpgradeCommandHandler;
 use Puli\Cli\Handler\UrlCommandHandler;
+use Puli\Manager\Api\Event\PuliEvents;
 use Puli\Manager\Api\Package\InstallInfo;
 use Puli\Manager\Api\Package\PackageFile;
 use Puli\Manager\Api\Puli;
 use Puli\Manager\Api\Server\Server;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
+use Webmozart\Console\Api\Event\ConsoleEvents;
+use Webmozart\Console\Api\Event\PreHandleEvent;
 use Webmozart\Console\Api\Formatter\Style;
 use Webmozart\Console\Config\DefaultApplicationConfig;
 
@@ -100,6 +103,27 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
             ->addStyle(Style::tag('good')->fgGreen())
             ->addStyle(Style::tag('bad')->fgRed())
+
+            ->addEventListener(ConsoleEvents::PRE_HANDLE, function (PreHandleEvent $event) use ($puli) {
+                $io = $event->getIO();
+                $packageFile = $puli->getContext()->getRootPackageFile();
+
+                // Don't show warning for "upgrade" command
+                if ('upgrade' === $event->getCommand()->getName()) {
+                    return;
+                }
+
+                if (version_compare($packageFile->getVersion(), PackageFile::DEFAULT_VERSION, '<')) {
+                    $io->errorLine(sprintf(
+                        '<warn>Warning: Your puli.json file has version %s, '.
+                        'but the latest version is %s. Run "puli upgrade" to '.
+                        'upgrade to %s.</warn>',
+                        $packageFile->getVersion(),
+                        PackageFile::DEFAULT_VERSION,
+                        PackageFile::DEFAULT_VERSION
+                    ));
+                }
+            })
         ;
 
         $this

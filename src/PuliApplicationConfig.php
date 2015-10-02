@@ -26,8 +26,10 @@ use Puli\Cli\Handler\SelfUpdateCommandHandler;
 use Puli\Cli\Handler\ServerCommandHandler;
 use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Cli\Handler\TypeCommandHandler;
+use Puli\Cli\Handler\UpgradeCommandHandler;
 use Puli\Cli\Handler\UrlCommandHandler;
 use Puli\Manager\Api\Package\InstallInfo;
+use Puli\Manager\Api\Package\PackageFile;
 use Puli\Manager\Api\Puli;
 use Puli\Manager\Api\Server\Server;
 use Webmozart\Console\Api\Args\Format\Argument;
@@ -544,6 +546,16 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
                     ->setHandlerMethod('handleDelete')
                 ->end()
+            ->end()
+        ;
+
+        $this
+            ->beginCommand('upgrade')
+                ->setDescription('Upgrades puli.json to the newest version')
+                ->addArgument('version', Argument::OPTIONAL, 'The version to upgrade/downgrade to', PackageFile::DEFAULT_VERSION)
+                ->setHandler(function () use ($puli) {
+                    return new UpgradeCommandHandler($puli->getRootPackageFileManager());
+                })
             ->end()
         ;
 

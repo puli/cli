@@ -137,7 +137,7 @@ class BindCommandHandler
 
         $this->parseParams($args, $bindingParams);
 
-        if (false !== strpos($artifact, '\\')) {
+        if (false !== strpos($artifact, '\\') || $args->isOptionSet('class')) {
             $binding = new ClassBinding(
                 $artifact,
                 $args->getArgument('type'),

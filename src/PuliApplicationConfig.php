@@ -149,6 +149,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->addArgument('type', Argument::REQUIRED, 'The name of the binding type')
                     ->addOption('language', null, Option::REQUIRED_VALUE, 'The language of the resource query', 'glob', 'language')
                     ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A binding parameter in the form <key>=<value>', null, 'key=value')
+                    ->addOption('class', null, Option::NO_VALUE, 'Force adding of a class binding')
                     ->addOption('force', 'f', Option::NO_VALUE, 'Add binding even if the binding type does not exist')
                     ->setHandlerMethod('handleAdd')
                 ->end()

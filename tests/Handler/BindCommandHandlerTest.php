@@ -764,6 +764,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ResourceBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
                 PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getBinding()->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
@@ -780,6 +781,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ResourceBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
                 PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
@@ -796,6 +798,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ResourceBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
                 PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
@@ -812,7 +815,24 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ClassBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame('Puli\Cli\Tests\Handler\BindCommandHandlerTest', $descriptor->getBinding()->getClassName());
+                PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getBinding()->getTypeName());
+                PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
+            });
+
+        $this->assertSame(0, $this->handler->handleAdd($args));
+    }
+
+    public function testAddClassBindingWithoutBackSlash()
+    {
+        $args = self::$addCommand->parseArgs(new StringArgs('--class BindCommandHandlerTest Puli\Discovery\Tests\Fixtures\Foo'));
+
+        $this->discoveryManager->expects($this->once())
+            ->method('addRootBindingDescriptor')
+            ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ClassBinding', $descriptor->getBinding());
+                PHPUnit_Framework_Assert::assertSame('BindCommandHandlerTest', $descriptor->getBinding()->getClassName());
                 PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getBinding()->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
             });
@@ -827,6 +847,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ResourceBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
                 PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(
@@ -860,6 +881,7 @@ EOF;
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ResourceBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
                 PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
@@ -891,6 +913,7 @@ EOF;
         $this->discoveryManager->expects($this->at(1))
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) use ($uuid) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ResourceBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame($uuid, $descriptor->getUuid());
                 PHPUnit_Framework_Assert::assertSame('/new', $descriptor->getBinding()->getQuery());
                 PHPUnit_Framework_Assert::assertSame('my/other', $descriptor->getTypeName());
@@ -921,6 +944,7 @@ EOF;
         $this->discoveryManager->expects($this->at(1))
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ResourceBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame('/new', $descriptor->getBinding()->getQuery());
                 PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());
@@ -952,6 +976,7 @@ EOF;
         $this->discoveryManager->expects($this->at(1))
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) use ($uuid) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ClassBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame($uuid, $descriptor->getUuid());
                 PHPUnit_Framework_Assert::assertSame('Puli\Cli\Tests\Handler\FindCommandHandlerTest', $descriptor->getBinding()->getClassName());
                 PHPUnit_Framework_Assert::assertSame('my/other', $descriptor->getTypeName());
@@ -985,6 +1010,7 @@ EOF;
         $this->discoveryManager->expects($this->at(1))
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ResourceBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame('/path', $descriptor->getBinding()->getQuery());
                 PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array('param1' => 'value1'), $descriptor->getBinding()->getParameterValues());
@@ -1011,6 +1037,7 @@ EOF;
         $this->discoveryManager->expects($this->at(1))
             ->method('addRootBindingDescriptor')
             ->willReturnCallback(function (BindingDescriptor $descriptor, $flags) {
+                PHPUnit_Framework_Assert::assertInstanceOf('Puli\Discovery\Binding\ResourceBinding', $descriptor->getBinding());
                 PHPUnit_Framework_Assert::assertSame('/new', $descriptor->getBinding()->getQuery());
                 PHPUnit_Framework_Assert::assertSame(Foo::clazz, $descriptor->getTypeName());
                 PHPUnit_Framework_Assert::assertSame(array(), $descriptor->getBinding()->getParameterValues());

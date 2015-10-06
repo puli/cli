@@ -1,6 +1,6 @@
 {
     "name": "puli/cli",
-    "description": "A Command Line Interface (CLI) for managing Puli repositories.",
+    "description": "A Command Line Interface (CLI) for managing Puli projects.",
     "homepage": "http://puli.io",
     "license": "MIT",
     "authors": [

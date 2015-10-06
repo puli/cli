@@ -3,6 +3,7 @@ Changelog
 
 * 1.0.0-beta9 (2015-10-06)
 
+ * fixed regression in `puli publish` command
  * added integration tests to spot and fix regressions
 
 * 1.0.0-beta8 (2015-10-05)

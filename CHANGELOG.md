@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* 1.0.0-beta9 (2015-10-06)
+
+ * added integration tests to spot and fix regressions
+
 * 1.0.0-beta8 (2015-10-05)
 
  * changed `puli bind` command to generate `ClassBinding` instances when passing

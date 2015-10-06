@@ -27,7 +27,7 @@
         "phpunit/phpunit": "^4.6",
         "sebastian/version": "^1.0.1"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "beta",
     "autoload": {
         "psr-4": {
             "Puli\\Cli\\": "src/"

@@ -1,0 +1,8 @@
+{
+    "version": "1.0",
+    "packages": {
+        "puli/url-generator": {
+            "install-path": "vendor/puli/url-generator"
+        }
+    }
+}

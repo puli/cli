@@ -3,7 +3,7 @@
 /docs/man
 /docs/html
 /docs/*.xml
-composer.lock
-puli.json
-box.json
-.puli
+/composer.lock
+/puli.json
+/box.json
+/.puli

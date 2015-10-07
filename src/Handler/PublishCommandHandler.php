@@ -192,7 +192,7 @@ class PublishCommandHandler
     public function handleInstall(Args $args, IO $io)
     {
         if ($args->isArgumentSet('server')) {
-            $expr = Expr::same($args->getArgument('server'), AssetMapping::SERVER_NAME);
+            $expr = Expr::method('getServerName', Expr::same($args->getArgument('server')));
             $mappings = $this->assetManager->findAssetMappings($expr);
         } else {
             $mappings = $this->assetManager->getAssetMappings();
@@ -268,7 +268,7 @@ class PublishCommandHandler
      */
     private function getMappingByUuidPrefix($uuidPrefix)
     {
-        $expr = Expr::startsWith($uuidPrefix, AssetMapping::UUID);
+        $expr = Expr::method('getUuid', Expr::startsWith($uuidPrefix));
 
         $mappings = $this->assetManager->findAssetMappings($expr);
 
@@ -291,22 +291,9 @@ class PublishCommandHandler
 
     private function mappingsEqual(AssetMapping $mapping1, AssetMapping $mapping2)
     {
-        if ($mapping1->getUuid() !== $mapping2->getUuid()) {
-            return false;
-        }
-
-        if ($mapping1->getGlob() !== $mapping2->getGlob()) {
-            return false;
-        }
-
-        if ($mapping1->getServerPath() !== $mapping2->getServerPath()) {
-            return false;
-        }
-
-        if ($mapping1->getServerName() !== $mapping2->getServerName()) {
-            return false;
-        }
-
-        return true;
+        return $mapping1->getUuid() === $mapping2->getUuid() &&
+            $mapping1->getGlob() === $mapping2->getGlob() &&
+            $mapping1->getServerPath() === $mapping2->getServerPath() &&
+            $mapping1->getServerName() === $mapping2->getServerName();
     }
 }

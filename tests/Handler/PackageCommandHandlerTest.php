@@ -567,28 +567,28 @@ EOF;
 
     private function env(array $envs)
     {
-        return Expr::in($envs, Package::ENVIRONMENT);
+        return Expr::method('getInstallInfo', Expr::method('getEnvironment', Expr::in($envs)));
     }
 
     private function state($state)
     {
-        return Expr::same($state, Package::STATE);
+        return Expr::method('getState', Expr::same($state));
     }
 
     private function states(array $states)
     {
-        return Expr::in($states, Package::STATE);
+        return Expr::method('getState', Expr::in($states));
     }
 
     private function installer($installer)
     {
-        return Expr::same($installer, Package::INSTALLER);
+        return Expr::method('getInstallInfo', Expr::method('getInstallerName', Expr::same($installer)));
     }
 
     private function installerAndState($installer, $state)
     {
-        return Expr::same($installer, Package::INSTALLER)
-            ->andSame($state, Package::STATE);
+        return Expr::method('getInstallInfo', Expr::method('getInstallerName', Expr::same($installer)))
+            ->andMethod('getState', Expr::same($state));
     }
 
     private function returnFromMap(array $map)

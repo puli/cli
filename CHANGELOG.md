@@ -1,6 +1,18 @@
 Changelog
 =========
 
+* 1.0.0-beta9 (2015-10-06)
+
+ * fixed regression in `puli publish` command
+ * added integration tests to spot and fix regressions
+
+* 1.0.0-beta8 (2015-10-05)
+
+ * changed `puli bind` command to generate `ClassBinding` instances when passing
+   a path that contains backslashes (`\`) or when passing the `--class` option
+ * added `--class` option to `puli bind --update` command
+ * added `puli upgrade` command
+ 
 * 1.0.0-beta7 (2015-08-24)
 
  * renamed `puli package --add` to `puli package --install`

@@ -12,13 +12,15 @@
 namespace Puli\Cli\Handler;
 
 use Puli\Cli\Util\StringUtil;
-use Puli\Discovery\Api\ResourceDiscovery;
+use Puli\Discovery\Api\Discovery;
+use Puli\Discovery\Binding\ResourceBinding;
 use Puli\Repository\Api\ResourceRepository;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
 use Webmozart\Console\UI\Style\TableStyle;
+use Webmozart\Expression\Expr;
 
 /**
  * Handles the "find" command.
@@ -35,7 +37,7 @@ class FindCommandHandler
     private $repo;
 
     /**
-     * @var ResourceDiscovery
+     * @var Discovery
      */
     private $discovery;
 
@@ -43,9 +45,9 @@ class FindCommandHandler
      * Creates the handler.
      *
      * @param ResourceRepository $repo      The resource repository.
-     * @param ResourceDiscovery  $discovery The resource discovery.
+     * @param Discovery          $discovery The discovery.
      */
-    public function __construct(ResourceRepository $repo, ResourceDiscovery $discovery)
+    public function __construct(ResourceRepository $repo, Discovery $discovery)
     {
         $this->repo = $repo;
         $this->discovery = $discovery;
@@ -141,10 +143,7 @@ class FindCommandHandler
     private function findByPath($query, $language = 'glob')
     {
         $matches = array();
-
-        if ('/' !== $query[0]) {
-            $query = '/'.$query;
-        }
+        $query = '/'.ltrim($query, '/');
 
         foreach ($this->repo->find($query, $language) as $resource) {
             $matches[$resource->getPath()] = StringUtil::getShortClassName(get_class($resource));
@@ -165,7 +164,10 @@ class FindCommandHandler
     {
         $matches = array();
 
-        foreach ($this->discovery->findByType($typeName) as $binding) {
+        $expr = Expr::isInstanceOf('Puli\Discovery\Binding\ResourceBinding');
+
+        foreach ($this->discovery->findBindings($typeName, $expr) as $binding) {
+            /** @var ResourceBinding $binding */
             foreach ($binding->getResources() as $resource) {
                 $matches[$resource->getPath()] = StringUtil::getShortClassName(get_class($resource));
             }

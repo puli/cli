@@ -53,12 +53,14 @@ class SelfUpdateCommandHandler
                 $updater->getOldVersion(),
                 $updater->getNewVersion()
             ));
-        } else {
-            $io->writeLine(sprintf(
-                'Version %s is the latest version. No update required.',
-                $updater->getOldVersion()
-            ));
+
+            return 0;
         }
+
+        $io->writeLine(sprintf(
+            'Version %s is the latest version. No update required.',
+            $updater->getOldVersion()
+        ));
 
         return 0;
     }
@@ -73,12 +75,8 @@ class SelfUpdateCommandHandler
             return GithubStrategy::UNSTABLE;
         }
 
-        foreach (array('-dev', '-alpha', '-beta') as $stability) {
-            if (false !== strpos(PuliApplicationConfig::VERSION, $stability)) {
-                return GithubStrategy::UNSTABLE;
-            }
-        }
-
-        return GithubStrategy::STABLE;
+        return preg_match('/\-(dev|alpha|beta)/', PuliApplicationConfig::VERSION)
+            ? GithubStrategy::UNSTABLE
+            : GithubStrategy::STABLE;
     }
 }

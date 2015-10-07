@@ -47,20 +47,10 @@ class StringUtil
             return $int;
         }
 
-        if ($string === (string) ($float = (int) $string)) {
-            return $float;
-        }
-
-        $length = strlen($string);
-
         // Check for " or ' delimiters
-        if ($length > 1) {
-            $first = $string[0];
-            $last = $string[$length - 1];
-
-            if ($first === $last && ("'" === $first || '"' === $first)) {
-                return substr($string, 1, -1);
-            }
+        // https://3v4l.org/5u0AU
+        if (preg_match('/^(["\']).*\1$/m', $string)) {
+            return substr($string, 1, -1);
         }
 
         return $string;
@@ -72,12 +62,8 @@ class StringUtil
             return 'null';
         }
 
-        if (true === $value) {
-            return 'true';
-        }
-
-        if (false === $value) {
-            return 'false';
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
         }
 
         if (is_string($value)) {

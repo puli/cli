@@ -14,7 +14,8 @@ namespace Puli\Cli\Handler;
 use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\ArgsUtil;
 use Puli\Cli\Util\StringUtil;
-use Puli\Manager\Api\Discovery\BindingParameterDescriptor;
+use Puli\Discovery\Api\Type\BindingParameter;
+use Puli\Discovery\Api\Type\BindingType;
 use Puli\Manager\Api\Discovery\BindingTypeDescriptor;
 use Puli\Manager\Api\Discovery\BindingTypeState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
@@ -80,10 +81,10 @@ class TypeCommandHandler
             $statePrinted = !$printStates;
 
             foreach ($packageNames as $packageName) {
-                $expr = Expr::same($packageName, BindingTypeDescriptor::CONTAINING_PACKAGE)
-                    ->andSame($state, BindingTypeDescriptor::STATE);
+                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+                    ->andMethod('getState', Expr::same($state));
 
-                $bindingTypes = $this->discoveryManager->findBindingTypes($expr);
+                $bindingTypes = $this->discoveryManager->findTypeDescriptors($expr);
 
                 if (!$bindingTypes) {
                     continue;
@@ -133,13 +134,13 @@ class TypeCommandHandler
         $bindingParams = array();
         $paramDescriptions = array();
 
-        $this->parsesParamDescriptions($args, $paramDescriptions);
-        $this->parseParams($args, $paramDescriptions, $bindingParams);
+        $this->parseParamDescriptions($args, $paramDescriptions);
+        $this->parseParams($args, $bindingParams);
 
-        $this->discoveryManager->addRootBindingType(new BindingTypeDescriptor(
-            $args->getArgument('name'),
+        $this->discoveryManager->addRootTypeDescriptor(new BindingTypeDescriptor(
+            new BindingType($args->getArgument('name'), $bindingParams),
             $args->getOption('description'),
-            $bindingParams
+            $paramDescriptions
         ), $flags);
 
         return 0;
@@ -155,32 +156,30 @@ class TypeCommandHandler
     public function handleUpdate(Args $args)
     {
         $name = $args->getArgument('name');
-        $typeToUpdate = $this->discoveryManager->getRootBindingType($name);
-        $bindingParams = $typeToUpdate->getParameters();
-        $description = $typeToUpdate->getDescription();
-        $paramDescriptions = array();
+        $descriptorToUpdate = $this->discoveryManager->getRootTypeDescriptor($name);
+        $bindingParams = $descriptorToUpdate->getType()->getParameters();
+        $description = $descriptorToUpdate->getDescription();
+        $paramDescriptions = $descriptorToUpdate->getParameterDescriptions();
 
-        // Collect existing parameter descriptions
-        foreach ($bindingParams as $parameter) {
-            $paramDescriptions[$parameter->getName()] = $parameter->getDescription();
-        }
-
-        $this->parsesParamDescriptions($args, $paramDescriptions);
-        $this->parseParams($args, $paramDescriptions, $bindingParams);
-        $this->updateParamDescriptions($paramDescriptions, $bindingParams);
-        $this->parseUnsetParams($args, $bindingParams);
+        $this->parseParamDescriptions($args, $paramDescriptions);
+        $this->parseParams($args, $bindingParams);
+        $this->parseUnsetParams($args, $bindingParams, $paramDescriptions);
 
         if ($args->isOptionSet('description')) {
             $description = $args->getOption('description');
         }
 
-        $updatedType = new BindingTypeDescriptor($name, $description, $bindingParams);
+        $updatedDescriptor = new BindingTypeDescriptor(
+            new BindingType($name, $bindingParams),
+            $description,
+            $paramDescriptions
+        );
 
-        if ($this->typesEqual($typeToUpdate, $updatedType)) {
+        if ($this->typesEqual($descriptorToUpdate, $updatedDescriptor)) {
             throw new RuntimeException('Nothing to update.');
         }
 
-        $this->discoveryManager->addRootBindingType($updatedType, DiscoveryManager::OVERRIDE);
+        $this->discoveryManager->addRootTypeDescriptor($updatedDescriptor, DiscoveryManager::OVERRIDE);
 
         return 0;
     }
@@ -196,7 +195,7 @@ class TypeCommandHandler
     {
         $typeName = $args->getArgument('name');
 
-        if (!$this->discoveryManager->hasRootBindingType($typeName)) {
+        if (!$this->discoveryManager->hasRootTypeDescriptor($typeName)) {
             throw new RuntimeException(sprintf(
                 'The type "%s" does not exist in the package "%s".',
                 $typeName,
@@ -204,7 +203,7 @@ class TypeCommandHandler
             ));
         }
 
-        $this->discoveryManager->removeRootBindingType($typeName);
+        $this->discoveryManager->removeRootTypeDescriptor($typeName);
 
         return 0;
     }
@@ -235,11 +234,11 @@ class TypeCommandHandler
      * Prints the binding types in a table.
      *
      * @param IO                      $io          The I/O.
-     * @param BindingTypeDescriptor[] $types       The binding types to print.
+     * @param BindingTypeDescriptor[] $descriptors The type descriptors to print.
      * @param string                  $styleTag    The tag used to style the output
      * @param int                     $indentation The number of spaces to indent.
      */
-    private function printTypeTable(IO $io, array $types, $styleTag = null, $indentation = 0)
+    private function printTypeTable(IO $io, array $descriptors, $styleTag = null, $indentation = 0)
     {
         $table = new Table(PuliTableStyle::borderless());
 
@@ -248,7 +247,8 @@ class TypeCommandHandler
         $paramTag = $styleTag ?: 'c1';
         $typeTag = $styleTag ?: 'u';
 
-        foreach ($types as $type) {
+        foreach ($descriptors as $descriptor) {
+            $type = $descriptor->getType();
             $parameters = array();
 
             foreach ($type->getParameters() as $parameter) {
@@ -256,17 +256,19 @@ class TypeCommandHandler
                     ? $parameter->getName()
                     : $parameter->getName().'='.StringUtil::formatValue($parameter->getDefaultValue());
 
-                $parameters[] = "<$paramTag>$paramString</$paramTag>";
+                $parameters[$parameter->getName()] = "<$paramTag>$paramString</$paramTag>";
             }
 
-            $description = $type->getDescription();
+            $description = $descriptor->getDescription();
 
             if ($styleTag) {
                 $description = "<$styleTag>$description</$styleTag>";
             }
 
+            ksort($parameters);
+
             $table->addRow(array(
-                "<$typeTag>".$type->getName()."</$typeTag>",
+                "<$typeTag>".$descriptor->getTypeName()."</$typeTag>",
                 $description,
                 implode("\n", $parameters),
             ));
@@ -297,7 +299,7 @@ class TypeCommandHandler
         }
     }
 
-    private function parsesParamDescriptions(Args $args, array &$paramDescriptions)
+    private function parseParamDescriptions(Args $args, array &$paramDescriptions)
     {
         foreach ($args->getOption('param-description') as $paramDescription) {
             $pos = strpos($paramDescription, '=');
@@ -315,80 +317,44 @@ class TypeCommandHandler
         }
     }
 
-    private function parseParams(Args $args, array $paramDescriptions, array &$bindingParams)
+    private function parseParams(Args $args, array &$bindingParams)
     {
         foreach ($args->getOption('param') as $parameter) {
             // Optional parameter with default value
             if (false !== ($pos = strpos($parameter, '='))) {
                 $key = substr($parameter, 0, $pos);
 
-                $bindingParams[$key] = new BindingParameterDescriptor(
+                $bindingParams[$key] = new BindingParameter(
                     $key,
-                    BindingParameterDescriptor::OPTIONAL,
-                    StringUtil::parseValue(substr($parameter, $pos + 1)),
-                    isset($paramDescriptions[$key]) ? $paramDescriptions[$key] : null
+                    BindingParameter::OPTIONAL,
+                    StringUtil::parseValue(substr($parameter, $pos + 1))
                 );
 
                 continue;
             }
 
             // Required parameter
-            $bindingParams[$parameter] = new BindingParameterDescriptor(
+            $bindingParams[$parameter] = new BindingParameter(
                 $parameter,
-                BindingParameterDescriptor::REQUIRED,
-                null,
-                isset($paramDescriptions[$parameter]) ? $paramDescriptions[$parameter] : null
+                BindingParameter::REQUIRED,
+                null
             );
         }
     }
 
-    /**
-     * @param string[]                     $paramDescriptions
-     * @param BindingParameterDescriptor[] $bindingParams
-     */
-    private function updateParamDescriptions(array $paramDescriptions, array &$bindingParams)
+    private function parseUnsetParams(Args $args, array &$bindingParams, array &$paramDescriptions)
     {
-        foreach ($bindingParams as $parameterName => $parameter) {
-            if (!isset($paramDescriptions[$parameterName])) {
-                continue;
-            }
-
-            $description = $paramDescriptions[$parameterName];
-
-            if ($description === $parameter->getDescription()) {
-                continue;
-            }
-
-            $bindingParams[$parameterName] = new BindingParameterDescriptor(
-                $parameterName,
-                $parameter->getFlags(),
-                $parameter->getDefaultValue(),
-                $description
-            );
+        foreach ($args->getOption('unset-param') as $parameterName) {
+            unset($bindingParams[$parameterName]);
+            unset($paramDescriptions[$parameterName]);
         }
     }
 
-    private function parseUnsetParams(Args $args, array &$bindingParams)
+    private function typesEqual(BindingTypeDescriptor $descriptor1, BindingTypeDescriptor $descriptor2)
     {
-        foreach ($args->getOption('unset-param') as $parameter) {
-            unset($bindingParams[$parameter]);
-        }
-    }
-
-    private function typesEqual(BindingTypeDescriptor $type1, BindingTypeDescriptor $type2)
-    {
-        if ($type1->getName() !== $type2->getName()) {
-            return false;
-        }
-
-        if ($type1->getDescription() !== $type2->getDescription()) {
-            return false;
-        }
-
-        if ($type1->getParameters() !== $type2->getParameters()) {
-            return false;
-        }
-
-        return true;
+        return ($descriptor1->getTypeName() === $descriptor2->getTypeName() &&
+            $descriptor1->getDescription() === $descriptor2->getDescription() &&
+            $descriptor1->getParameterDescriptions() === $descriptor2->getParameterDescriptions() &&
+            $descriptor1->getType()->getParameters() === $descriptor2->getType()->getParameters());
     }
 }

@@ -85,8 +85,8 @@ class MapCommandHandler
             $statePrinted = !$printState;
 
             if (PathMappingState::CONFLICT === $state) {
-                $expr = Expr::in($packageNames, PathMapping::CONTAINING_PACKAGE)
-                    ->andSame($state, PathMapping::STATE);
+                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::in($packageNames)))
+                    ->andMethod('getState', Expr::same($state));
 
                 $mappings = $this->repoManager->findPathMappings($expr);
 
@@ -110,8 +110,8 @@ class MapCommandHandler
             }
 
             foreach ($packageNames as $packageName) {
-                $expr = Expr::same($packageName, PathMapping::CONTAINING_PACKAGE)
-                    ->andSame($state, PathMapping::STATE);
+                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+                    ->andMethod('getState', Expr::same($state));
 
                 $mappings = $this->repoManager->findPathMappings($expr);
 
@@ -338,21 +338,17 @@ class MapCommandHandler
      */
     private function getPathMappingStates(Args $args)
     {
-        $states = array();
+        $states = array(
+            PathMappingState::ENABLED => 'enabled',
+            PathMappingState::NOT_FOUND => 'not-found',
+            PathMappingState::CONFLICT => 'conflict',
+        );
 
-        if ($args->isOptionSet('enabled')) {
-            $states[] = PathMappingState::ENABLED;
-        }
+        $states = array_filter($states, function ($option) use ($args) {
+            return $args->isOptionSet($option);
+        });
 
-        if ($args->isOptionSet('not-found')) {
-            $states[] = PathMappingState::NOT_FOUND;
-        }
-
-        if ($args->isOptionSet('conflict')) {
-            $states[] = PathMappingState::CONFLICT;
-        }
-
-        return $states ?: PathMappingState::all();
+        return array_keys($states) ?: PathMappingState::all();
     }
 
     /**
@@ -385,14 +381,7 @@ class MapCommandHandler
 
     private function mappingsEqual(PathMapping $mapping1, PathMapping $mapping2)
     {
-        if ($mapping1->getRepositoryPath() !== $mapping2->getRepositoryPath()) {
-            return false;
-        }
-
-        if ($mapping1->getPathReferences() !== $mapping2->getPathReferences()) {
-            return false;
-        }
-
-        return true;
+        return $mapping1->getRepositoryPath() === $mapping2->getRepositoryPath() &&
+            $mapping1->getPathReferences() === $mapping2->getPathReferences();
     }
 }

@@ -866,14 +866,14 @@ EOF;
 
     private function packageAndState($packageName, $state)
     {
-        return Expr::same($packageName, PathMapping::CONTAINING_PACKAGE)
-            ->andSame($state, PathMapping::STATE);
+        return Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+            ->andMethod('getState', Expr::same($state));
     }
 
     private function packagesAndState(array $packageNames, $state)
     {
-        return Expr::in($packageNames, PathMapping::CONTAINING_PACKAGE)
-            ->andSame($state, PathMapping::STATE);
+        return Expr::method('getContainingPackage', Expr::method('getName', Expr::in($packageNames)))
+            ->andMethod('getState', Expr::same($state));
     }
 
     private function returnFromMap(array $map)

@@ -13,7 +13,7 @@ namespace Puli\Cli\Handler;
 
 use DateTime;
 use Puli\Cli\Util\StringUtil;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceRepository;
 use RuntimeException;
@@ -155,11 +155,11 @@ class LsCommandHandler
      *
      * Resources with children are colored.
      *
-     * @param Resource $resource The resource.
+     * @param PuliResource $resource The resource.
      *
      * @return string The formatted name.
      */
-    private function formatName(Resource $resource)
+    private function formatName(PuliResource $resource)
     {
         $name = $resource->getName();
 

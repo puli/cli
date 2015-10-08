@@ -5,6 +5,7 @@ Changelog
 
  * the `puli build` command now removes obsolete disabled binding UUIDs from
    the root `puli.json`
+ * fixed: `puli build` command runs now even if the factory file is corrupt
 
 * 1.0.0-beta9 (2015-10-06)
 

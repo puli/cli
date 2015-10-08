@@ -81,6 +81,23 @@ class PuliBinTest extends PHPUnit_Framework_TestCase
         $this->assertNotRegExp($mappingExistsRegExp, $this->runPuli('map'));
     }
 
+    public function testBuildWhenInvalidFactoryClass()
+    {
+        $this->runPuli('map /app res');
+
+        $factoryFile = $this->rootDir.'/'.trim($this->runPuli('config factory.in.file --parsed'));
+
+        $this->assertFileExists($factoryFile);
+
+        // Invalidate factory class syntax
+        file_put_contents($factoryFile, file_get_contents($factoryFile, null, null, 3));
+
+        $this->assertEmpty($this->runPuli('build'));
+
+        // Factory was rebuilt, repository was built successfully
+        $this->assertRegExp('~^app\s~', $this->runPuli('ls'));
+    }
+
     public function testType()
     {
         $typeExistsRegExp = '~\sthor/catalog\s~';

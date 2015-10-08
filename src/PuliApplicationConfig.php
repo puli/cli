@@ -28,6 +28,8 @@ use Puli\Cli\Handler\TreeCommandHandler;
 use Puli\Cli\Handler\TypeCommandHandler;
 use Puli\Cli\Handler\UpgradeCommandHandler;
 use Puli\Cli\Handler\UrlCommandHandler;
+use Puli\Cli\Proxy\DiscoveryManagerProxy;
+use Puli\Cli\Proxy\RepositoryManagerProxy;
 use Puli\Manager\Api\Context\ProjectContext;
 use Puli\Manager\Api\Package\InstallInfo;
 use Puli\Manager\Api\Package\PackageFile;
@@ -205,8 +207,11 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->addArgument('target', Argument::OPTIONAL, 'The build target. One of "repository", "discovery", "factory" and "all"', 'all')
                 ->setHandler(function () use ($puli) {
                     return new BuildCommandHandler(
-                        $puli->getRepositoryManager(),
-                        $puli->getDiscoveryManager(),
+                        // Use proxies to make sure this command runs even if
+                        // the factory file is corrupt. If the file is corrupt,
+                        // we get an error when loading the actual managers.
+                        new RepositoryManagerProxy($puli),
+                        new DiscoveryManagerProxy($puli),
                         $puli->getFactoryManager()
                     );
                 })

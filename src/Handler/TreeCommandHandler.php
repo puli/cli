@@ -11,7 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceRepository;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
@@ -102,12 +102,12 @@ class TreeCommandHandler
     /**
      * Recursively prints the tree for the given resource.
      *
-     * @param IO       $io       The I/O.
-     * @param Resource $resource The printed resource.
-     * @param int      $total    Collects the total number of printed resources.
-     * @param string   $prefix   The prefix for all printed resources.
+     * @param IO           $io       The I/O.
+     * @param PuliResource $resource The printed resource.
+     * @param int          $total    Collects the total number of printed resources.
+     * @param string       $prefix   The prefix for all printed resources.
      */
-    private function printTree(IO $io, Resource $resource, &$total, $prefix = '')
+    private function printTree(IO $io, PuliResource $resource, &$total, $prefix = '')
     {
         // The root node has an empty name
         $children = $resource->listChildren();

@@ -82,6 +82,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
             ->method('clearDiscovery');
         $this->discoveryManager->expects($this->at(1))
             ->method('buildDiscovery');
+        $this->discoveryManager->expects($this->at(2))
+            ->method('removeObsoleteDisabledBindingDescriptors');
 
         $statusCode = $this->handler->handle($args);
 
@@ -104,6 +106,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
             ->method('clearDiscovery');
         $this->discoveryManager->expects($this->at(1))
             ->method('buildDiscovery');
+        $this->discoveryManager->expects($this->at(2))
+            ->method('removeObsoleteDisabledBindingDescriptors');
 
         $statusCode = $this->handler->handle($args);
 
@@ -126,6 +130,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
             ->method('clearDiscovery');
         $this->discoveryManager->expects($this->never())
             ->method('buildDiscovery');
+        $this->discoveryManager->expects($this->never())
+            ->method('removeObsoleteDisabledBindingDescriptors');
 
         $statusCode = $this->handler->handle($args);
 
@@ -148,6 +154,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
             ->method('clearDiscovery');
         $this->discoveryManager->expects($this->at(1))
             ->method('buildDiscovery');
+        $this->discoveryManager->expects($this->at(2))
+            ->method('removeObsoleteDisabledBindingDescriptors');
 
         $statusCode = $this->handler->handle($args);
 
@@ -170,6 +178,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
             ->method('clearDiscovery');
         $this->discoveryManager->expects($this->never())
             ->method('buildDiscovery');
+        $this->discoveryManager->expects($this->never())
+            ->method('removeObsoleteDisabledBindingDescriptors');
 
         $statusCode = $this->handler->handle($args);
 
@@ -196,6 +206,8 @@ class BuildCommandHandlerTest extends AbstractCommandHandlerTest
             ->method('clearDiscovery');
         $this->discoveryManager->expects($this->never())
             ->method('buildDiscovery');
+        $this->discoveryManager->expects($this->never())
+            ->method('removeObsoleteDisabledBindingDescriptors');
 
         $this->handler->handle($args);
     }

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+* 1.0.0-beta10 (@release_date@)
+
+ * the `puli build` command now removes obsolete disabled binding UUIDs from
+   the root `puli.json`
+
 * 1.0.0-beta9 (2015-10-06)
 
  * fixed regression in `puli publish` command

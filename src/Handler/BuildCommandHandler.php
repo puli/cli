@@ -91,6 +91,7 @@ class BuildCommandHandler
         if ('all' === $target || 'discovery' === $target) {
             $this->discoveryManager->clearDiscovery();
             $this->discoveryManager->buildDiscovery();
+            $this->discoveryManager->removeObsoleteDisabledBindingDescriptors();
         }
 
         return 0;

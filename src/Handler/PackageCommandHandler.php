@@ -312,11 +312,11 @@ class PackageCommandHandler
     /**
      * Prints a list of packages in a table.
      *
-     * @param IO        $io       The I/O.
-     * @param Package[] $packages The packages.
-     * @param string    $styleTag The tag used to style the output. If `null`,
-     *                            the default colors are used.
-     * @param bool      $indent   Whether to indent the output.
+     * @param IO          $io       The I/O.
+     * @param Package[]   $packages The packages.
+     * @param string|null $styleTag The tag used to style the output. If `null`,
+     *                              the default colors are used.
+     * @param bool        $indent   Whether to indent the output.
      */
     private function printPackageTable(IO $io, array $packages, $styleTag = null, $indent = false)
     {
@@ -337,10 +337,10 @@ class PackageCommandHandler
             $env = $installInfo ? $installInfo->getEnvironment() : Environment::PROD;
 
             $table->addRow(array(
-                $styleTag ? "<$styleTag>$packageName</$styleTag>" : $packageName,
-                $installer ? "<$installerTag>$installer</$installerTag>" : '',
-                "<$envTag>$env</$envTag>",
-                "<$pathTag>$installPath</$pathTag>",
+                $styleTag ? sprintf('<%s>%s</%s>', $styleTag, $packageName, $styleTag) : $packageName,
+                $installer ? sprintf('<%s>%s</%s>', $installerTag, $installer, $installerTag) : '',
+                sprintf('<%s>%s</%s>', $envTag, $env, $envTag),
+                sprintf('<%s>%s</%s>', $pathTag, $installPath, $pathTag),
             ));
         }
 
@@ -380,7 +380,10 @@ class PackageCommandHandler
             // Remove root directory
             $errorMessage = str_replace($rootDir.'/', '', $errorMessage);
 
-            $table->addRow(array("<bad>$packageName</bad>", "<bad>$errorMessage</bad>"));
+            $table->addRow(array(
+                sprintf('<bad>%s</bad>', $packageName),
+                sprintf('<bad>%s</bad>', $errorMessage),
+            ));
         }
 
         $table->render($io, $indent ? 4 : 0);

@@ -87,7 +87,7 @@ class FindCommandHandler
             $criteria['bindingType'] = $args->getOption('type');
         }
 
-        if (!$criteria) {
+        if (empty($criteria)) {
             throw new RuntimeException('No search criteria specified.');
         }
 
@@ -190,7 +190,7 @@ class FindCommandHandler
         $table = new Table(TableStyle::borderless());
 
         foreach ($matches as $path => $shortClass) {
-            $table->addRow(array($shortClass, "<c1>$path</c1>"));
+            $table->addRow(array($shortClass, sprintf('<c1>%s</c1>', $path)));
         }
 
         $table->render($io);

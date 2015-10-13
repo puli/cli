@@ -61,7 +61,7 @@ class CatCommandHandler
         $resources = $this->repo->find($path);
 
         if (!count($resources)) {
-            $io->errorLine("No resources found for path $path");
+            $io->errorLine(sprintf('No resources found for path %s', $path));
 
             return 1;
         }

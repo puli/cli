@@ -63,7 +63,7 @@ class InstallerCommandHandler
 
             $description = $descriptor->getDescription();
 
-            if ($parameters) {
+            if (!empty($parameters)) {
                 // non-breaking space
                 $description .= ' <c1>('.implode(",\xc2\xa0", $parameters).')</c1>';
             }

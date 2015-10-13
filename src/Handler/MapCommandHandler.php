@@ -128,7 +128,7 @@ class MapCommandHandler
 
                 if ($printPackageName) {
                     $prefix = $printState ? '    ' : '';
-                    $io->writeLine("{$prefix}Package: $packageName");
+                    $io->writeLine(sprintf('%sPackage: %s', $prefix, $packageName));
                     $io->writeLine('');
                 }
 
@@ -270,7 +270,7 @@ class MapCommandHandler
             }
 
             $table->addRow(array(
-                "<$pathTag>{$mapping->getRepositoryPath()}</$pathTag>",
+                sprintf('<%s>%s</%s>', $pathTag, $mapping->getRepositoryPath(), $pathTag),
                 $pathReferences,
             ));
         }
@@ -305,7 +305,7 @@ class MapCommandHandler
                 $io->writeLine('');
             }
 
-            $io->writeLine("{$shortPrefix}Conflicting path: {$conflict->getRepositoryPath()}");
+            $io->writeLine(sprintf('%sConflicting path: %s', $shortPrefix, $conflict->getRepositoryPath()));
             $io->writeLine('');
 
             $table = new Table(PuliTableStyle::borderless());
@@ -320,7 +320,7 @@ class MapCommandHandler
                 ));
             }
 
-            $io->writeLine("{$prefix}Mapped by the following mappings:");
+            $io->writeLine(sprintf('%sMapped by the following mappings:', $prefix));
             $io->writeLine('');
 
             $table->render($io, $indentation + 4);

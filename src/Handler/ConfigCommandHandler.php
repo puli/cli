@@ -61,7 +61,7 @@ class ConfigCommandHandler
 
         foreach ($effectiveValues as $key => $value) {
             $table->addRow(array(
-                "<c1>$key</c1>",
+                sprintf('<c1>%s</c1>', $key),
                 array_key_exists($key, $userValues)
                     ? StringUtil::formatValue($userValues[$key], false)
                     : '',

@@ -157,7 +157,7 @@ class LsCommandHandler
      *
      * @param PuliResource $resource The resource.
      *
-     * @return string The formatted name.
+     * @return string|null The formatted name.
      */
     private function formatName(PuliResource $resource)
     {

@@ -85,7 +85,7 @@ class PublishCommandHandler
             $mappingsByServer[$serverName][] = $mapping;
         }
 
-        if (!$mappingsByServer) {
+        if (empty($mappingsByServer)) {
             $io->writeLine('No public resources. Use "puli publish <path> <server>" to publish resources.');
 
             return 0;
@@ -98,10 +98,10 @@ class PublishCommandHandler
             foreach ($servers as $serverName => $server) {
                 $serverTitle = 'Server <bu>'.$serverName.'</bu>';
 
-                $io->writeLine("    <b>$serverTitle</b>");
-                $io->writeLine("    Location:   <c2>{$server->getDocumentRoot()}</c2>");
-                $io->writeLine("    Installer:  {$server->getInstallerName()}");
-                $io->writeLine("    URL Format: <c1>{$server->getUrlFormat()}</c1>");
+                $io->writeLine(sprintf('    <b>%s</b>', $serverTitle));
+                $io->writeLine(sprintf('    Location:   <c2>%s</c2>', $server->getDocumentRoot()));
+                $io->writeLine(sprintf('    Installer:  %s', $server->getInstallerName()));
+                $io->writeLine(sprintf('    URL Format: <c1>%s</c1>', $server->getUrlFormat()));
                 $io->writeLine('');
 
                 $this->printMappingTable($io, $mappingsByServer[$serverName]);
@@ -120,7 +120,7 @@ class PublishCommandHandler
             $io->writeLine('');
 
             foreach ($nonExistingServers as $serverName => $_) {
-                $io->writeLine("    <b>Server <bu>$serverName</bu></b>");
+                $io->writeLine(sprintf('    <b>Server <bu>%s</bu></b>', $serverName));
                 $io->writeLine('');
 
                 $this->printMappingTable($io, $mappingsByServer[$serverName], false);
@@ -248,13 +248,13 @@ class PublishCommandHandler
             $serverPath = $mapping->getServerPath();
 
             if (!$enabled) {
-                $uuid = "<bad>$uuid</bad>";
+                $uuid = sprintf('<bad>%s</bad>', $uuid);
             }
 
             $table->addRow(array(
                 $uuid,
-                "<$globTag>$glob</$globTag>",
-                "<$pathTag>$serverPath</$pathTag>",
+                sprintf('<%s>%s</%s>', $globTag, $glob, $globTag),
+                sprintf('<%s>%s</%s>', $pathTag, $serverPath, $pathTag),
             ));
         }
 

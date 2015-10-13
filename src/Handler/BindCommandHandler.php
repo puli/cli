@@ -103,7 +103,7 @@ class BindCommandHandler
 
                 if ($printPackageName) {
                     $prefix = $printBindingState ? '    ' : '';
-                    $io->writeLine("{$prefix}Package: $packageName");
+                    $io->writeLine(sprintf('%sPackage: %s', $prefix, $packageName));
                     $io->writeLine('');
                 }
 
@@ -327,14 +327,19 @@ class BindCommandHandler
             $uuid = substr($descriptor->getUuid(), 0, 6);
 
             if (!$enabled) {
-                $uuid = "<bad>$uuid</bad>";
+                $uuid = sprintf('<bad>%s</bad>', $uuid);
             }
 
             $paramString = '';
 
             if (!empty($parameters)) {
                 // \xc2\xa0 is a non-breaking space
-                $paramString = " <$paramTag>(".implode(",\xc2\xa0", $parameters).")</$paramTag>";
+                $paramString = sprintf(
+                    ' <%s>(%s)</%s>',
+                    $paramTag,
+                    implode(",\xc2\xa0", $parameters),
+                    $paramTag
+                );
             }
 
             if ($binding instanceof ResourceBinding) {
@@ -349,8 +354,8 @@ class BindCommandHandler
 
             $table->addRow(array(
                 $uuid,
-                "<$artifactTag>$artifact</$artifactTag>",
-                "<$typeTag>$typeString</$typeTag>".$paramString,
+                sprintf('<%s>%s</%s>', $artifactTag, $artifact, $artifactTag),
+                sprintf('<%s>%s</%s>%s', $typeTag, $typeString, $typeTag, $paramString),
             ));
         }
 

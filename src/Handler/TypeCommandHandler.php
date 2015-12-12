@@ -352,9 +352,9 @@ class TypeCommandHandler
 
     private function typesEqual(BindingTypeDescriptor $descriptor1, BindingTypeDescriptor $descriptor2)
     {
-        return ($descriptor1->getTypeName() === $descriptor2->getTypeName() &&
+        return $descriptor1->getTypeName() === $descriptor2->getTypeName() &&
             $descriptor1->getDescription() === $descriptor2->getDescription() &&
             $descriptor1->getParameterDescriptions() === $descriptor2->getParameterDescriptions() &&
-            $descriptor1->getType()->getParameters() === $descriptor2->getType()->getParameters());
+            $descriptor1->getType()->getParameters() === $descriptor2->getType()->getParameters();
     }
 }

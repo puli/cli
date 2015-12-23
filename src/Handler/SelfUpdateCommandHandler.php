@@ -11,9 +11,9 @@
 
 namespace Puli\Cli\Handler;
 
-use Humbug\SelfUpdate\Strategy\GithubStrategy;
 use Humbug\SelfUpdate\Updater;
 use Puli\Cli\PuliApplicationConfig;
+use Puli\Cli\Updater\PuliStrategy;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 
@@ -36,11 +36,8 @@ class SelfUpdateCommandHandler
      */
     public function handle(Args $args, IO $io)
     {
-        $updateStrategy = new GithubStrategy();
-        $updateStrategy->setPackageName('puli/cli');
+        $updateStrategy = new PuliStrategy();
         $updateStrategy->setStability($this->getStability($args));
-        $updateStrategy->setPharName('puli.phar');
-        $updateStrategy->setCurrentLocalVersion(PuliApplicationConfig::VERSION);
 
         // false: disable signed releases, otherwise the updater will look for
         // a *.pubkey file for the PHAR
@@ -68,15 +65,15 @@ class SelfUpdateCommandHandler
     private function getStability(Args $args)
     {
         if ($args->isOptionSet('stable')) {
-            return GithubStrategy::STABLE;
+            return PuliStrategy::STABLE;
         }
 
         if ($args->isOptionSet('unstable')) {
-            return GithubStrategy::UNSTABLE;
+            return PuliStrategy::UNSTABLE;
         }
 
         return preg_match('/\-(dev|alpha|beta)/', PuliApplicationConfig::VERSION)
-            ? GithubStrategy::UNSTABLE
-            : GithubStrategy::STABLE;
+            ? PuliStrategy::UNSTABLE
+            : PuliStrategy::STABLE;
     }
 }

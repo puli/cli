@@ -19,7 +19,7 @@
         "webmozart/path-util": "^2.2.2",
         "webmozart/key-value-store": "^1.0.0-beta5",
         "webmozart/expression": "^1.0-beta4",
-        "webmozart/glob": "^3.1",
+        "webmozart/glob": "^4.0",
         "symfony/filesystem": "^2.3",
         "padraic/phar-updater": "^1.0.1"
     },

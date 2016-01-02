@@ -20,12 +20,12 @@
         "webmozart/key-value-store": "^1.0.0-beta5",
         "webmozart/expression": "^1.0-beta4",
         "webmozart/glob": "^4.0",
-        "symfony/filesystem": "^2.3",
         "padraic/phar-updater": "^1.0.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.6",
-        "sebastian/version": "^1.0.1"
+        "sebastian/version": "^1.0.1",
+        "symfony/filesystem": "^2.3|^3.0"
     },
     "minimum-stability": "dev",
     "autoload": {

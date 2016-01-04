@@ -570,7 +570,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                     ->setHandlerMethod('handleList')
                 ->end()
 
-                ->beginOptionCommand('update')
+                ->beginOptionCommand('update', 'u')
                     ->addArgument('name', Argument::REQUIRED, 'The name of the binding type')
                     ->addOption('description', null, Option::REQUIRED_VALUE, 'A human-readable description of the type')
                     ->addOption('param', null, Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'A type parameter in the form <key> or <key>=<value>', null, 'key=value')

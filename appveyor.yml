@@ -30,4 +30,4 @@ install:
 
 test_script:
   - cd c:\projects\puli\cli
-  - vendor\bin\phpunit.bat --verbose
+  - php tests\debug.php

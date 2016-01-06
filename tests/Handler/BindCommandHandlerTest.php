@@ -14,10 +14,10 @@ namespace Puli\Cli\Tests\Handler;
 use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\BindCommandHandler;
+use Puli\Cli\Tests\Fixtures\Bar;
+use Puli\Cli\Tests\Fixtures\Foo;
 use Puli\Discovery\Binding\ClassBinding;
 use Puli\Discovery\Binding\ResourceBinding;
-use Puli\Discovery\Tests\Fixtures\Bar;
-use Puli\Discovery\Tests\Fixtures\Foo;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
@@ -759,7 +759,7 @@ EOF;
 
     public function testAddResourceBindingWithRelativePath()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('path Puli\Discovery\Tests\Fixtures\Foo'));
+        $args = self::$addCommand->parseArgs(new StringArgs('path Puli\Cli\Tests\Fixtures\Foo'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
@@ -776,7 +776,7 @@ EOF;
 
     public function testAddResourceBindingWithAbsolutePath()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Discovery\Tests\Fixtures\Foo'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Cli\Tests\Fixtures\Foo'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
@@ -793,7 +793,7 @@ EOF;
 
     public function testAddResourceBindingWithLanguage()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Discovery\Tests\Fixtures\Foo --language lang'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Cli\Tests\Fixtures\Foo --language lang'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
@@ -810,7 +810,7 @@ EOF;
 
     public function testAddClassBinding()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('Puli\Cli\Tests\Handler\BindCommandHandlerTest Puli\Discovery\Tests\Fixtures\Foo'));
+        $args = self::$addCommand->parseArgs(new StringArgs('Puli\Cli\Tests\Handler\BindCommandHandlerTest Puli\Cli\Tests\Fixtures\Foo'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
@@ -826,7 +826,7 @@ EOF;
 
     public function testAddClassBindingWithoutBackSlash()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('--class BindCommandHandlerTest Puli\Discovery\Tests\Fixtures\Foo'));
+        $args = self::$addCommand->parseArgs(new StringArgs('--class BindCommandHandlerTest Puli\Cli\Tests\Fixtures\Foo'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
@@ -842,7 +842,7 @@ EOF;
 
     public function testAddBindingWithParameters()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Discovery\Tests\Fixtures\Foo --param key1=value --param key2=true'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Cli\Tests\Fixtures\Foo --param key1=value --param key2=true'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')
@@ -866,7 +866,7 @@ EOF;
      */
     public function testAddFailsIfInvalidParameter()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Discovery\Tests\Fixtures\Foo --param key1'));
+        $args = self::$addCommand->parseArgs(new StringArgs('/path Puli\Cli\Tests\Fixtures\Foo --param key1'));
 
         $this->discoveryManager->expects($this->never())
             ->method('addRootBindingDescriptor');
@@ -876,7 +876,7 @@ EOF;
 
     public function testAddBindingForce()
     {
-        $args = self::$addCommand->parseArgs(new StringArgs('--force path Puli\Discovery\Tests\Fixtures\Foo'));
+        $args = self::$addCommand->parseArgs(new StringArgs('--force path Puli\Cli\Tests\Fixtures\Foo'));
 
         $this->discoveryManager->expects($this->once())
             ->method('addRootBindingDescriptor')

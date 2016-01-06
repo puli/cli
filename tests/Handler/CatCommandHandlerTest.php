@@ -12,9 +12,9 @@
 namespace Puli\Cli\Tests\Handler;
 
 use Puli\Cli\Handler\CatCommandHandler;
+use Puli\Cli\Tests\Fixtures\TestDirectory;
+use Puli\Cli\Tests\Fixtures\TestFile;
 use Puli\Repository\InMemoryRepository;
-use Puli\Repository\Tests\Resource\TestDirectory;
-use Puli\Repository\Tests\Resource\TestFile;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 

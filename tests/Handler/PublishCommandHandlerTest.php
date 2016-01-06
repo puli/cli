@@ -14,6 +14,7 @@ namespace Puli\Cli\Tests\Handler;
 use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\PublishCommandHandler;
+use Puli\Cli\Tests\Fixtures\TestException;
 use Puli\Manager\Api\Asset\AssetManager;
 use Puli\Manager\Api\Asset\AssetMapping;
 use Puli\Manager\Api\Installation\InstallationManager;
@@ -21,7 +22,6 @@ use Puli\Manager\Api\Installation\InstallationParams;
 use Puli\Manager\Api\Installer\InstallerDescriptor;
 use Puli\Manager\Api\Server\Server;
 use Puli\Manager\Api\Server\ServerManager;
-use Puli\Manager\Tests\TestException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\GenericResource;
 use Rhumsaa\Uuid\Uuid;
@@ -685,7 +685,7 @@ EOF;
     }
 
     /**
-     * @expectedException \Puli\Manager\Tests\TestException
+     * @expectedException \Puli\Cli\Tests\Fixtures\TestException
      */
     public function testInstallDoesNothingIfPrepareFails()
     {

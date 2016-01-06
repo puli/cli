@@ -175,7 +175,8 @@ class PuliBinTest extends PHPUnit_Framework_TestCase
         $output = (string) $process->getOutput();
 
         if (0 !== $status) {
-            var_dump($process->getErrorOutput());
+            echo $output."\n";
+            echo $process->getErrorOutput()."\n";
         }
 
         $this->assertSame(0, $status);

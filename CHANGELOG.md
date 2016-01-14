@@ -1,11 +1,15 @@
 Changelog
 =========
 
-* 1.0.0-beta10 (@release_date@)
+* 1.0.0-beta10 (2016-01-14)
 
+ * made compatible with Symfony 3.0
+ * upgraded to webmozart/glob 4.0 for better performance
  * the `puli build` command now removes obsolete disabled binding UUIDs from
    the root `puli.json`
  * fixed: `puli build` command runs now even if the factory file is corrupt
+ * changed `puli self-update` command to download from https://puli.io
+ * added `-u` alias for `puli type --update` command
 
 * 1.0.0-beta9 (2015-10-06)
 

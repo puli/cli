@@ -19,6 +19,7 @@
         "webmozart/path-util": "^2.2.2",
         "webmozart/expression": "^1.0",
         "webmozart/glob": "^4.0",
+        "webmozart/json": "^1.2.2",
         "padraic/phar-updater": "^1.0.1"
     },
     "require-dev": {

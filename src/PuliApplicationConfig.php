@@ -489,7 +489,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setHandler(function () {
                     return new SelfUpdateCommandHandler();
                 })
-                ->enableIf('phar://' === substr(__DIR__, 0, 7) && version_compare(PHP_VERSION, '5.6', '>='))
+                ->enableIf('phar://' === substr(__DIR__, 0, 7))
             ->end()
         ;
 

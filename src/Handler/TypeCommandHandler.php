@@ -73,7 +73,8 @@ class TypeCommandHandler
         $printStates = count($states) > 1;
         $printPackageName = count($packageNames) > 1;
         $printHeaders = $printStates || $printPackageName;
-        $printAdvice = false;
+        $printTypeAdvice = true;
+        $printBindAdvice = false;
         $indentation = $printStates && $printPackageName ? 8
             : ($printStates || $printPackageName ? 4 : 0);
 
@@ -90,12 +91,14 @@ class TypeCommandHandler
                     continue;
                 }
 
+                $printTypeAdvice = false;
+
                 if (!$statePrinted) {
                     $this->printBindingTypeState($io, $state);
                     $statePrinted = true;
 
                     // Only print the advice if at least one type was printed
-                    $printAdvice = true;
+                    $printBindAdvice = true;
                 }
 
                 if ($printPackageName) {
@@ -114,7 +117,10 @@ class TypeCommandHandler
             }
         }
 
-        if ($printAdvice) {
+        if ($printTypeAdvice) {
+            $io->writeLine('No types defined. Use "puli type --define <name>" to define a type.');
+        }
+        if ($printBindAdvice) {
             $io->writeLine('Use "puli bind <resource> <type>" to bind a resource to a type.');
         }
 

@@ -448,6 +448,28 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
+    public function testListNoTypes()
+    {
+        $this->discoveryManager = $this->getMock('Puli\Manager\Api\Discovery\DiscoveryManager');
+        $this->discoveryManager->expects($this->any())
+            ->method('findTypeDescriptors')
+            ->willReturn(array());
+        $this->handler = new TypeCommandHandler($this->discoveryManager, $this->packages);
+
+        $args = self::$listCommand->parseArgs(new StringArgs(''));
+
+        $statusCode = $this->handler->handleList($args, $this->io);
+
+        $expected = <<<EOF
+No types defined. Use "puli type --define <name>" to define a type.
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
     public function testDefineType()
     {
         $args = self::$defineCommand->parseArgs(new StringArgs('my/type'));

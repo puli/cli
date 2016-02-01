@@ -80,6 +80,7 @@ class BindCommandHandler
         $printBindingState = count($bindingStates) > 1;
         $printPackageName = count($packageNames) > 1;
         $printHeaders = $printBindingState || $printPackageName;
+        $printAdvice = true;
         $indentation = $printBindingState && $printPackageName ? 8
             : ($printBindingState || $printPackageName ? 4 : 0);
 
@@ -95,6 +96,8 @@ class BindCommandHandler
                 if (empty($descriptors)) {
                     continue;
                 }
+
+                $printAdvice = false;
 
                 if (!$bindingStatePrinted) {
                     $this->printBindingStateHeader($io, $bindingState);
@@ -113,6 +116,10 @@ class BindCommandHandler
                     $io->writeLine('');
                 }
             }
+        }
+
+        if ($printAdvice) {
+            $io->writeLine('No resource bindings. Use "puli bind <artifact> <type>" to bind a resource to a type.');
         }
 
         return 0;

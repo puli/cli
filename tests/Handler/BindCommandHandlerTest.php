@@ -757,6 +757,22 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
+    public function testListNoBindings()
+    {
+        $args = self::$listCommand->parseArgs(new StringArgs(''));
+
+        $statusCode = $this->handler->handleList($args, $this->io);
+
+        $expected = <<<EOF
+No bindings found. Use "puli bind <artifact> <type>" to bind an artifact to a type.
+
+EOF;
+
+        $this->assertSame(0, $statusCode);
+        $this->assertSame($expected, $this->io->fetchOutput());
+        $this->assertEmpty($this->io->fetchErrors());
+    }
+
     public function testAddResourceBindingWithRelativePath()
     {
         $args = self::$addCommand->parseArgs(new StringArgs('path Puli\Cli\Tests\Fixtures\Foo'));

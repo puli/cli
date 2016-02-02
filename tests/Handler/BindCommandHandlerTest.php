@@ -764,7 +764,7 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<EOF
-No resource bindings. Use "puli bind <artifact> <type>" to bind a resource to a type.
+No bindings found. Use "puli bind <artifact> <type>" to bind an artifact to a type.
 
 EOF;
 

@@ -119,7 +119,7 @@ class BindCommandHandler
         }
 
         if ($printAdvice) {
-            $io->writeLine('No resource bindings. Use "puli bind <artifact> <type>" to bind a resource to a type.');
+            $io->writeLine('No bindings found. Use "puli bind <artifact> <type>" to bind an artifact to a type.');
         }
 
         return 0;

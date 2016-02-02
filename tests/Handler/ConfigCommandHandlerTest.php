@@ -139,7 +139,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Config Key  User Value  Effective Value
 key         value       value
 
@@ -185,7 +185,7 @@ EOF;
 
         $statusCode = $this->handler->handleShow($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 value
 
 EOF;

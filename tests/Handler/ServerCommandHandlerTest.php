@@ -90,7 +90,7 @@ class ServerCommandHandlerTest extends AbstractCommandHandlerTest
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Server Name  Installer  Location           URL Format
 localhost    symlink    public_html        /%s
 example.com  rsync      ssh://example.com  http://example.com/%s
@@ -112,7 +112,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 No servers. Use "puli server --add <name> <document-root>" to add a server.
 
 EOF;

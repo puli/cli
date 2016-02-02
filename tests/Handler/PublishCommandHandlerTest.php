@@ -139,7 +139,7 @@ class PublishCommandHandlerTest extends AbstractCommandHandlerTest
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following resources are published:
 
     Server localhost
@@ -193,7 +193,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following resources are published:
 
     Server example.com
@@ -243,7 +243,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following public resources are disabled since their server does not exist:
 
     Server localhost
@@ -272,7 +272,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 No public resources. Use "puli publish <path> <server>" to publish resources.
 
 EOF;
@@ -600,7 +600,7 @@ EOF;
 
         $args = self::$installCommand->parseArgs(new StringArgs(''));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Installing /app/public into public_html via symlink...
 Installing /acme/blog/public/css into ssh://example.com/blog/css via rsync...
 Installing /acme/blog/public/js into ssh://example.com/blog/js via rsync...
@@ -672,7 +672,7 @@ EOF;
 
         $args = self::$installCommand->parseArgs(new StringArgs('localhost'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Installing /app/public into public_html via symlink...
 Installing /acme/blog/public/css into public_html/blog/css via symlink...
 Installing /acme/blog/public/js into public_html/blog/js via symlink...
@@ -744,7 +744,7 @@ EOF;
 
         $args = self::$installCommand->parseArgs(new StringArgs(''));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Nothing to install.
 
 EOF;

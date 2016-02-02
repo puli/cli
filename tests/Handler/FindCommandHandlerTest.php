@@ -85,7 +85,7 @@ class FindCommandHandlerTest extends AbstractCommandHandlerTest
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 FileResource    /path/file
 GenericResource /path/resource1
 GenericResource /path/resource2
@@ -114,7 +114,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 FileResource    /path/file
 GenericResource /path/resource1
 GenericResource /path/resource2
@@ -143,7 +143,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 FileResource    /path/file
 GenericResource /path/resource1
 GenericResource /path/resource2
@@ -172,7 +172,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 FileResource    /path/file
 GenericResource /path/resource1
 GenericResource /path/resource2
@@ -214,7 +214,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 GenericResource /path/resource1
 GenericResource /path/resource2
 
@@ -255,7 +255,7 @@ EOF;
         $statusCode = $this->handler->handle($args, $this->io);
 
         // Result is sorted by path
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 FileResource    /path1/file
 GenericResource /path1/resource1
 GenericResource /path2/resource2
@@ -284,7 +284,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 GenericResource /path/resource1
 GenericResource /path/resource2
 
@@ -325,7 +325,7 @@ EOF;
         $statusCode = $this->handler->handle($args, $this->io);
 
         // Result is sorted by path
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 GenericResource /path1/resource1
 GenericResource /path2/resource2
 
@@ -379,7 +379,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 FileResource    /path/file
 GenericResource /path/resource1
 GenericResource /path/resource2

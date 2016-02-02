@@ -100,7 +100,7 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
     Package: vendor/root
@@ -171,7 +171,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
     Puli Path      Real Path(s)
@@ -210,7 +210,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
     Puli Path          Real Path(s)
@@ -257,7 +257,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
     Package: vendor/root
@@ -318,7 +318,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
     Package: vendor/package1
@@ -379,7 +379,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package: vendor/root
 
     Puli Path      Real Path(s)
@@ -411,7 +411,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package: vendor/root
 
     Puli Path        Real Path(s)
@@ -443,7 +443,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Conflicting path: /conflict1
 
     Mapped by the following mappings:
@@ -477,7 +477,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
     Package: vendor/root
@@ -528,7 +528,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Puli Path      Real Path(s)
 /root/enabled  res, assets
 
@@ -547,7 +547,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Puli Path          Real Path(s)
 /package1/enabled  res, @vendor/package2:res
 
@@ -568,7 +568,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 No path mappings. Use "puli map <path> <file>" to map a Puli path to a file or directory.
 
 EOF;

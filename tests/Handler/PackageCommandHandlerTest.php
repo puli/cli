@@ -170,7 +170,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following packages are currently enabled:
 
     Package Name     Installer  Env   Install Path
@@ -204,7 +204,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following packages are currently enabled:
 
     Package Name     Installer  Env   Install Path
@@ -231,7 +231,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package Name     Installer  Env   Install Path
 vendor/package1  spock      prod  packages/package1
 vendor/package2  spock      prod  packages/package2
@@ -251,7 +251,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package Name     Installer  Env   Install Path
 vendor/package3  kirk       prod  packages/package3
 
@@ -268,7 +268,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package Name     Error
 vendor/package4  RuntimeException: Load error
 
@@ -285,7 +285,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following packages are currently enabled:
 
     Package Name     Installer  Env   Install Path
@@ -314,7 +314,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package Name     Installer  Env   Install Path
 vendor/package1  spock      prod  packages/package1
 vendor/package2  spock      prod  packages/package2
@@ -333,7 +333,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following packages are currently enabled:
 
     Package Name     Installer  Env  Install Path
@@ -353,7 +353,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following packages are currently enabled:
 
     Package Name     Installer  Env   Install Path
@@ -389,7 +389,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following packages are currently enabled:
 
     Package Name     Installer  Env   Install Path
@@ -550,7 +550,7 @@ EOF;
             ->method('removePackage')
             ->with('vendor/package3');
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Removing vendor/package3
 
 EOF;

@@ -74,7 +74,7 @@ class UrlCommandHandlerTest extends AbstractCommandHandlerTest
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 http://example.com/logo.png
 
 EOF;
@@ -95,7 +95,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 http://example.com/logo.png
 
 EOF;
@@ -120,7 +120,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 http://example.com/logo.png
 http://example.com/style.css
 
@@ -154,7 +154,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 http://example.com/logo.png
 http://example.com/style.css
 

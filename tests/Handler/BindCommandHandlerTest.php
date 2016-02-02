@@ -135,7 +135,7 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following bindings are currently enabled:
 
     Package: vendor/root
@@ -241,7 +241,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--root'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following bindings are currently enabled:
 
     UUID    Glob                    Type
@@ -287,7 +287,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--package=vendor/package1'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following bindings are currently enabled:
 
     UUID    Glob               Type
@@ -331,7 +331,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--root --package=vendor/package1'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following bindings are currently enabled:
 
     Package: vendor/root
@@ -412,7 +412,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--package=vendor/package1 --package=vendor/package2'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following bindings are currently enabled:
 
     Package: vendor/package1
@@ -491,7 +491,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package: vendor/root
 
     UUID    Glob                    Type
@@ -523,7 +523,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--disabled'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package: vendor/root
 
     UUID    Glob            Type
@@ -553,7 +553,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--type-not-found'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package: vendor/root
 
     UUID    Glob                  Type
@@ -583,7 +583,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--type-not-enabled'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package: vendor/root
 
     UUID    Glob                    Type
@@ -613,7 +613,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--invalid'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package: vendor/root
 
     UUID    Glob           Type
@@ -643,7 +643,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --disabled'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following bindings are currently enabled:
 
     Package: vendor/root
@@ -695,7 +695,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --root'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 UUID    Glob                    Type
 bb5a07  /root/enabled           Foo
 cc9f22  /overridden             Foo
@@ -714,7 +714,7 @@ EOF;
 
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --package=vendor/package2'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 UUID    Glob               Type
 ddb655  /package2/enabled  Foo
 
@@ -763,7 +763,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 No bindings found. Use "puli bind <artifact> <type>" to bind an artifact to a type.
 
 EOF;

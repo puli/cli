@@ -96,7 +96,7 @@ EOF;
             ->method('migrate')
             ->with('0.8');
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Migrated your puli.json from version 0.5 to version 0.8.
 
 EOF;
@@ -115,7 +115,7 @@ EOF;
         $this->packageFileManager->expects($this->never())
             ->method('migrate');
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Your puli.json is already at version 0.5.
 
 EOF;

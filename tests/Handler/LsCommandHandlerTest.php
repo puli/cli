@@ -68,7 +68,7 @@ class LsCommandHandlerTest extends AbstractCommandHandlerTest
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 file  resource1  resource2
 
 EOF;
@@ -90,7 +90,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 file  resource1  resource2
 
 EOF;
@@ -112,7 +112,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 file  resource1  resource2
 
 EOF;
@@ -153,7 +153,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 TestDirectory 12 Jan 1 1970 dir1
 TestFile      34 Jan 1 1970 file1
 TestFile      56 Jan 1 1970 file2

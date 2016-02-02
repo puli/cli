@@ -67,7 +67,7 @@ class CatCommandHandlerTest extends AbstractCommandHandlerTest
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 testA
 testB
 testC
@@ -91,7 +91,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 testA
 testB
 testC
@@ -115,7 +115,7 @@ EOF;
 
         $statusCode = $this->handler->handle($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 testA
 
 EOF;

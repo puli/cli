@@ -72,7 +72,7 @@ class TreeCommandHandlerTest extends AbstractCommandHandlerTest
             new TestFile('/app/resource2'),
         )));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 /
 └── app
     ├── dir1
@@ -110,7 +110,7 @@ EOF;
             new TestFile('/app/resource2'),
         )));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 /app
 ├── dir1
 │   └── file1
@@ -147,7 +147,7 @@ EOF;
             new TestFile('/app/resource2'),
         )));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 /app
 ├── dir1
 │   └── file1

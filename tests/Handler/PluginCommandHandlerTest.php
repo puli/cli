@@ -96,7 +96,7 @@ EOF;
             ->method('getPluginClasses')
             ->willReturn(array());
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 No plugin classes. Use "puli plugin --install <class>" to install a plugin class.
 
 EOF;

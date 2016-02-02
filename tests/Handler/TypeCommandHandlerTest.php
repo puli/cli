@@ -131,7 +131,7 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
     {
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following binding types are currently enabled:
 
     Package: vendor/root
@@ -182,7 +182,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--root'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following binding types are currently enabled:
 
     Type           Description                   Parameters
@@ -208,7 +208,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--package vendor/package1'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following binding types are currently enabled:
 
     Type              Description  Parameters
@@ -232,7 +232,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--root --package vendor/package1'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following binding types are currently enabled:
 
     Package: vendor/root
@@ -273,7 +273,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--package vendor/package1 --package vendor/package2'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following binding types are currently enabled:
 
     Package: vendor/package1
@@ -311,7 +311,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package: vendor/root
 
     Type           Description                   Parameters
@@ -341,7 +341,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--duplicate'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Package: vendor/root
 
     Type            Description  Parameters
@@ -369,7 +369,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --duplicate'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 The following binding types are currently enabled:
 
     Package: vendor/root
@@ -420,7 +420,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --root'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Type           Description                   Parameters
 root/enabled1  Description of root/enabled1  opt-param="default"
                                              req-param
@@ -437,7 +437,7 @@ EOF;
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled --package vendor/package1'));
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 Type              Description  Parameters
 package1/enabled
 
@@ -460,7 +460,7 @@ EOF;
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
-        $expected = <<<EOF
+        $expected = <<<'EOF'
 No types defined. Use "puli type --define <name>" to define a type.
 
 EOF;

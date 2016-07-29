@@ -19,7 +19,7 @@ use Puli\Discovery\Api\Type\BindingType;
 use Puli\Manager\Api\Discovery\BindingTypeDescriptor;
 use Puli\Manager\Api\Discovery\BindingTypeState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
-use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Module\ModuleList;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
@@ -41,20 +41,20 @@ class TypeCommandHandler
     private $discoveryManager;
 
     /**
-     * @var PackageCollection
+     * @var ModuleList
      */
-    private $packages;
+    private $modules;
 
     /**
      * Creates the handler.
      *
      * @param DiscoveryManager  $discoveryManager The discovery manager.
-     * @param PackageCollection $packages         The loaded packages.
+     * @param ModuleList $modules         The loaded packages.
      */
-    public function __construct(DiscoveryManager $discoveryManager, PackageCollection $packages)
+    public function __construct(DiscoveryManager $discoveryManager, ModuleList $modules)
     {
         $this->discoveryManager = $discoveryManager;
-        $this->packages = $packages;
+        $this->modules = $modules;
     }
 
     /**
@@ -67,7 +67,7 @@ class TypeCommandHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
+        $packageNames = ArgsUtil::getPackageNames($args, $this->modules);
         $states = $this->getBindingTypeStates($args);
 
         $printStates = count($states) > 1;
@@ -205,7 +205,7 @@ class TypeCommandHandler
             throw new RuntimeException(sprintf(
                 'The type "%s" does not exist in the package "%s".',
                 $typeName,
-                $this->packages->getRootPackageName()
+                $this->modules->getRootModuleName()
             ));
         }
 

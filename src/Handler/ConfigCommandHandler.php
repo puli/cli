@@ -13,7 +13,7 @@ namespace Puli\Cli\Handler;
 
 use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\StringUtil;
-use Puli\Manager\Api\Package\RootPackageFileManager;
+use Puli\Manager\Api\Module\RootModuleFileManager;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
@@ -28,16 +28,16 @@ use Webmozart\Console\UI\Component\Table;
 class ConfigCommandHandler
 {
     /**
-     * @var RootPackageFileManager
+     * @var RootModuleFileManager
      */
     private $manager;
 
     /**
      * Creates the handler.
      *
-     * @param RootPackageFileManager $manager The root package file manager.
+     * @param RootModuleFileManager $manager The root package file manager.
      */
-    public function __construct(RootPackageFileManager $manager)
+    public function __construct(RootModuleFileManager $manager)
     {
         $this->manager = $manager;
     }

@@ -13,11 +13,11 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\MapCommandHandler;
-use Puli\Manager\Api\Package\Package;
-use Puli\Manager\Api\Package\PackageCollection;
-use Puli\Manager\Api\Package\PackageFile;
-use Puli\Manager\Api\Package\RootPackage;
-use Puli\Manager\Api\Package\RootPackageFile;
+use Puli\Manager\Api\Module\Module;
+use Puli\Manager\Api\Module\ModuleList;
+use Puli\Manager\Api\Module\ModuleFile;
+use Puli\Manager\Api\Module\RootModule;
+use Puli\Manager\Api\Module\RootModuleFile;
 use Puli\Manager\Api\Repository\PathConflict;
 use Puli\Manager\Api\Repository\PathMapping;
 use Puli\Manager\Api\Repository\PathMappingState;
@@ -60,7 +60,7 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
     private $repoManager;
 
     /**
-     * @var PackageCollection
+     * @var ModuleList
      */
     private $packages;
 
@@ -84,10 +84,10 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUp();
 
         $this->repoManager = $this->getMock('Puli\Manager\Api\Repository\RepositoryManager');
-        $this->packages = new PackageCollection(array(
-            new RootPackage(new RootPackageFile('vendor/root'), '/root'),
-            new Package(new PackageFile('vendor/package1'), '/package1'),
-            new Package(new PackageFile('vendor/package2'), '/package2'),
+        $this->packages = new ModuleList(array(
+            new RootModule(new RootModuleFile('vendor/root'), '/root'),
+            new Module(new ModuleFile('vendor/package1'), '/package1'),
+            new Module(new ModuleFile('vendor/package2'), '/package2'),
         ));
         $this->handler = new MapCommandHandler($this->repoManager, $this->packages);
     }
@@ -616,7 +616,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --add assets --add res'));
 
         $mapping = new PathMapping('/path', array('previous'));
-        $mapping->load($this->packages->getRootPackage(), $this->packages);
+        $mapping->load($this->packages->getRootModule(), $this->packages);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -635,7 +635,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --remove assets'));
 
         $mapping = new PathMapping('/path', array('assets', 'res'));
-        $mapping->load($this->packages->getRootPackage(), $this->packages);
+        $mapping->load($this->packages->getRootModule(), $this->packages);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -654,7 +654,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --remove assets --remove res'));
 
         $mapping = new PathMapping('/path', array('assets', 'res'));
-        $mapping->load($this->packages->getRootPackage(), $this->packages);
+        $mapping->load($this->packages->getRootModule(), $this->packages);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -673,7 +673,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('rel --add assets'));
 
         $mapping = new PathMapping('/rel', array('previous'));
-        $mapping->load($this->packages->getRootPackage(), $this->packages);
+        $mapping->load($this->packages->getRootModule(), $this->packages);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -692,7 +692,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --add assets --force'));
 
         $mapping = new PathMapping('/path', array('previous'));
-        $mapping->load($this->packages->getRootPackage(), $this->packages);
+        $mapping->load($this->packages->getRootModule(), $this->packages);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -714,7 +714,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('/path'));
 
         $mapping = new PathMapping('/path', array('previous'));
-        $mapping->load($this->packages->getRootPackage(), $this->packages);
+        $mapping->load($this->packages->getRootModule(), $this->packages);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -787,7 +787,7 @@ EOF;
         $conflictMappingPackage21 = new PathMapping('/conflict1', 'res');
         $conflictMappingPackage22 = new PathMapping('/conflict2', 'res');
 
-        $conflictMappingRoot1->load($this->packages->getRootPackage(), $this->packages);
+        $conflictMappingRoot1->load($this->packages->getRootModule(), $this->packages);
         $conflictMappingPackage11->load($this->packages->get('vendor/package1'), $this->packages);
         $conflictMappingPackage12->load($this->packages->get('vendor/package1'), $this->packages);
         $conflictMappingPackage21->load($this->packages->get('vendor/package2'), $this->packages);
@@ -864,15 +864,15 @@ EOF;
             )));
     }
 
-    private function packageAndState($packageName, $state)
+    private function packageAndState($moduleName, $state)
     {
-        return Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+        return Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
             ->andMethod('getState', Expr::same($state));
     }
 
-    private function packagesAndState(array $packageNames, $state)
+    private function packagesAndState(array $moduleNames, $state)
     {
-        return Expr::method('getContainingPackage', Expr::method('getName', Expr::in($packageNames)))
+        return Expr::method('getContainingModule', Expr::method('getName', Expr::in($moduleNames)))
             ->andMethod('getState', Expr::same($state));
     }
 

@@ -11,7 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
-use Puli\Manager\Api\Package\RootPackageFileManager;
+use Puli\Manager\Api\Module\RootModuleFileManager;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
@@ -26,16 +26,16 @@ use Webmozart\Console\Api\IO\IO;
 class PluginCommandHandler
 {
     /**
-     * @var RootPackageFileManager
+     * @var RootModuleFileManager
      */
     private $manager;
 
     /**
      * Creates the handler.
      *
-     * @param RootPackageFileManager $manager The root package file manager.
+     * @param RootModuleFileManager $manager The root package file manager.
      */
-    public function __construct(RootPackageFileManager $manager)
+    public function __construct(RootModuleFileManager $manager)
     {
         $this->manager = $manager;
     }

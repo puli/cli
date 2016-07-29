@@ -15,14 +15,14 @@ use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\PackageCommandHandler;
 use Puli\Manager\Api\Context\ProjectContext;
 use Puli\Manager\Api\Environment;
-use Puli\Manager\Api\Package\InstallInfo;
-use Puli\Manager\Api\Package\Package;
-use Puli\Manager\Api\Package\PackageCollection;
-use Puli\Manager\Api\Package\PackageFile;
-use Puli\Manager\Api\Package\PackageManager;
-use Puli\Manager\Api\Package\PackageState;
-use Puli\Manager\Api\Package\RootPackage;
-use Puli\Manager\Api\Package\RootPackageFile;
+use Puli\Manager\Api\Module\InstallInfo;
+use Puli\Manager\Api\Module\Module;
+use Puli\Manager\Api\Module\ModuleList;
+use Puli\Manager\Api\Module\ModuleFile;
+use Puli\Manager\Api\Module\ModuleManager;
+use Puli\Manager\Api\Module\ModuleState;
+use Puli\Manager\Api\Module\RootModule;
+use Puli\Manager\Api\Module\RootModuleFile;
 use RuntimeException;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
@@ -68,7 +68,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
     private $context;
 
     /**
-     * @var PHPUnit_Framework_MockObject_MockObject|PackageManager
+     * @var PHPUnit_Framework_MockObject_MockObject|ModuleManager
      */
     private $packageManager;
 
@@ -105,7 +105,7 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
         $this->context = $this->getMockBuilder('Puli\Manager\Api\Context\ProjectContext')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->packageManager = $this->getMock('Puli\Manager\Api\Package\PackageManager');
+        $this->packageManager = $this->getMock('Puli\Manager\Api\Module\ModuleManager');
         $this->handler = new PackageCommandHandler($this->packageManager);
 
         $this->context->expects($this->any())
@@ -129,28 +129,28 @@ class PackageCommandHandlerTest extends AbstractCommandHandlerTest
         $installInfo5->setInstallerName('spock');
         $installInfo5->setEnvironment(Environment::DEV);
 
-        $rootPackage = new RootPackage(new RootPackageFile('vendor/root'), __DIR__.'/Fixtures/root');
-        $package1 = new Package(new PackageFile('vendor/package1'), __DIR__.'/Fixtures/root/packages/package1', $installInfo1);
-        $package2 = new Package(new PackageFile('vendor/package2'), __DIR__.'/Fixtures/root/packages/package2', $installInfo2);
-        $package3 = new Package(new PackageFile('vendor/package3'), __DIR__.'/Fixtures/root/packages/package3', $installInfo3);
-        $package4 = new Package(null, __DIR__.'/Fixtures/root/packages/package4', $installInfo4, array(new RuntimeException('Load error')));
-        $package5 = new Package(new PackageFile('vendor/package5'), __DIR__.'/Fixtures/root/packages/package5', $installInfo5);
+        $rootModule = new RootModule(new RootModuleFile('vendor/root'), __DIR__.'/Fixtures/root');
+        $package1 = new Module(new ModuleFile('vendor/package1'), __DIR__.'/Fixtures/root/packages/package1', $installInfo1);
+        $package2 = new Module(new ModuleFile('vendor/package2'), __DIR__.'/Fixtures/root/packages/package2', $installInfo2);
+        $package3 = new Module(new ModuleFile('vendor/package3'), __DIR__.'/Fixtures/root/packages/package3', $installInfo3);
+        $package4 = new Module(null, __DIR__.'/Fixtures/root/packages/package4', $installInfo4, array(new RuntimeException('Load error')));
+        $package5 = new Module(new ModuleFile('vendor/package5'), __DIR__.'/Fixtures/root/packages/package5', $installInfo5);
 
         $this->packageManager->expects($this->any())
-            ->method('findPackages')
+            ->method('findModules')
             ->willReturnCallback($this->returnFromMap(array(
-                array($this->all(), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4, $package5))),
-                array($this->env(array(Environment::PROD, Environment::DEV)), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4, $package5))),
-                array($this->env(array(Environment::PROD)), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package4))),
-                array($this->env(array(Environment::DEV)), new PackageCollection(array($package5))),
-                array($this->installer('spock'), new PackageCollection(array($package1, $package2, $package4, $package5))),
-                array($this->state(PackageState::ENABLED), new PackageCollection(array($rootPackage, $package1, $package2, $package5))),
-                array($this->state(PackageState::NOT_FOUND), new PackageCollection(array($package3))),
-                array($this->state(PackageState::NOT_LOADABLE), new PackageCollection(array($package4))),
-                array($this->states(array(PackageState::ENABLED, PackageState::NOT_FOUND)), new PackageCollection(array($rootPackage, $package1, $package2, $package3, $package5))),
-                array($this->installerAndState('spock', PackageState::ENABLED), new PackageCollection(array($package1, $package2, $package5))),
-                array($this->installerAndState('spock', PackageState::NOT_FOUND), new PackageCollection(array())),
-                array($this->installerAndState('spock', PackageState::NOT_LOADABLE), new PackageCollection(array($package4))),
+                array($this->all(), new ModuleList(array($rootModule, $package1, $package2, $package3, $package4, $package5))),
+                array($this->env(array(Environment::PROD, Environment::DEV)), new ModuleList(array($rootModule, $package1, $package2, $package3, $package4, $package5))),
+                array($this->env(array(Environment::PROD)), new ModuleList(array($rootModule, $package1, $package2, $package3, $package4))),
+                array($this->env(array(Environment::DEV)), new ModuleList(array($package5))),
+                array($this->installer('spock'), new ModuleList(array($package1, $package2, $package4, $package5))),
+                array($this->state(ModuleState::ENABLED), new ModuleList(array($rootModule, $package1, $package2, $package5))),
+                array($this->state(ModuleState::NOT_FOUND), new ModuleList(array($package3))),
+                array($this->state(ModuleState::NOT_LOADABLE), new ModuleList(array($package4))),
+                array($this->states(array(ModuleState::ENABLED, ModuleState::NOT_FOUND)), new ModuleList(array($rootModule, $package1, $package2, $package3, $package5))),
+                array($this->installerAndState('spock', ModuleState::ENABLED), new ModuleList(array($package1, $package2, $package5))),
+                array($this->installerAndState('spock', ModuleState::NOT_FOUND), new ModuleList(array())),
+                array($this->installerAndState('spock', ModuleState::NOT_LOADABLE), new ModuleList(array($package4))),
             )));
 
         $this->previousWd = getcwd();
@@ -439,83 +439,83 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testInstallPackageWithRelativePath()
+    public function testInstallModuleWithRelativePath()
     {
         $args = self::$installCommand->parseArgs(new StringArgs('packages/package1'));
 
         $this->packageManager->expects($this->once())
-            ->method('installPackage')
+            ->method('installModule')
             ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, Environment::PROD);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
 
-    public function testInstallPackageWithAbsolutePath()
+    public function testInstallModuleWithAbsolutePath()
     {
         $args = self::$installCommand->parseArgs(new StringArgs('/packages/package1'));
 
         $this->packageManager->expects($this->once())
-            ->method('installPackage')
+            ->method('installModule')
             ->with('/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, Environment::PROD);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
 
-    public function testInstallPackageWithCustomName()
+    public function testInstallModuleWithCustomName()
     {
         $args = self::$installCommand->parseArgs(new StringArgs('/packages/package1 custom/package1'));
 
         $this->packageManager->expects($this->once())
-            ->method('installPackage')
+            ->method('installModule')
             ->with('/packages/package1', 'custom/package1', InstallInfo::DEFAULT_INSTALLER_NAME, Environment::PROD);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
 
-    public function testInstallPackageWithCustomInstaller()
+    public function testInstallModuleWithCustomInstaller()
     {
         $args = self::$installCommand->parseArgs(new StringArgs('--installer kirk /packages/package1'));
 
         $this->packageManager->expects($this->once())
-            ->method('installPackage')
+            ->method('installModule')
             ->with('/packages/package1', null, 'kirk', Environment::PROD);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
 
-    public function testInstallDevPackage()
+    public function testInstallDevModule()
     {
         $args = self::$installCommand->parseArgs(new StringArgs('--dev packages/package1'));
 
         $this->packageManager->expects($this->once())
-            ->method('installPackage')
+            ->method('installModule')
             ->with($this->wd.'/packages/package1', null, InstallInfo::DEFAULT_INSTALLER_NAME, Environment::DEV);
 
         $this->assertSame(0, $this->handler->handleInstall($args));
     }
 
-    public function testRenamePackage()
+    public function testRenameModule()
     {
         $args = self::$renameCommand->parseArgs(new StringArgs('vendor/package1 vendor/new'));
 
         $this->packageManager->expects($this->once())
-            ->method('renamePackage')
+            ->method('renameModule')
             ->with('vendor/package1', 'vendor/new');
 
         $this->assertSame(0, $this->handler->handleRename($args));
     }
 
-    public function testDeletePackage()
+    public function testDeleteModule()
     {
         $args = self::$deleteCommand->parseArgs(new StringArgs('vendor/package1'));
 
         $this->packageManager->expects($this->once())
-            ->method('hasPackage')
+            ->method('hasModule')
             ->with('vendor/package1')
             ->willReturn(true);
 
         $this->packageManager->expects($this->once())
-            ->method('removePackage')
+            ->method('removeModule')
             ->with('vendor/package1');
 
         $this->assertSame(0, $this->handler->handleDelete($args));
@@ -525,29 +525,29 @@ EOF;
      * @expectedException \RuntimeException
      * @expectedExceptionMessage The package "vendor/package1" is not installed.
      */
-    public function testDeletePackageFailsIfNotFound()
+    public function testDeleteModuleFailsIfNotFound()
     {
         $args = self::$deleteCommand->parseArgs(new StringArgs('vendor/package1'));
 
         $this->packageManager->expects($this->once())
-            ->method('hasPackage')
+            ->method('hasModule')
             ->with('vendor/package1')
             ->willReturn(false);
 
         $this->packageManager->expects($this->never())
-            ->method('removePackage')
+            ->method('removeModule')
             ->with('vendor/package1');
 
         $this->handler->handleDelete($args);
     }
 
-    public function testCleanPackages()
+    public function testCleanModules()
     {
         $args = self::$cleanCommand->parseArgs(new StringArgs(''));
 
         // The not-found package
         $this->packageManager->expects($this->once())
-            ->method('removePackage')
+            ->method('removeModule')
             ->with('vendor/package3');
 
         $expected = <<<'EOF'

@@ -31,9 +31,9 @@ use Puli\Cli\Handler\UrlCommandHandler;
 use Puli\Cli\Proxy\DiscoveryManagerProxy;
 use Puli\Cli\Proxy\RepositoryManagerProxy;
 use Puli\Manager\Api\Context\ProjectContext;
-use Puli\Manager\Api\Package\InstallInfo;
-use Puli\Manager\Api\Package\PackageFile;
-use Puli\Manager\Api\Puli;
+use Puli\Manager\Api\Module\InstallInfo;
+use Puli\Manager\Api\Module\ModuleFile;
+use Puli\Manager\Api\Container;
 use Puli\Manager\Api\Server\Server;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
@@ -58,19 +58,19 @@ class PuliApplicationConfig extends DefaultApplicationConfig
     const VERSION = '@package_version@';
 
     /**
-     * @var Puli
+     * @var Container
      */
     private $puli;
 
     /**
      * Creates the configuration.
      *
-     * @param Puli $puli The Puli service container.
+     * @param Container $puli The Puli service container.
      */
-    public function __construct(Puli $puli = null)
+    public function __construct(Container $puli = null)
     {
         // Start Puli already so that plugins can change the CLI configuration
-        $this->puli = $puli ?: new Puli(getcwd());
+        $this->puli = $puli ?: new Container(getcwd());
 
         if (!$this->puli->isStarted()) {
             $this->puli->start();
@@ -114,21 +114,21 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ConsoleEvents::PRE_HANDLE,
                 function (PreHandleEvent $event) use ($context) {
                     $io = $event->getIO();
-                    $packageFile = $context->getRootPackageFile();
+                    $moduleFile = $context->getRootModuleFile();
 
                     // Don't show warning for "upgrade" command
                     if ('upgrade' === $event->getCommand()->getName()) {
                         return;
                     }
 
-                    if (version_compare($packageFile->getVersion(), PackageFile::DEFAULT_VERSION, '<')) {
+                    if (version_compare($moduleFile->getVersion(), ModuleFile::DEFAULT_VERSION, '<')) {
                         $io->errorLine(sprintf(
                             '<warn>Warning: Your puli.json file has version %s, '.
                             'but the latest version is %s. Run "puli upgrade" to '.
                             'upgrade to %s.</warn>',
-                            $packageFile->getVersion(),
-                            PackageFile::DEFAULT_VERSION,
-                            PackageFile::DEFAULT_VERSION
+                            $moduleFile->getVersion(),
+                            ModuleFile::DEFAULT_VERSION,
+                            ModuleFile::DEFAULT_VERSION
                         ));
                     }
                 }
@@ -141,7 +141,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setHandler(function () use ($puli) {
                     return new BindCommandHandler(
                         $puli->getDiscoveryManager(),
-                        $puli->getPackageManager()->getPackages()
+                        $puli->getModuleManager()->getModules()
                     );
                 })
 
@@ -234,7 +234,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('config')
                 ->setDescription('Display and modify configuration values')
                 ->setHandler(function () use ($puli) {
-                    return new ConfigCommandHandler($puli->getRootPackageFileManager());
+                    return new ConfigCommandHandler($puli->getRootModuleFileManager());
                 })
 
                 ->beginSubCommand('list')
@@ -328,7 +328,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setHandler(function () use ($puli) {
                     return new MapCommandHandler(
                         $puli->getRepositoryManager(),
-                        $puli->getPackageManager()->getPackages()
+                        $puli->getModuleManager()->getModules()
                     );
                 })
 
@@ -371,7 +371,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('package')
                 ->setDescription('Display the installed packages')
                 ->setHandler(function () use ($puli) {
-                    return new PackageCommandHandler($puli->getPackageManager());
+                    return new PackageCommandHandler($puli->getModuleManager());
                 })
 
                 ->beginOptionCommand('install', 'i')
@@ -415,7 +415,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('plugin')
                 ->setDescription('Manage the installed Puli plugins')
                 ->setHandler(function () use ($puli) {
-                    return new PluginCommandHandler($puli->getRootPackageFileManager());
+                    return new PluginCommandHandler($puli->getRootModuleFileManager());
                 })
 
                 ->beginOptionCommand('install', 'i')
@@ -547,7 +547,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setHandler(function () use ($puli) {
                     return new TypeCommandHandler(
                         $puli->getDiscoveryManager(),
-                        $puli->getPackageManager()->getPackages()
+                        $puli->getModuleManager()->getModules()
                     );
                 })
 
@@ -589,9 +589,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         $this
             ->beginCommand('upgrade')
                 ->setDescription('Upgrades puli.json to the newest version')
-                ->addArgument('version', Argument::OPTIONAL, 'The version to upgrade/downgrade to', PackageFile::DEFAULT_VERSION)
+                ->addArgument('version', Argument::OPTIONAL, 'The version to upgrade/downgrade to', ModuleFile::DEFAULT_VERSION)
                 ->setHandler(function () use ($puli) {
-                    return new UpgradeCommandHandler($puli->getRootPackageFileManager());
+                    return new UpgradeCommandHandler($puli->getRootModuleFileManager());
                 })
             ->end()
         ;

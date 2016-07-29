@@ -21,11 +21,11 @@ use Puli\Discovery\Binding\ResourceBinding;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
-use Puli\Manager\Api\Package\Package;
-use Puli\Manager\Api\Package\PackageCollection;
-use Puli\Manager\Api\Package\PackageFile;
-use Puli\Manager\Api\Package\RootPackage;
-use Puli\Manager\Api\Package\RootPackageFile;
+use Puli\Manager\Api\Module\Module;
+use Puli\Manager\Api\Module\ModuleList;
+use Puli\Manager\Api\Module\ModuleFile;
+use Puli\Manager\Api\Module\RootModule;
+use Puli\Manager\Api\Module\RootModuleFile;
 use Rhumsaa\Uuid\Uuid;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
@@ -95,9 +95,9 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
     private $discoveryManager;
 
     /**
-     * @var PackageCollection
+     * @var ModuleList
      */
-    private $packages;
+    private $modules;
 
     /**
      * @var BindCommandHandler
@@ -121,12 +121,12 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUp();
 
         $this->discoveryManager = $this->getMock('Puli\Manager\Api\Discovery\DiscoveryManager');
-        $this->packages = new PackageCollection(array(
-            new RootPackage(new RootPackageFile('vendor/root'), '/root'),
-            new Package(new PackageFile('vendor/package1'), '/package1'),
-            new Package(new PackageFile('vendor/package2'), '/package2'),
+        $this->modules = new ModuleList(array(
+            new RootModule(new RootModuleFile('vendor/root'), '/root'),
+            new Module(new ModuleFile('vendor/package1'), '/package1'),
+            new Module(new ModuleFile('vendor/package2'), '/package2'),
         ));
-        $this->handler = new BindCommandHandler($this->discoveryManager, $this->packages);
+        $this->handler = new BindCommandHandler($this->discoveryManager, $this->modules);
     }
 
     public function testListAllBindings()
@@ -916,7 +916,7 @@ EOF;
             'param2' => 'value2',
         ), 'glob');
         $descriptor = new BindingDescriptor($binding);
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
         $uuid = $descriptor->getUuid();
 
         $this->discoveryManager->expects($this->at(0))
@@ -948,7 +948,7 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query new'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindingDescriptors')
@@ -979,7 +979,7 @@ EOF;
             'param2' => 'value2',
         ));
         $descriptor = new BindingDescriptor($binding);
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
         $uuid = $descriptor->getUuid();
 
         $this->discoveryManager->expects($this->at(0))
@@ -1014,7 +1014,7 @@ EOF;
             'param2' => 'value2',
         ), 'glob');
         $descriptor = new BindingDescriptor($binding);
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindingDescriptors')
@@ -1041,7 +1041,7 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new --force'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindingDescriptors')
@@ -1072,7 +1072,7 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1095,7 +1095,7 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
-        $descriptor->load($this->packages->get('vendor/package1'));
+        $descriptor->load($this->modules->get('vendor/package1'));
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1114,7 +1114,7 @@ EOF;
     {
         $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1183,7 +1183,7 @@ EOF;
     {
         $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->get('vendor/package1'));
+        $descriptor->load($this->modules->get('vendor/package1'));
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1202,7 +1202,7 @@ EOF;
     {
         $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->get('vendor/package1'));
+        $descriptor->load($this->modules->get('vendor/package1'));
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1243,7 +1243,7 @@ EOF;
     {
         $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1260,7 +1260,7 @@ EOF;
     {
         $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->get('vendor/package1'));
+        $descriptor->load($this->modules->get('vendor/package1'));
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1301,7 +1301,7 @@ EOF;
     {
         $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1369,9 +1369,9 @@ EOF;
             )));
     }
 
-    private function packageAndState($packageName, $state)
+    private function packageAndState($moduleName, $state)
     {
-        return Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+        return Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
             ->andMethod('getState', Expr::same($state));
     }
 

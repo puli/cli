@@ -14,10 +14,10 @@ namespace Puli\Cli\Handler;
 use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\StringUtil;
 use Puli\Manager\Api\Environment;
-use Puli\Manager\Api\Package\Package;
-use Puli\Manager\Api\Package\PackageCollection;
-use Puli\Manager\Api\Package\PackageManager;
-use Puli\Manager\Api\Package\PackageState;
+use Puli\Manager\Api\Module\Module;
+use Puli\Manager\Api\Module\ModuleList;
+use Puli\Manager\Api\Module\ModuleManager;
+use Puli\Manager\Api\Module\ModuleState;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
@@ -38,24 +38,24 @@ class PackageCommandHandler
      * @var array
      */
     private static $stateStrings = array(
-        PackageState::ENABLED => 'enabled',
-        PackageState::NOT_FOUND => 'not-found',
-        PackageState::NOT_LOADABLE => 'not-loadable',
+        ModuleState::ENABLED => 'enabled',
+        ModuleState::NOT_FOUND => 'not-found',
+        ModuleState::NOT_LOADABLE => 'not-loadable',
     );
 
     /**
-     * @var PackageManager
+     * @var ModuleManager
      */
-    private $packageManager;
+    private $moduleManager;
 
     /**
      * Creates the handler.
      *
-     * @param PackageManager $packageManager The package manager.
+     * @param ModuleManager $moduleManager The package manager.
      */
-    public function __construct(PackageManager $packageManager)
+    public function __construct(ModuleManager $moduleManager)
     {
-        $this->packageManager = $packageManager;
+        $this->moduleManager = $moduleManager;
     }
 
     /**
@@ -93,7 +93,7 @@ class PackageCommandHandler
         $installer = $args->getOption('installer');
         $env = $args->isOptionSet('dev') ? Environment::DEV : Environment::PROD;
 
-        $this->packageManager->installPackage($installPath, $packageName, $installer, $env);
+        $this->moduleManager->installModule($installPath, $packageName, $installer, $env);
 
         return 0;
     }
@@ -110,7 +110,7 @@ class PackageCommandHandler
         $packageName = $args->getArgument('name');
         $newName = $args->getArgument('new-name');
 
-        $this->packageManager->renamePackage($packageName, $newName);
+        $this->moduleManager->renameModule($packageName, $newName);
 
         return 0;
     }
@@ -126,14 +126,14 @@ class PackageCommandHandler
     {
         $packageName = $args->getArgument('name');
 
-        if (!$this->packageManager->hasPackage($packageName)) {
+        if (!$this->moduleManager->hasModule($packageName)) {
             throw new RuntimeException(sprintf(
                 'The package "%s" is not installed.',
                 $packageName
             ));
         }
 
-        $this->packageManager->removePackage($packageName);
+        $this->moduleManager->removeModule($packageName);
 
         return 0;
     }
@@ -148,11 +148,11 @@ class PackageCommandHandler
      */
     public function handleClean(Args $args, IO $io)
     {
-        $expr = Expr::method('getState', Expr::same(PackageState::NOT_FOUND));
+        $expr = Expr::method('getState', Expr::same(ModuleState::NOT_FOUND));
 
-        foreach ($this->packageManager->findPackages($expr) as $package) {
-            $io->writeLine('Removing '.$package->getName());
-            $this->packageManager->removePackage($package->getName());
+        foreach ($this->moduleManager->findModules($expr) as $module) {
+            $io->writeLine('Removing '.$module->getName());
+            $this->moduleManager->removeModule($module->getName());
         }
 
         return 0;
@@ -164,25 +164,25 @@ class PackageCommandHandler
      *
      * @param Args $args The console arguments.
      *
-     * @return int[] A list of {@link PackageState} constants.
+     * @return int[] A list of {@link ModuleState} constants.
      */
     private function getSelectedStates(Args $args)
     {
         $states = array();
 
         if ($args->isOptionSet('enabled')) {
-            $states[] = PackageState::ENABLED;
+            $states[] = ModuleState::ENABLED;
         }
 
         if ($args->isOptionSet('not-found')) {
-            $states[] = PackageState::NOT_FOUND;
+            $states[] = ModuleState::NOT_FOUND;
         }
 
         if ($args->isOptionSet('not-loadable')) {
-            $states[] = PackageState::NOT_LOADABLE;
+            $states[] = ModuleState::NOT_LOADABLE;
         }
 
-        return $states ?: PackageState::all();
+        return $states ?: ModuleState::all();
     }
 
     /**
@@ -191,7 +191,7 @@ class PackageCommandHandler
      *
      * @param Args $args The console arguments.
      *
-     * @return PackageCollection The packages.
+     * @return ModuleList The packages.
      */
     private function getSelectedPackages(Args $args)
     {
@@ -199,7 +199,7 @@ class PackageCommandHandler
         $expr = Expr::true();
         $envs = array();
 
-        if ($states !== PackageState::all()) {
+        if ($states !== ModuleState::all()) {
             $expr = $expr->andMethod('getState', Expr::in($states));
         }
 
@@ -219,23 +219,23 @@ class PackageCommandHandler
             $expr = $expr->andMethod('getInstallInfo', Expr::method('getEnvironment', Expr::in($envs)));
         }
 
-        return $this->packageManager->findPackages($expr);
+        return $this->moduleManager->findModules($expr);
     }
 
     /**
      * Prints packages with intermediate headers for the package states.
      *
      * @param IO                $io       The I/O.
-     * @param PackageCollection $packages The packages to print.
+     * @param ModuleList $modules The packages to print.
      * @param int[]             $states   The states to print.
      */
-    private function printPackagesByState(IO $io, PackageCollection $packages, array $states)
+    private function printPackagesByState(IO $io, ModuleList $modules, array $states)
     {
         $printStates = count($states) > 1;
 
         foreach ($states as $state) {
-            $filteredPackages = array_filter($packages->toArray(), function (Package $package) use ($state) {
-                return $state === $package->getState();
+            $filteredPackages = array_filter($modules->toArray(), function (Module $module) use ($state) {
+                return $state === $module->getState();
             });
 
             if (0 === count($filteredPackages)) {
@@ -243,13 +243,13 @@ class PackageCommandHandler
             }
 
             if ($printStates) {
-                $this->printPackageState($io, $state);
+                $this->printModuleState($io, $state);
             }
 
-            if (PackageState::NOT_LOADABLE === $state) {
+            if (ModuleState::NOT_LOADABLE === $state) {
                 $this->printNotLoadablePackages($io, $filteredPackages, $printStates);
             } else {
-                $styleTag = PackageState::ENABLED === $state ? null : 'bad';
+                $styleTag = ModuleState::ENABLED === $state ? null : 'bad';
                 $this->printPackageTable($io, $filteredPackages, $styleTag, $printStates);
             }
 
@@ -263,19 +263,20 @@ class PackageCommandHandler
      * Prints packages using the given format.
      *
      * @param IO                $io       The I/O.
-     * @param PackageCollection $packages The packages to print.
+     * @param ModuleList $modules The packages to print.
      * @param string            $format   The format string.
      */
-    private function printPackagesWithFormat(IO $io, PackageCollection $packages, $format)
+    private function printPackagesWithFormat(IO $io, ModuleList $modules, $format)
     {
-        foreach ($packages as $package) {
-            $installInfo = $package->getInstallInfo();
+        /** @var Module $module */
+        foreach ($modules as $module) {
+            $installInfo = $module->getInstallInfo();
 
             $io->writeLine(strtr($format, array(
-                '%name%' => $package->getName(),
+                '%name%' => $module->getName(),
                 '%installer%' => $installInfo ? $installInfo->getInstallerName() : '',
-                '%install_path%' => $package->getInstallPath(),
-                '%state%' => self::$stateStrings[$package->getState()],
+                '%install_path%' => $module->getInstallPath(),
+                '%state%' => self::$stateStrings[$module->getState()],
                 '%env%' => $installInfo ? $installInfo->getEnvironment() : Environment::PROD,
             )));
         }
@@ -285,23 +286,23 @@ class PackageCommandHandler
      * Prints the heading for a given package state.
      *
      * @param IO  $io           The I/O.
-     * @param int $packageState The {@link PackageState} constant.
+     * @param int $ModuleState The {@link ModuleState} constant.
      */
-    private function printPackageState(IO $io, $packageState)
+    private function printModuleState(IO $io, $ModuleState)
     {
-        switch ($packageState) {
-            case PackageState::ENABLED:
+        switch ($ModuleState) {
+            case ModuleState::ENABLED:
                 $io->writeLine('The following packages are currently enabled:');
                 $io->writeLine('');
 
                 return;
-            case PackageState::NOT_FOUND:
+            case ModuleState::NOT_FOUND:
                 $io->writeLine('The following packages could not be found:');
                 $io->writeLine(' (use "puli package --clean" to remove)');
                 $io->writeLine('');
 
                 return;
-            case PackageState::NOT_LOADABLE:
+            case ModuleState::NOT_LOADABLE:
                 $io->writeLine('The following packages could not be loaded:');
                 $io->writeLine('');
 
@@ -313,12 +314,12 @@ class PackageCommandHandler
      * Prints a list of packages in a table.
      *
      * @param IO          $io       The I/O.
-     * @param Package[]   $packages The packages.
+     * @param Module[]    $modules The packages.
      * @param string|null $styleTag The tag used to style the output. If `null`,
      *                              the default colors are used.
      * @param bool        $indent   Whether to indent the output.
      */
-    private function printPackageTable(IO $io, array $packages, $styleTag = null, $indent = false)
+    private function printPackageTable(IO $io, array $modules, $styleTag = null, $indent = false)
     {
         $table = new Table(PuliTableStyle::borderless());
         $table->setHeaderRow(array('Package Name', 'Installer', 'Env', 'Install Path'));
@@ -327,9 +328,9 @@ class PackageCommandHandler
         $envTag = $styleTag ?: 'c1';
         $pathTag = $styleTag ?: 'c2';
 
-        ksort($packages);
+        ksort($modules);
 
-        foreach ($packages as $package) {
+        foreach ($modules as $package) {
             $packageName = $package->getName();
             $installInfo = $package->getInstallInfo();
             $installPath = $installInfo ? $installInfo->getInstallPath() : '.';
@@ -351,18 +352,18 @@ class PackageCommandHandler
      * Prints not-loadable packages in a table.
      *
      * @param IO        $io       The I/O.
-     * @param Package[] $packages The not-loadable packages.
+     * @param Module[]  $modules The not-loadable packages.
      * @param bool      $indent   Whether to indent the output.
      */
-    private function printNotLoadablePackages(IO $io, array $packages, $indent = false)
+    private function printNotLoadablePackages(IO $io, array $modules, $indent = false)
     {
-        $rootDir = $this->packageManager->getContext()->getRootDirectory();
+        $rootDir = $this->moduleManager->getContext()->getRootDirectory();
         $table = new Table(PuliTableStyle::borderless());
         $table->setHeaderRow(array('Package Name', 'Error'));
 
-        ksort($packages);
+        ksort($modules);
 
-        foreach ($packages as $package) {
+        foreach ($modules as $package) {
             $packageName = $package->getName();
             $loadErrors = $package->getLoadErrors();
             $errorMessage = '';

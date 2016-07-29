@@ -13,9 +13,9 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\UpgradeCommandHandler;
-use Puli\Manager\Api\Package\PackageFile;
-use Puli\Manager\Api\Package\RootPackageFile;
-use Puli\Manager\Api\Package\RootPackageFileManager;
+use Puli\Manager\Api\Module\ModuleFile;
+use Puli\Manager\Api\Module\RootModuleFile;
+use Puli\Manager\Api\Module\RootModuleFileManager;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 
@@ -32,12 +32,12 @@ class UpgradeCommandHandlerTest extends AbstractCommandHandlerTest
     private static $upgradeCommand;
 
     /**
-     * @var PHPUnit_Framework_MockObject_MockObject|RootPackageFileManager
+     * @var PHPUnit_Framework_MockObject_MockObject|RootModuleFileManager
      */
     private $packageFileManager;
 
     /**
-     * @var RootPackageFile
+     * @var RootModuleFile
      */
     private $packageFile;
 
@@ -57,10 +57,10 @@ class UpgradeCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUp();
 
-        $this->packageFileManager = $this->getMock('Puli\Manager\Api\Package\RootPackageFileManager');
-        $this->packageFile = new RootPackageFile();
+        $this->packageFileManager = $this->getMock('Puli\Manager\Api\Module\RootModuleFileManager');
+        $this->packageFile = new RootModuleFile();
         $this->packageFileManager->expects($this->any())
-            ->method('getPackageFile')
+            ->method('getModuleFile')
             ->willReturn($this->packageFile);
         $this->handler = new UpgradeCommandHandler($this->packageFileManager);
     }
@@ -68,7 +68,7 @@ class UpgradeCommandHandlerTest extends AbstractCommandHandlerTest
     public function testUpgradeToDefaultVersion()
     {
         $args = self::$upgradeCommand->parseArgs(new StringArgs(''));
-        $defaultVersion = PackageFile::DEFAULT_VERSION;
+        $defaultVersion = ModuleFile::DEFAULT_VERSION;
 
         $this->packageFile->setVersion('0.5');
 

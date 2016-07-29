@@ -19,8 +19,8 @@ use Puli\Discovery\Binding\ResourceBinding;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
-use Puli\Manager\Api\Package\PackageCollection;
-use Puli\Manager\Api\Package\RootPackage;
+use Puli\Manager\Api\Module\ModuleList;
+use Puli\Manager\Api\Module\RootModule;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
@@ -43,9 +43,9 @@ class BindCommandHandler
     private $discoveryManager;
 
     /**
-     * @var PackageCollection
+     * @var ModuleList
      */
-    private $packages;
+    private $modules;
 
     /**
      * @var string
@@ -56,12 +56,12 @@ class BindCommandHandler
      * Creates the handler.
      *
      * @param DiscoveryManager  $discoveryManager The discovery manager.
-     * @param PackageCollection $packages         The loaded packages.
+     * @param ModuleList $modules         The loaded packages.
      */
-    public function __construct(DiscoveryManager $discoveryManager, PackageCollection $packages)
+    public function __construct(DiscoveryManager $discoveryManager, ModuleList $modules)
     {
         $this->discoveryManager = $discoveryManager;
-        $this->packages = $packages;
+        $this->modules = $modules;
     }
 
     /**
@@ -74,7 +74,7 @@ class BindCommandHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
+        $packageNames = ArgsUtil::getPackageNames($args, $this->modules);
         $bindingStates = $this->getBindingStates($args);
 
         $printBindingState = count($bindingStates) > 1;
@@ -88,7 +88,7 @@ class BindCommandHandler
             $bindingStatePrinted = !$printBindingState;
 
             foreach ($packageNames as $packageName) {
-                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+                $expr = Expr::method('getContainingModule', Expr::method('getName', Expr::same($packageName)))
                     ->andMethod('getState', Expr::same($bindingState));
 
                 $descriptors = $this->discoveryManager->findBindingDescriptors($expr);
@@ -181,10 +181,10 @@ class BindCommandHandler
         $descriptorToUpdate = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
         $bindingToUpdate = $descriptorToUpdate->getBinding();
 
-        if (!$descriptorToUpdate->getContainingPackage() instanceof RootPackage) {
+        if (!$descriptorToUpdate->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
                 'Can only update bindings in the package "%s".',
-                $this->packages->getRootPackageName()
+                $this->modules->getRootModuleName()
             ));
         }
 
@@ -221,10 +221,10 @@ class BindCommandHandler
     {
         $bindingToRemove = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
-        if (!$bindingToRemove->getContainingPackage() instanceof RootPackage) {
+        if (!$bindingToRemove->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
                 'Can only delete bindings from the package "%s".',
-                $this->packages->getRootPackageName()
+                $this->modules->getRootModuleName()
             ));
         }
 
@@ -244,10 +244,10 @@ class BindCommandHandler
     {
         $bindingToEnable = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
-        if ($bindingToEnable->getContainingPackage() instanceof RootPackage) {
+        if ($bindingToEnable->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
                 'Cannot enable bindings in the package "%s".',
-                $bindingToEnable->getContainingPackage()->getName()
+                $bindingToEnable->getContainingModule()->getName()
             ));
         }
 
@@ -267,10 +267,10 @@ class BindCommandHandler
     {
         $bindingToDisable = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
-        if ($bindingToDisable->getContainingPackage() instanceof RootPackage) {
+        if ($bindingToDisable->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
                 'Cannot disable bindings in the package "%s".',
-                $bindingToDisable->getContainingPackage()->getName()
+                $bindingToDisable->getContainingModule()->getName()
             ));
         }
 

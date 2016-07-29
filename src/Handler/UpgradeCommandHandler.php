@@ -11,7 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
-use Puli\Manager\Api\Package\RootPackageFileManager;
+use Puli\Manager\Api\Module\RootModuleFileManager;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 
@@ -25,17 +25,17 @@ use Webmozart\Console\Api\IO\IO;
 class UpgradeCommandHandler
 {
     /**
-     * @var RootPackageFileManager
+     * @var RootModuleFileManager
      */
     private $packageFileManager;
 
     /**
      * Creates the command handler.
      *
-     * @param RootPackageFileManager $packageFileManager The manager of the
+     * @param RootModuleFileManager $packageFileManager The manager of the
      *                                                   puli.json file.
      */
-    public function __construct(RootPackageFileManager $packageFileManager)
+    public function __construct(RootModuleFileManager $packageFileManager)
     {
         $this->packageFileManager = $packageFileManager;
     }

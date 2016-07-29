@@ -14,7 +14,7 @@ namespace Puli\Cli\Tests\Handler;
 use PHPUnit_Framework_TestCase;
 use Puli\Cli\PuliApplicationConfig;
 use Puli\Cli\Tests\Handler\Util\NormalizedLineEndingsIO;
-use Puli\Manager\Api\Puli;
+use Puli\Manager\Api\Container;
 use Webmozart\Console\Api\Application\Application;
 use Webmozart\Console\Api\Formatter\Formatter;
 use Webmozart\Console\ConsoleApplication;
@@ -51,7 +51,7 @@ abstract class AbstractCommandHandlerTest extends PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         self::$tempDir = TestUtil::makeTempDir('puli-cli', __CLASS__);
-        self::$application = new ConsoleApplication(new PuliApplicationConfig(new Puli(self::$tempDir)));
+        self::$application = new ConsoleApplication(new PuliApplicationConfig(new Container(self::$tempDir)));
         self::$formatter = new PlainFormatter(self::$application->getConfig()->getStyleSet());
     }
 

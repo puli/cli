@@ -13,7 +13,7 @@ namespace Puli\Cli\Handler;
 
 use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\ArgsUtil;
-use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Module\ModuleList;
 use Puli\Manager\Api\Repository\PathConflict;
 use Puli\Manager\Api\Repository\PathMapping;
 use Puli\Manager\Api\Repository\PathMappingState;
@@ -40,9 +40,9 @@ class MapCommandHandler
     private $repoManager;
 
     /**
-     * @var PackageCollection
+     * @var ModuleList
      */
-    private $packages;
+    private $modules;
 
     /**
      * @var string
@@ -53,12 +53,12 @@ class MapCommandHandler
      * Creates the handler.
      *
      * @param RepositoryManager $repoManager The repository manager.
-     * @param PackageCollection $packages    The loaded packages.
+     * @param ModuleList $modules    The loaded packages.
      */
-    public function __construct(RepositoryManager $repoManager, PackageCollection $packages)
+    public function __construct(RepositoryManager $repoManager, ModuleList $modules)
     {
         $this->repoManager = $repoManager;
-        $this->packages = $packages;
+        $this->modules = $modules;
     }
 
     /**
@@ -71,7 +71,7 @@ class MapCommandHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
+        $packageNames = ArgsUtil::getPackageNames($args, $this->modules);
         $states = $this->getPathMappingStates($args);
 
         $printState = count($states) > 1;
@@ -223,7 +223,7 @@ class MapCommandHandler
             throw new RuntimeException(sprintf(
                 'The path "%s" is not mapped in the package "%s".',
                 $repositoryPath,
-                $this->packages->getRootPackageName()
+                $this->modules->getRootModuleName()
             ));
         }
 
@@ -314,7 +314,7 @@ class MapCommandHandler
 
             foreach ($conflict->getMappings() as $mapping) {
                 $table->addRow(array(
-                    '<bad>'.$mapping->getContainingPackage()->getName().'</bad>',
+                    '<bad>'.$mapping->getContainingModule()->getName().'</bad>',
                     '<bad>'.$mapping->getRepositoryPath().'</bad>',
                     '<bad>'.implode(', ', $mapping->getPathReferences()).'</bad>',
                 ));

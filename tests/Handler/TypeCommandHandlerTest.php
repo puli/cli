@@ -18,11 +18,11 @@ use Puli\Discovery\Api\Type\BindingType;
 use Puli\Manager\Api\Discovery\BindingTypeDescriptor;
 use Puli\Manager\Api\Discovery\BindingTypeState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
-use Puli\Manager\Api\Package\Package;
-use Puli\Manager\Api\Package\PackageCollection;
-use Puli\Manager\Api\Package\PackageFile;
-use Puli\Manager\Api\Package\RootPackage;
-use Puli\Manager\Api\Package\RootPackageFile;
+use Puli\Manager\Api\Module\Module;
+use Puli\Manager\Api\Module\ModuleList;
+use Puli\Manager\Api\Module\ModuleFile;
+use Puli\Manager\Api\Module\RootModule;
+use Puli\Manager\Api\Module\RootModuleFile;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 use Webmozart\Expression\Expr;
@@ -61,7 +61,7 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
     private $discoveryManager;
 
     /**
-     * @var PackageCollection
+     * @var ModuleList
      */
     private $packages;
 
@@ -85,10 +85,10 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUp();
 
         $this->discoveryManager = $this->getMock('Puli\Manager\Api\Discovery\DiscoveryManager');
-        $this->packages = new PackageCollection(array(
-            new RootPackage(new RootPackageFile('vendor/root'), '/root'),
-            new Package(new PackageFile('vendor/package1'), '/package1'),
-            new Package(new PackageFile('vendor/package2'), '/package2'),
+        $this->packages = new ModuleList(array(
+            new RootModule(new RootModuleFile('vendor/root'), '/root'),
+            new Module(new ModuleFile('vendor/package1'), '/package1'),
+            new Module(new ModuleFile('vendor/package2'), '/package2'),
         ));
         $this->handler = new TypeCommandHandler($this->discoveryManager, $this->packages);
 
@@ -553,7 +553,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --description "New description"'));
 
         $typeDescriptor = new BindingTypeDescriptor(new BindingType('my/type'), 'Old description');
-        $typeDescriptor->load($this->packages->getRootPackage());
+        $typeDescriptor->load($this->packages->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -578,7 +578,7 @@ EOF;
             null,
             array('param' => 'The description')
         );
-        $typeDescriptor->load($this->packages->getRootPackage());
+        $typeDescriptor->load($this->packages->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -609,7 +609,7 @@ EOF;
             null,
             array('param' => 'The description')
         );
-        $typeDescriptor->load($this->packages->getRootPackage());
+        $typeDescriptor->load($this->packages->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -640,7 +640,7 @@ EOF;
             null,
             array('param' => 'Old description')
         );
-        $typeDescriptor->load($this->packages->getRootPackage());
+        $typeDescriptor->load($this->packages->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -670,7 +670,7 @@ EOF;
                 new BindingParameter('param2', BindingParameter::OPTIONAL),
             ))
         );
-        $typeDescriptor->load($this->packages->getRootPackage());
+        $typeDescriptor->load($this->packages->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -696,7 +696,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type'));
 
         $typeDescriptor = new BindingTypeDescriptor(new BindingType('my/type'));
-        $typeDescriptor->load($this->packages->getRootPackage());
+        $typeDescriptor->load($this->packages->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -744,9 +744,9 @@ EOF;
         $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
-    private function packageAndState($packageName, $state)
+    private function packageAndState($moduleName, $state)
     {
-        return Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+        return Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
             ->andMethod('getState', Expr::same($state));
     }
 

@@ -34,7 +34,7 @@ class RepositoryManagerProxy implements RepositoryManager
      * Creates the proxy.
      *
      * @param Container $puli The service locator to fetch the actual repository
-     *                   manager from.
+     *                        manager from
      */
     public function __construct(Container $puli)
     {

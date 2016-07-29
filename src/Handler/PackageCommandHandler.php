@@ -51,7 +51,7 @@ class PackageCommandHandler
     /**
      * Creates the handler.
      *
-     * @param ModuleManager $moduleManager The package manager.
+     * @param ModuleManager $moduleManager The package manager
      */
     public function __construct(ModuleManager $moduleManager)
     {
@@ -61,10 +61,10 @@ class PackageCommandHandler
     /**
      * Handles the "package --list" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleList(Args $args, IO $io)
     {
@@ -82,9 +82,9 @@ class PackageCommandHandler
     /**
      * Handles the "package --install" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleInstall(Args $args)
     {
@@ -101,9 +101,9 @@ class PackageCommandHandler
     /**
      * Handles the "package --rename" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleRename(Args $args)
     {
@@ -118,9 +118,9 @@ class PackageCommandHandler
     /**
      * Handles the "package --delete" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDelete(Args $args)
     {
@@ -141,10 +141,10 @@ class PackageCommandHandler
     /**
      * Handles the "package --clean" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleClean(Args $args, IO $io)
     {
@@ -162,9 +162,9 @@ class PackageCommandHandler
      * Returns the package states that should be displayed for the given
      * console arguments.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int[] A list of {@link ModuleState} constants.
+     * @return int[] A list of {@link ModuleState} constants
      */
     private function getSelectedStates(Args $args)
     {
@@ -189,9 +189,9 @@ class PackageCommandHandler
      * Returns the packages that should be displayed for the given console
      * arguments.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return ModuleList The packages.
+     * @return ModuleList The packages
      */
     private function getSelectedPackages(Args $args)
     {
@@ -225,9 +225,9 @@ class PackageCommandHandler
     /**
      * Prints packages with intermediate headers for the package states.
      *
-     * @param IO                $io       The I/O.
-     * @param ModuleList $modules The packages to print.
-     * @param int[]             $states   The states to print.
+     * @param IO         $io      The I/O
+     * @param ModuleList $modules The packages to print
+     * @param int[]      $states  The states to print
      */
     private function printPackagesByState(IO $io, ModuleList $modules, array $states)
     {
@@ -262,9 +262,9 @@ class PackageCommandHandler
     /**
      * Prints packages using the given format.
      *
-     * @param IO                $io       The I/O.
-     * @param ModuleList $modules The packages to print.
-     * @param string            $format   The format string.
+     * @param IO         $io      The I/O
+     * @param ModuleList $modules The packages to print
+     * @param string     $format  The format string
      */
     private function printPackagesWithFormat(IO $io, ModuleList $modules, $format)
     {
@@ -285,8 +285,8 @@ class PackageCommandHandler
     /**
      * Prints the heading for a given package state.
      *
-     * @param IO  $io           The I/O.
-     * @param int $ModuleState The {@link ModuleState} constant.
+     * @param IO  $io          The I/O
+     * @param int $ModuleState The {@link ModuleState} constant
      */
     private function printModuleState(IO $io, $ModuleState)
     {
@@ -313,11 +313,11 @@ class PackageCommandHandler
     /**
      * Prints a list of packages in a table.
      *
-     * @param IO          $io       The I/O.
-     * @param Module[]    $modules The packages.
+     * @param IO          $io       The I/O
+     * @param Module[]    $modules  The packages
      * @param string|null $styleTag The tag used to style the output. If `null`,
-     *                              the default colors are used.
-     * @param bool        $indent   Whether to indent the output.
+     *                              the default colors are used
+     * @param bool        $indent   Whether to indent the output
      */
     private function printPackageTable(IO $io, array $modules, $styleTag = null, $indent = false)
     {
@@ -351,9 +351,9 @@ class PackageCommandHandler
     /**
      * Prints not-loadable packages in a table.
      *
-     * @param IO        $io       The I/O.
-     * @param Module[]  $modules The not-loadable packages.
-     * @param bool      $indent   Whether to indent the output.
+     * @param IO       $io      The I/O
+     * @param Module[] $modules The not-loadable packages
+     * @param bool     $indent  Whether to indent the output
      */
     private function printNotLoadablePackages(IO $io, array $modules, $indent = false)
     {

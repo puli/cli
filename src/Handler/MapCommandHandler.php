@@ -52,8 +52,8 @@ class MapCommandHandler
     /**
      * Creates the handler.
      *
-     * @param RepositoryManager $repoManager The repository manager.
-     * @param ModuleList $modules    The loaded packages.
+     * @param RepositoryManager $repoManager The repository manager
+     * @param ModuleList        $modules     The loaded packages
      */
     public function __construct(RepositoryManager $repoManager, ModuleList $modules)
     {
@@ -64,10 +64,10 @@ class MapCommandHandler
     /**
      * Handles the "puli map --list" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleList(Args $args, IO $io)
     {
@@ -150,9 +150,9 @@ class MapCommandHandler
     /**
      * Handles the "puli map" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleAdd(Args $args)
     {
@@ -170,9 +170,9 @@ class MapCommandHandler
     /**
      * Handles the "puli map --update" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleUpdate(Args $args)
     {
@@ -211,9 +211,9 @@ class MapCommandHandler
     /**
      * Handles the "puli map --delete" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDelete(Args $args)
     {
@@ -235,12 +235,12 @@ class MapCommandHandler
     /**
      * Prints a list of path mappings.
      *
-     * @param IO            $io          The I/O.
-     * @param PathMapping[] $mappings    The path mappings.
+     * @param IO            $io          The I/O
+     * @param PathMapping[] $mappings    The path mappings
      * @param int           $indentation The number of spaces to indent the
-     *                                   output.
+     *                                   output
      * @param bool          $enabled     Whether the path mappings are enabled.
-     *                                   If not, the output is printed in red.
+     *                                   If not, the output is printed in red
      */
     private function printMappingTable(IO $io, array $mappings, $indentation = 0, $enabled = true)
     {
@@ -281,10 +281,10 @@ class MapCommandHandler
     /**
      * Prints a list of conflicting path mappings.
      *
-     * @param IO            $io          The I/O.
-     * @param PathMapping[] $mappings    The path mappings.
+     * @param IO            $io          The I/O
+     * @param PathMapping[] $mappings    The path mappings
      * @param int           $indentation The number of spaces to indent the
-     *                                   output.
+     *                                   output
      */
     private function printConflictTable(IO $io, array $mappings, $indentation = 0)
     {
@@ -332,9 +332,9 @@ class MapCommandHandler
     /**
      * Returns the path mapping states selected in the console arguments.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int[] The selected {@link PathMappingState} constants.
+     * @return int[] The selected {@link PathMappingState} constants
      */
     private function getPathMappingStates(Args $args)
     {
@@ -354,8 +354,8 @@ class MapCommandHandler
     /**
      * Prints the header for a path mapping state.
      *
-     * @param IO  $io               The I/O.
-     * @param int $pathMappingState The {@link PathMappingState} constant.
+     * @param IO  $io               The I/O
+     * @param int $pathMappingState The {@link PathMappingState} constant
      */
     private function printPathMappingStateHeader(IO $io, $pathMappingState)
     {

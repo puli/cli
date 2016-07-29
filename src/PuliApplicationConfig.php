@@ -30,10 +30,10 @@ use Puli\Cli\Handler\UpgradeCommandHandler;
 use Puli\Cli\Handler\UrlCommandHandler;
 use Puli\Cli\Proxy\DiscoveryManagerProxy;
 use Puli\Cli\Proxy\RepositoryManagerProxy;
+use Puli\Manager\Api\Container;
 use Puli\Manager\Api\Context\ProjectContext;
 use Puli\Manager\Api\Module\InstallInfo;
 use Puli\Manager\Api\Module\ModuleFile;
-use Puli\Manager\Api\Container;
 use Puli\Manager\Api\Server\Server;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
@@ -65,7 +65,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
     /**
      * Creates the configuration.
      *
-     * @param Container $puli The Puli service container.
+     * @param Container $puli The Puli service container
      */
     public function __construct(Container $puli = null)
     {

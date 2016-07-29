@@ -11,10 +11,10 @@
 
 namespace Puli\Cli\Proxy;
 
+use Puli\Manager\Api\Container;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingTypeDescriptor;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
-use Puli\Manager\Api\Container;
 use Rhumsaa\Uuid\Uuid;
 use Webmozart\Expression\Expression;
 
@@ -36,7 +36,7 @@ class DiscoveryManagerProxy implements DiscoveryManager
      * Creates the proxy.
      *
      * @param Container $puli The service locator to fetch the actual discovery
-     *                   manager from.
+     *                        manager from
      */
     public function __construct(Container $puli)
     {

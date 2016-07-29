@@ -55,8 +55,8 @@ class BindCommandHandler
     /**
      * Creates the handler.
      *
-     * @param DiscoveryManager  $discoveryManager The discovery manager.
-     * @param ModuleList $modules         The loaded packages.
+     * @param DiscoveryManager $discoveryManager The discovery manager
+     * @param ModuleList       $modules          The loaded packages
      */
     public function __construct(DiscoveryManager $discoveryManager, ModuleList $modules)
     {
@@ -67,10 +67,10 @@ class BindCommandHandler
     /**
      * Handles the "bind --list" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleList(Args $args, IO $io)
     {
@@ -128,9 +128,9 @@ class BindCommandHandler
     /**
      * Handles the "bind <query> <type>" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleAdd(Args $args)
     {
@@ -167,9 +167,9 @@ class BindCommandHandler
     /**
      * Handles the "bind --update <uuid>" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleUpdate(Args $args)
     {
@@ -213,9 +213,9 @@ class BindCommandHandler
     /**
      * Handles the "bind --delete" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDelete(Args $args)
     {
@@ -236,9 +236,9 @@ class BindCommandHandler
     /**
      * Handles the "bind --enable" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleEnable(Args $args)
     {
@@ -259,9 +259,9 @@ class BindCommandHandler
     /**
      * Handles the "bind --disable" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDisable(Args $args)
     {
@@ -282,9 +282,9 @@ class BindCommandHandler
     /**
      * Returns the binding states selected in the console arguments.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int[] The selected {@link BindingState} constants.
+     * @return int[] The selected {@link BindingState} constants
      */
     private function getBindingStates(Args $args)
     {
@@ -306,12 +306,12 @@ class BindCommandHandler
     /**
      * Prints a list of binding descriptors.
      *
-     * @param IO                  $io          The I/O.
-     * @param BindingDescriptor[] $descriptors The binding descriptors.
-     * @param int                 $indentation The number of spaces to indent.
+     * @param IO                  $io          The I/O
+     * @param BindingDescriptor[] $descriptors The binding descriptors
+     * @param int                 $indentation The number of spaces to indent
      * @param bool                $enabled     Whether the binding descriptors
      *                                         are enabled. If not, the output
-     *                                         is printed in red.
+     *                                         is printed in red
      */
     private function printBindingTable(IO $io, array $descriptors, $indentation = 0, $enabled = true)
     {
@@ -372,8 +372,8 @@ class BindCommandHandler
     /**
      * Prints the header for a binding state.
      *
-     * @param IO  $io           The I/O.
-     * @param int $bindingState The {@link BindingState} constant.
+     * @param IO  $io           The I/O
+     * @param int $bindingState The {@link BindingState} constant
      */
     private function printBindingStateHeader(IO $io, $bindingState)
     {

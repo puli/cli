@@ -26,10 +26,10 @@ class ArgsUtil
     /**
      * Returns the packages selected in the console arguments.
      *
-     * @param Args              $args     The console arguments.
-     * @param ModuleList $packages The available packages.
+     * @param Args       $args     The console arguments
+     * @param ModuleList $packages The available packages
      *
-     * @return string[] The package names.
+     * @return string[] The package names
      */
     public static function getPackageNames(Args $args, ModuleList $packages)
     {
@@ -54,10 +54,10 @@ class ArgsUtil
     /**
      * Returns the non-root packages selected in the console arguments.
      *
-     * @param Args              $args     The console arguments.
-     * @param ModuleList $packages The available packages.
+     * @param Args       $args     The console arguments
+     * @param ModuleList $packages The available packages
      *
-     * @return string[] The package names.
+     * @return string[] The package names
      */
     public static function getPackageNamesWithoutRoot(Args $args, ModuleList $packages)
     {

@@ -48,8 +48,8 @@ class TypeCommandHandler
     /**
      * Creates the handler.
      *
-     * @param DiscoveryManager  $discoveryManager The discovery manager.
-     * @param ModuleList $modules         The loaded packages.
+     * @param DiscoveryManager $discoveryManager The discovery manager
+     * @param ModuleList       $modules          The loaded packages
      */
     public function __construct(DiscoveryManager $discoveryManager, ModuleList $modules)
     {
@@ -60,10 +60,10 @@ class TypeCommandHandler
     /**
      * Handles the "puli type --list" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleList(Args $args, IO $io)
     {
@@ -130,9 +130,9 @@ class TypeCommandHandler
     /**
      * Handles the "puli type --define" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDefine(Args $args)
     {
@@ -155,9 +155,9 @@ class TypeCommandHandler
     /**
      * Handles the "puli type --update" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleUpdate(Args $args)
     {
@@ -193,9 +193,9 @@ class TypeCommandHandler
     /**
      * Handles the "puli type --delete" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDelete(Args $args)
     {
@@ -217,9 +217,9 @@ class TypeCommandHandler
     /**
      * Returns the binding type states selected in the console arguments.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int[] A list of {@link BindingTypeState} constants.
+     * @return int[] A list of {@link BindingTypeState} constants
      */
     private function getBindingTypeStates(Args $args)
     {
@@ -239,10 +239,10 @@ class TypeCommandHandler
     /**
      * Prints the binding types in a table.
      *
-     * @param IO                      $io          The I/O.
-     * @param BindingTypeDescriptor[] $descriptors The type descriptors to print.
+     * @param IO                      $io          The I/O
+     * @param BindingTypeDescriptor[] $descriptors The type descriptors to print
      * @param string                  $styleTag    The tag used to style the output
-     * @param int                     $indentation The number of spaces to indent.
+     * @param int                     $indentation The number of spaces to indent
      */
     private function printTypeTable(IO $io, array $descriptors, $styleTag = null, $indentation = 0)
     {
@@ -286,8 +286,8 @@ class TypeCommandHandler
     /**
      * Prints the heading for a binding type state.
      *
-     * @param IO  $io        The I/O.
-     * @param int $typeState The {@link BindingTypeState} constant.
+     * @param IO  $io        The I/O
+     * @param int $typeState The {@link BindingTypeState} constant
      */
     private function printBindingTypeState(IO $io, $typeState)
     {

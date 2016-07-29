@@ -35,7 +35,7 @@ class ConfigCommandHandler
     /**
      * Creates the handler.
      *
-     * @param RootModuleFileManager $manager The root package file manager.
+     * @param RootModuleFileManager $manager The root package file manager
      */
     public function __construct(RootModuleFileManager $manager)
     {
@@ -45,10 +45,10 @@ class ConfigCommandHandler
     /**
      * Handles the "config" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleList(Args $args, IO $io)
     {
@@ -77,10 +77,10 @@ class ConfigCommandHandler
     /**
      * Handles the "config <key>" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleShow(Args $args, IO $io)
     {
@@ -95,9 +95,9 @@ class ConfigCommandHandler
     /**
      * Handles the "config <key> <value>" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleSet(Args $args)
     {
@@ -111,9 +111,9 @@ class ConfigCommandHandler
     /**
      * Handles the "config -r <key>" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleReset(Args $args)
     {

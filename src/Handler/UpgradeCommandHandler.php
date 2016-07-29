@@ -33,7 +33,7 @@ class UpgradeCommandHandler
      * Creates the command handler.
      *
      * @param RootModuleFileManager $packageFileManager The manager of the
-     *                                                   puli.json file.
+     *                                                  puli.json file
      */
     public function __construct(RootModuleFileManager $packageFileManager)
     {
@@ -43,10 +43,10 @@ class UpgradeCommandHandler
     /**
      * Handles the "upgrade" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handle(Args $args, IO $io)
     {

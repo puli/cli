@@ -126,9 +126,9 @@ class DiscoveryManagerProxy implements DiscoveryManager
     /**
      * {@inheritdoc}
      */
-    public function getTypeDescriptor($typeName, $packageName)
+    public function getTypeDescriptor($typeName, $moduleName)
     {
-        return $this->puli->getDiscoveryManager()->getTypeDescriptor($typeName, $packageName);
+        return $this->puli->getDiscoveryManager()->getTypeDescriptor($typeName, $moduleName);
     }
 
     /**
@@ -150,9 +150,9 @@ class DiscoveryManagerProxy implements DiscoveryManager
     /**
      * {@inheritdoc}
      */
-    public function hasTypeDescriptor($typeName, $packageName = null)
+    public function hasTypeDescriptor($typeName, $moduleName = null)
     {
-        return $this->puli->getDiscoveryManager()->hasTypeDescriptor($typeName, $packageName);
+        return $this->puli->getDiscoveryManager()->hasTypeDescriptor($typeName, $moduleName);
     }
 
     /**

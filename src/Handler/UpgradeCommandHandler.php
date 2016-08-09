@@ -27,17 +27,17 @@ class UpgradeCommandHandler
     /**
      * @var RootModuleFileManager
      */
-    private $packageFileManager;
+    private $moduleFileManager;
 
     /**
      * Creates the command handler.
      *
-     * @param RootModuleFileManager $packageFileManager The manager of the
-     *                                                  puli.json file
+     * @param RootModuleFileManager $moduleFileManager The manager of the
+     *                                                 puli.json file
      */
-    public function __construct(RootModuleFileManager $packageFileManager)
+    public function __construct(RootModuleFileManager $moduleFileManager)
     {
-        $this->packageFileManager = $packageFileManager;
+        $this->moduleFileManager = $moduleFileManager;
     }
 
     /**
@@ -50,8 +50,8 @@ class UpgradeCommandHandler
      */
     public function handle(Args $args, IO $io)
     {
-        $packageFile = $this->packageFileManager->getPackageFile();
-        $originVersion = $packageFile->getVersion();
+        $moduleFile = $this->moduleFileManager->getModuleFile();
+        $originVersion = $moduleFile->getVersion();
         $targetVersion = $args->getArgument('version');
 
         if (version_compare($originVersion, $targetVersion, '=')) {
@@ -60,7 +60,7 @@ class UpgradeCommandHandler
             return 0;
         }
 
-        $this->packageFileManager->migrate($targetVersion);
+        $this->moduleFileManager->migrate($targetVersion);
 
         $io->writeLine(sprintf(
             'Migrated your puli.json from version %s to version %s.',

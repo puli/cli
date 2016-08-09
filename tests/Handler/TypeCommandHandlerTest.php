@@ -63,7 +63,7 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var ModuleList
      */
-    private $packages;
+    private $modules;
 
     /**
      * @var TypeCommandHandler
@@ -85,17 +85,17 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUp();
 
         $this->discoveryManager = $this->getMock('Puli\Manager\Api\Discovery\DiscoveryManager');
-        $this->packages = new ModuleList(array(
+        $this->modules = new ModuleList(array(
             new RootModule(new RootModuleFile('vendor/root'), '/root'),
-            new Module(new ModuleFile('vendor/package1'), '/package1'),
-            new Module(new ModuleFile('vendor/package2'), '/package2'),
+            new Module(new ModuleFile('vendor/module1'), '/module1'),
+            new Module(new ModuleFile('vendor/module2'), '/module2'),
         ));
-        $this->handler = new TypeCommandHandler($this->discoveryManager, $this->packages);
+        $this->handler = new TypeCommandHandler($this->discoveryManager, $this->modules);
 
         $this->discoveryManager->expects($this->any())
             ->method('findTypeDescriptors')
             ->willReturnCallback($this->returnFromMap(array(
-                array($this->packageAndState('vendor/root', BindingTypeState::ENABLED), array(
+                array($this->moduleAndState('vendor/root', BindingTypeState::ENABLED), array(
                     new BindingTypeDescriptor(
                         new BindingType('root/enabled1', array(
                             new BindingParameter('req-param', BindingParameter::REQUIRED),
@@ -109,20 +109,20 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
                     ),
                     new BindingTypeDescriptor(new BindingType('root/enabled2'), 'Description of root/enabled2'),
                 )),
-                array($this->packageAndState('vendor/root', BindingTypeState::DUPLICATE), array(
+                array($this->moduleAndState('vendor/root', BindingTypeState::DUPLICATE), array(
                     new BindingTypeDescriptor(new BindingType('root/duplicate')),
                 )),
-                array($this->packageAndState('vendor/package1', BindingTypeState::ENABLED), array(
-                    new BindingTypeDescriptor(new BindingType('package1/enabled')),
+                array($this->moduleAndState('vendor/module1', BindingTypeState::ENABLED), array(
+                    new BindingTypeDescriptor(new BindingType('module1/enabled')),
                 )),
-                array($this->packageAndState('vendor/package1', BindingTypeState::DUPLICATE), array(
-                    new BindingTypeDescriptor(new BindingType('package1/duplicate')),
+                array($this->moduleAndState('vendor/module1', BindingTypeState::DUPLICATE), array(
+                    new BindingTypeDescriptor(new BindingType('module1/duplicate')),
                 )),
-                array($this->packageAndState('vendor/package2', BindingTypeState::ENABLED), array(
-                    new BindingTypeDescriptor(new BindingType('package2/enabled')),
+                array($this->moduleAndState('vendor/module2', BindingTypeState::ENABLED), array(
+                    new BindingTypeDescriptor(new BindingType('module2/enabled')),
                 )),
-                array($this->packageAndState('vendor/package2', BindingTypeState::DUPLICATE), array(
-                    new BindingTypeDescriptor(new BindingType('package2/duplicate')),
+                array($this->moduleAndState('vendor/module2', BindingTypeState::DUPLICATE), array(
+                    new BindingTypeDescriptor(new BindingType('module2/duplicate')),
                 )),
             )));
     }
@@ -134,7 +134,7 @@ class TypeCommandHandlerTest extends AbstractCommandHandlerTest
         $expected = <<<'EOF'
 The following binding types are currently enabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Type           Description     Parameters
         root/enabled1  Description of  opt-param="default"
@@ -142,32 +142,32 @@ The following binding types are currently enabled:
         root/enabled2  Description of
                        root/enabled2
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Type              Description  Parameters
-        package1/enabled
+        Type             Description  Parameters
+        module1/enabled
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Type              Description  Parameters
-        package2/enabled
+        Type             Description  Parameters
+        module2/enabled
 
 The following types have duplicate definitions and are disabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Type            Description  Parameters
         root/duplicate
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Type                Description  Parameters
-        package1/duplicate
+        Type               Description  Parameters
+        module1/duplicate
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Type                Description  Parameters
-        package2/duplicate
+        Type               Description  Parameters
+        module2/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
@@ -178,7 +178,7 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListRootPackageTypes()
+    public function testListRootModuleTypes()
     {
         $args = self::$listCommand->parseArgs(new StringArgs('--root'));
 
@@ -204,20 +204,20 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListPackageTypes()
+    public function testListModuleTypes()
     {
-        $args = self::$listCommand->parseArgs(new StringArgs('--package vendor/package1'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--module vendor/module1'));
 
         $expected = <<<'EOF'
 The following binding types are currently enabled:
 
-    Type              Description  Parameters
-    package1/enabled
+    Type             Description  Parameters
+    module1/enabled
 
 The following types have duplicate definitions and are disabled:
 
-    Type                Description  Parameters
-    package1/duplicate
+    Type               Description  Parameters
+    module1/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
@@ -228,14 +228,14 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListRootAndPackageTypes()
+    public function testListRootAndModuleTypes()
     {
-        $args = self::$listCommand->parseArgs(new StringArgs('--root --package vendor/package1'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--root --module vendor/module1'));
 
         $expected = <<<'EOF'
 The following binding types are currently enabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Type           Description     Parameters
         root/enabled1  Description of  opt-param="default"
@@ -243,22 +243,22 @@ The following binding types are currently enabled:
         root/enabled2  Description of
                        root/enabled2
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Type              Description  Parameters
-        package1/enabled
+        Type             Description  Parameters
+        module1/enabled
 
 The following types have duplicate definitions and are disabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Type            Description  Parameters
         root/duplicate
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Type                Description  Parameters
-        package1/duplicate
+        Type               Description  Parameters
+        module1/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
@@ -269,34 +269,34 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListMultiplePackageTypes()
+    public function testListMultipleModuleTypes()
     {
-        $args = self::$listCommand->parseArgs(new StringArgs('--package vendor/package1 --package vendor/package2'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--module vendor/module1 --module vendor/module2'));
 
         $expected = <<<'EOF'
 The following binding types are currently enabled:
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Type              Description  Parameters
-        package1/enabled
+        Type             Description  Parameters
+        module1/enabled
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Type              Description  Parameters
-        package2/enabled
+        Type             Description  Parameters
+        module2/enabled
 
 The following types have duplicate definitions and are disabled:
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Type                Description  Parameters
-        package1/duplicate
+        Type               Description  Parameters
+        module1/duplicate
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Type                Description  Parameters
-        package2/duplicate
+        Type               Description  Parameters
+        module2/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
@@ -312,22 +312,22 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled'));
 
         $expected = <<<'EOF'
-Package: vendor/root
+Module: vendor/root
 
     Type           Description                   Parameters
     root/enabled1  Description of root/enabled1  opt-param="default"
                                                  req-param
     root/enabled2  Description of root/enabled2
 
-Package: vendor/package1
+Module: vendor/module1
 
-    Type              Description  Parameters
-    package1/enabled
+    Type             Description  Parameters
+    module1/enabled
 
-Package: vendor/package2
+Module: vendor/module2
 
-    Type              Description  Parameters
-    package2/enabled
+    Type             Description  Parameters
+    module2/enabled
 
 
 EOF;
@@ -342,20 +342,20 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--duplicate'));
 
         $expected = <<<'EOF'
-Package: vendor/root
+Module: vendor/root
 
     Type            Description  Parameters
     root/duplicate
 
-Package: vendor/package1
+Module: vendor/module1
 
-    Type                Description  Parameters
-    package1/duplicate
+    Type               Description  Parameters
+    module1/duplicate
 
-Package: vendor/package2
+Module: vendor/module2
 
-    Type                Description  Parameters
-    package2/duplicate
+    Type               Description  Parameters
+    module2/duplicate
 
 
 EOF;
@@ -372,7 +372,7 @@ EOF;
         $expected = <<<'EOF'
 The following binding types are currently enabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Type           Description     Parameters
         root/enabled1  Description of  opt-param="default"
@@ -380,32 +380,32 @@ The following binding types are currently enabled:
         root/enabled2  Description of
                        root/enabled2
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Type              Description  Parameters
-        package1/enabled
+        Type             Description  Parameters
+        module1/enabled
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Type              Description  Parameters
-        package2/enabled
+        Type             Description  Parameters
+        module2/enabled
 
 The following types have duplicate definitions and are disabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Type            Description  Parameters
         root/duplicate
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Type                Description  Parameters
-        package1/duplicate
+        Type               Description  Parameters
+        module1/duplicate
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Type                Description  Parameters
-        package2/duplicate
+        Type               Description  Parameters
+        module2/duplicate
 
 Use "puli bind <resource> <type>" to bind a resource to a type.
 
@@ -433,13 +433,13 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListEnabledTypesInPackage()
+    public function testListEnabledTypesInModule()
     {
-        $args = self::$listCommand->parseArgs(new StringArgs('--enabled --package vendor/package1'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--enabled --module vendor/module1'));
 
         $expected = <<<'EOF'
-Type              Description  Parameters
-package1/enabled
+Type             Description  Parameters
+module1/enabled
 
 EOF;
 
@@ -454,7 +454,7 @@ EOF;
         $this->discoveryManager->expects($this->any())
             ->method('findTypeDescriptors')
             ->willReturn(array());
-        $this->handler = new TypeCommandHandler($this->discoveryManager, $this->packages);
+        $this->handler = new TypeCommandHandler($this->discoveryManager, $this->modules);
 
         $args = self::$listCommand->parseArgs(new StringArgs(''));
 
@@ -553,7 +553,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type --description "New description"'));
 
         $typeDescriptor = new BindingTypeDescriptor(new BindingType('my/type'), 'Old description');
-        $typeDescriptor->load($this->packages->getRootModule());
+        $typeDescriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -578,7 +578,7 @@ EOF;
             null,
             array('param' => 'The description')
         );
-        $typeDescriptor->load($this->packages->getRootModule());
+        $typeDescriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -609,7 +609,7 @@ EOF;
             null,
             array('param' => 'The description')
         );
-        $typeDescriptor->load($this->packages->getRootModule());
+        $typeDescriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -640,7 +640,7 @@ EOF;
             null,
             array('param' => 'Old description')
         );
-        $typeDescriptor->load($this->packages->getRootModule());
+        $typeDescriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -670,7 +670,7 @@ EOF;
                 new BindingParameter('param2', BindingParameter::OPTIONAL),
             ))
         );
-        $typeDescriptor->load($this->packages->getRootModule());
+        $typeDescriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -696,7 +696,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('my/type'));
 
         $typeDescriptor = new BindingTypeDescriptor(new BindingType('my/type'));
-        $typeDescriptor->load($this->packages->getRootModule());
+        $typeDescriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('getRootTypeDescriptor')
@@ -727,7 +727,7 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage The type "my/type" does not exist in the package "vendor/root".
+     * @expectedExceptionMessage The type "my/type" does not exist in the module "vendor/root".
      */
     public function testDeleteTypeFailsIfNotFound()
     {
@@ -744,7 +744,7 @@ EOF;
         $this->assertSame(0, $this->handler->handleDelete($args));
     }
 
-    private function packageAndState($moduleName, $state)
+    private function moduleAndState($moduleName, $state)
     {
         return Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
             ->andMethod('getState', Expr::same($state));

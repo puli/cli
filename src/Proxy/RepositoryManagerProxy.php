@@ -132,9 +132,9 @@ class RepositoryManagerProxy implements RepositoryManager
     /**
      * {@inheritdoc}
      */
-    public function getPathMapping($repositoryPath, $packageName)
+    public function getPathMapping($repositoryPath, $moduleName)
     {
-        return $this->puli->getRepositoryManager()->getPathMapping($repositoryPath, $packageName);
+        return $this->puli->getRepositoryManager()->getPathMapping($repositoryPath, $moduleName);
     }
 
     /**
@@ -156,9 +156,9 @@ class RepositoryManagerProxy implements RepositoryManager
     /**
      * {@inheritdoc}
      */
-    public function hasPathMapping($repositoryPath, $packageName)
+    public function hasPathMapping($repositoryPath, $moduleName)
     {
-        return $this->puli->getRepositoryManager()->hasPathMapping($repositoryPath, $packageName);
+        return $this->puli->getRepositoryManager()->hasPathMapping($repositoryPath, $moduleName);
     }
 
     /**

@@ -62,7 +62,7 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var ModuleList
      */
-    private $packages;
+    private $modules;
 
     /**
      * @var MapCommandHandler
@@ -84,12 +84,12 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUp();
 
         $this->repoManager = $this->getMock('Puli\Manager\Api\Repository\RepositoryManager');
-        $this->packages = new ModuleList(array(
+        $this->modules = new ModuleList(array(
             new RootModule(new RootModuleFile('vendor/root'), '/root'),
-            new Module(new ModuleFile('vendor/package1'), '/package1'),
-            new Module(new ModuleFile('vendor/package2'), '/package2'),
+            new Module(new ModuleFile('vendor/module1'), '/module1'),
+            new Module(new ModuleFile('vendor/module2'), '/module2'),
         ));
-        $this->handler = new MapCommandHandler($this->repoManager, $this->packages);
+        $this->handler = new MapCommandHandler($this->repoManager, $this->modules);
     }
 
     public function testListAllMappings()
@@ -103,57 +103,57 @@ class MapCommandHandlerTest extends AbstractCommandHandlerTest
         $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Puli Path      Real Path(s)
         /root/enabled  res, assets
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Puli Path          Real Path(s)
-        /package1/enabled  res, @vendor/package2:res
+        Puli Path         Real Path(s)
+        /module1/enabled  res, @vendor/module2:res
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Puli Path          Real Path(s)
-        /package2/enabled  res
+        Puli Path         Real Path(s)
+        /module2/enabled  res
 
 The target paths of the following path mappings were not found:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Puli Path        Real Path(s)
         /root/not-found  res
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Puli Path            Real Path(s)
-        /package1/not-found  res
+        Puli Path           Real Path(s)
+        /module1/not-found  res
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Puli Path            Real Path(s)
-        /package2/not-found  res
+        Puli Path           Real Path(s)
+        /module2/not-found  res
 
 Some path mappings have conflicting paths:
- (add the package names to the "override-order" key in puli.json to resolve)
+ (add the module names to the "override-order" key in puli.json to resolve)
 
     Conflicting path: /conflict1
 
         Mapped by the following mappings:
 
-        Package          Puli Path   Real Path(s)
-        vendor/root      /conflict1  res, assets
-        vendor/package1  /conflict1  res, @vendor/package2:res
-        vendor/package2  /conflict1  res
+        Module          Puli Path   Real Path(s)
+        vendor/root     /conflict1  res, assets
+        vendor/module1  /conflict1  res, @vendor/module2:res
+        vendor/module2  /conflict1  res
 
     Conflicting path: /conflict2/sub/path
 
         Mapped by the following mappings:
 
-        Package          Puli Path   Real Path(s)
-        vendor/package1  /conflict2  res
-        vendor/package2  /conflict2  res
+        Module          Puli Path   Real Path(s)
+        vendor/module1  /conflict2  res
+        vendor/module2  /conflict2  res
 
 
 EOF;
@@ -163,7 +163,7 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListRootPackageMappings()
+    public function testListRootModuleMappings()
     {
         $this->initDefaultManager();
 
@@ -183,16 +183,16 @@ The target paths of the following path mappings were not found:
     /root/not-found  res
 
 Some path mappings have conflicting paths:
- (add the package names to the "override-order" key in puli.json to resolve)
+ (add the module names to the "override-order" key in puli.json to resolve)
 
     Conflicting path: /conflict1
 
         Mapped by the following mappings:
 
-        Package          Puli Path   Real Path(s)
-        vendor/root      /conflict1  res, assets
-        vendor/package1  /conflict1  res, @vendor/package2:res
-        vendor/package2  /conflict1  res
+        Module          Puli Path   Real Path(s)
+        vendor/root     /conflict1  res, assets
+        vendor/module1  /conflict1  res, @vendor/module2:res
+        vendor/module2  /conflict1  res
 
 
 EOF;
@@ -202,44 +202,44 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListPackageMappings()
+    public function testListModuleMappings()
     {
         $this->initDefaultManager();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--package vendor/package1'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--module vendor/module1'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
-    Puli Path          Real Path(s)
-    /package1/enabled  res, @vendor/package2:res
+    Puli Path         Real Path(s)
+    /module1/enabled  res, @vendor/module2:res
 
 The target paths of the following path mappings were not found:
 
-    Puli Path            Real Path(s)
-    /package1/not-found  res
+    Puli Path           Real Path(s)
+    /module1/not-found  res
 
 Some path mappings have conflicting paths:
- (add the package names to the "override-order" key in puli.json to resolve)
+ (add the module names to the "override-order" key in puli.json to resolve)
 
     Conflicting path: /conflict1
 
         Mapped by the following mappings:
 
-        Package          Puli Path   Real Path(s)
-        vendor/root      /conflict1  res, assets
-        vendor/package1  /conflict1  res, @vendor/package2:res
-        vendor/package2  /conflict1  res
+        Module          Puli Path   Real Path(s)
+        vendor/root     /conflict1  res, assets
+        vendor/module1  /conflict1  res, @vendor/module2:res
+        vendor/module2  /conflict1  res
 
     Conflicting path: /conflict2/sub/path
 
         Mapped by the following mappings:
 
-        Package          Puli Path   Real Path(s)
-        vendor/package1  /conflict2  res
-        vendor/package2  /conflict2  res
+        Module          Puli Path   Real Path(s)
+        vendor/module1  /conflict2  res
+        vendor/module2  /conflict2  res
 
 
 EOF;
@@ -249,58 +249,58 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListRootAndPackageMappings()
+    public function testListRootAndModuleMappings()
     {
         $this->initDefaultManager();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--root --package vendor/package1'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--root --module vendor/module1'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Puli Path      Real Path(s)
         /root/enabled  res, assets
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Puli Path          Real Path(s)
-        /package1/enabled  res, @vendor/package2:res
+        Puli Path         Real Path(s)
+        /module1/enabled  res, @vendor/module2:res
 
 The target paths of the following path mappings were not found:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Puli Path        Real Path(s)
         /root/not-found  res
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Puli Path            Real Path(s)
-        /package1/not-found  res
+        Puli Path           Real Path(s)
+        /module1/not-found  res
 
 Some path mappings have conflicting paths:
- (add the package names to the "override-order" key in puli.json to resolve)
+ (add the module names to the "override-order" key in puli.json to resolve)
 
     Conflicting path: /conflict1
 
         Mapped by the following mappings:
 
-        Package          Puli Path   Real Path(s)
-        vendor/root      /conflict1  res, assets
-        vendor/package1  /conflict1  res, @vendor/package2:res
-        vendor/package2  /conflict1  res
+        Module          Puli Path   Real Path(s)
+        vendor/root     /conflict1  res, assets
+        vendor/module1  /conflict1  res, @vendor/module2:res
+        vendor/module2  /conflict1  res
 
     Conflicting path: /conflict2/sub/path
 
         Mapped by the following mappings:
 
-        Package          Puli Path   Real Path(s)
-        vendor/package1  /conflict2  res
-        vendor/package2  /conflict2  res
+        Module          Puli Path   Real Path(s)
+        vendor/module1  /conflict2  res
+        vendor/module2  /conflict2  res
 
 
 EOF;
@@ -310,58 +310,58 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListMultiplePackageMappings()
+    public function testListMultipleModuleMappings()
     {
         $this->initDefaultManager();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--package vendor/package1 --package vendor/package2'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--module vendor/module1 --module vendor/module2'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Puli Path          Real Path(s)
-        /package1/enabled  res, @vendor/package2:res
+        Puli Path         Real Path(s)
+        /module1/enabled  res, @vendor/module2:res
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Puli Path          Real Path(s)
-        /package2/enabled  res
+        Puli Path         Real Path(s)
+        /module2/enabled  res
 
 The target paths of the following path mappings were not found:
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Puli Path            Real Path(s)
-        /package1/not-found  res
+        Puli Path           Real Path(s)
+        /module1/not-found  res
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Puli Path            Real Path(s)
-        /package2/not-found  res
+        Puli Path           Real Path(s)
+        /module2/not-found  res
 
 Some path mappings have conflicting paths:
- (add the package names to the "override-order" key in puli.json to resolve)
+ (add the module names to the "override-order" key in puli.json to resolve)
 
     Conflicting path: /conflict1
 
         Mapped by the following mappings:
 
-        Package          Puli Path   Real Path(s)
-        vendor/root      /conflict1  res, assets
-        vendor/package1  /conflict1  res, @vendor/package2:res
-        vendor/package2  /conflict1  res
+        Module          Puli Path   Real Path(s)
+        vendor/root     /conflict1  res, assets
+        vendor/module1  /conflict1  res, @vendor/module2:res
+        vendor/module2  /conflict1  res
 
     Conflicting path: /conflict2/sub/path
 
         Mapped by the following mappings:
 
-        Package          Puli Path   Real Path(s)
-        vendor/package1  /conflict2  res
-        vendor/package2  /conflict2  res
+        Module          Puli Path   Real Path(s)
+        vendor/module1  /conflict2  res
+        vendor/module2  /conflict2  res
 
 
 EOF;
@@ -380,20 +380,20 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<'EOF'
-Package: vendor/root
+Module: vendor/root
 
     Puli Path      Real Path(s)
     /root/enabled  res, assets
 
-Package: vendor/package1
+Module: vendor/module1
 
-    Puli Path          Real Path(s)
-    /package1/enabled  res, @vendor/package2:res
+    Puli Path         Real Path(s)
+    /module1/enabled  res, @vendor/module2:res
 
-Package: vendor/package2
+Module: vendor/module2
 
-    Puli Path          Real Path(s)
-    /package2/enabled  res
+    Puli Path         Real Path(s)
+    /module2/enabled  res
 
 
 EOF;
@@ -412,20 +412,20 @@ EOF;
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<'EOF'
-Package: vendor/root
+Module: vendor/root
 
     Puli Path        Real Path(s)
     /root/not-found  res
 
-Package: vendor/package1
+Module: vendor/module1
 
-    Puli Path            Real Path(s)
-    /package1/not-found  res
+    Puli Path           Real Path(s)
+    /module1/not-found  res
 
-Package: vendor/package2
+Module: vendor/module2
 
-    Puli Path            Real Path(s)
-    /package2/not-found  res
+    Puli Path           Real Path(s)
+    /module2/not-found  res
 
 
 EOF;
@@ -448,18 +448,18 @@ Conflicting path: /conflict1
 
     Mapped by the following mappings:
 
-    Package          Puli Path   Real Path(s)
-    vendor/root      /conflict1  res, assets
-    vendor/package1  /conflict1  res, @vendor/package2:res
-    vendor/package2  /conflict1  res
+    Module          Puli Path   Real Path(s)
+    vendor/root     /conflict1  res, assets
+    vendor/module1  /conflict1  res, @vendor/module2:res
+    vendor/module2  /conflict1  res
 
 Conflicting path: /conflict2/sub/path
 
     Mapped by the following mappings:
 
-    Package          Puli Path   Real Path(s)
-    vendor/package1  /conflict2  res
-    vendor/package2  /conflict2  res
+    Module          Puli Path   Real Path(s)
+    vendor/module1  /conflict2  res
+    vendor/module2  /conflict2  res
 
 
 EOF;
@@ -480,37 +480,37 @@ EOF;
         $expected = <<<'EOF'
 The following path mappings are currently enabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Puli Path      Real Path(s)
         /root/enabled  res, assets
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Puli Path          Real Path(s)
-        /package1/enabled  res, @vendor/package2:res
+        Puli Path         Real Path(s)
+        /module1/enabled  res, @vendor/module2:res
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Puli Path          Real Path(s)
-        /package2/enabled  res
+        Puli Path         Real Path(s)
+        /module2/enabled  res
 
 The target paths of the following path mappings were not found:
 
-    Package: vendor/root
+    Module: vendor/root
 
         Puli Path        Real Path(s)
         /root/not-found  res
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        Puli Path            Real Path(s)
-        /package1/not-found  res
+        Puli Path           Real Path(s)
+        /module1/not-found  res
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        Puli Path            Real Path(s)
-        /package2/not-found  res
+        Puli Path           Real Path(s)
+        /module2/not-found  res
 
 
 EOF;
@@ -539,17 +539,17 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListEnabledMappingsFromPackage()
+    public function testListEnabledMappingsFromModule()
     {
         $this->initDefaultManager();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--enabled --package vendor/package1'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--enabled --module vendor/module1'));
 
         $statusCode = $this->handler->handleList($args, $this->io);
 
         $expected = <<<'EOF'
-Puli Path          Real Path(s)
-/package1/enabled  res, @vendor/package2:res
+Puli Path         Real Path(s)
+/module1/enabled  res, @vendor/module2:res
 
 EOF;
 
@@ -616,7 +616,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --add assets --add res'));
 
         $mapping = new PathMapping('/path', array('previous'));
-        $mapping->load($this->packages->getRootModule(), $this->packages);
+        $mapping->load($this->modules->getRootModule(), $this->modules);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -635,7 +635,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --remove assets'));
 
         $mapping = new PathMapping('/path', array('assets', 'res'));
-        $mapping->load($this->packages->getRootModule(), $this->packages);
+        $mapping->load($this->modules->getRootModule(), $this->modules);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -654,7 +654,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --remove assets --remove res'));
 
         $mapping = new PathMapping('/path', array('assets', 'res'));
-        $mapping->load($this->packages->getRootModule(), $this->packages);
+        $mapping->load($this->modules->getRootModule(), $this->modules);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -673,7 +673,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('rel --add assets'));
 
         $mapping = new PathMapping('/rel', array('previous'));
-        $mapping->load($this->packages->getRootModule(), $this->packages);
+        $mapping->load($this->modules->getRootModule(), $this->modules);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -692,7 +692,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('/path --add assets --force'));
 
         $mapping = new PathMapping('/path', array('previous'));
-        $mapping->load($this->packages->getRootModule(), $this->packages);
+        $mapping->load($this->modules->getRootModule(), $this->modules);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -714,7 +714,7 @@ EOF;
         $args = self::$updateCommand->parseArgs(new StringArgs('/path'));
 
         $mapping = new PathMapping('/path', array('previous'));
-        $mapping->load($this->packages->getRootModule(), $this->packages);
+        $mapping->load($this->modules->getRootModule(), $this->modules);
 
         $this->repoManager->expects($this->once())
             ->method('getRootPathMapping')
@@ -761,7 +761,7 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage The path "/path1" is not mapped in the package "vendor/root".
+     * @expectedExceptionMessage The path "/path1" is not mapped in the module "vendor/root".
      */
     public function testDeleteMappingFailsIfNotFound()
     {
@@ -782,95 +782,95 @@ EOF;
     private function initDefaultManager()
     {
         $conflictMappingRoot1 = new PathMapping('/conflict1', array('res', 'assets'));
-        $conflictMappingPackage11 = new PathMapping('/conflict1', array('res', '@vendor/package2:res'));
-        $conflictMappingPackage12 = new PathMapping('/conflict2', 'res');
-        $conflictMappingPackage21 = new PathMapping('/conflict1', 'res');
-        $conflictMappingPackage22 = new PathMapping('/conflict2', 'res');
+        $conflictMappingModule11 = new PathMapping('/conflict1', array('res', '@vendor/module2:res'));
+        $conflictMappingModule12 = new PathMapping('/conflict2', 'res');
+        $conflictMappingModule21 = new PathMapping('/conflict1', 'res');
+        $conflictMappingModule22 = new PathMapping('/conflict2', 'res');
 
-        $conflictMappingRoot1->load($this->packages->getRootModule(), $this->packages);
-        $conflictMappingPackage11->load($this->packages->get('vendor/package1'), $this->packages);
-        $conflictMappingPackage12->load($this->packages->get('vendor/package1'), $this->packages);
-        $conflictMappingPackage21->load($this->packages->get('vendor/package2'), $this->packages);
-        $conflictMappingPackage22->load($this->packages->get('vendor/package2'), $this->packages);
+        $conflictMappingRoot1->load($this->modules->getRootModule(), $this->modules);
+        $conflictMappingModule11->load($this->modules->get('vendor/module1'), $this->modules);
+        $conflictMappingModule12->load($this->modules->get('vendor/module1'), $this->modules);
+        $conflictMappingModule21->load($this->modules->get('vendor/module2'), $this->modules);
+        $conflictMappingModule22->load($this->modules->get('vendor/module2'), $this->modules);
 
         $conflict1 = new PathConflict('/conflict1');
         $conflict1->addMappings(array(
             $conflictMappingRoot1,
-            $conflictMappingPackage11,
-            $conflictMappingPackage21,
+            $conflictMappingModule11,
+            $conflictMappingModule21,
         ));
 
         $conflict2 = new PathConflict('/conflict2/sub/path');
         $conflict2->addMappings(array(
-            $conflictMappingPackage12,
-            $conflictMappingPackage22,
+            $conflictMappingModule12,
+            $conflictMappingModule22,
         ));
 
         $this->repoManager->expects($this->any())
             ->method('findPathMappings')
             ->willReturnCallback($this->returnFromMap(array(
-                array($this->packageAndState('vendor/root', PathMappingState::ENABLED), array(
+                array($this->moduleAndState('vendor/root', PathMappingState::ENABLED), array(
                     new PathMapping('/root/enabled', array('res', 'assets')),
                 )),
-                array($this->packageAndState('vendor/package1', PathMappingState::ENABLED), array(
-                    new PathMapping('/package1/enabled', array('res', '@vendor/package2:res')),
+                array($this->moduleAndState('vendor/module1', PathMappingState::ENABLED), array(
+                    new PathMapping('/module1/enabled', array('res', '@vendor/module2:res')),
                 )),
-                array($this->packageAndState('vendor/package2', PathMappingState::ENABLED), array(
-                    new PathMapping('/package2/enabled', 'res'),
+                array($this->moduleAndState('vendor/module2', PathMappingState::ENABLED), array(
+                    new PathMapping('/module2/enabled', 'res'),
                 )),
-                array($this->packageAndState('vendor/root', PathMappingState::NOT_FOUND), array(
+                array($this->moduleAndState('vendor/root', PathMappingState::NOT_FOUND), array(
                     new PathMapping('/root/not-found', 'res'),
                 )),
-                array($this->packageAndState('vendor/package1', PathMappingState::NOT_FOUND), array(
-                    new PathMapping('/package1/not-found', 'res'),
+                array($this->moduleAndState('vendor/module1', PathMappingState::NOT_FOUND), array(
+                    new PathMapping('/module1/not-found', 'res'),
                 )),
-                array($this->packageAndState('vendor/package2', PathMappingState::NOT_FOUND), array(
-                    new PathMapping('/package2/not-found', 'res'),
+                array($this->moduleAndState('vendor/module2', PathMappingState::NOT_FOUND), array(
+                    new PathMapping('/module2/not-found', 'res'),
                 )),
-                array($this->packagesAndState(array('vendor/root'), PathMappingState::CONFLICT), array(
+                array($this->modulesAndState(array('vendor/root'), PathMappingState::CONFLICT), array(
                     $conflictMappingRoot1,
                 )),
-                array($this->packagesAndState(array('vendor/package1'), PathMappingState::CONFLICT), array(
-                    $conflictMappingPackage11,
-                    $conflictMappingPackage12,
+                array($this->modulesAndState(array('vendor/module1'), PathMappingState::CONFLICT), array(
+                    $conflictMappingModule11,
+                    $conflictMappingModule12,
                 )),
-                array($this->packagesAndState(array('vendor/package2'), PathMappingState::CONFLICT), array(
-                    $conflictMappingPackage21,
-                    $conflictMappingPackage22,
+                array($this->modulesAndState(array('vendor/module2'), PathMappingState::CONFLICT), array(
+                    $conflictMappingModule21,
+                    $conflictMappingModule22,
                 )),
-                array($this->packagesAndState(array('vendor/root', 'vendor/package1'), PathMappingState::CONFLICT), array(
+                array($this->modulesAndState(array('vendor/root', 'vendor/module1'), PathMappingState::CONFLICT), array(
                     $conflictMappingRoot1,
-                    $conflictMappingPackage11,
-                    $conflictMappingPackage12,
+                    $conflictMappingModule11,
+                    $conflictMappingModule12,
                 )),
-                array($this->packagesAndState(array('vendor/root', 'vendor/package2'), PathMappingState::CONFLICT), array(
+                array($this->modulesAndState(array('vendor/root', 'vendor/module2'), PathMappingState::CONFLICT), array(
                     $conflictMappingRoot1,
-                    $conflictMappingPackage21,
-                    $conflictMappingPackage22,
+                    $conflictMappingModule21,
+                    $conflictMappingModule22,
                 )),
-                array($this->packagesAndState(array('vendor/package1', 'vendor/package2'), PathMappingState::CONFLICT), array(
-                    $conflictMappingPackage11,
-                    $conflictMappingPackage12,
-                    $conflictMappingPackage21,
-                    $conflictMappingPackage22,
+                array($this->modulesAndState(array('vendor/module1', 'vendor/module2'), PathMappingState::CONFLICT), array(
+                    $conflictMappingModule11,
+                    $conflictMappingModule12,
+                    $conflictMappingModule21,
+                    $conflictMappingModule22,
                 )),
-                array($this->packagesAndState(array('vendor/root', 'vendor/package1', 'vendor/package2'), PathMappingState::CONFLICT), array(
+                array($this->modulesAndState(array('vendor/root', 'vendor/module1', 'vendor/module2'), PathMappingState::CONFLICT), array(
                     $conflictMappingRoot1,
-                    $conflictMappingPackage11,
-                    $conflictMappingPackage12,
-                    $conflictMappingPackage21,
-                    $conflictMappingPackage22,
+                    $conflictMappingModule11,
+                    $conflictMappingModule12,
+                    $conflictMappingModule21,
+                    $conflictMappingModule22,
                 )),
             )));
     }
 
-    private function packageAndState($moduleName, $state)
+    private function moduleAndState($moduleName, $state)
     {
         return Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
             ->andMethod('getState', Expr::same($state));
     }
 
-    private function packagesAndState(array $moduleNames, $state)
+    private function modulesAndState(array $moduleNames, $state)
     {
         return Expr::method('getContainingModule', Expr::method('getName', Expr::in($moduleNames)))
             ->andMethod('getState', Expr::same($state));

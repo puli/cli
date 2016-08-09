@@ -33,7 +33,7 @@ class PluginCommandHandler
     /**
      * Creates the handler.
      *
-     * @param RootModuleFileManager $manager The root package file manager
+     * @param RootModuleFileManager $manager The root module file manager
      */
     public function __construct(RootModuleFileManager $manager)
     {

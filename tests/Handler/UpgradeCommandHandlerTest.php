@@ -13,9 +13,9 @@ namespace Puli\Cli\Tests\Handler;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Puli\Cli\Handler\UpgradeCommandHandler;
-use Puli\Manager\Api\Module\ModuleFile;
 use Puli\Manager\Api\Module\RootModuleFile;
 use Puli\Manager\Api\Module\RootModuleFileManager;
+use Puli\Manager\Module\ModuleFileConverter;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
 
@@ -34,12 +34,12 @@ class UpgradeCommandHandlerTest extends AbstractCommandHandlerTest
     /**
      * @var PHPUnit_Framework_MockObject_MockObject|RootModuleFileManager
      */
-    private $packageFileManager;
+    private $moduleFileManager;
 
     /**
      * @var RootModuleFile
      */
-    private $packageFile;
+    private $moduleFile;
 
     /**
      * @var UpgradeCommandHandler
@@ -57,22 +57,22 @@ class UpgradeCommandHandlerTest extends AbstractCommandHandlerTest
     {
         parent::setUp();
 
-        $this->packageFileManager = $this->getMock('Puli\Manager\Api\Module\RootModuleFileManager');
-        $this->packageFile = new RootModuleFile();
-        $this->packageFileManager->expects($this->any())
+        $this->moduleFileManager = $this->getMock('Puli\Manager\Api\Module\RootModuleFileManager');
+        $this->moduleFile = new RootModuleFile();
+        $this->moduleFileManager->expects($this->any())
             ->method('getModuleFile')
-            ->willReturn($this->packageFile);
-        $this->handler = new UpgradeCommandHandler($this->packageFileManager);
+            ->willReturn($this->moduleFile);
+        $this->handler = new UpgradeCommandHandler($this->moduleFileManager);
     }
 
     public function testUpgradeToDefaultVersion()
     {
         $args = self::$upgradeCommand->parseArgs(new StringArgs(''));
-        $defaultVersion = ModuleFile::DEFAULT_VERSION;
+        $defaultVersion = ModuleFileConverter::VERSION;
 
-        $this->packageFile->setVersion('0.5');
+        $this->moduleFile->setVersion('0.5');
 
-        $this->packageFileManager->expects($this->once())
+        $this->moduleFileManager->expects($this->once())
             ->method('migrate')
             ->with($defaultVersion);
 
@@ -90,9 +90,9 @@ EOF;
     {
         $args = self::$upgradeCommand->parseArgs(new StringArgs('0.8'));
 
-        $this->packageFile->setVersion('0.5');
+        $this->moduleFile->setVersion('0.5');
 
-        $this->packageFileManager->expects($this->once())
+        $this->moduleFileManager->expects($this->once())
             ->method('migrate')
             ->with('0.8');
 
@@ -110,9 +110,9 @@ EOF;
     {
         $args = self::$upgradeCommand->parseArgs(new StringArgs('0.5'));
 
-        $this->packageFile->setVersion('0.5');
+        $this->moduleFile->setVersion('0.5');
 
-        $this->packageFileManager->expects($this->never())
+        $this->moduleFileManager->expects($this->never())
             ->method('migrate');
 
         $expected = <<<'EOF'

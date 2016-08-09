@@ -49,7 +49,7 @@ class TypeCommandHandler
      * Creates the handler.
      *
      * @param DiscoveryManager $discoveryManager The discovery manager
-     * @param ModuleList       $modules          The loaded packages
+     * @param ModuleList       $modules          The loaded modules
      */
     public function __construct(DiscoveryManager $discoveryManager, ModuleList $modules)
     {
@@ -67,22 +67,22 @@ class TypeCommandHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = ArgsUtil::getPackageNames($args, $this->modules);
+        $moduleNames = ArgsUtil::getModuleNames($args, $this->modules);
         $states = $this->getBindingTypeStates($args);
 
         $printStates = count($states) > 1;
-        $printPackageName = count($packageNames) > 1;
-        $printHeaders = $printStates || $printPackageName;
+        $printModuleName = count($moduleNames) > 1;
+        $printHeaders = $printStates || $printModuleName;
         $printTypeAdvice = true;
         $printBindAdvice = false;
-        $indentation = $printStates && $printPackageName ? 8
-            : ($printStates || $printPackageName ? 4 : 0);
+        $indentation = $printStates && $printModuleName ? 8
+            : ($printStates || $printModuleName ? 4 : 0);
 
         foreach ($states as $state) {
             $statePrinted = !$printStates;
 
-            foreach ($packageNames as $packageName) {
-                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+            foreach ($moduleNames as $moduleName) {
+                $expr = Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
                     ->andMethod('getState', Expr::same($state));
 
                 $bindingTypes = $this->discoveryManager->findTypeDescriptors($expr);
@@ -101,9 +101,9 @@ class TypeCommandHandler
                     $printBindAdvice = true;
                 }
 
-                if ($printPackageName) {
+                if ($printModuleName) {
                     $prefix = $printStates ? '    ' : '';
-                    $io->writeLine("{$prefix}Package: $packageName");
+                    $io->writeLine("{$prefix}Module: $moduleName");
                     $io->writeLine('');
                 }
 
@@ -203,7 +203,7 @@ class TypeCommandHandler
 
         if (!$this->discoveryManager->hasRootTypeDescriptor($typeName)) {
             throw new RuntimeException(sprintf(
-                'The type "%s" does not exist in the package "%s".',
+                'The type "%s" does not exist in the module "%s".',
                 $typeName,
                 $this->modules->getRootModuleName()
             ));

@@ -26,13 +26,13 @@ use Webmozart\Expression\Expr;
 use Webmozart\PathUtil\Path;
 
 /**
- * Handles the "package" command.
+ * Handles the "module" command.
  *
  * @since  1.0
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PackageCommandHandler
+class ModuleCommandHandler
 {
     /**
      * @var array
@@ -51,7 +51,7 @@ class PackageCommandHandler
     /**
      * Creates the handler.
      *
-     * @param ModuleManager $moduleManager The package manager
+     * @param ModuleManager $moduleManager The module manager
      */
     public function __construct(ModuleManager $moduleManager)
     {
@@ -59,7 +59,7 @@ class PackageCommandHandler
     }
 
     /**
-     * Handles the "package --list" command.
+     * Handles the "module --list" command.
      *
      * @param Args $args The console arguments
      * @param IO   $io   The I/O
@@ -68,19 +68,19 @@ class PackageCommandHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $packages = $this->getSelectedPackages($args);
+        $modules = $this->getSelectedModules($args);
 
         if ($args->isOptionSet('format')) {
-            $this->printPackagesWithFormat($io, $packages, $args->getOption('format'));
+            $this->printModulesWithFormat($io, $modules, $args->getOption('format'));
         } else {
-            $this->printPackagesByState($io, $packages, $this->getSelectedStates($args));
+            $this->printModulesByState($io, $modules, $this->getSelectedStates($args));
         }
 
         return 0;
     }
 
     /**
-     * Handles the "package --install" command.
+     * Handles the "module --install" command.
      *
      * @param Args $args The console arguments
      *
@@ -88,18 +88,18 @@ class PackageCommandHandler
      */
     public function handleInstall(Args $args)
     {
-        $packageName = $args->getArgument('name');
+        $moduleName = $args->getArgument('name');
         $installPath = Path::makeAbsolute($args->getArgument('path'), getcwd());
         $installer = $args->getOption('installer');
         $env = $args->isOptionSet('dev') ? Environment::DEV : Environment::PROD;
 
-        $this->moduleManager->installModule($installPath, $packageName, $installer, $env);
+        $this->moduleManager->installModule($installPath, $moduleName, $installer, $env);
 
         return 0;
     }
 
     /**
-     * Handles the "package --rename" command.
+     * Handles the "module --rename" command.
      *
      * @param Args $args The console arguments
      *
@@ -107,16 +107,16 @@ class PackageCommandHandler
      */
     public function handleRename(Args $args)
     {
-        $packageName = $args->getArgument('name');
+        $moduleName = $args->getArgument('name');
         $newName = $args->getArgument('new-name');
 
-        $this->moduleManager->renameModule($packageName, $newName);
+        $this->moduleManager->renameModule($moduleName, $newName);
 
         return 0;
     }
 
     /**
-     * Handles the "package --delete" command.
+     * Handles the "module --delete" command.
      *
      * @param Args $args The console arguments
      *
@@ -124,22 +124,22 @@ class PackageCommandHandler
      */
     public function handleDelete(Args $args)
     {
-        $packageName = $args->getArgument('name');
+        $moduleName = $args->getArgument('name');
 
-        if (!$this->moduleManager->hasModule($packageName)) {
+        if (!$this->moduleManager->hasModule($moduleName)) {
             throw new RuntimeException(sprintf(
-                'The package "%s" is not installed.',
-                $packageName
+                'The module "%s" is not installed.',
+                $moduleName
             ));
         }
 
-        $this->moduleManager->removeModule($packageName);
+        $this->moduleManager->removeModule($moduleName);
 
         return 0;
     }
 
     /**
-     * Handles the "package --clean" command.
+     * Handles the "module --clean" command.
      *
      * @param Args $args The console arguments
      * @param IO   $io   The I/O
@@ -159,7 +159,7 @@ class PackageCommandHandler
     }
 
     /**
-     * Returns the package states that should be displayed for the given
+     * Returns the module states that should be displayed for the given
      * console arguments.
      *
      * @param Args $args The console arguments
@@ -186,14 +186,14 @@ class PackageCommandHandler
     }
 
     /**
-     * Returns the packages that should be displayed for the given console
+     * Returns the modules that should be displayed for the given console
      * arguments.
      *
      * @param Args $args The console arguments
      *
-     * @return ModuleList The packages
+     * @return ModuleList The modules
      */
-    private function getSelectedPackages(Args $args)
+    private function getSelectedModules(Args $args)
     {
         $states = $this->getSelectedStates($args);
         $expr = Expr::true();
@@ -223,22 +223,22 @@ class PackageCommandHandler
     }
 
     /**
-     * Prints packages with intermediate headers for the package states.
+     * Prints modules with intermediate headers for the module states.
      *
      * @param IO         $io      The I/O
-     * @param ModuleList $modules The packages to print
+     * @param ModuleList $modules The modules to print
      * @param int[]      $states  The states to print
      */
-    private function printPackagesByState(IO $io, ModuleList $modules, array $states)
+    private function printModulesByState(IO $io, ModuleList $modules, array $states)
     {
         $printStates = count($states) > 1;
 
         foreach ($states as $state) {
-            $filteredPackages = array_filter($modules->toArray(), function (Module $module) use ($state) {
+            $filteredModules = array_filter($modules->toArray(), function (Module $module) use ($state) {
                 return $state === $module->getState();
             });
 
-            if (0 === count($filteredPackages)) {
+            if (0 === count($filteredModules)) {
                 continue;
             }
 
@@ -247,10 +247,10 @@ class PackageCommandHandler
             }
 
             if (ModuleState::NOT_LOADABLE === $state) {
-                $this->printNotLoadablePackages($io, $filteredPackages, $printStates);
+                $this->printNotLoadableModules($io, $filteredModules, $printStates);
             } else {
                 $styleTag = ModuleState::ENABLED === $state ? null : 'bad';
-                $this->printPackageTable($io, $filteredPackages, $styleTag, $printStates);
+                $this->printModuleTable($io, $filteredModules, $styleTag, $printStates);
             }
 
             if ($printStates) {
@@ -260,13 +260,13 @@ class PackageCommandHandler
     }
 
     /**
-     * Prints packages using the given format.
+     * Prints modules using the given format.
      *
      * @param IO         $io      The I/O
-     * @param ModuleList $modules The packages to print
+     * @param ModuleList $modules The modules to print
      * @param string     $format  The format string
      */
-    private function printPackagesWithFormat(IO $io, ModuleList $modules, $format)
+    private function printModulesWithFormat(IO $io, ModuleList $modules, $format)
     {
         /** @var Module $module */
         foreach ($modules as $module) {
@@ -283,7 +283,7 @@ class PackageCommandHandler
     }
 
     /**
-     * Prints the heading for a given package state.
+     * Prints the heading for a given module state.
      *
      * @param IO  $io          The I/O
      * @param int $ModuleState The {@link ModuleState} constant
@@ -292,18 +292,18 @@ class PackageCommandHandler
     {
         switch ($ModuleState) {
             case ModuleState::ENABLED:
-                $io->writeLine('The following packages are currently enabled:');
+                $io->writeLine('The following modules are currently enabled:');
                 $io->writeLine('');
 
                 return;
             case ModuleState::NOT_FOUND:
-                $io->writeLine('The following packages could not be found:');
-                $io->writeLine(' (use "puli package --clean" to remove)');
+                $io->writeLine('The following modules could not be found:');
+                $io->writeLine(' (use "puli module --clean" to remove)');
                 $io->writeLine('');
 
                 return;
             case ModuleState::NOT_LOADABLE:
-                $io->writeLine('The following packages could not be loaded:');
+                $io->writeLine('The following modules could not be loaded:');
                 $io->writeLine('');
 
                 return;
@@ -311,18 +311,18 @@ class PackageCommandHandler
     }
 
     /**
-     * Prints a list of packages in a table.
+     * Prints a list of modules in a table.
      *
      * @param IO          $io       The I/O
-     * @param Module[]    $modules  The packages
+     * @param Module[]    $modules  The modules
      * @param string|null $styleTag The tag used to style the output. If `null`,
      *                              the default colors are used
      * @param bool        $indent   Whether to indent the output
      */
-    private function printPackageTable(IO $io, array $modules, $styleTag = null, $indent = false)
+    private function printModuleTable(IO $io, array $modules, $styleTag = null, $indent = false)
     {
         $table = new Table(PuliTableStyle::borderless());
-        $table->setHeaderRow(array('Package Name', 'Installer', 'Env', 'Install Path'));
+        $table->setHeaderRow(array('Module Name', 'Installer', 'Env', 'Install Path'));
 
         $installerTag = $styleTag ?: 'c1';
         $envTag = $styleTag ?: 'c1';
@@ -330,15 +330,15 @@ class PackageCommandHandler
 
         ksort($modules);
 
-        foreach ($modules as $package) {
-            $packageName = $package->getName();
-            $installInfo = $package->getInstallInfo();
+        foreach ($modules as $module) {
+            $moduleName = $module->getName();
+            $installInfo = $module->getInstallInfo();
             $installPath = $installInfo ? $installInfo->getInstallPath() : '.';
             $installer = $installInfo ? $installInfo->getInstallerName() : '';
             $env = $installInfo ? $installInfo->getEnvironment() : Environment::PROD;
 
             $table->addRow(array(
-                $styleTag ? sprintf('<%s>%s</%s>', $styleTag, $packageName, $styleTag) : $packageName,
+                $styleTag ? sprintf('<%s>%s</%s>', $styleTag, $moduleName, $styleTag) : $moduleName,
                 $installer ? sprintf('<%s>%s</%s>', $installerTag, $installer, $installerTag) : '',
                 sprintf('<%s>%s</%s>', $envTag, $env, $envTag),
                 sprintf('<%s>%s</%s>', $pathTag, $installPath, $pathTag),
@@ -349,23 +349,23 @@ class PackageCommandHandler
     }
 
     /**
-     * Prints not-loadable packages in a table.
+     * Prints not-loadable modules in a table.
      *
      * @param IO       $io      The I/O
-     * @param Module[] $modules The not-loadable packages
+     * @param Module[] $modules The not-loadable modules
      * @param bool     $indent  Whether to indent the output
      */
-    private function printNotLoadablePackages(IO $io, array $modules, $indent = false)
+    private function printNotLoadableModules(IO $io, array $modules, $indent = false)
     {
         $rootDir = $this->moduleManager->getContext()->getRootDirectory();
         $table = new Table(PuliTableStyle::borderless());
-        $table->setHeaderRow(array('Package Name', 'Error'));
+        $table->setHeaderRow(array('Module Name', 'Error'));
 
         ksort($modules);
 
-        foreach ($modules as $package) {
-            $packageName = $package->getName();
-            $loadErrors = $package->getLoadErrors();
+        foreach ($modules as $module) {
+            $moduleName = $module->getName();
+            $loadErrors = $module->getLoadErrors();
             $errorMessage = '';
 
             foreach ($loadErrors as $loadError) {
@@ -382,7 +382,7 @@ class PackageCommandHandler
             $errorMessage = str_replace($rootDir.'/', '', $errorMessage);
 
             $table->addRow(array(
-                sprintf('<bad>%s</bad>', $packageName),
+                sprintf('<bad>%s</bad>', $moduleName),
                 sprintf('<bad>%s</bad>', $errorMessage),
             ));
         }

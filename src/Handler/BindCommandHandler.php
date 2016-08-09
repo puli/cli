@@ -56,7 +56,7 @@ class BindCommandHandler
      * Creates the handler.
      *
      * @param DiscoveryManager $discoveryManager The discovery manager
-     * @param ModuleList       $modules          The loaded packages
+     * @param ModuleList       $modules          The loaded modules
      */
     public function __construct(DiscoveryManager $discoveryManager, ModuleList $modules)
     {
@@ -74,21 +74,21 @@ class BindCommandHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = ArgsUtil::getPackageNames($args, $this->modules);
+        $moduleNames = ArgsUtil::getModuleNames($args, $this->modules);
         $bindingStates = $this->getBindingStates($args);
 
         $printBindingState = count($bindingStates) > 1;
-        $printPackageName = count($packageNames) > 1;
-        $printHeaders = $printBindingState || $printPackageName;
+        $printModuleName = count($moduleNames) > 1;
+        $printHeaders = $printBindingState || $printModuleName;
         $printAdvice = true;
-        $indentation = $printBindingState && $printPackageName ? 8
-            : ($printBindingState || $printPackageName ? 4 : 0);
+        $indentation = $printBindingState && $printModuleName ? 8
+            : ($printBindingState || $printModuleName ? 4 : 0);
 
         foreach ($bindingStates as $bindingState) {
             $bindingStatePrinted = !$printBindingState;
 
-            foreach ($packageNames as $packageName) {
-                $expr = Expr::method('getContainingModule', Expr::method('getName', Expr::same($packageName)))
+            foreach ($moduleNames as $moduleName) {
+                $expr = Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
                     ->andMethod('getState', Expr::same($bindingState));
 
                 $descriptors = $this->discoveryManager->findBindingDescriptors($expr);
@@ -104,9 +104,9 @@ class BindCommandHandler
                     $bindingStatePrinted = true;
                 }
 
-                if ($printPackageName) {
+                if ($printModuleName) {
                     $prefix = $printBindingState ? '    ' : '';
-                    $io->writeLine(sprintf('%sPackage: %s', $prefix, $packageName));
+                    $io->writeLine(sprintf('%sModule: %s', $prefix, $moduleName));
                     $io->writeLine('');
                 }
 
@@ -183,7 +183,7 @@ class BindCommandHandler
 
         if (!$descriptorToUpdate->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
-                'Can only update bindings in the package "%s".',
+                'Can only update bindings in the module "%s".',
                 $this->modules->getRootModuleName()
             ));
         }
@@ -223,7 +223,7 @@ class BindCommandHandler
 
         if (!$bindingToRemove->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
-                'Can only delete bindings from the package "%s".',
+                'Can only delete bindings from the module "%s".',
                 $this->modules->getRootModuleName()
             ));
         }
@@ -246,7 +246,7 @@ class BindCommandHandler
 
         if ($bindingToEnable->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
-                'Cannot enable bindings in the package "%s".',
+                'Cannot enable bindings in the module "%s".',
                 $bindingToEnable->getContainingModule()->getName()
             ));
         }
@@ -269,7 +269,7 @@ class BindCommandHandler
 
         if ($bindingToDisable->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
-                'Cannot disable bindings in the package "%s".',
+                'Cannot disable bindings in the module "%s".',
                 $bindingToDisable->getContainingModule()->getName()
             ));
         }

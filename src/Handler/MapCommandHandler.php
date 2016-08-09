@@ -53,7 +53,7 @@ class MapCommandHandler
      * Creates the handler.
      *
      * @param RepositoryManager $repoManager The repository manager
-     * @param ModuleList        $modules     The loaded packages
+     * @param ModuleList        $modules     The loaded modules
      */
     public function __construct(RepositoryManager $repoManager, ModuleList $modules)
     {
@@ -71,21 +71,21 @@ class MapCommandHandler
      */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = ArgsUtil::getPackageNames($args, $this->modules);
+        $moduleNames = ArgsUtil::getModuleNames($args, $this->modules);
         $states = $this->getPathMappingStates($args);
 
         $printState = count($states) > 1;
-        $printPackageName = count($packageNames) > 1;
-        $printHeaders = $printState || $printPackageName;
+        $printModuleName = count($moduleNames) > 1;
+        $printHeaders = $printState || $printModuleName;
         $printAdvice = true;
-        $indentation = ($printState && $printPackageName) ? 8
-            : ($printState || $printPackageName ? 4 : 0);
+        $indentation = ($printState && $printModuleName) ? 8
+            : ($printState || $printModuleName ? 4 : 0);
 
         foreach ($states as $state) {
             $statePrinted = !$printState;
 
             if (PathMappingState::CONFLICT === $state) {
-                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::in($packageNames)))
+                $expr = Expr::method('getContainingModule', Expr::method('getName', Expr::in($moduleNames)))
                     ->andMethod('getState', Expr::same($state));
 
                 $mappings = $this->repoManager->findPathMappings($expr);
@@ -109,8 +109,8 @@ class MapCommandHandler
                 continue;
             }
 
-            foreach ($packageNames as $packageName) {
-                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+            foreach ($moduleNames as $moduleName) {
+                $expr = Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
                     ->andMethod('getState', Expr::same($state));
 
                 $mappings = $this->repoManager->findPathMappings($expr);
@@ -126,9 +126,9 @@ class MapCommandHandler
                     $statePrinted = true;
                 }
 
-                if ($printPackageName) {
+                if ($printModuleName) {
                     $prefix = $printState ? '    ' : '';
-                    $io->writeLine(sprintf('%sPackage: %s', $prefix, $packageName));
+                    $io->writeLine(sprintf('%sModule: %s', $prefix, $moduleName));
                     $io->writeLine('');
                 }
 
@@ -221,7 +221,7 @@ class MapCommandHandler
 
         if (!$this->repoManager->hasRootPathMapping($repositoryPath)) {
             throw new RuntimeException(sprintf(
-                'The path "%s" is not mapped in the package "%s".',
+                'The path "%s" is not mapped in the module "%s".',
                 $repositoryPath,
                 $this->modules->getRootModuleName()
             ));
@@ -310,7 +310,7 @@ class MapCommandHandler
 
             $table = new Table(PuliTableStyle::borderless());
 
-            $table->setHeaderRow(array('Package', 'Puli Path', 'Real Path(s)'));
+            $table->setHeaderRow(array('Module', 'Puli Path', 'Real Path(s)'));
 
             foreach ($conflict->getMappings() as $mapping) {
                 $table->addRow(array(
@@ -372,7 +372,7 @@ class MapCommandHandler
                 return;
             case PathMappingState::CONFLICT:
                 $io->writeLine('Some path mappings have conflicting paths:');
-                $io->writeLine(' (add the package names to the "override-order" key in puli.json to resolve)');
+                $io->writeLine(' (add the module names to the "override-order" key in puli.json to resolve)');
                 $io->writeLine('');
 
                 return;

@@ -33,7 +33,6 @@ use Puli\Cli\Proxy\RepositoryManagerProxy;
 use Puli\Manager\Api\Container;
 use Puli\Manager\Api\Context\ProjectContext;
 use Puli\Manager\Api\Module\InstallInfo;
-use Puli\Manager\Api\Module\ModuleFile;
 use Puli\Manager\Api\Server\Server;
 use Puli\Manager\Module\ModuleFileConverter;
 use Webmozart\Console\Api\Args\Format\Argument;

@@ -72,7 +72,7 @@ class PuliStrategy implements StrategyInterface
      * Retrieve the current version available remotely.
      *
      * @param Updater $updater
-     * 
+     *
      * @return string
      */
     public function getCurrentRemoteVersion(Updater $updater)
@@ -105,7 +105,7 @@ class PuliStrategy implements StrategyInterface
      * Retrieve the current version of the local phar file.
      *
      * @param Updater $updater
-     * 
+     *
      * @return string
      */
     public function getCurrentLocalVersion(Updater $updater)

@@ -176,11 +176,7 @@ class PuliBinTest extends PHPUnit_Framework_TestCase
 
         if (0 !== $status) {
             echo $output."\n";
-            echo $error = $process->getErrorOutput()."\n";
-
-            if (false !== strstr($error, 'The passed JSON did not match the schema:') && false !== strstr($error, 'The property packages is not defined')) {
-                $this->markTestSkipped('Do not skip this test when https://github.com/puli/issues/issues/198 is fixed');
-            }
+            echo $process->getErrorOutput()."\n";
         }
 
         $this->assertSame(0, $status);

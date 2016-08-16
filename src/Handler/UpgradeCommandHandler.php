@@ -11,7 +11,7 @@
 
 namespace Puli\Cli\Handler;
 
-use Puli\Manager\Api\Package\RootPackageFileManager;
+use Puli\Manager\Api\Module\RootModuleFileManager;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 
@@ -25,33 +25,33 @@ use Webmozart\Console\Api\IO\IO;
 class UpgradeCommandHandler
 {
     /**
-     * @var RootPackageFileManager
+     * @var RootModuleFileManager
      */
-    private $packageFileManager;
+    private $moduleFileManager;
 
     /**
      * Creates the command handler.
      *
-     * @param RootPackageFileManager $packageFileManager The manager of the
-     *                                                   puli.json file.
+     * @param RootModuleFileManager $moduleFileManager The manager of the
+     *                                                 puli.json file
      */
-    public function __construct(RootPackageFileManager $packageFileManager)
+    public function __construct(RootModuleFileManager $moduleFileManager)
     {
-        $this->packageFileManager = $packageFileManager;
+        $this->moduleFileManager = $moduleFileManager;
     }
 
     /**
      * Handles the "upgrade" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handle(Args $args, IO $io)
     {
-        $packageFile = $this->packageFileManager->getPackageFile();
-        $originVersion = $packageFile->getVersion();
+        $moduleFile = $this->moduleFileManager->getModuleFile();
+        $originVersion = $moduleFile->getVersion();
         $targetVersion = $args->getArgument('version');
 
         if (version_compare($originVersion, $targetVersion, '=')) {
@@ -60,7 +60,7 @@ class UpgradeCommandHandler
             return 0;
         }
 
-        $this->packageFileManager->migrate($targetVersion);
+        $this->moduleFileManager->migrate($targetVersion);
 
         $io->writeLine(sprintf(
             'Migrated your puli.json from version %s to version %s.',

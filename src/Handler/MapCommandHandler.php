@@ -13,7 +13,7 @@ namespace Puli\Cli\Handler;
 
 use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\ArgsUtil;
-use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Module\ModuleList;
 use Puli\Manager\Api\Repository\PathConflict;
 use Puli\Manager\Api\Repository\PathMapping;
 use Puli\Manager\Api\Repository\PathMappingState;
@@ -40,9 +40,9 @@ class MapCommandHandler
     private $repoManager;
 
     /**
-     * @var PackageCollection
+     * @var ModuleList
      */
-    private $packages;
+    private $modules;
 
     /**
      * @var string
@@ -52,40 +52,40 @@ class MapCommandHandler
     /**
      * Creates the handler.
      *
-     * @param RepositoryManager $repoManager The repository manager.
-     * @param PackageCollection $packages    The loaded packages.
+     * @param RepositoryManager $repoManager The repository manager
+     * @param ModuleList        $modules     The loaded modules
      */
-    public function __construct(RepositoryManager $repoManager, PackageCollection $packages)
+    public function __construct(RepositoryManager $repoManager, ModuleList $modules)
     {
         $this->repoManager = $repoManager;
-        $this->packages = $packages;
+        $this->modules = $modules;
     }
 
     /**
      * Handles the "puli map --list" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
+        $moduleNames = ArgsUtil::getModuleNames($args, $this->modules);
         $states = $this->getPathMappingStates($args);
 
         $printState = count($states) > 1;
-        $printPackageName = count($packageNames) > 1;
-        $printHeaders = $printState || $printPackageName;
+        $printModuleName = count($moduleNames) > 1;
+        $printHeaders = $printState || $printModuleName;
         $printAdvice = true;
-        $indentation = ($printState && $printPackageName) ? 8
-            : ($printState || $printPackageName ? 4 : 0);
+        $indentation = ($printState && $printModuleName) ? 8
+            : ($printState || $printModuleName ? 4 : 0);
 
         foreach ($states as $state) {
             $statePrinted = !$printState;
 
             if (PathMappingState::CONFLICT === $state) {
-                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::in($packageNames)))
+                $expr = Expr::method('getContainingModule', Expr::method('getName', Expr::in($moduleNames)))
                     ->andMethod('getState', Expr::same($state));
 
                 $mappings = $this->repoManager->findPathMappings($expr);
@@ -109,8 +109,8 @@ class MapCommandHandler
                 continue;
             }
 
-            foreach ($packageNames as $packageName) {
-                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+            foreach ($moduleNames as $moduleName) {
+                $expr = Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
                     ->andMethod('getState', Expr::same($state));
 
                 $mappings = $this->repoManager->findPathMappings($expr);
@@ -126,9 +126,9 @@ class MapCommandHandler
                     $statePrinted = true;
                 }
 
-                if ($printPackageName) {
+                if ($printModuleName) {
                     $prefix = $printState ? '    ' : '';
-                    $io->writeLine(sprintf('%sPackage: %s', $prefix, $packageName));
+                    $io->writeLine(sprintf('%sModule: %s', $prefix, $moduleName));
                     $io->writeLine('');
                 }
 
@@ -150,9 +150,9 @@ class MapCommandHandler
     /**
      * Handles the "puli map" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleAdd(Args $args)
     {
@@ -170,9 +170,9 @@ class MapCommandHandler
     /**
      * Handles the "puli map --update" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleUpdate(Args $args)
     {
@@ -211,9 +211,9 @@ class MapCommandHandler
     /**
      * Handles the "puli map --delete" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDelete(Args $args)
     {
@@ -221,9 +221,9 @@ class MapCommandHandler
 
         if (!$this->repoManager->hasRootPathMapping($repositoryPath)) {
             throw new RuntimeException(sprintf(
-                'The path "%s" is not mapped in the package "%s".',
+                'The path "%s" is not mapped in the module "%s".',
                 $repositoryPath,
-                $this->packages->getRootPackageName()
+                $this->modules->getRootModuleName()
             ));
         }
 
@@ -235,12 +235,12 @@ class MapCommandHandler
     /**
      * Prints a list of path mappings.
      *
-     * @param IO            $io          The I/O.
-     * @param PathMapping[] $mappings    The path mappings.
+     * @param IO            $io          The I/O
+     * @param PathMapping[] $mappings    The path mappings
      * @param int           $indentation The number of spaces to indent the
-     *                                   output.
+     *                                   output
      * @param bool          $enabled     Whether the path mappings are enabled.
-     *                                   If not, the output is printed in red.
+     *                                   If not, the output is printed in red
      */
     private function printMappingTable(IO $io, array $mappings, $indentation = 0, $enabled = true)
     {
@@ -281,10 +281,10 @@ class MapCommandHandler
     /**
      * Prints a list of conflicting path mappings.
      *
-     * @param IO            $io          The I/O.
-     * @param PathMapping[] $mappings    The path mappings.
+     * @param IO            $io          The I/O
+     * @param PathMapping[] $mappings    The path mappings
      * @param int           $indentation The number of spaces to indent the
-     *                                   output.
+     *                                   output
      */
     private function printConflictTable(IO $io, array $mappings, $indentation = 0)
     {
@@ -310,11 +310,11 @@ class MapCommandHandler
 
             $table = new Table(PuliTableStyle::borderless());
 
-            $table->setHeaderRow(array('Package', 'Puli Path', 'Real Path(s)'));
+            $table->setHeaderRow(array('Module', 'Puli Path', 'Real Path(s)'));
 
             foreach ($conflict->getMappings() as $mapping) {
                 $table->addRow(array(
-                    '<bad>'.$mapping->getContainingPackage()->getName().'</bad>',
+                    '<bad>'.$mapping->getContainingModule()->getName().'</bad>',
                     '<bad>'.$mapping->getRepositoryPath().'</bad>',
                     '<bad>'.implode(', ', $mapping->getPathReferences()).'</bad>',
                 ));
@@ -332,9 +332,9 @@ class MapCommandHandler
     /**
      * Returns the path mapping states selected in the console arguments.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int[] The selected {@link PathMappingState} constants.
+     * @return int[] The selected {@link PathMappingState} constants
      */
     private function getPathMappingStates(Args $args)
     {
@@ -354,8 +354,8 @@ class MapCommandHandler
     /**
      * Prints the header for a path mapping state.
      *
-     * @param IO  $io               The I/O.
-     * @param int $pathMappingState The {@link PathMappingState} constant.
+     * @param IO  $io               The I/O
+     * @param int $pathMappingState The {@link PathMappingState} constant
      */
     private function printPathMappingStateHeader(IO $io, $pathMappingState)
     {
@@ -372,7 +372,7 @@ class MapCommandHandler
                 return;
             case PathMappingState::CONFLICT:
                 $io->writeLine('Some path mappings have conflicting paths:');
-                $io->writeLine(' (add the package names to the "override-order" key in puli.json to resolve)');
+                $io->writeLine(' (add the module names to the "override-order" key in puli.json to resolve)');
                 $io->writeLine('');
 
                 return;

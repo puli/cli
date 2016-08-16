@@ -11,7 +11,7 @@
 
 namespace Puli\Cli\Proxy;
 
-use Puli\Manager\Api\Puli;
+use Puli\Manager\Api\Container;
 use Puli\Manager\Api\Repository\PathMapping;
 use Puli\Manager\Api\Repository\RepositoryManager;
 use Webmozart\Expression\Expression;
@@ -26,17 +26,17 @@ use Webmozart\Expression\Expression;
 class RepositoryManagerProxy implements RepositoryManager
 {
     /**
-     * @var Puli
+     * @var Container
      */
     private $puli;
 
     /**
      * Creates the proxy.
      *
-     * @param Puli $puli The service locator to fetch the actual repository
-     *                   manager from.
+     * @param Container $puli The service locator to fetch the actual repository
+     *                        manager from
      */
-    public function __construct(Puli $puli)
+    public function __construct(Container $puli)
     {
         $this->puli = $puli;
     }
@@ -132,9 +132,9 @@ class RepositoryManagerProxy implements RepositoryManager
     /**
      * {@inheritdoc}
      */
-    public function getPathMapping($repositoryPath, $packageName)
+    public function getPathMapping($repositoryPath, $moduleName)
     {
-        return $this->puli->getRepositoryManager()->getPathMapping($repositoryPath, $packageName);
+        return $this->puli->getRepositoryManager()->getPathMapping($repositoryPath, $moduleName);
     }
 
     /**
@@ -156,9 +156,9 @@ class RepositoryManagerProxy implements RepositoryManager
     /**
      * {@inheritdoc}
      */
-    public function hasPathMapping($repositoryPath, $packageName)
+    public function hasPathMapping($repositoryPath, $moduleName)
     {
-        return $this->puli->getRepositoryManager()->hasPathMapping($repositoryPath, $packageName);
+        return $this->puli->getRepositoryManager()->hasPathMapping($repositoryPath, $moduleName);
     }
 
     /**

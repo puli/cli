@@ -11,10 +11,10 @@
 
 namespace Puli\Cli\Proxy;
 
+use Puli\Manager\Api\Container;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingTypeDescriptor;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
-use Puli\Manager\Api\Puli;
 use Rhumsaa\Uuid\Uuid;
 use Webmozart\Expression\Expression;
 
@@ -28,17 +28,17 @@ use Webmozart\Expression\Expression;
 class DiscoveryManagerProxy implements DiscoveryManager
 {
     /**
-     * @var Puli
+     * @var Container
      */
     private $puli;
 
     /**
      * Creates the proxy.
      *
-     * @param Puli $puli The service locator to fetch the actual discovery
-     *                   manager from.
+     * @param Container $puli The service locator to fetch the actual discovery
+     *                        manager from
      */
-    public function __construct(Puli $puli)
+    public function __construct(Container $puli)
     {
         $this->puli = $puli;
     }
@@ -126,9 +126,9 @@ class DiscoveryManagerProxy implements DiscoveryManager
     /**
      * {@inheritdoc}
      */
-    public function getTypeDescriptor($typeName, $packageName)
+    public function getTypeDescriptor($typeName, $moduleName)
     {
-        return $this->puli->getDiscoveryManager()->getTypeDescriptor($typeName, $packageName);
+        return $this->puli->getDiscoveryManager()->getTypeDescriptor($typeName, $moduleName);
     }
 
     /**
@@ -150,9 +150,9 @@ class DiscoveryManagerProxy implements DiscoveryManager
     /**
      * {@inheritdoc}
      */
-    public function hasTypeDescriptor($typeName, $packageName = null)
+    public function hasTypeDescriptor($typeName, $moduleName = null)
     {
-        return $this->puli->getDiscoveryManager()->hasTypeDescriptor($typeName, $packageName);
+        return $this->puli->getDiscoveryManager()->hasTypeDescriptor($typeName, $moduleName);
     }
 
     /**

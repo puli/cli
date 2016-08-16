@@ -19,8 +19,8 @@ use Puli\Discovery\Binding\ResourceBinding;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
-use Puli\Manager\Api\Package\PackageCollection;
-use Puli\Manager\Api\Package\RootPackage;
+use Puli\Manager\Api\Module\ModuleList;
+use Puli\Manager\Api\Module\RootModule;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
@@ -43,9 +43,9 @@ class BindCommandHandler
     private $discoveryManager;
 
     /**
-     * @var PackageCollection
+     * @var ModuleList
      */
-    private $packages;
+    private $modules;
 
     /**
      * @var string
@@ -55,40 +55,40 @@ class BindCommandHandler
     /**
      * Creates the handler.
      *
-     * @param DiscoveryManager  $discoveryManager The discovery manager.
-     * @param PackageCollection $packages         The loaded packages.
+     * @param DiscoveryManager $discoveryManager The discovery manager
+     * @param ModuleList       $modules          The loaded modules
      */
-    public function __construct(DiscoveryManager $discoveryManager, PackageCollection $packages)
+    public function __construct(DiscoveryManager $discoveryManager, ModuleList $modules)
     {
         $this->discoveryManager = $discoveryManager;
-        $this->packages = $packages;
+        $this->modules = $modules;
     }
 
     /**
      * Handles the "bind --list" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
+        $moduleNames = ArgsUtil::getModuleNames($args, $this->modules);
         $bindingStates = $this->getBindingStates($args);
 
         $printBindingState = count($bindingStates) > 1;
-        $printPackageName = count($packageNames) > 1;
-        $printHeaders = $printBindingState || $printPackageName;
+        $printModuleName = count($moduleNames) > 1;
+        $printHeaders = $printBindingState || $printModuleName;
         $printAdvice = true;
-        $indentation = $printBindingState && $printPackageName ? 8
-            : ($printBindingState || $printPackageName ? 4 : 0);
+        $indentation = $printBindingState && $printModuleName ? 8
+            : ($printBindingState || $printModuleName ? 4 : 0);
 
         foreach ($bindingStates as $bindingState) {
             $bindingStatePrinted = !$printBindingState;
 
-            foreach ($packageNames as $packageName) {
-                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+            foreach ($moduleNames as $moduleName) {
+                $expr = Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
                     ->andMethod('getState', Expr::same($bindingState));
 
                 $descriptors = $this->discoveryManager->findBindingDescriptors($expr);
@@ -104,9 +104,9 @@ class BindCommandHandler
                     $bindingStatePrinted = true;
                 }
 
-                if ($printPackageName) {
+                if ($printModuleName) {
                     $prefix = $printBindingState ? '    ' : '';
-                    $io->writeLine(sprintf('%sPackage: %s', $prefix, $packageName));
+                    $io->writeLine(sprintf('%sModule: %s', $prefix, $moduleName));
                     $io->writeLine('');
                 }
 
@@ -128,9 +128,9 @@ class BindCommandHandler
     /**
      * Handles the "bind <query> <type>" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleAdd(Args $args)
     {
@@ -167,9 +167,9 @@ class BindCommandHandler
     /**
      * Handles the "bind --update <uuid>" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleUpdate(Args $args)
     {
@@ -181,10 +181,10 @@ class BindCommandHandler
         $descriptorToUpdate = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
         $bindingToUpdate = $descriptorToUpdate->getBinding();
 
-        if (!$descriptorToUpdate->getContainingPackage() instanceof RootPackage) {
+        if (!$descriptorToUpdate->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
-                'Can only update bindings in the package "%s".',
-                $this->packages->getRootPackageName()
+                'Can only update bindings in the module "%s".',
+                $this->modules->getRootModuleName()
             ));
         }
 
@@ -213,18 +213,18 @@ class BindCommandHandler
     /**
      * Handles the "bind --delete" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDelete(Args $args)
     {
         $bindingToRemove = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
-        if (!$bindingToRemove->getContainingPackage() instanceof RootPackage) {
+        if (!$bindingToRemove->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
-                'Can only delete bindings from the package "%s".',
-                $this->packages->getRootPackageName()
+                'Can only delete bindings from the module "%s".',
+                $this->modules->getRootModuleName()
             ));
         }
 
@@ -236,18 +236,18 @@ class BindCommandHandler
     /**
      * Handles the "bind --enable" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleEnable(Args $args)
     {
         $bindingToEnable = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
-        if ($bindingToEnable->getContainingPackage() instanceof RootPackage) {
+        if ($bindingToEnable->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
-                'Cannot enable bindings in the package "%s".',
-                $bindingToEnable->getContainingPackage()->getName()
+                'Cannot enable bindings in the module "%s".',
+                $bindingToEnable->getContainingModule()->getName()
             ));
         }
 
@@ -259,18 +259,18 @@ class BindCommandHandler
     /**
      * Handles the "bind --disable" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDisable(Args $args)
     {
         $bindingToDisable = $this->getBindingByUuidPrefix($args->getArgument('uuid'));
 
-        if ($bindingToDisable->getContainingPackage() instanceof RootPackage) {
+        if ($bindingToDisable->getContainingModule() instanceof RootModule) {
             throw new RuntimeException(sprintf(
-                'Cannot disable bindings in the package "%s".',
-                $bindingToDisable->getContainingPackage()->getName()
+                'Cannot disable bindings in the module "%s".',
+                $bindingToDisable->getContainingModule()->getName()
             ));
         }
 
@@ -282,9 +282,9 @@ class BindCommandHandler
     /**
      * Returns the binding states selected in the console arguments.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int[] The selected {@link BindingState} constants.
+     * @return int[] The selected {@link BindingState} constants
      */
     private function getBindingStates(Args $args)
     {
@@ -306,12 +306,12 @@ class BindCommandHandler
     /**
      * Prints a list of binding descriptors.
      *
-     * @param IO                  $io          The I/O.
-     * @param BindingDescriptor[] $descriptors The binding descriptors.
-     * @param int                 $indentation The number of spaces to indent.
+     * @param IO                  $io          The I/O
+     * @param BindingDescriptor[] $descriptors The binding descriptors
+     * @param int                 $indentation The number of spaces to indent
      * @param bool                $enabled     Whether the binding descriptors
      *                                         are enabled. If not, the output
-     *                                         is printed in red.
+     *                                         is printed in red
      */
     private function printBindingTable(IO $io, array $descriptors, $indentation = 0, $enabled = true)
     {
@@ -372,8 +372,8 @@ class BindCommandHandler
     /**
      * Prints the header for a binding state.
      *
-     * @param IO  $io           The I/O.
-     * @param int $bindingState The {@link BindingState} constant.
+     * @param IO  $io           The I/O
+     * @param int $bindingState The {@link BindingState} constant
      */
     private function printBindingStateHeader(IO $io, $bindingState)
     {

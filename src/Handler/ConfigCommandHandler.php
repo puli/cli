@@ -13,7 +13,7 @@ namespace Puli\Cli\Handler;
 
 use Puli\Cli\Style\PuliTableStyle;
 use Puli\Cli\Util\StringUtil;
-use Puli\Manager\Api\Package\RootPackageFileManager;
+use Puli\Manager\Api\Module\RootModuleFileManager;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 use Webmozart\Console\UI\Component\Table;
@@ -28,16 +28,16 @@ use Webmozart\Console\UI\Component\Table;
 class ConfigCommandHandler
 {
     /**
-     * @var RootPackageFileManager
+     * @var RootModuleFileManager
      */
     private $manager;
 
     /**
      * Creates the handler.
      *
-     * @param RootPackageFileManager $manager The root package file manager.
+     * @param RootModuleFileManager $manager The root module file manager
      */
-    public function __construct(RootPackageFileManager $manager)
+    public function __construct(RootModuleFileManager $manager)
     {
         $this->manager = $manager;
     }
@@ -45,10 +45,10 @@ class ConfigCommandHandler
     /**
      * Handles the "config" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleList(Args $args, IO $io)
     {
@@ -77,10 +77,10 @@ class ConfigCommandHandler
     /**
      * Handles the "config <key>" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleShow(Args $args, IO $io)
     {
@@ -95,9 +95,9 @@ class ConfigCommandHandler
     /**
      * Handles the "config <key> <value>" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleSet(Args $args)
     {
@@ -111,9 +111,9 @@ class ConfigCommandHandler
     /**
      * Handles the "config -r <key>" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleReset(Args $args)
     {

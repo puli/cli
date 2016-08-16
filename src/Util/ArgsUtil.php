@@ -11,7 +11,7 @@
 
 namespace Puli\Cli\Util;
 
-use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Module\ModuleList;
 use Webmozart\Console\Api\Args\Args;
 
 /**
@@ -24,55 +24,55 @@ use Webmozart\Console\Api\Args\Args;
 class ArgsUtil
 {
     /**
-     * Returns the packages selected in the console arguments.
+     * Returns the modules selected in the console arguments.
      *
-     * @param Args              $args     The console arguments.
-     * @param PackageCollection $packages The available packages.
+     * @param Args       $args    The console arguments
+     * @param ModuleList $modules The available modules
      *
-     * @return string[] The package names.
+     * @return string[] The module names
      */
-    public static function getPackageNames(Args $args, PackageCollection $packages)
+    public static function getModuleNames(Args $args, ModuleList $modules)
     {
-        // Display all packages if "all" is set
+        // Display all modules if "all" is set
         if ($args->isOptionSet('all')) {
-            return $packages->getPackageNames();
+            return $modules->getModuleNames();
         }
 
-        $packageNames = array();
+        $moduleNames = array();
 
         if ($args->isOptionSet('root')) {
-            $packageNames[] = $packages->getRootPackage()->getName();
+            $moduleNames[] = $modules->getRootModuleName();
         }
 
-        foreach ($args->getOption('package') as $packageName) {
-            $packageNames[] = $packageName;
+        foreach ($args->getOption('module') as $moduleName) {
+            $moduleNames[] = $moduleName;
         }
 
-        return $packageNames ?: $packages->getPackageNames();
+        return $moduleNames ?: $modules->getModuleNames();
     }
 
     /**
-     * Returns the non-root packages selected in the console arguments.
+     * Returns the non-root modules selected in the console arguments.
      *
-     * @param Args              $args     The console arguments.
-     * @param PackageCollection $packages The available packages.
+     * @param Args       $args    The console arguments
+     * @param ModuleList $modules The available modules
      *
-     * @return string[] The package names.
+     * @return string[] The module names
      */
-    public static function getPackageNamesWithoutRoot(Args $args, PackageCollection $packages)
+    public static function getModuleNamesWithoutRoot(Args $args, ModuleList $modules)
     {
-        // Display all packages if "all" is set
+        // Display all modules if "all" is set
         if ($args->isOptionSet('all')) {
-            return $packages->getInstalledPackageNames();
+            return $modules->getInstalledModuleNames();
         }
 
-        $packageNames = array();
+        $moduleNames = array();
 
-        foreach ($args->getOption('package') as $packageName) {
-            $packageNames[] = $packageName;
+        foreach ($args->getOption('module') as $moduleName) {
+            $moduleNames[] = $moduleName;
         }
 
-        return $packageNames ?: $packages->getInstalledPackageNames();
+        return $moduleNames ?: $modules->getInstalledModuleNames();
     }
 
     private function __construct()

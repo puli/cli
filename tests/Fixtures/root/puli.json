@@ -1,5 +1,5 @@
 {
-    "version": "1.0",
+    "$schema": "http://puli.io/schema/2.0/manager/module#",
     "packages": {
         "puli/url-generator": {
             "install-path": "vendor/puli/url-generator"

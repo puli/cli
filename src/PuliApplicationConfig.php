@@ -19,7 +19,7 @@ use Puli\Cli\Handler\FindCommandHandler;
 use Puli\Cli\Handler\InstallerCommandHandler;
 use Puli\Cli\Handler\LsCommandHandler;
 use Puli\Cli\Handler\MapCommandHandler;
-use Puli\Cli\Handler\PackageCommandHandler;
+use Puli\Cli\Handler\ModuleCommandHandler;
 use Puli\Cli\Handler\PluginCommandHandler;
 use Puli\Cli\Handler\PublishCommandHandler;
 use Puli\Cli\Handler\SelfUpdateCommandHandler;
@@ -30,11 +30,11 @@ use Puli\Cli\Handler\UpgradeCommandHandler;
 use Puli\Cli\Handler\UrlCommandHandler;
 use Puli\Cli\Proxy\DiscoveryManagerProxy;
 use Puli\Cli\Proxy\RepositoryManagerProxy;
+use Puli\Manager\Api\Container;
 use Puli\Manager\Api\Context\ProjectContext;
-use Puli\Manager\Api\Package\InstallInfo;
-use Puli\Manager\Api\Package\PackageFile;
-use Puli\Manager\Api\Puli;
+use Puli\Manager\Api\Module\InstallInfo;
 use Puli\Manager\Api\Server\Server;
+use Puli\Manager\Module\ModuleFileConverter;
 use Webmozart\Console\Api\Args\Format\Argument;
 use Webmozart\Console\Api\Args\Format\Option;
 use Webmozart\Console\Api\Event\ConsoleEvents;
@@ -58,19 +58,19 @@ class PuliApplicationConfig extends DefaultApplicationConfig
     const VERSION = '@package_version@';
 
     /**
-     * @var Puli
+     * @var Container
      */
     private $puli;
 
     /**
      * Creates the configuration.
      *
-     * @param Puli $puli The Puli service container.
+     * @param Container $puli The Puli service container
      */
-    public function __construct(Puli $puli = null)
+    public function __construct(Container $puli = null)
     {
         // Start Puli already so that plugins can change the CLI configuration
-        $this->puli = $puli ?: new Puli(getcwd());
+        $this->puli = $puli ?: new Container(getcwd());
 
         if (!$this->puli->isStarted()) {
             $this->puli->start();
@@ -114,21 +114,21 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ConsoleEvents::PRE_HANDLE,
                 function (PreHandleEvent $event) use ($context) {
                     $io = $event->getIO();
-                    $packageFile = $context->getRootPackageFile();
+                    $moduleFile = $context->getRootModuleFile();
 
                     // Don't show warning for "upgrade" command
                     if ('upgrade' === $event->getCommand()->getName()) {
                         return;
                     }
 
-                    if (version_compare($packageFile->getVersion(), PackageFile::DEFAULT_VERSION, '<')) {
+                    if (version_compare($moduleFile->getVersion(), ModuleFileConverter::VERSION, '<')) {
                         $io->errorLine(sprintf(
                             '<warn>Warning: Your puli.json file has version %s, '.
                             'but the latest version is %s. Run "puli upgrade" to '.
                             'upgrade to %s.</warn>',
-                            $packageFile->getVersion(),
-                            PackageFile::DEFAULT_VERSION,
-                            PackageFile::DEFAULT_VERSION
+                            $moduleFile->getVersion(),
+                            ModuleFileConverter::VERSION,
+                            ModuleFileConverter::VERSION
                         ));
                     }
                 }
@@ -141,7 +141,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setHandler(function () use ($puli) {
                     return new BindCommandHandler(
                         $puli->getDiscoveryManager(),
-                        $puli->getPackageManager()->getPackages()
+                        $puli->getModuleManager()->getModules()
                     );
                 })
 
@@ -158,9 +158,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginOptionCommand('list')
                     ->markDefault()
-                    ->addOption('root', null, Option::NO_VALUE, 'Show bindings of the root package')
-                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show bindings of a package', null, 'package')
-                    ->addOption('all', 'a', Option::NO_VALUE, 'Show bindings of all packages')
+                    ->addOption('root', null, Option::NO_VALUE, 'Show bindings of the root module')
+                    ->addOption('module', 'm', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show bindings of a module', null, 'module')
+                    ->addOption('all', 'a', Option::NO_VALUE, 'Show bindings of all modules')
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled bindings')
                     ->addOption('disabled', null, Option::NO_VALUE, 'Show disabled bindings')
                     ->addOption('type-not-found', null, Option::NO_VALUE, 'Show bindings whose type is not found')
@@ -234,7 +234,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('config')
                 ->setDescription('Display and modify configuration values')
                 ->setHandler(function () use ($puli) {
-                    return new ConfigCommandHandler($puli->getRootPackageFileManager());
+                    return new ConfigCommandHandler($puli->getRootModuleFileManager());
                 })
 
                 ->beginSubCommand('list')
@@ -328,7 +328,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setHandler(function () use ($puli) {
                     return new MapCommandHandler(
                         $puli->getRepositoryManager(),
-                        $puli->getPackageManager()->getPackages()
+                        $puli->getModuleManager()->getModules()
                     );
                 })
 
@@ -342,9 +342,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginOptionCommand('list')
                     ->markDefault()
-                    ->addOption('root', null, Option::NO_VALUE, 'Show mappings of the root package')
-                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show mappings of a package', null, 'package')
-                    ->addOption('all', 'a', Option::NO_VALUE, 'Show mappings of all packages')
+                    ->addOption('root', null, Option::NO_VALUE, 'Show mappings of the root module')
+                    ->addOption('module', 'm', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show mappings of a module', null, 'module')
+                    ->addOption('all', 'a', Option::NO_VALUE, 'Show mappings of all modules')
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled mappings')
                     ->addOption('not-found', null, Option::NO_VALUE, 'Show mappings whose referenced paths do not exist')
                     ->addOption('conflict', null, Option::NO_VALUE, 'Show conflicting mappings')
@@ -368,40 +368,40 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         ;
 
         $this
-            ->beginCommand('package')
-                ->setDescription('Display the installed packages')
+            ->beginCommand('module')
+                ->setDescription('Display the installed modules')
                 ->setHandler(function () use ($puli) {
-                    return new PackageCommandHandler($puli->getPackageManager());
+                    return new ModuleCommandHandler($puli->getModuleManager());
                 })
 
                 ->beginOptionCommand('install', 'i')
-                    ->addArgument('path', Argument::REQUIRED, 'The path to the package')
-                    ->addArgument('name', Argument::OPTIONAL, 'The name of the package. Taken from puli.json if not passed.')
+                    ->addArgument('path', Argument::REQUIRED, 'The path to the module')
+                    ->addArgument('name', Argument::OPTIONAL, 'The name of the module. Taken from puli.json if not passed.')
                     ->addOption('installer', null, Option::REQUIRED_VALUE, 'The name of the installer', InstallInfo::DEFAULT_INSTALLER_NAME)
-                    ->addOption('dev', null, Option::NO_VALUE, 'Install the package in the development environment')
+                    ->addOption('dev', null, Option::NO_VALUE, 'Install the module in the development environment')
                     ->setHandlerMethod('handleInstall')
                 ->end()
 
                 ->beginOptionCommand('list')
                     ->markDefault()
-                    ->addOption('installer', null, Option::REQUIRED_VALUE, 'Show packages installed by a specific installer')
-                    ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled packages')
-                    ->addOption('not-found', null, Option::NO_VALUE, 'Show packages that could not be found')
-                    ->addOption('not-loadable', null, Option::NO_VALUE, 'Show packages that could not be loaded')
-                    ->addOption('dev', null, Option::NO_VALUE, 'Show packages of the development environment')
-                    ->addOption('prod', null, Option::NO_VALUE, 'Show packages of the production environment')
+                    ->addOption('installer', null, Option::REQUIRED_VALUE, 'Show modules installed by a specific installer')
+                    ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled modules')
+                    ->addOption('not-found', null, Option::NO_VALUE, 'Show modules that could not be found')
+                    ->addOption('not-loadable', null, Option::NO_VALUE, 'Show modules that could not be loaded')
+                    ->addOption('dev', null, Option::NO_VALUE, 'Show modules of the development environment')
+                    ->addOption('prod', null, Option::NO_VALUE, 'Show modules of the production environment')
                     ->addOption('format', null, Option::REQUIRED_VALUE, 'The format of the output. You can use the variables %name%, %install_path%, %installer% and %state% in the format string', null, 'format')
                     ->setHandlerMethod('handleList')
                 ->end()
 
                 ->beginOptionCommand('rename')
-                    ->addArgument('name', Argument::REQUIRED, 'The name of the package')
-                    ->addArgument('new-name', Argument::REQUIRED, 'The new name of the package')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the module')
+                    ->addArgument('new-name', Argument::REQUIRED, 'The new name of the module')
                     ->setHandlerMethod('handleRename')
                 ->end()
 
                 ->beginOptionCommand('delete', 'd')
-                    ->addArgument('name', Argument::REQUIRED, 'The name of the package')
+                    ->addArgument('name', Argument::REQUIRED, 'The name of the module')
                     ->setHandlerMethod('handleDelete')
                 ->end()
 
@@ -415,7 +415,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
             ->beginCommand('plugin')
                 ->setDescription('Manage the installed Puli plugins')
                 ->setHandler(function () use ($puli) {
-                    return new PluginCommandHandler($puli->getRootPackageFileManager());
+                    return new PluginCommandHandler($puli->getRootModuleFileManager());
                 })
 
                 ->beginOptionCommand('install', 'i')
@@ -547,7 +547,7 @@ class PuliApplicationConfig extends DefaultApplicationConfig
                 ->setHandler(function () use ($puli) {
                     return new TypeCommandHandler(
                         $puli->getDiscoveryManager(),
-                        $puli->getPackageManager()->getPackages()
+                        $puli->getModuleManager()->getModules()
                     );
                 })
 
@@ -562,9 +562,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
 
                 ->beginSubCommand('list')
                     ->markDefault()
-                    ->addOption('root', null, Option::NO_VALUE, 'Show types of the root package')
-                    ->addOption('package', 'p', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show types of a package', null, 'package')
-                    ->addOption('all', 'a', Option::NO_VALUE, 'Show types of all packages')
+                    ->addOption('root', null, Option::NO_VALUE, 'Show types of the root module')
+                    ->addOption('module', 'm', Option::REQUIRED_VALUE | Option::MULTI_VALUED, 'Show types of a module', null, 'module')
+                    ->addOption('all', 'a', Option::NO_VALUE, 'Show types of all modules')
                     ->addOption('enabled', null, Option::NO_VALUE, 'Show enabled types')
                     ->addOption('duplicate', null, Option::NO_VALUE, 'Show duplicate types')
                     ->setHandlerMethod('handleList')
@@ -589,9 +589,9 @@ class PuliApplicationConfig extends DefaultApplicationConfig
         $this
             ->beginCommand('upgrade')
                 ->setDescription('Upgrades puli.json to the newest version')
-                ->addArgument('version', Argument::OPTIONAL, 'The version to upgrade/downgrade to', PackageFile::DEFAULT_VERSION)
+                ->addArgument('version', Argument::OPTIONAL, 'The version to upgrade/downgrade to', ModuleFileConverter::VERSION)
                 ->setHandler(function () use ($puli) {
-                    return new UpgradeCommandHandler($puli->getRootPackageFileManager());
+                    return new UpgradeCommandHandler($puli->getRootModuleFileManager());
                 })
             ->end()
         ;

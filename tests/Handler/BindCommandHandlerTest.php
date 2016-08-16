@@ -21,11 +21,11 @@ use Puli\Discovery\Binding\ResourceBinding;
 use Puli\Manager\Api\Discovery\BindingDescriptor;
 use Puli\Manager\Api\Discovery\BindingState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
-use Puli\Manager\Api\Package\Package;
-use Puli\Manager\Api\Package\PackageCollection;
-use Puli\Manager\Api\Package\PackageFile;
-use Puli\Manager\Api\Package\RootPackage;
-use Puli\Manager\Api\Package\RootPackageFile;
+use Puli\Manager\Api\Module\Module;
+use Puli\Manager\Api\Module\ModuleFile;
+use Puli\Manager\Api\Module\ModuleList;
+use Puli\Manager\Api\Module\RootModule;
+use Puli\Manager\Api\Module\RootModuleFile;
 use Rhumsaa\Uuid\Uuid;
 use Webmozart\Console\Api\Command\Command;
 use Webmozart\Console\Args\StringArgs;
@@ -95,9 +95,9 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
     private $discoveryManager;
 
     /**
-     * @var PackageCollection
+     * @var ModuleList
      */
-    private $packages;
+    private $modules;
 
     /**
      * @var BindCommandHandler
@@ -121,12 +121,12 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
         parent::setUp();
 
         $this->discoveryManager = $this->getMock('Puli\Manager\Api\Discovery\DiscoveryManager');
-        $this->packages = new PackageCollection(array(
-            new RootPackage(new RootPackageFile('vendor/root'), '/root'),
-            new Package(new PackageFile('vendor/package1'), '/package1'),
-            new Package(new PackageFile('vendor/package2'), '/package2'),
+        $this->modules = new ModuleList(array(
+            new RootModule(new RootModuleFile('vendor/root'), '/root'),
+            new Module(new ModuleFile('vendor/module1'), '/module1'),
+            new Module(new ModuleFile('vendor/module2'), '/module2'),
         ));
-        $this->handler = new BindCommandHandler($this->discoveryManager, $this->packages);
+        $this->handler = new BindCommandHandler($this->discoveryManager, $this->modules);
     }
 
     public function testListAllBindings()
@@ -138,94 +138,94 @@ class BindCommandHandlerTest extends AbstractCommandHandlerTest
         $expected = <<<'EOF'
 The following bindings are currently enabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob                    Type
         bb5a07  /root/enabled           Foo
         cc9f22  /overridden             Foo
         47491d  BindCommandHandlerTest  Bar
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob               Type
-        970aba  /package1/enabled  Foo
+        UUID    Glob              Type
+        970aba  /module1/enabled  Foo
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        UUID    Glob               Type
-        ddb655  /package2/enabled  Foo
+        UUID    Glob              Type
+        ddb655  /module2/enabled  Foo
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob            Type
         9ac78a  /root/disabled  Foo
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob                Type
-        a0b6c7  /package1/disabled  Foo
+        UUID    Glob               Type
+        a0b6c7  /module1/disabled  Foo
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        UUID    Glob                Type
-        424d68  /package2/disabled  Foo
+        UUID    Glob               Type
+        424d68  /module2/disabled  Foo
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob                  Type
         d0e980  /root/type-not-found  Foo
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob                      Type
-        19b069  /package1/type-not-found  Foo
+        UUID    Glob                     Type
+        19b069  /module1/type-not-found  Foo
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        UUID    Glob                      Type
-        b7b2c3  /package2/type-not-found  Foo
+        UUID    Glob                     Type
+        b7b2c3  /module2/type-not-found  Foo
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob                    Type
         47491d  /root/type-not-enabled  Foo
 
-    Package: vendor/package1
+    Module: vendor/module1
+
+        UUID    Glob                      Type
+        7d26ae  /module1/type-not-enable  Foo
+
+    Module: vendor/module2
 
         UUID    Glob                       Type
-        7d26ae  /package1/type-not-enable  Foo
-
-    Package: vendor/package2
-
-        UUID    Glob                        Type
-        53e67c  /package2/type-not-enabled  Foo
+        53e67c  /module2/type-not-enabled  Foo
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob           Type
         d06707  /root/invalid  Foo
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob               Type
-        dd7458  /package1/invalid  Foo
+        UUID    Glob              Type
+        dd7458  /module1/invalid  Foo
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        UUID    Glob               Type
-        24213c  /package2/invalid  Foo
+        UUID    Glob              Type
+        24213c  /module2/invalid  Foo
 
 
 EOF;
@@ -281,41 +281,41 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListPackageBindings()
+    public function testListModuleBindings()
     {
         $this->initDefaultBindings();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--package=vendor/package1'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--module=vendor/module1'));
 
         $expected = <<<'EOF'
 The following bindings are currently enabled:
 
-    UUID    Glob               Type
-    970aba  /package1/enabled  Foo
+    UUID    Glob              Type
+    970aba  /module1/enabled  Foo
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    UUID    Glob                Type
-    a0b6c7  /package1/disabled  Foo
+    UUID    Glob               Type
+    a0b6c7  /module1/disabled  Foo
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
-    UUID    Glob                      Type
-    19b069  /package1/type-not-found  Foo
+    UUID    Glob                     Type
+    19b069  /module1/type-not-found  Foo
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
-    UUID    Glob                       Type
-    7d26ae  /package1/type-not-enable  Foo
+    UUID    Glob                      Type
+    7d26ae  /module1/type-not-enable  Foo
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    UUID    Glob               Type
-    dd7458  /package1/invalid  Foo
+    UUID    Glob              Type
+    dd7458  /module1/invalid  Foo
 
 
 EOF;
@@ -325,78 +325,78 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListRootAndPackageBindings()
+    public function testListRootAndModuleBindings()
     {
         $this->initDefaultBindings();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--root --package=vendor/package1'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--root --module=vendor/module1'));
 
         $expected = <<<'EOF'
 The following bindings are currently enabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob                    Type
         bb5a07  /root/enabled           Foo
         cc9f22  /overridden             Foo
         47491d  BindCommandHandlerTest  Bar
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob               Type
-        970aba  /package1/enabled  Foo
+        UUID    Glob              Type
+        970aba  /module1/enabled  Foo
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob            Type
         9ac78a  /root/disabled  Foo
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob                Type
-        a0b6c7  /package1/disabled  Foo
+        UUID    Glob               Type
+        a0b6c7  /module1/disabled  Foo
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob                  Type
         d0e980  /root/type-not-found  Foo
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob                      Type
-        19b069  /package1/type-not-found  Foo
+        UUID    Glob                     Type
+        19b069  /module1/type-not-found  Foo
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob                    Type
         47491d  /root/type-not-enabled  Foo
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob                       Type
-        7d26ae  /package1/type-not-enable  Foo
+        UUID    Glob                      Type
+        7d26ae  /module1/type-not-enable  Foo
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob           Type
         d06707  /root/invalid  Foo
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob               Type
-        dd7458  /package1/invalid  Foo
+        UUID    Glob              Type
+        dd7458  /module1/invalid  Foo
 
 
 EOF;
@@ -406,76 +406,76 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListMultiplePackageBindings()
+    public function testListMultipleModuleBindings()
     {
         $this->initDefaultBindings();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--package=vendor/package1 --package=vendor/package2'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--module=vendor/module1 --module=vendor/module2'));
 
         $expected = <<<'EOF'
 The following bindings are currently enabled:
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob               Type
-        970aba  /package1/enabled  Foo
+        UUID    Glob              Type
+        970aba  /module1/enabled  Foo
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        UUID    Glob               Type
-        ddb655  /package2/enabled  Foo
+        UUID    Glob              Type
+        ddb655  /module2/enabled  Foo
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob                Type
-        a0b6c7  /package1/disabled  Foo
+        UUID    Glob               Type
+        a0b6c7  /module1/disabled  Foo
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        UUID    Glob                Type
-        424d68  /package2/disabled  Foo
+        UUID    Glob               Type
+        424d68  /module2/disabled  Foo
 
 The types of the following bindings could not be found:
  (install or create their type definitions to enable)
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob                      Type
-        19b069  /package1/type-not-found  Foo
+        UUID    Glob                     Type
+        19b069  /module1/type-not-found  Foo
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        UUID    Glob                      Type
-        b7b2c3  /package2/type-not-found  Foo
+        UUID    Glob                     Type
+        b7b2c3  /module2/type-not-found  Foo
 
 The types of the following bindings are not enabled:
  (remove the duplicate type definitions to enable)
 
-    Package: vendor/package1
+    Module: vendor/module1
+
+        UUID    Glob                      Type
+        7d26ae  /module1/type-not-enable  Foo
+
+    Module: vendor/module2
 
         UUID    Glob                       Type
-        7d26ae  /package1/type-not-enable  Foo
-
-    Package: vendor/package2
-
-        UUID    Glob                        Type
-        53e67c  /package2/type-not-enabled  Foo
+        53e67c  /module2/type-not-enabled  Foo
 
 The following bindings have invalid parameters:
  (remove the binding and add again with correct parameters)
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob               Type
-        dd7458  /package1/invalid  Foo
+        UUID    Glob              Type
+        dd7458  /module1/invalid  Foo
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        UUID    Glob               Type
-        24213c  /package2/invalid  Foo
+        UUID    Glob              Type
+        24213c  /module2/invalid  Foo
 
 
 EOF;
@@ -492,22 +492,22 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--enabled'));
 
         $expected = <<<'EOF'
-Package: vendor/root
+Module: vendor/root
 
     UUID    Glob                    Type
     bb5a07  /root/enabled           Foo
     cc9f22  /overridden             Foo
     47491d  BindCommandHandlerTest  Bar
 
-Package: vendor/package1
+Module: vendor/module1
 
-    UUID    Glob               Type
-    970aba  /package1/enabled  Foo
+    UUID    Glob              Type
+    970aba  /module1/enabled  Foo
 
-Package: vendor/package2
+Module: vendor/module2
 
-    UUID    Glob               Type
-    ddb655  /package2/enabled  Foo
+    UUID    Glob              Type
+    ddb655  /module2/enabled  Foo
 
 
 EOF;
@@ -524,20 +524,20 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--disabled'));
 
         $expected = <<<'EOF'
-Package: vendor/root
+Module: vendor/root
 
     UUID    Glob            Type
     9ac78a  /root/disabled  Foo
 
-Package: vendor/package1
+Module: vendor/module1
 
-    UUID    Glob                Type
-    a0b6c7  /package1/disabled  Foo
+    UUID    Glob               Type
+    a0b6c7  /module1/disabled  Foo
 
-Package: vendor/package2
+Module: vendor/module2
 
-    UUID    Glob                Type
-    424d68  /package2/disabled  Foo
+    UUID    Glob               Type
+    424d68  /module2/disabled  Foo
 
 
 EOF;
@@ -554,20 +554,20 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--type-not-found'));
 
         $expected = <<<'EOF'
-Package: vendor/root
+Module: vendor/root
 
     UUID    Glob                  Type
     d0e980  /root/type-not-found  Foo
 
-Package: vendor/package1
+Module: vendor/module1
 
-    UUID    Glob                      Type
-    19b069  /package1/type-not-found  Foo
+    UUID    Glob                     Type
+    19b069  /module1/type-not-found  Foo
 
-Package: vendor/package2
+Module: vendor/module2
 
-    UUID    Glob                      Type
-    b7b2c3  /package2/type-not-found  Foo
+    UUID    Glob                     Type
+    b7b2c3  /module2/type-not-found  Foo
 
 
 EOF;
@@ -584,20 +584,20 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--type-not-enabled'));
 
         $expected = <<<'EOF'
-Package: vendor/root
+Module: vendor/root
 
     UUID    Glob                    Type
     47491d  /root/type-not-enabled  Foo
 
-Package: vendor/package1
+Module: vendor/module1
+
+    UUID    Glob                      Type
+    7d26ae  /module1/type-not-enable  Foo
+
+Module: vendor/module2
 
     UUID    Glob                       Type
-    7d26ae  /package1/type-not-enable  Foo
-
-Package: vendor/package2
-
-    UUID    Glob                        Type
-    53e67c  /package2/type-not-enabled  Foo
+    53e67c  /module2/type-not-enabled  Foo
 
 
 EOF;
@@ -614,20 +614,20 @@ EOF;
         $args = self::$listCommand->parseArgs(new StringArgs('--invalid'));
 
         $expected = <<<'EOF'
-Package: vendor/root
+Module: vendor/root
 
     UUID    Glob           Type
     d06707  /root/invalid  Foo
 
-Package: vendor/package1
+Module: vendor/module1
 
-    UUID    Glob               Type
-    dd7458  /package1/invalid  Foo
+    UUID    Glob              Type
+    dd7458  /module1/invalid  Foo
 
-Package: vendor/package2
+Module: vendor/module2
 
-    UUID    Glob               Type
-    24213c  /package2/invalid  Foo
+    UUID    Glob              Type
+    24213c  /module2/invalid  Foo
 
 
 EOF;
@@ -646,40 +646,40 @@ EOF;
         $expected = <<<'EOF'
 The following bindings are currently enabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob                    Type
         bb5a07  /root/enabled           Foo
         cc9f22  /overridden             Foo
         47491d  BindCommandHandlerTest  Bar
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob               Type
-        970aba  /package1/enabled  Foo
+        UUID    Glob              Type
+        970aba  /module1/enabled  Foo
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        UUID    Glob               Type
-        ddb655  /package2/enabled  Foo
+        UUID    Glob              Type
+        ddb655  /module2/enabled  Foo
 
 The following bindings are disabled:
  (use "puli bind --enable <uuid>" to enable)
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob            Type
         9ac78a  /root/disabled  Foo
 
-    Package: vendor/package1
+    Module: vendor/module1
 
-        UUID    Glob                Type
-        a0b6c7  /package1/disabled  Foo
+        UUID    Glob               Type
+        a0b6c7  /module1/disabled  Foo
 
-    Package: vendor/package2
+    Module: vendor/module2
 
-        UUID    Glob                Type
-        424d68  /package2/disabled  Foo
+        UUID    Glob               Type
+        424d68  /module2/disabled  Foo
 
 
 EOF;
@@ -708,15 +708,15 @@ EOF;
         $this->assertEmpty($this->io->fetchErrors());
     }
 
-    public function testListEnabledBindingsFromPackage()
+    public function testListEnabledBindingsFromModule()
     {
         $this->initDefaultBindings();
 
-        $args = self::$listCommand->parseArgs(new StringArgs('--enabled --package=vendor/package2'));
+        $args = self::$listCommand->parseArgs(new StringArgs('--enabled --module=vendor/module2'));
 
         $expected = <<<'EOF'
-UUID    Glob               Type
-ddb655  /package2/enabled  Foo
+UUID    Glob              Type
+ddb655  /module2/enabled  Foo
 
 EOF;
 
@@ -730,7 +730,7 @@ EOF;
         $this->discoveryManager->expects($this->any())
             ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnFromMap(array(
-                array($this->packageAndState('vendor/root', BindingState::ENABLED), array(
+                array($this->moduleAndState('vendor/root', BindingState::ENABLED), array(
                     new BindingDescriptor(new ResourceBinding('/path', Foo::clazz, array(
                         'param1' => 'value1',
                         'param2' => 'value2',
@@ -744,7 +744,7 @@ EOF;
         $expected = <<<EOF
 The following bindings are currently enabled:
 
-    Package: vendor/root
+    Module: vendor/root
 
         UUID    Glob   Type
         bb5a07  /path  Foo (param1="value1",{$nbsp}param2="value2")
@@ -916,7 +916,7 @@ EOF;
             'param2' => 'value2',
         ), 'glob');
         $descriptor = new BindingDescriptor($binding);
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
         $uuid = $descriptor->getUuid();
 
         $this->discoveryManager->expects($this->at(0))
@@ -948,7 +948,7 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query new'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindingDescriptors')
@@ -979,7 +979,7 @@ EOF;
             'param2' => 'value2',
         ));
         $descriptor = new BindingDescriptor($binding);
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
         $uuid = $descriptor->getUuid();
 
         $this->discoveryManager->expects($this->at(0))
@@ -1014,7 +1014,7 @@ EOF;
             'param2' => 'value2',
         ), 'glob');
         $descriptor = new BindingDescriptor($binding);
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindingDescriptors')
@@ -1041,7 +1041,7 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new --force'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->at(0))
             ->method('findBindingDescriptors')
@@ -1072,7 +1072,7 @@ EOF;
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1089,13 +1089,13 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Can only update bindings in the package "vendor/root".
+     * @expectedExceptionMessage Can only update bindings in the module "vendor/root".
      */
     public function testUpdateBindingFailsIfNoRootBinding()
     {
         $args = self::$updateCommand->parseArgs(new StringArgs('ab12 --query /new'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/old', Foo::clazz));
-        $descriptor->load($this->packages->get('vendor/package1'));
+        $descriptor->load($this->modules->get('vendor/module1'));
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1114,7 +1114,7 @@ EOF;
     {
         $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1177,13 +1177,13 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Can only delete bindings from the package "vendor/root".
+     * @expectedExceptionMessage Can only delete bindings from the module "vendor/root".
      */
     public function testDeleteBindingFailsIfNoRootBinding()
     {
         $args = self::$deleteCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->get('vendor/package1'));
+        $descriptor->load($this->modules->get('vendor/module1'));
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1202,7 +1202,7 @@ EOF;
     {
         $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->get('vendor/package1'));
+        $descriptor->load($this->modules->get('vendor/module1'));
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1237,13 +1237,13 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Cannot enable bindings in the package "vendor/root".
+     * @expectedExceptionMessage Cannot enable bindings in the module "vendor/root".
      */
     public function testEnableBindingFailsIfRoot()
     {
         $args = self::$enableCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1260,7 +1260,7 @@ EOF;
     {
         $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->get('vendor/package1'));
+        $descriptor->load($this->modules->get('vendor/module1'));
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1295,13 +1295,13 @@ EOF;
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Cannot disable bindings in the package "vendor/root".
+     * @expectedExceptionMessage Cannot disable bindings in the module "vendor/root".
      */
     public function testDisableBindingFailsIfRoot()
     {
         $args = self::$disableCommand->parseArgs(new StringArgs('ab12'));
         $descriptor = new BindingDescriptor(new ResourceBinding('/path', Foo::clazz));
-        $descriptor->load($this->packages->getRootPackage());
+        $descriptor->load($this->modules->getRootModule());
 
         $this->discoveryManager->expects($this->once())
             ->method('findBindingDescriptors')
@@ -1319,59 +1319,59 @@ EOF;
         $this->discoveryManager->expects($this->any())
             ->method('findBindingDescriptors')
             ->willReturnCallback($this->returnFromMap(array(
-                array($this->packageAndState('vendor/root', BindingState::ENABLED), array(
+                array($this->moduleAndState('vendor/root', BindingState::ENABLED), array(
                     new BindingDescriptor(new ResourceBinding('/root/enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID1))),
                     new BindingDescriptor(new ResourceBinding('/overridden', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID2))),
                     new BindingDescriptor(new ClassBinding(__CLASS__, Bar::clazz, array(), Uuid::fromString(self::BINDING_UUID17))),
                 )),
-                array($this->packageAndState('vendor/root', BindingState::DISABLED), array(
+                array($this->moduleAndState('vendor/root', BindingState::DISABLED), array(
                     new BindingDescriptor(new ResourceBinding('/root/disabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID3))),
                 )),
-                array($this->packageAndState('vendor/root', BindingState::TYPE_NOT_FOUND), array(
+                array($this->moduleAndState('vendor/root', BindingState::TYPE_NOT_FOUND), array(
                     new BindingDescriptor(new ResourceBinding('/root/type-not-found', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID5))),
                 )),
-                array($this->packageAndState('vendor/root', BindingState::TYPE_NOT_ENABLED), array(
+                array($this->moduleAndState('vendor/root', BindingState::TYPE_NOT_ENABLED), array(
                     new BindingDescriptor(new ResourceBinding('/root/type-not-enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID17))),
                 )),
-                array($this->packageAndState('vendor/root', BindingState::INVALID), array(
+                array($this->moduleAndState('vendor/root', BindingState::INVALID), array(
                     new BindingDescriptor(new ResourceBinding('/root/invalid', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID6))),
                 )),
-                array($this->packageAndState('vendor/package1', BindingState::ENABLED), array(
-                    new BindingDescriptor(new ResourceBinding('/package1/enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID7))),
+                array($this->moduleAndState('vendor/module1', BindingState::ENABLED), array(
+                    new BindingDescriptor(new ResourceBinding('/module1/enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID7))),
                 )),
-                array($this->packageAndState('vendor/package1', BindingState::DISABLED), array(
-                    new BindingDescriptor(new ResourceBinding('/package1/disabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID8))),
+                array($this->moduleAndState('vendor/module1', BindingState::DISABLED), array(
+                    new BindingDescriptor(new ResourceBinding('/module1/disabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID8))),
                 )),
-                array($this->packageAndState('vendor/package1', BindingState::TYPE_NOT_FOUND), array(
-                    new BindingDescriptor(new ResourceBinding('/package1/type-not-found', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID10))),
+                array($this->moduleAndState('vendor/module1', BindingState::TYPE_NOT_FOUND), array(
+                    new BindingDescriptor(new ResourceBinding('/module1/type-not-found', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID10))),
                 )),
-                array($this->packageAndState('vendor/package1', BindingState::TYPE_NOT_ENABLED), array(
-                    new BindingDescriptor(new ResourceBinding('/package1/type-not-enable', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID18))),
+                array($this->moduleAndState('vendor/module1', BindingState::TYPE_NOT_ENABLED), array(
+                    new BindingDescriptor(new ResourceBinding('/module1/type-not-enable', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID18))),
                 )),
-                array($this->packageAndState('vendor/package1', BindingState::INVALID), array(
-                    new BindingDescriptor(new ResourceBinding('/package1/invalid', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID11))),
+                array($this->moduleAndState('vendor/module1', BindingState::INVALID), array(
+                    new BindingDescriptor(new ResourceBinding('/module1/invalid', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID11))),
                 )),
-                array($this->packageAndState('vendor/package2', BindingState::ENABLED), array(
-                    new BindingDescriptor(new ResourceBinding('/package2/enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID12))),
+                array($this->moduleAndState('vendor/module2', BindingState::ENABLED), array(
+                    new BindingDescriptor(new ResourceBinding('/module2/enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID12))),
                 )),
-                array($this->packageAndState('vendor/package2', BindingState::DISABLED), array(
-                    new BindingDescriptor(new ResourceBinding('/package2/disabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID13))),
+                array($this->moduleAndState('vendor/module2', BindingState::DISABLED), array(
+                    new BindingDescriptor(new ResourceBinding('/module2/disabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID13))),
                 )),
-                array($this->packageAndState('vendor/package2', BindingState::TYPE_NOT_FOUND), array(
-                    new BindingDescriptor(new ResourceBinding('/package2/type-not-found', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID15))),
+                array($this->moduleAndState('vendor/module2', BindingState::TYPE_NOT_FOUND), array(
+                    new BindingDescriptor(new ResourceBinding('/module2/type-not-found', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID15))),
                 )),
-                array($this->packageAndState('vendor/package2', BindingState::TYPE_NOT_ENABLED), array(
-                    new BindingDescriptor(new ResourceBinding('/package2/type-not-enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID19))),
+                array($this->moduleAndState('vendor/module2', BindingState::TYPE_NOT_ENABLED), array(
+                    new BindingDescriptor(new ResourceBinding('/module2/type-not-enabled', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID19))),
                 )),
-                array($this->packageAndState('vendor/package2', BindingState::INVALID), array(
-                    new BindingDescriptor(new ResourceBinding('/package2/invalid', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID16))),
+                array($this->moduleAndState('vendor/module2', BindingState::INVALID), array(
+                    new BindingDescriptor(new ResourceBinding('/module2/invalid', Foo::clazz, array(), 'glob', Uuid::fromString(self::BINDING_UUID16))),
                 )),
             )));
     }
 
-    private function packageAndState($packageName, $state)
+    private function moduleAndState($moduleName, $state)
     {
-        return Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+        return Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
             ->andMethod('getState', Expr::same($state));
     }
 

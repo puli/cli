@@ -19,7 +19,7 @@ use Puli\Discovery\Api\Type\BindingType;
 use Puli\Manager\Api\Discovery\BindingTypeDescriptor;
 use Puli\Manager\Api\Discovery\BindingTypeState;
 use Puli\Manager\Api\Discovery\DiscoveryManager;
-use Puli\Manager\Api\Package\PackageCollection;
+use Puli\Manager\Api\Module\ModuleList;
 use RuntimeException;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
@@ -41,48 +41,48 @@ class TypeCommandHandler
     private $discoveryManager;
 
     /**
-     * @var PackageCollection
+     * @var ModuleList
      */
-    private $packages;
+    private $modules;
 
     /**
      * Creates the handler.
      *
-     * @param DiscoveryManager  $discoveryManager The discovery manager.
-     * @param PackageCollection $packages         The loaded packages.
+     * @param DiscoveryManager $discoveryManager The discovery manager
+     * @param ModuleList       $modules          The loaded modules
      */
-    public function __construct(DiscoveryManager $discoveryManager, PackageCollection $packages)
+    public function __construct(DiscoveryManager $discoveryManager, ModuleList $modules)
     {
         $this->discoveryManager = $discoveryManager;
-        $this->packages = $packages;
+        $this->modules = $modules;
     }
 
     /**
      * Handles the "puli type --list" command.
      *
-     * @param Args $args The console arguments.
-     * @param IO   $io   The I/O.
+     * @param Args $args The console arguments
+     * @param IO   $io   The I/O
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleList(Args $args, IO $io)
     {
-        $packageNames = ArgsUtil::getPackageNames($args, $this->packages);
+        $moduleNames = ArgsUtil::getModuleNames($args, $this->modules);
         $states = $this->getBindingTypeStates($args);
 
         $printStates = count($states) > 1;
-        $printPackageName = count($packageNames) > 1;
-        $printHeaders = $printStates || $printPackageName;
+        $printModuleName = count($moduleNames) > 1;
+        $printHeaders = $printStates || $printModuleName;
         $printTypeAdvice = true;
         $printBindAdvice = false;
-        $indentation = $printStates && $printPackageName ? 8
-            : ($printStates || $printPackageName ? 4 : 0);
+        $indentation = $printStates && $printModuleName ? 8
+            : ($printStates || $printModuleName ? 4 : 0);
 
         foreach ($states as $state) {
             $statePrinted = !$printStates;
 
-            foreach ($packageNames as $packageName) {
-                $expr = Expr::method('getContainingPackage', Expr::method('getName', Expr::same($packageName)))
+            foreach ($moduleNames as $moduleName) {
+                $expr = Expr::method('getContainingModule', Expr::method('getName', Expr::same($moduleName)))
                     ->andMethod('getState', Expr::same($state));
 
                 $bindingTypes = $this->discoveryManager->findTypeDescriptors($expr);
@@ -101,9 +101,9 @@ class TypeCommandHandler
                     $printBindAdvice = true;
                 }
 
-                if ($printPackageName) {
+                if ($printModuleName) {
                     $prefix = $printStates ? '    ' : '';
-                    $io->writeLine("{$prefix}Package: $packageName");
+                    $io->writeLine("{$prefix}Module: $moduleName");
                     $io->writeLine('');
                 }
 
@@ -130,9 +130,9 @@ class TypeCommandHandler
     /**
      * Handles the "puli type --define" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDefine(Args $args)
     {
@@ -155,9 +155,9 @@ class TypeCommandHandler
     /**
      * Handles the "puli type --update" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleUpdate(Args $args)
     {
@@ -193,9 +193,9 @@ class TypeCommandHandler
     /**
      * Handles the "puli type --delete" command.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int The status code.
+     * @return int The status code
      */
     public function handleDelete(Args $args)
     {
@@ -203,9 +203,9 @@ class TypeCommandHandler
 
         if (!$this->discoveryManager->hasRootTypeDescriptor($typeName)) {
             throw new RuntimeException(sprintf(
-                'The type "%s" does not exist in the package "%s".',
+                'The type "%s" does not exist in the module "%s".',
                 $typeName,
-                $this->packages->getRootPackageName()
+                $this->modules->getRootModuleName()
             ));
         }
 
@@ -217,9 +217,9 @@ class TypeCommandHandler
     /**
      * Returns the binding type states selected in the console arguments.
      *
-     * @param Args $args The console arguments.
+     * @param Args $args The console arguments
      *
-     * @return int[] A list of {@link BindingTypeState} constants.
+     * @return int[] A list of {@link BindingTypeState} constants
      */
     private function getBindingTypeStates(Args $args)
     {
@@ -239,10 +239,10 @@ class TypeCommandHandler
     /**
      * Prints the binding types in a table.
      *
-     * @param IO                      $io          The I/O.
-     * @param BindingTypeDescriptor[] $descriptors The type descriptors to print.
+     * @param IO                      $io          The I/O
+     * @param BindingTypeDescriptor[] $descriptors The type descriptors to print
      * @param string                  $styleTag    The tag used to style the output
-     * @param int                     $indentation The number of spaces to indent.
+     * @param int                     $indentation The number of spaces to indent
      */
     private function printTypeTable(IO $io, array $descriptors, $styleTag = null, $indentation = 0)
     {
@@ -286,8 +286,8 @@ class TypeCommandHandler
     /**
      * Prints the heading for a binding type state.
      *
-     * @param IO  $io        The I/O.
-     * @param int $typeState The {@link BindingTypeState} constant.
+     * @param IO  $io        The I/O
+     * @param int $typeState The {@link BindingTypeState} constant
      */
     private function printBindingTypeState(IO $io, $typeState)
     {
